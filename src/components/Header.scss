@@ -1,0 +1,16 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+
+.header {
+  @include flex-center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 $padding-section;
+  background-color: $main-600;
+  color: white;
+  @include shadow;
+
+  &__title {
+    @include text-style(18px, 600);
+  }
+}

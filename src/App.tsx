@@ -1,26 +1,22 @@
-import { useState } from "react";
-import logo from "./assets/logo.svg";
 import "./App.css";
+import Layout from "./layouts/Layout";
+import Dashboard from "./pages/Dashboard";
+import Users from "./pages/Users";
+import Settings from "./pages/Settings";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-function App() {
-  const [count, setCount] = useState(0);
-
+const App: React.FC = () => {
   return (
-    <>
-      <div>
-        <img src={logo} className="logo" alt="Project logo" />
-      </div>
-      <h1>CCDB</h1>
-      <p className="read-the-docs">
-        Sysone Final Project 2팀 웹 사이트 입니다.
-      </p>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
-    </>
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;
