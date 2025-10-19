@@ -1,0 +1,72 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+
+.sidebar {
+  width: 240px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+   justify-content: flex-start;
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__item,
+  &__item--parent {
+    padding: 12px 20px;
+    font-size: 20px;
+    color: $gray-500;
+    cursor: pointer;
+    
+    &:hover {
+      color: $main-600;
+    }
+
+    &.active {
+      background-color: $main-0;
+      color: $main-600;
+    }
+  }
+
+  &__submenu {
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;
+  }
+
+  &__subitem {
+    padding: 8px 20px;
+    font-size: 16px;
+    color: $gray-300;
+
+    &:hover {
+      color: $main-600;
+    }
+
+    &.active {
+      background-color: $main-0;
+      color: $main-600;
+    }
+  }
+
+  .arrow {
+    color: $gray-100;
+  }
+
+  &__footer {
+    padding: 16px 20px;
+    border-top: 1px solid #eee;
+    font-size: 20px;
+    color: $gray-500;
+    margin-top: auto; // 맨 아래로 자동 배치
+  }
+}

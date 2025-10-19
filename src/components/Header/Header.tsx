@@ -4,7 +4,7 @@ import "./Header.scss";
 const Header: React.FC = () => {
   return (
     <header className="header">
-      <h1 className="header__title">CCDB Dashboard</h1>
+      <h1 className="header__title">DB Name</h1>
     </header>
   );
 };

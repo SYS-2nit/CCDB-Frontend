@@ -4,13 +4,11 @@
 .header {
   @include flex-center;
   justify-content: space-between;
-  height: 64px;
+  height: 80px;
   padding: 0 $padding-section;
-  background-color: $main-600;
-  color: white;
-  @include shadow;
+  color: $gray-700;
 
   &__title {
-    @include text-style(18px, 600);
+    @include text-style(20px, 600);
   }
 }
