@@ -1,6 +1,19 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import "./Sidebar.scss";
+import logoTextIcon from "@/assets/sidebar/logo-text.svg";
+import SidebarIcon from "@/assets/sidebar/sidebar.svg";
+import DashboardIcon from "@/assets/sidebar/dashboard.svg";
+import ClickedDashboardIcon from "@/assets/sidebar/clicked-dashboard.svg";
+import SqlIcon from "@/assets/sidebar/sql.svg";
+import AlertIcon from "@/assets/sidebar/alert.svg";
+import AnalysisIcon from "@/assets/sidebar/analysis.svg";
+import ClickedAnalysisIcon from "@/assets/sidebar/clicked-analysis.svg";
+import ImprovementIcon from "@/assets/sidebar/improvement.svg";
+import ClickedImprovementIcon from "@/assets/sidebar/clicked-improvement.svg";
+import SettingIcon from "@/assets/sidebar/setting.svg";
+import ClickedSettingIcon from "@/assets/sidebar/clicked-setting.svg";
+import SupportIcon from "@/assets/sidebar/support.svg";
 
 const Sidebar: React.FC = () => {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -11,15 +24,33 @@ const Sidebar: React.FC = () => {
 
   return (
     <aside className="sidebar">
+      {/* Header */}
       <div className="sidebar__logo">
-        <img src="/src/assets/logo.svg" alt="logo" />
-        <span>CCDB</span>
+        <img src={logoTextIcon} alt="logoTextIcon" />
+        <img src={SidebarIcon} alt="sidebar" />
       </div>
 
+      {/* Header와 Navigation 구분선 */}
+      <div className="sidebar__divider" />
+
+      {/* Navigation */}
       <nav className="sidebar__nav">
         {/* 대시보드 */}
-        <NavLink to="/" className="sidebar__item">
-          대시보드
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            `sidebar__item ${isActive ? "active" : ""}`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <img
+                src={isActive ? ClickedDashboardIcon : DashboardIcon}
+                alt="dashboard"
+              />
+              대시보드
+            </>
+          )}
         </NavLink>
 
         {/* SQL */}
@@ -27,6 +58,7 @@ const Sidebar: React.FC = () => {
           className="sidebar__item--parent"
           onClick={() => toggleMenu("sql")}
         >
+          <img src={SqlIcon} alt="sql" />
           <span>SQL</span>
           <span className="arrow">{openMenu === "sql" ? "▾" : "▸"}</span>
         </div>
@@ -49,6 +81,7 @@ const Sidebar: React.FC = () => {
           className="sidebar__item--parent"
           onClick={() => toggleMenu("alert")}
         >
+          <img src={AlertIcon} alt="alert" />
           <span>알림</span>
           <span className="arrow">{openMenu === "alert" ? "▾" : "▸"}</span>
         </div>
@@ -67,23 +100,65 @@ const Sidebar: React.FC = () => {
         )}
 
         {/* 진단 */}
-        <NavLink to="/analysis" className="sidebar__item">
-          진단
+        <NavLink
+          to="/analysis"
+          className={({ isActive }) =>
+            `sidebar__item ${isActive ? "active" : ""}`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <img
+                src={isActive ? ClickedAnalysisIcon : AnalysisIcon}
+                alt="analysis"
+              />
+              진단
+            </>
+          )}
         </NavLink>
 
         {/* 개선 */}
-        <NavLink to="/improvement" className="sidebar__item">
-          개선
+        <NavLink
+          to="/improvement"
+          className={({ isActive }) =>
+            `sidebar__item ${isActive ? "active" : ""}`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <img
+                src={isActive ? ClickedImprovementIcon : ImprovementIcon}
+                alt="improvement"
+              />
+              개선
+            </>
+          )}
         </NavLink>
 
         {/* 설정 */}
-        <NavLink to="/setting" className="sidebar__item">
-          설정
+        <NavLink
+          to="/setting"
+          className={({ isActive }) =>
+            `sidebar__item ${isActive ? "active" : ""}`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <img
+                src={isActive ? ClickedSettingIcon : SettingIcon}
+                alt="setting"
+              />
+              설정
+            </>
+          )}
         </NavLink>
       </nav>
 
-      {/* 고객센터 */}
-      <div className="sidebar__footer">고객센터</div>
+      {/* Footer */}
+      <div className="sidebar__footer">
+        <img src={SupportIcon} alt="support" />
+        고객센터
+      </div>
     </aside>
   );
 };

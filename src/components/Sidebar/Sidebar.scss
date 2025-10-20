@@ -11,21 +11,31 @@
   &__logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between; /* 자동으로 양쪽 끝으로 배치 */
     padding: 16px;
   }
 
+  &__divider {
+    height: 1px;
+    margin: 10px;
+    background-color: $gray-100;
+  }
+
   &__nav {
+    gap: 10px;
     display: flex;
     flex-direction: column;
   }
 
   &__item,
-  &__item--parent {
-    padding: 12px 20px;
+  &__item--parent,
+  &__footer {
+    display: flex;
+    padding: 20px;
     font-size: 20px;
     color: $gray-500;
     cursor: pointer;
+    gap: clamp(14px, 1vw, 20px); // 최소값, 선호값, 최대값
     
     &:hover {
       color: $main-600;
@@ -40,11 +50,12 @@
   &__submenu {
     display: flex;
     flex-direction: column;
-    padding-left: 20px;
+
   }
 
   &__subitem {
-    padding: 8px 20px;
+    padding: 20px;
+    padding-left: 64px;
     font-size: 16px;
     color: $gray-300;
 
@@ -63,10 +74,7 @@
   }
 
   &__footer {
-    padding: 16px 20px;
-    border-top: 1px solid #eee;
-    font-size: 20px;
-    color: $gray-500;
+    border-top: 1px solid $gray-100;
     margin-top: auto; // 맨 아래로 자동 배치
   }
 }
