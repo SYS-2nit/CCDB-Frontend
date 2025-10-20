@@ -11,13 +11,16 @@
   &--collapsed { 
     width: 80px;
     overflow: hidden; // 넘치는 내용 숨기기
-    
 
     .sidebar__logo img[alt="sidebarIcon"],
     .sidebar__item span,
     .sidebar__item--parent--left span,
     .sidebar__footer span,
     .arrow {
+      display: none;
+    }
+
+    .sidebar__submenu {
       display: none;
     }
 
@@ -119,4 +122,13 @@
     border-top: 1px solid $gray-100;
     margin-top: auto; // 맨 아래로 자동 배치
   }
+
+  a {
+    color: inherit; // 부모 요소의 색상 상속
+
+    &:hover {
+      color: $main-600;
+    }
+  }
+
 }

@@ -23,6 +23,10 @@ const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false); // 사이드바 축소 상태
 
   const toggleMenu = (menu: string) => {
+    // 축소된 상태에서 메뉴 클릭 시 복원
+    if (isCollapsed) {
+      setIsCollapsed(false);
+    }
     setOpenMenu(openMenu === menu ? null : menu);
   };
 
@@ -85,14 +89,14 @@ const Sidebar: React.FC = () => {
               <img
                 src={ClickedTopArrowIcon}
                 alt="clicked-top-arrow"
-                onClick={() => setIsCollapsed(true)}
+                onClick={() => setIsCollapsed(false)}
                 style={{ cursor: "pointer" }}
               />
             ) : (
               <img
                 src={BottomArrowIcon}
                 alt="bottom-arrow"
-                onClick={() => setIsCollapsed(true)}
+                onClick={() => setIsCollapsed(false)}
                 style={{ cursor: "pointer" }}
               />
             )}
@@ -201,7 +205,9 @@ const Sidebar: React.FC = () => {
       {/* Footer */}
       <div className="sidebar__footer">
         <img src={SupportIcon} alt="support" />
-        {!isCollapsed && "고객센터"}
+
+        {/* mailto: 이메일 클라이언트 자동 열기 */}
+        {!isCollapsed && <a href="mailto:devwithosk@gmail.com">고객센터</a>}
       </div>
     </aside>
   );
