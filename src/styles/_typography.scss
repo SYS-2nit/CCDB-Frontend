@@ -1,0 +1,38 @@
+// Typography 관련 스타일
+
+// 폰트 스타일 등을 체계적으로 관리하기 위해 맵 사용
+@use "sass:map";
+
+$text-style: (
+    // display 01
+    "display01": (size: 72px, weight: 600, letter-spacing: -3%, line-height: 120%),
+
+    // title 01 ~ 03
+   "title01": (size: 36px, weight: 600, letter-spacing: -3%, line-height: 130%),
+    "title02": (size: 28px, weight: 600, letter-spacing: -3%, line-height: 130%),
+    "title03": (size: 24px, weight: 600, letter-spacing: -3%, line-height: 130%),
+
+    // heading 01 ~ 04
+    "heading01": (size: 20px, weight: 600, letter-spacing: -3%, line-height: 140%),
+    "heading02": (size: 18px, weight: 600, letter-spacing: -1%, line-height: 140%),
+    "heading03": (size: 18px, weight: 500, letter-spacing: -1%, line-height: 140%),
+    "heading04": (size: 16px, weight: 600, letter-spacing: -1%, line-height: 140%),
+
+    // body 01 ~ 02
+    "body01": (size: 14px, weight: 700, letter-spacing: -2%, line-height: 150%),
+    "body02": (size: 14px, weight: 500, letter-spacing: -2%, line-height: 150%),
+
+    // label 01 ~ 02
+    "label01": (size: 12px, weight: 600, letter-spacing: -1%, line-height: 150%),
+    "label02": (size: 12px, weight: 500, letter-spacing: -1%, line-height: 150%)
+);
+
+// 재사용하기 위한 믹스인
+@mixin text-styles($key) {
+    $style: map.get($text-style, $key);
+
+    font-size: map.get($style, size);
+    font-weight: map.get($style, weight);
+    letter-spacing: map.get($style, letter-spacing);
+    line-height: map.get($style, line-height);
+}

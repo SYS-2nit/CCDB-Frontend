@@ -1,5 +1,8 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
 @use '@styles/variables' as *;
 @use '@styles/mixins' as *;
+@use "@/styles/_global.scss" as *;
 
 .sidebar {
   width: 240px;
@@ -46,6 +49,10 @@
       justify-content: center;  
       gap: 10px; 
     }
+  }
+
+  &__title {
+     @include text-styles("title03");
   }
 
   &__divider {
@@ -122,13 +129,4 @@
     border-top: 1px solid $gray-100;
     margin-top: auto; // 맨 아래로 자동 배치
   }
-
-  a {
-    color: inherit; // 부모 요소의 색상 상속
-
-    &:hover {
-      color: $main-600;
-    }
-  }
-
 }

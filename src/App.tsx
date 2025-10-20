@@ -1,4 +1,5 @@
 import "./App.css";
+import "@/styles/_global.scss";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./layouts/Layout";
 import Dashboard from "./pages/Dashboard/Dashboard";

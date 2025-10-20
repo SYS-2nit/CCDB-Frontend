@@ -8,13 +8,6 @@
   justify-content: center;
 }
 
-@mixin text-style($size, $weight: 500, $lineHeight: normal) {
-  font-size: $size;
-  font-weight: $weight;
-  line-height: $lineHeight;
-  font-family: $font-family;
-}
-
 @mixin shadow {
   box-shadow: $shadow-basic;
 }

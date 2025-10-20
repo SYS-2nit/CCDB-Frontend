@@ -2,7 +2,6 @@ import "./Sidebar.scss";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import logoIcon from "@/assets/logo.svg";
-// import logoTextIcon from "@/assets/sidebar/logo-text.svg";
 import SidebarIcon from "@/assets/sidebar/sidebar.svg";
 import DashboardIcon from "@/assets/sidebar/dashboard.svg";
 import ClickedDashboardIcon from "@/assets/sidebar/clicked-dashboard.svg";
