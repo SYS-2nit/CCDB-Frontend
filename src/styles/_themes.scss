@@ -1,0 +1,25 @@
+@use '@styles/variables' as *;
+
+/* 라이트 모드 */
+:root {
+  --color-sidebar-bg: white;
+  --color-bg: #{$gray-50};
+  --color-surface: #{$main-100};
+  --color-text: #{$gray-900};
+  --color-subtext: #{$gray-500};
+  --color-border: #{$gray-200};
+  --color-active-tap-bg: #{$main-0};
+  --color-active-tap-text: #{$main-700};
+}
+
+/* 다크 모드 */
+body.dark {
+  --color-sidebar-bg: #{$gray-800};
+  --color-bg: #{$gray-900};
+  --color-surface: #{$gray-800};
+  --color-text: white;
+  --color-subtext: #{$gray-300};
+  --color-border: #{$gray-600};
+  --color-active-tap-bg: #{$main-500};
+  --color-active-tap-text: white;
+}

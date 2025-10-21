@@ -1,0 +1,17 @@
+// 공통 함수, 반응형 등
+
+@use 'variables' as *;  
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin shadow {
+  box-shadow: $shadow-basic;
+}
+
+@mixin transition($prop: all, $time: 0.2s) {
+  transition: $prop $time ease-in-out;
+}

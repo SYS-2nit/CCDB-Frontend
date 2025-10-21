@@ -1,0 +1,140 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use "@/styles/_global.scss" as *;
+
+.sidebar {
+  width: 15%;
+  padding: 20px 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: var(--color-sidebar-bg);
+  color: var(--color-text);
+
+  // 축소
+  &--collapsed { 
+    width: 4%;
+    overflow: hidden; // 넘치는 내용 숨기기
+
+    .sidebar__logo img[alt="sidebarIcon"],
+    .sidebar__item span,
+    .sidebar__item--parent--left span,
+    .sidebar__footer span,
+    .arrow {
+      display: none;
+    }
+
+    .sidebar__submenu {
+      display: none;
+    }
+
+    .sidebar__item,
+    .sidebar__item--parent {
+      justify-content: center;
+    }
+
+    .sidebar__logo {
+      justify-content: center;
+    }
+   }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 자동으로 양쪽 끝으로 배치 */
+    padding: 0px 16px;
+
+    &--left {
+      display: flex;
+      align-items: center;  
+      justify-content: center;  
+      gap: 10px; 
+    }
+  }
+
+  &__title {
+     @include text-styles("title03");
+  }
+
+  &__divider {
+    height: 1px;
+    margin: 10px;
+    background-color: $gray-100;
+  }
+
+  &__nav {
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__item,
+  &__item--parent,
+  &__footer {
+    display: flex;
+    color: $gray-500;
+    cursor: pointer;
+    gap: clamp(14px, 1vw, 20px); // 최소값, 선호값, 최대값
+    padding: 16px;
+    align-items: center;
+    
+    &:hover {
+      color: var(var(--color-active-tap-text));
+    }
+
+    &.active {
+      background-color: var(--color-active-tap-bg);
+      color: var(--color-active-tap-text);
+    }
+  }
+
+  &__item,
+  &__item--parent {
+    &--left {
+      display: flex;
+      align-items: center;  
+      justify-content: center;  
+      gap: 10px; 
+      padding-left: 16px;
+    }
+
+    &--arrow {
+      display: flex;
+      justify-content: space-between; 
+      padding-right: 16px;
+      padding: 16px 0px;
+    }
+  }
+
+  &__submenu {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__subitem {
+    padding: 20px;
+    padding-left: 64px;
+    font-size: 16px;
+    color: $gray-300;
+
+    &:hover {
+      color: var(var(--color-active-tap-text));
+    }
+
+    &.active {
+      background-color: var(--color-active-tap-bg);
+      color: var(--color-active-tap-text);
+    }
+  }
+
+  .arrow {
+    color: $gray-100;
+  }
+
+  &__footer {
+    border-top: 1px solid $gray-100;
+    margin-top: auto; // 맨 아래로 자동 배치
+  }
+}
