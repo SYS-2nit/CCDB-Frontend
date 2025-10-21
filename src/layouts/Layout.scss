@@ -4,10 +4,11 @@
 .layout {
   display: flex;
   flex: 1;
-  width: 100%;
+  width: 100vw;
   height: 100%;
   margin: 0;
-  background-color: $gray-50;
+  background-color: var(--color-bg);
+  color: var(--color-text);
 
   &__main {
     flex: 1;

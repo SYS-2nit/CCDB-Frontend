@@ -68,6 +68,8 @@ const Sidebar: React.FC = () => {
               <img
                 src={isActive ? ClickedDashboardIcon : DashboardIcon}
                 alt="dashboard"
+                onClick={() => setIsCollapsed(false)}
+                style={{ cursor: "pointer" }}
               />
               {!isCollapsed && "대시보드"}
             </>
@@ -76,7 +78,7 @@ const Sidebar: React.FC = () => {
 
         {/* SQL */}
         <div
-          className="sidebar__item--parent"
+          className="sidebar__item--parent--arrow"
           onClick={() => toggleMenu("sql")}
         >
           <div className="sidebar__item--parent--left">
@@ -117,7 +119,7 @@ const Sidebar: React.FC = () => {
 
         {/* 알림 */}
         <div
-          className="sidebar__item--parent"
+          className="sidebar__item--parent--arrow"
           onClick={() => toggleMenu("alert")}
         >
           <div className="sidebar__item--parent--left">
@@ -158,6 +160,8 @@ const Sidebar: React.FC = () => {
               <img
                 src={isActive ? ClickedAnalysisIcon : AnalysisIcon}
                 alt="analysis"
+                onClick={() => setIsCollapsed(false)}
+                style={{ cursor: "pointer" }}
               />
               {!isCollapsed && "진단"}
             </>
@@ -176,6 +180,8 @@ const Sidebar: React.FC = () => {
               <img
                 src={isActive ? ClickedImprovementIcon : ImprovementIcon}
                 alt="improvement"
+                onClick={() => setIsCollapsed(false)}
+                style={{ cursor: "pointer" }}
               />
               {!isCollapsed && "개선"}
             </>
@@ -194,6 +200,8 @@ const Sidebar: React.FC = () => {
               <img
                 src={isActive ? ClickedSettingIcon : SettingIcon}
                 alt="setting"
+                onClick={() => setIsCollapsed(false)}
+                style={{ cursor: "pointer" }}
               />
               {!isCollapsed && "설정"}
             </>
