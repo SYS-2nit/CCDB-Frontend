@@ -74,7 +74,6 @@
   &__item--parent,
   &__footer {
     display: flex;
-    font-size: 20px;
     color: $gray-500;
     cursor: pointer;
     gap: clamp(14px, 1vw, 20px); // 최소값, 선호값, 최대값
