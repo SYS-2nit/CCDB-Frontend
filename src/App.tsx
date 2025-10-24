@@ -11,27 +11,38 @@ import SqlAnalysis from "./pages/SQL/SqlAnalysis";
 import SqlStat from "./pages/SQL/SqlStat";
 import AlertEventSetting from "./pages/Alert/AlertEventSetting";
 import AlertLog from "./pages/Alert/AlertLog";
+import Database from "./pages/Database/Database";
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          {/* SQL 관련 */}
-          <Route path="/sql/analysis" element={<SqlAnalysis />} />
-          <Route path="/sql/top" element={<SqlTop />} />
-          <Route path="/sql/stat" element={<SqlStat />} />
+      <Routes>
+        {/* ✅ Database는 Layout 없이 바로 렌더 */}
+        <Route path="/" element={<Database />} />
 
-          {/* 알림 관련 */}
-          <Route path="/alert/event-setting" element={<AlertEventSetting />} />
-          <Route path="/alert/log" element={<AlertLog />} />
-
-          <Route path="/analysis" element={<Analysis />} />
-          <Route path="/improvement" element={<Improvement />} />
-          <Route path="/setting" element={<Setting />} />
-        </Routes>
-      </Layout>
+        {/* ✅ 나머지 페이지들은 Layout 내부에 렌더 */}
+        <Route
+          path="/*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="sql/analysis" element={<SqlAnalysis />} />
+                <Route path="sql/top" element={<SqlTop />} />
+                <Route path="sql/stat" element={<SqlStat />} />
+                <Route
+                  path="alert/event-setting"
+                  element={<AlertEventSetting />}
+                />
+                <Route path="alert/log" element={<AlertLog />} />
+                <Route path="analysis" element={<Analysis />} />
+                <Route path="improvement" element={<Improvement />} />
+                <Route path="setting" element={<Setting />} />
+              </Routes>
+            </Layout>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 };

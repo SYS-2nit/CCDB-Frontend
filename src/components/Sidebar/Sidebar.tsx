@@ -53,7 +53,7 @@ const Sidebar: React.FC = () => {
       <nav className="sidebar__nav">
         {/* 대시보드 */}
         <NavLink
-          to="/"
+          to="/dashboard"
           className={({ isActive }) =>
             `sidebar__item ${isActive ? "active" : ""}`
           }
@@ -78,22 +78,22 @@ const Sidebar: React.FC = () => {
           <div className="sidebar__item--parent--left">
             <img src={SqlIcon} alt="sql" />
             <span className="sidebar__item--title">SQL</span>
+            <span className="arrow">
+              {openMenu === "sql" ? (
+                <img
+                  src={ClickedTopArrowIcon}
+                  alt="clicked-top-arrow"
+                  onClick={() => setIsCollapsed(false)}
+                />
+              ) : (
+                <img
+                  src={BottomArrowIcon}
+                  alt="bottom-arrow"
+                  onClick={() => setIsCollapsed(false)}
+                />
+              )}
+            </span>
           </div>
-          <span className="arrow">
-            {openMenu === "sql" ? (
-              <img
-                src={ClickedTopArrowIcon}
-                alt="clicked-top-arrow"
-                onClick={() => setIsCollapsed(false)}
-              />
-            ) : (
-              <img
-                src={BottomArrowIcon}
-                alt="bottom-arrow"
-                onClick={() => setIsCollapsed(false)}
-              />
-            )}
-          </span>
         </div>
         {openMenu === "sql" && (
           <div className="sidebar__submenu">
@@ -117,14 +117,14 @@ const Sidebar: React.FC = () => {
           <div className="sidebar__item--parent--left">
             <img src={AlertIcon} alt="alert" />
             <span className="sidebar__item--title">알림</span>
+            <span className="arrow">
+              {openMenu === "alert" ? (
+                <img src={ClickedTopArrowIcon} alt="clicked-top-arrow" />
+              ) : (
+                <img src={BottomArrowIcon} alt="bottom-arrow" />
+              )}
+            </span>
           </div>
-          <span className="arrow">
-            {openMenu === "alert" ? (
-              <img src={ClickedTopArrowIcon} alt="clicked-top-arrow" />
-            ) : (
-              <img src={BottomArrowIcon} alt="bottom-arrow" />
-            )}
-          </span>
         </div>
         {openMenu === "alert" && (
           <div className="sidebar__submenu">
@@ -174,25 +174,54 @@ const Sidebar: React.FC = () => {
 
       {/* Footer */}
       <div className="sidebar__footer">
-        {/* 설정 */}
-        <div className="sidebar__footer--setting">
-          <img src={SettingIcon} alt="setting" />
-          {!isCollapsed && <span className="sidebar__item--title">설정</span>}
-        </div>
+        <div className="sidebar__nav">
+          {/* 설정 */}
+          <NavLink
+            to="/setting"
+            className={({ isActive }) =>
+              `sidebar__item ${isActive ? "active" : ""}`
+            }
+          >
+            <>
+              <img
+                src={SettingIcon}
+                alt="setting"
+                onClick={() => setIsCollapsed(false)}
+              />
+              {!isCollapsed && (
+                <span className="sidebar__item--title">설정</span>
+              )}
+            </>
+          </NavLink>
 
-        <div className="sidebar__footer--logout">
-          <img src={LogoutIcon} alt="logout" />
-          {!isCollapsed && <span className="sidebar__item--title">나가기</span>}
-        </div>
+          {/* 나가기 */}
+          <NavLink
+            to="/logout"
+            className={({ isActive }) =>
+              `sidebar__item ${isActive ? "active" : ""}`
+            }
+          >
+            <>
+              <img
+                src={LogoutIcon}
+                alt="logout"
+                onClick={() => setIsCollapsed(false)}
+              />
+              {!isCollapsed && (
+                <span className="sidebar__item--title">나가기</span>
+              )}
+            </>
+          </NavLink>
 
-        <div className="sidebar__footer--user">
-          <img src={ProfileIcon} alt="user" />
-          {!isCollapsed && (
-            <div className="user-info">
-              <span className="sidebar__item--title">유저 1</span>
-              <span className="user-email">user1@gmail.com</span>
-            </div>
-          )}
+          <div className="sidebar__item--user">
+            <img src={ProfileIcon} alt="user" />
+            {!isCollapsed && (
+              <div className="user-info">
+                <span className="sidebar__item--title">사용자</span>
+                <span className="user-email">user1@gmail.com</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </aside>

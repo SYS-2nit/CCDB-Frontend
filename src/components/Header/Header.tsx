@@ -6,7 +6,12 @@ import AlertIcon from "@/assets/header/alert.svg";
 import LightIcon from "@/assets/header/light.svg";
 import DarkIcon from "@/assets/header/dark.svg";
 
-const Header: React.FC = () => {
+// ✅ props 정의
+interface HeaderProps {
+  showTime?: boolean; // 시간 표시 영역 보이기 여부 (기본값: true)
+}
+
+const Header: React.FC<HeaderProps> = ({ showTime = true }) => {
   // 다크모드 상태 관리 (로컬스토리지 + 시스템 기본값)
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -36,7 +41,6 @@ const Header: React.FC = () => {
 
   // 현재 시간 상태
   const [currentTime, setCurrentTime] = useState(new Date());
-  // 게이지 진행 상태 (0~60초)
   const [seconds, setSeconds] = useState(currentTime.getSeconds());
 
   useEffect(() => {
@@ -52,7 +56,7 @@ const Header: React.FC = () => {
   // 게이지 채우기 비율 (0 → 100%)
   const progressPercent = (seconds / 60) * 100;
 
-  // 시간 포맷
+  // 시간 포맷 함수
   const formatDateTime = (
     date: Date,
     mode: "full" | "minuteOnly" | "timeOnly" = "full"
@@ -64,8 +68,9 @@ const Header: React.FC = () => {
     const min = String(date.getMinutes()).padStart(2, "0");
     const ss = String(date.getSeconds()).padStart(2, "0");
 
-    if (mode === "timeOnly") return `${hh}:${min}:${ss}`; // 년월일 제외
+    if (mode === "timeOnly") return `${hh}:${min}:${ss}`;
     if (mode === "minuteOnly") return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
   };
 
   return (
@@ -78,26 +83,28 @@ const Header: React.FC = () => {
           <div className="header__title">DB Name</div>
         </div>
 
-        {/* 시간 표시 */}
-        <div className="header__time">
-          <div className="header__time--wrapper">
-            <div
-              className="header__time--progress"
-              style={{
-                width: `${progressPercent}%`,
-                backgroundColor: "white",
-              }}
-            ></div>
-            <img
-              src={TimeIcon}
-              alt="Time Icon"
-              className="header__time--icon"
-            />
-            <div className="header__time--title">
-              {formatDateTime(currentTime, "timeOnly")}
+        {/* ✅ 시간 표시: showTime이 true일 때만 렌더링 */}
+        {showTime && (
+          <div className="header__time">
+            <div className="header__time--wrapper">
+              <div
+                className="header__time--progress"
+                style={{
+                  width: `${progressPercent}%`,
+                  backgroundColor: "white",
+                }}
+              ></div>
+              <img
+                src={TimeIcon}
+                alt="Time Icon"
+                className="header__time--icon"
+              />
+              <div className="header__time--title">
+                {formatDateTime(currentTime, "timeOnly")}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* 오른쪽 영역 */}

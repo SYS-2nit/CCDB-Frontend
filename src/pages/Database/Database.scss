@@ -1,0 +1,8 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+
+.background {
+    background-color: $darkmode;
+}
