@@ -3,11 +3,17 @@ import "@/styles/_global.scss";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./layouts/Layout";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import SQL from "./pages/SQL/SQL";
-import Alert from "./pages/Alert/Alert";
+import SQL from "./pages/SQL/SqlTop";
+import Alert from "./pages/Alert/AlertEventSetting";
 import Analysis from "./pages/Analysis/Analysis";
 import Improvement from "./pages/Improvement/Improvement";
 import Setting from "./pages/Setting/Setting";
+import SqlTop from "./pages/SQL/SqlTop";
+import SqlAnalysis from "./pages/SQL/SqlAnalysis";
+import SqlStat from "./pages/SQL/SqlStat";
+import AlertEventSetting from "./pages/Alert/AlertEventSetting";
+import AlertLog from "./pages/Alert/AlertLog";
+import AlertReceiveSetting from "./pages/Alert/AlertReceiveSetting";
 
 const App: React.FC = () => {
   return (
@@ -15,8 +21,19 @@ const App: React.FC = () => {
       <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/sql" element={<SQL />} />
-          <Route path="/alert" element={<Alert />} />
+          {/* SQL 관련 */}
+          <Route path="/sql/analysis" element={<SqlAnalysis />} />
+          <Route path="/sql/top" element={<SqlTop />} />
+          <Route path="/sql/stat" element={<SqlStat />} />
+
+          {/* 알림 관련 */}
+          <Route path="/alert/event-setting" element={<AlertEventSetting />} />
+          <Route
+            path="/alert/receive-setting"
+            element={<AlertReceiveSetting />}
+          />
+          <Route path="/alert/log" element={<AlertLog />} />
+
           <Route path="/analysis" element={<Analysis />} />
           <Route path="/improvement" element={<Improvement />} />
           <Route path="/setting" element={<Setting />} />

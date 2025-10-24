@@ -1,19 +1,16 @@
 import "./Sidebar.scss";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import logoIcon from "@/assets/logo.svg";
+import WhiteLogoIcon from "@/assets/logo-white.svg";
 import SidebarIcon from "@/assets/sidebar/sidebar.svg";
 import DashboardIcon from "@/assets/sidebar/dashboard.svg";
-import ClickedDashboardIcon from "@/assets/sidebar/clicked-dashboard.svg";
 import SqlIcon from "@/assets/sidebar/sql.svg";
 import AlertIcon from "@/assets/sidebar/alert.svg";
 import AnalysisIcon from "@/assets/sidebar/analysis.svg";
-import ClickedAnalysisIcon from "@/assets/sidebar/clicked-analysis.svg";
 import ImprovementIcon from "@/assets/sidebar/improvement.svg";
-import ClickedImprovementIcon from "@/assets/sidebar/clicked-improvement.svg";
 import SettingIcon from "@/assets/sidebar/setting.svg";
-import ClickedSettingIcon from "@/assets/sidebar/clicked-setting.svg";
-import SupportIcon from "@/assets/sidebar/support.svg";
+import LogoutIcon from "@/assets/sidebar/logout.svg";
+import ProfileIcon from "@/assets/sidebar/profile.svg";
 import BottomArrowIcon from "@/assets/general/bottom-arrow.svg";
 import ClickedTopArrowIcon from "@/assets/general/clicked-top-arrow.svg";
 
@@ -35,10 +32,9 @@ const Sidebar: React.FC = () => {
       <div className="sidebar__logo">
         <div className="sidebar__logo--left">
           <img
-            src={logoIcon}
+            src={WhiteLogoIcon}
             alt="logoIcon"
             onClick={() => setIsCollapsed(false)} // 복원
-            style={{ cursor: "pointer" }}
           />
           {!isCollapsed && <span className="sidebar__title">CCDB</span>}
         </div>
@@ -47,7 +43,6 @@ const Sidebar: React.FC = () => {
           src={SidebarIcon}
           alt="sidebarIcon"
           onClick={() => setIsCollapsed(true)} // 축소
-          style={{ width: 28, height: 28, cursor: "pointer" }}
         />
       </div>
 
@@ -63,17 +58,16 @@ const Sidebar: React.FC = () => {
             `sidebar__item ${isActive ? "active" : ""}`
           }
         >
-          {({ isActive }) => (
-            <>
-              <img
-                src={isActive ? ClickedDashboardIcon : DashboardIcon}
-                alt="dashboard"
-                onClick={() => setIsCollapsed(false)}
-                style={{ cursor: "pointer" }}
-              />
-              {!isCollapsed && "대시보드"}
-            </>
-          )}
+          <>
+            <img
+              src={DashboardIcon}
+              alt="dashboard"
+              onClick={() => setIsCollapsed(false)}
+            />
+            {!isCollapsed && (
+              <span className="sidebar__item--title">대시보드</span>
+            )}
+          </>
         </NavLink>
 
         {/* SQL */}
@@ -83,7 +77,7 @@ const Sidebar: React.FC = () => {
         >
           <div className="sidebar__item--parent--left">
             <img src={SqlIcon} alt="sql" />
-            <span>SQL</span>
+            <span className="sidebar__item--title">SQL</span>
           </div>
           <span className="arrow">
             {openMenu === "sql" ? (
@@ -91,14 +85,12 @@ const Sidebar: React.FC = () => {
                 src={ClickedTopArrowIcon}
                 alt="clicked-top-arrow"
                 onClick={() => setIsCollapsed(false)}
-                style={{ cursor: "pointer" }}
               />
             ) : (
               <img
                 src={BottomArrowIcon}
                 alt="bottom-arrow"
                 onClick={() => setIsCollapsed(false)}
-                style={{ cursor: "pointer" }}
               />
             )}
           </span>
@@ -124,7 +116,7 @@ const Sidebar: React.FC = () => {
         >
           <div className="sidebar__item--parent--left">
             <img src={AlertIcon} alt="alert" />
-            <span>알림</span>
+            <span className="sidebar__item--title">알림</span>
           </div>
           <span className="arrow">
             {openMenu === "alert" ? (
@@ -155,17 +147,14 @@ const Sidebar: React.FC = () => {
             `sidebar__item ${isActive ? "active" : ""}`
           }
         >
-          {({ isActive }) => (
-            <>
-              <img
-                src={isActive ? ClickedAnalysisIcon : AnalysisIcon}
-                alt="analysis"
-                onClick={() => setIsCollapsed(false)}
-                style={{ cursor: "pointer" }}
-              />
-              {!isCollapsed && "진단"}
-            </>
-          )}
+          <>
+            <img
+              src={AnalysisIcon}
+              alt="analysis"
+              onClick={() => setIsCollapsed(false)}
+            />
+            {!isCollapsed && <span className="sidebar__item--title">진단</span>}
+          </>
         </NavLink>
 
         {/* 개선 */}
@@ -175,46 +164,39 @@ const Sidebar: React.FC = () => {
             `sidebar__item ${isActive ? "active" : ""}`
           }
         >
-          {({ isActive }) => (
-            <>
-              <img
-                src={isActive ? ClickedImprovementIcon : ImprovementIcon}
-                alt="improvement"
-                onClick={() => setIsCollapsed(false)}
-                style={{ cursor: "pointer" }}
-              />
-              {!isCollapsed && "개선"}
-            </>
-          )}
-        </NavLink>
-
-        {/* 설정 */}
-        <NavLink
-          to="/setting"
-          className={({ isActive }) =>
-            `sidebar__item ${isActive ? "active" : ""}`
-          }
-        >
-          {({ isActive }) => (
-            <>
-              <img
-                src={isActive ? ClickedSettingIcon : SettingIcon}
-                alt="setting"
-                onClick={() => setIsCollapsed(false)}
-                style={{ cursor: "pointer" }}
-              />
-              {!isCollapsed && "설정"}
-            </>
-          )}
+          <>
+            <img
+              src={ImprovementIcon}
+              alt="improvement"
+              onClick={() => setIsCollapsed(false)}
+            />
+            {!isCollapsed && <span className="sidebar__item--title">개선</span>}
+          </>
         </NavLink>
       </nav>
 
       {/* Footer */}
       <div className="sidebar__footer">
-        <img src={SupportIcon} alt="support" />
+        {/* 설정 */}
+        <div className="sidebar__footer--setting">
+          <img src={SettingIcon} alt="setting" />
+          {!isCollapsed && <span className="sidebar__item--title">설정</span>}
+        </div>
 
-        {/* mailto: 이메일 클라이언트 자동 열기 */}
-        {!isCollapsed && <a href="mailto:devwithosk@gmail.com">고객센터</a>}
+        <div className="sidebar__footer--logout">
+          <img src={LogoutIcon} alt="logout" />
+          {!isCollapsed && <span className="sidebar__item--title">나가기</span>}
+        </div>
+
+        <div className="sidebar__footer--user">
+          <img src={ProfileIcon} alt="user" />
+          {!isCollapsed && (
+            <div className="user-info">
+              <span className="sidebar__item--title">유저 1</span>
+              <span className="user-email">user1@gmail.com</span>
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   );
