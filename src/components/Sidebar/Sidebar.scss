@@ -15,7 +15,7 @@
 
   // 축소
   &--collapsed { 
-    width: 4%;
+    width: 10%;
     max-width: 80px;
     overflow: hidden; // 넘치는 내용 숨기기
 
@@ -56,7 +56,7 @@
   }
 
   &__title {
-     @include text-styles("title03");
+     @include text-styles("heading02");
   }
 
   &__divider {
@@ -66,7 +66,6 @@
   }
 
   &__nav {
-    gap: 10px;
     display: flex;
     flex-direction: column;
   }
@@ -83,7 +82,7 @@
     cursor: pointer;
 
     &--title {
-      @include text-styles("heading01");
+      @include text-styles("heading02");
     }
     
     &:hover {
