@@ -3,8 +3,6 @@ import "@/styles/_global.scss";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./layouts/Layout";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import SQL from "./pages/SQL/SqlTop";
-import Alert from "./pages/Alert/AlertEventSetting";
 import Analysis from "./pages/Analysis/Analysis";
 import Improvement from "./pages/Improvement/Improvement";
 import Setting from "./pages/Setting/Setting";
