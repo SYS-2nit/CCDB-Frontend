@@ -131,9 +131,6 @@ const Sidebar: React.FC = () => {
             <NavLink to="/alert/event-setting" className="sidebar__subitem">
               이벤트 설정
             </NavLink>
-            <NavLink to="/alert/receive-setting" className="sidebar__subitem">
-              이벤트 수신 설정
-            </NavLink>
             <NavLink to="/alert/log" className="sidebar__subitem">
               이벤트 기록
             </NavLink>

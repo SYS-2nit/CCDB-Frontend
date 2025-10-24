@@ -11,7 +11,6 @@ import SqlAnalysis from "./pages/SQL/SqlAnalysis";
 import SqlStat from "./pages/SQL/SqlStat";
 import AlertEventSetting from "./pages/Alert/AlertEventSetting";
 import AlertLog from "./pages/Alert/AlertLog";
-import AlertReceiveSetting from "./pages/Alert/AlertReceiveSetting";
 
 const App: React.FC = () => {
   return (
@@ -26,10 +25,6 @@ const App: React.FC = () => {
 
           {/* 알림 관련 */}
           <Route path="/alert/event-setting" element={<AlertEventSetting />} />
-          <Route
-            path="/alert/receive-setting"
-            element={<AlertReceiveSetting />}
-          />
           <Route path="/alert/log" element={<AlertLog />} />
 
           <Route path="/analysis" element={<Analysis />} />
