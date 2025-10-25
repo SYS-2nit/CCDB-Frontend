@@ -10,16 +10,28 @@ const Dashboard: React.FC = () => {
     setIsSettingOpen((prev) => !prev);
   };
 
+  const chartTitles = [
+    "PGA / SGA 압박률",
+    "Wait Class 분포",
+    "세션 한도 상태",
+    "핵심 테이블스페이스 여유율",
+    "백그라운드 프로세스 상태",
+    "제한 근접 파라미터 상태",
+    "CPU 상태",
+    "I/O 지연량",
+    "I/O 처리량",
+  ];
+
   return (
     <div
       className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}
     >
       <div className="dashboard__grid">
-        {Array.from({ length: 9 }).map((_, i) => (
+        {chartTitles.map((title, i) => (
           <ChartCard
             key={i}
-            title={`Title ${i + 1}`}
-            status={i === 7 || i === 8 ? "warning" : "normal"}
+            title={title}
+            status={i === 7 ? "warning" : "normal"}
             onSettingClick={handleSettingToggle}
           />
         ))}
