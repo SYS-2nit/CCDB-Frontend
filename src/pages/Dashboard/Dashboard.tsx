@@ -3,6 +3,7 @@ import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
 import ChartSetting from "@/components/Card/ChartSetting";
 import { chartData, type TabType } from "./data/chartData";
+import StatusCard from "@/components/Card/StatusCard";
 
 const Dashboard: React.FC = () => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
@@ -42,7 +43,18 @@ const Dashboard: React.FC = () => {
 
       {/* 메인 콘텐츠 */}
       <div className="dashboard__content">
+        {/* 차트 그리드 */}
         <div className="dashboard__grid">
+          {/* CPU 탭일 때만 상태 카드 표시 */}
+          {activeTab !== "main" && (
+            <div className="dashboard__status-cards">
+              <StatusCard label="무해" value={0} color="safe" />
+              <StatusCard label="주의" value={0} color="warning" />
+              <StatusCard label="위험" value={0} color="danger" />
+              <StatusCard label="치명" value={0} color="critical" />
+            </div>
+          )}
+
           {chartTitles.map((title, i) => (
             <ChartCard
               key={i}

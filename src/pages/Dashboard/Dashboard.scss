@@ -74,4 +74,11 @@
       flex-direction: column;
     }
   }
+
+  /* 상태 카드 */
+  &__status-cards {
+    display: grid;
+    gap: 5px;
+    grid-template-columns: repeat(4, 1fr);
+  }
 }

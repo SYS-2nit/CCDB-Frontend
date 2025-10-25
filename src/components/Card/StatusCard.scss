@@ -1,0 +1,43 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.status-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 16px;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  height: 100px;
+  min-width: 120px;
+  flex: 1;
+
+  &__label {
+    @include text-styles("heading04");
+  }
+
+  &__value {
+    @include text-styles("title01");
+  }
+
+  &--safe {
+    background-color: $sematic-success 
+  }
+
+  &--warning {
+    background-color: $sematic-warning;
+  }
+
+  &--danger {
+    background-color: $sematic-error;
+  }
+
+  &--critical {
+    background-color: $gray-900; 
+  }
+}
