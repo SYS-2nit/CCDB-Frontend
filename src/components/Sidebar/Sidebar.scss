@@ -59,7 +59,8 @@
   }
 
   &__title {
-     @include text-styles("heading02");
+    color: $gray-0;
+    @include text-styles("title03");
   }
 
   &__divider {

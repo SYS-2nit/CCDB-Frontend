@@ -5,7 +5,7 @@ import SuccessIcon from "@/assets/general/success.svg";
 import SettingIcon from "@/assets/general/setting.svg";
 import InfoIcon from "@/assets/general/info.svg";
 import DragIcon from "@/assets/general/drag.svg";
-import ApexChart from "../Chart/ApexChart";
+import LineChart from "../Chart/LineChart";
 
 interface ChartCardProps {
   title: string;
@@ -46,7 +46,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
       </div>
 
       <div className="chart-card__body">
-        <ApexChart type="area" height={135} />
+        <LineChart />
         {/* <div className="chart-placeholder">차트를 불러올 수 없습니다.</div> */}
       </div>
     </div>
