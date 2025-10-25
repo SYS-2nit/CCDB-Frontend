@@ -1,5 +1,4 @@
 import React from "react";
-import "./TableChart.scss";
 
 const TableChart: React.FC = () => {
   const columns = ["Text", "Text", "Text", "Text", "Text", "Text"];

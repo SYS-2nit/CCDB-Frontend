@@ -6,7 +6,7 @@ export const chartData: Record<TabType, string[]> = {
   main: [
     "PGA / SGA 압박률",
     "Wait Class 분포",
-    "세션 한도 상태",
+    "Session 한도 상태",
     "핵심 테이블스페이스 여유율",
     "백그라운드 프로세스 상태",
     "제한 근접 파라미터 상태",

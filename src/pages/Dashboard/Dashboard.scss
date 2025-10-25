@@ -13,8 +13,7 @@
 
   /* 탭 메뉴 */
   &__tabs {
-    display: flex;
-    gap: 20px;
+    display: flex;;
     margin-bottom: 20px;
 
     button {
@@ -31,7 +30,7 @@
       }
 
       &:hover {
-        color: $gray-600;
+        color: $main-600;
       }
     }
   }
@@ -51,7 +50,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-auto-rows: 1fr;
-    gap: 20px;
+    gap: 10px;
     height: 100%;
     overflow: hidden;
   }

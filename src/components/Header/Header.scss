@@ -43,7 +43,7 @@
       position: relative;
       align-items: center;
       justify-content: center;
-      padding: 8px 16px;
+      padding: 8px 10px;
       border-radius: 24px;
       border: 1px solid $gray-0;
       overflow: hidden; // 게이지 영역만 흰색 차도록
@@ -56,20 +56,20 @@
       left: 0;
       height: 100%;
       border-radius: 24px;
-      background-color: white;
-      transition: width 1s linear;
+      background-color: $gray-0;
     }
 
     // 아이콘 (게이지 안 왼쪽)
     &--icon {
       position: relative;
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
     }
 
     // 시간 텍스트
     &--title {
       position: relative;
+      @include text-styles("label02");
       color: $gray-500;
     }
   }
@@ -80,7 +80,7 @@
     align-items: center;
     padding: 10px;
     border-radius: 24px;
-    background-color: white;
+    background-color: $gray-0;
   }
 
   // 라이트 / 다크 모드 
@@ -91,7 +91,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 24px;
-    background-color: white;
+    background-color: $gray-0;
     cursor: pointer;
 
     // 각 아이콘 컨테이너
