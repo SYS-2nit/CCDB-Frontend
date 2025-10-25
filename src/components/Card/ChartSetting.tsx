@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import "./ChartSetting.scss";
 import SearchIcon from "@/assets/general/search.svg";
-import { performanceGraphs, preventionGraphs } from "./chartConfig"; // ✅ 추가
+import { performanceGraphs, preventionGraphs } from "./chartConfig";
 
 interface ChartSettingProps {
   onClose: () => void;
@@ -12,33 +12,75 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose }) => {
     "performance"
   );
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const handleCheckboxChange = (index: number) => {
-    setSelectedOption((prev) => (prev === index ? null : index));
+    setSelectedOption((prev) => (prev === index ? null : index)); // 단일 선택
   };
 
-  // 현재 탭에 맞는 그래프 목록 선택
-  const graphNames =
-    activeTab === "performance" ? performanceGraphs : preventionGraphs;
+  // 전체 그래프 목록 + 탭 정보
+  const allGraphs = [
+    ...performanceGraphs.map((name) => ({
+      name,
+      tab: "performance" as const,
+    })),
+    ...preventionGraphs.map((name) => ({
+      name,
+      tab: "prevention" as const,
+    })),
+  ];
+
+  // 검색
+  const filteredGraphs = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) {
+      // 검색어 없을 때는 현재 탭만 조회
+      return allGraphs.filter((g) => g.tab === activeTab);
+    }
+
+    const results = allGraphs.filter((g) =>
+      g.name.toLowerCase().includes(term)
+    );
+
+    // 검색 결과에 있는 데이터의 탭 활성화
+    if (results.length > 0) {
+      setActiveTab(results[0].tab);
+    }
+
+    return results;
+  }, [searchTerm, activeTab]);
+
+  // 현재 탭에 맞는 그래프 목록
+  const currentGraphs = filteredGraphs.filter((g) => g.tab === activeTab);
 
   return (
     <aside className="chart-setting">
+      {/* 헤더 */}
       <div className="chart-setting__header">
         <span className="chart-setting__header--title">차트 설정</span>
       </div>
 
+      {/* 바디 */}
       <div className="chart-setting__body">
+        {/* 검색 */}
         <div className="chart-setting__body--search">
           <img src={SearchIcon} alt="search" />
-          <input type="text" placeholder="검색어를 입력해주세요." />
+          <input
+            type="text"
+            placeholder="그래프 이름을 검색하세요."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
 
+        {/* 미리보기 */}
         <div className="chart-setting__body--preview">
-          {selectedOption !== null
-            ? `${graphNames[selectedOption]}`
+          {selectedOption !== null && currentGraphs[selectedOption]
+            ? `${currentGraphs[selectedOption].name}`
             : "체크박스를 클릭해 그래프를 미리 확인해보세요."}
         </div>
 
+        {/* 탭 */}
         <div className="chart-setting__tabs">
           <button
             className={`chart-setting__tab ${
@@ -64,26 +106,36 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose }) => {
           </button>
         </div>
 
+        {/* 검색 결과 or 현재 탭 목록 */}
         <div className="chart-setting__body--options">
-          {graphNames.map((name, i) => (
-            <label
-              key={i}
-              className={selectedOption === i ? "active" : ""}
-              onClick={() => handleCheckboxChange(i)}
-            >
-              <input type="checkbox" checked={selectedOption === i} readOnly />
-              {name}
-            </label>
-          ))}
+          {currentGraphs.length > 0 ? (
+            currentGraphs.map((graph, i) => (
+              <label
+                key={graph.name}
+                className={selectedOption === i ? "active" : ""}
+                onClick={() => handleCheckboxChange(i)}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedOption === i}
+                  readOnly
+                />
+                {graph.name}
+              </label>
+            ))
+          ) : (
+            <p className="chart-setting__no-result">검색 결과가 없습니다.</p>
+          )}
         </div>
       </div>
 
+      {/* 푸터 */}
       <div className="chart-setting__footer">
         <button className="cancel" onClick={onClose}>
           취소
         </button>
         <button className="confirm" onClick={onClose}>
-          확인
+          저장
         </button>
       </div>
     </aside>
