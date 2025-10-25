@@ -1,0 +1,17 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.dashboard {
+  height: 100%; 
+
+  &__grid {
+    display: grid;
+    box-sizing: border-box;
+    gap: 12px;
+    height: 100%; 
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+}

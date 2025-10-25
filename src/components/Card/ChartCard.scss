@@ -1,0 +1,58 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: $gray-900;
+  background-color: $gray-0;
+  padding: 20px;
+  border-radius: 10px;
+  transition: box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  width: 100%;
+  height: 100%;
+  aspect-ratio: unset; 
+
+  &.warning {
+    border: 1px solid $sematic-error;
+  }
+
+  &:hover {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    @include text-styles("heading04");
+  }
+
+  &__left,
+  &__right {
+    gap: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chart-placeholder {
+    color: $gray-300;
+    @include text-styles("body02");
+  }
+}
