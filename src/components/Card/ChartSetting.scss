@@ -127,6 +127,11 @@
         }
       }
     }
+
+    &--no-result {
+        color: $gray-300;
+        @include text-styles("body02");
+    }
   }
 
   /* 푸터 */

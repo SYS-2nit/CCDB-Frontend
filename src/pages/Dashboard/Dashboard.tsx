@@ -2,42 +2,61 @@ import React, { useState } from "react";
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
 import ChartSetting from "@/components/Card/ChartSetting";
+import { chartData, type TabType } from "./data/chartData";
 
 const Dashboard: React.FC = () => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>("main");
 
   const handleSettingToggle = () => {
     setIsSettingOpen((prev) => !prev);
   };
 
-  const chartTitles = [
-    "PGA / SGA 압박률",
-    "Wait Class 분포",
-    "세션 한도 상태",
-    "핵심 테이블스페이스 여유율",
-    "백그라운드 프로세스 상태",
-    "제한 근접 파라미터 상태",
-    "CPU 상태",
-    "I/O 지연량",
-    "I/O 처리량",
+  const tabs: { id: TabType; label: string }[] = [
+    { id: "main", label: "Main Custom" },
+    { id: "cpu", label: "CPU" },
+    { id: "memory", label: "Memory" },
+    { id: "session", label: "Session" },
+    { id: "io", label: "I/O" },
+    { id: "storage", label: "Storage" },
   ];
+
+  const chartTitles = chartData[activeTab];
 
   return (
     <div
       className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}
     >
-      <div className="dashboard__grid">
-        {chartTitles.map((title, i) => (
-          <ChartCard
-            key={i}
-            title={title}
-            status={i === 7 ? "warning" : "normal"}
-            onSettingClick={handleSettingToggle}
-          />
+      {/* 탭 메뉴 */}
+      <div className="dashboard__tabs">
+        {tabs.map(({ id, label }) => (
+          <button
+            key={id}
+            className={`dashboard__tab ${activeTab === id ? "active" : ""}`}
+            onClick={() => setActiveTab(id)}
+          >
+            {label}
+          </button>
         ))}
       </div>
 
-      {isSettingOpen && <ChartSetting onClose={handleSettingToggle} />}
+      {/* 메인 콘텐츠 */}
+      <div className="dashboard__content">
+        <div className="dashboard__grid">
+          {chartTitles.map((title, i) => (
+            <ChartCard
+              key={i}
+              title={title}
+              status={title.includes("지연량") ? "warning" : "normal"}
+              onSettingClick={handleSettingToggle}
+              showDragIcon={activeTab === "main"}
+              showSettingIcon={activeTab === "main"}
+            />
+          ))}
+        </div>
+
+        {isSettingOpen && <ChartSetting onClose={handleSettingToggle} />}
+      </div>
     </div>
   );
 };

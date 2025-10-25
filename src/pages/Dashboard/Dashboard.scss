@@ -5,20 +5,73 @@
 
 .dashboard {
   width: 100%;
-  height: 100%;
+  height: 100%; 
   display: flex;
+  flex-direction: column;
   overflow: hidden;
+  box-sizing: border-box;
 
+  /* 탭 메뉴 */
+  &__tabs {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+
+    button {
+      background: none;
+      border: none;
+      border-radius: 0px;
+      cursor: pointer;
+      color: $gray-300;
+      @include text-styles("heading04");
+
+      &.active {
+        color: $main-600;
+        border-bottom: 1px solid $main-600;
+      }
+
+      &:hover {
+        color: $gray-600;
+      }
+    }
+  }
+
+  /* 콘텐츠 영역 */
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    overflow: hidden;
+  }
+
+  /* 차트 그리드 */
   &__grid {
     flex: 1;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
     gap: 20px;
-    box-sizing: border-box;
+    height: 100%;
+    overflow: hidden;
   }
 
+  /* 설정창 열릴 때 */
   &--with-setting {
-    gap: 20px;
+    .dashboard__content {
+      flex-direction: row;
+    }
+
+    aside.chart-setting {
+      flex-shrink: 0;
+      width: 360px;
+      height: 100%;
+      background-color: $gray-0;
+      border-radius: 10px;
+      border: 1px solid $gray-100;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
   }
 }

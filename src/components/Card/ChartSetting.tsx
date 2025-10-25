@@ -1,7 +1,10 @@
 import React, { useState, useMemo } from "react";
 import "./ChartSetting.scss";
 import SearchIcon from "@/assets/general/search.svg";
-import { performanceGraphs, preventionGraphs } from "./chartConfig";
+import {
+  performanceGraphs,
+  preventionGraphs,
+} from "@/pages/Dashboard/data/chartConfig";
 
 interface ChartSettingProps {
   onClose: () => void;
@@ -124,7 +127,9 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose }) => {
               </label>
             ))
           ) : (
-            <p className="chart-setting__no-result">검색 결과가 없습니다.</p>
+            <span className="chart-setting__body--no-result">
+              검색 결과가 없습니다.
+            </span>
           )}
         </div>
       </div>
