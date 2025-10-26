@@ -1,5 +1,6 @@
 ## 📁 디렉토리 구조
 
+```
 src/
 ├── assets/ # 로고, 아이콘 등 정적 리소스
 │ ├── general/
@@ -33,3 +34,4 @@ src/
 ├── App.tsx # 루트 컴포넌트
 ├── main.tsx # 엔트리 포인트
 └── index.html # HTML 템플릿
+```
