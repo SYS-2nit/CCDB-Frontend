@@ -2,6 +2,7 @@ import LineChart from "@/components/Chart/LineChart";
 import GaugeChart from "@/components/Chart/GaugeChart";
 import StackChart from "@/components/Chart/StackChart";
 import MetricCard from "@/components/Card/MetricCard";
+import type { values } from "lodash";
 
 // Main Custom 탭 전용 차트 렌더러
 export const renderMainChart = (title: string) => {
@@ -47,22 +48,17 @@ export const renderMainChart = (title: string) => {
   if (title.includes("핵심 테이블스페이스 여유율")) return <StackChart />;
 
   // 백그라운드 프로세스 상태 — LineChart
-  if (title.includes("백그라운드 프로세스 상태"))
-    return (
-      <LineChart
-        legends={["LGWR", "DRWR", "PMON", "SMON", "CKPT", "ARC0"]}
-        seriesData={[
-          [20, 30, 40, 45, 50],
-          [25, 28, 35, 42, 47],
-          [10, 15, 20, 18, 22],
-          [70, 152, 180, 257, 122],
-          [55, 20, 142, 59, 169],
-          [16, 40, 93, 27, 100],
-        ]}
-        categories={["1m", "2m", "3m", "4m", "5m"]}
-        yaxisTitle="횟수"
-      />
-    );
+  if (title.includes("백그라운드 프로세스 상태")) {
+    const backMetrics = [
+      { title: "LGWR", subtitle: "PID: 1234", value: "Active" },
+      { title: "DRWR", subtitle: "PID: 1235", value: "Active" },
+      { title: "PMON", subtitle: "PID: 1236", value: "Active" },
+      { title: "SMON", subtitle: "PID: 1237", value: "Active" },
+      { title: "CKPT", subtitle: "PID: 1238", value: "Active" },
+      { title: "ARC0", subtitle: "PID: 1239", value: "Active" },
+    ];
+    return <MetricCard metrics={backMetrics} columns={3} />;
+  }
 
   // 제한 근접 파라미터 상태 — LineChart
   if (title.includes("제한 근접 파라미터 상태"))
