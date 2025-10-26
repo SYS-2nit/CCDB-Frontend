@@ -1,23 +1,26 @@
+import "./Database.scss";
 import React, { useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
 import Header from "@/components/Header/Header";
-import "./Database.scss";
 import { useNavigate } from "react-router-dom";
 
 /* 3D DB 모델 */
 const OracleDBModel = ({
   onClick,
   onHover,
+  isZoomed,
 }: {
   onClick: () => void;
   onHover: (hovered: boolean) => void;
+  isZoomed: boolean;
 }) => {
   return (
     <group
       onClick={onClick}
       onPointerOver={() => onHover(true)}
       onPointerOut={() => onHover(false)}
+      scale={isZoomed ? 1.0 : 2.0}
     >
       <group position={[0, -0.6, 0]}>
         {[
@@ -152,6 +155,31 @@ const DBInfoPanel: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <strong>Port</strong> <span>1521</span>
           </p>
         </div>
+        <div className="db-card">
+          <h3>Metrics</h3>
+          <p>
+            <strong>Active Sessions</strong> <span>N.NN</span>
+          </p>
+          <p>
+            <strong>Lock Wait Sessions</strong> <span>N.NN</span>
+          </p>
+          <p>
+            <strong>Session Logical Reads</strong>
+            <span>N.NN</span>
+          </p>
+          <p>
+            <strong>Execute Count</strong> <span>N.NN</span>
+          </p>
+          <p>
+            <strong>CPU</strong> <span>N.NN</span>
+          </p>
+          <p>
+            <strong>Disk Usage</strong> <span>N.NN</span>
+          </p>
+          <p>
+            <strong>Memory Usage</strong> <span>N.NN</span>
+          </p>
+        </div>
       </div>
 
       <div className="db-model-center">
@@ -159,12 +187,31 @@ const DBInfoPanel: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <ambientLight intensity={0.6} />
           <directionalLight position={[5, 5, 5]} intensity={1.2} />
           <Environment preset="city" />
-          <OracleDBModel onClick={() => {}} onHover={() => {}} />
+          <OracleDBModel
+            onClick={() => {}}
+            onHover={() => {}}
+            isZoomed={false}
+          />
           <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.0} />
         </Canvas>
       </div>
 
       <div className="db-info-right">
+        <div className="db-card">
+          <h3>Instance</h3>
+          <p>
+            <strong>Active Sessions</strong> <span>N</span>
+          </p>
+          <p>
+            <strong>Lock Wait Sessions</strong> <span>N</span>
+          </p>
+          <p>
+            <strong>Session Logical Reads</strong> <span>N</span>
+          </p>
+          <p>
+            <strong>Execute Count</strong> <span>N</span>
+          </p>
+        </div>
         <div className="db-card">
           <h3>Resource Map</h3>
           <p>
@@ -175,6 +222,9 @@ const DBInfoPanel: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           </p>
           <p>
             <strong>Memory Usage</strong> <span>N%</span>
+          </p>
+          <p>
+            <strong>Network I/O IN/OUT</strong> <span>N/N</span>
           </p>
         </div>
         <div className="db-buttons">
@@ -211,6 +261,7 @@ const Database: React.FC = () => {
                 <OracleDBModel
                   onClick={() => setShowInfo(true)}
                   onHover={(v) => setIsHovering(v)}
+                  isZoomed={false}
                 />
                 <OrbitControls
                   enableZoom={false}
