@@ -5,11 +5,16 @@ import Header from "@/components/Header/Header";
 import "./Database.scss";
 
 /* 3D DB 모델 */
-const OracleDBModel: React.FC<{ onHover: (hovered: boolean) => void }> = ({
+const OracleDBModel = ({
+  onClick,
   onHover,
+}: {
+  onClick: () => void;
+  onHover: (hovered: boolean) => void;
 }) => {
   return (
     <group
+      onClick={onClick}
       onPointerOver={() => onHover(true)}
       onPointerOut={() => onHover(false)}
     >
@@ -40,139 +45,193 @@ const OracleDBModel: React.FC<{ onHover: (hovered: boolean) => void }> = ({
   );
 };
 
-/* DB 추가/삭제 공용 모달 */
-const DBModal: React.FC<{
-  type: "add" | "delete";
-  onClose: () => void;
-}> = ({ type, onClose }) => {
-  const title = type === "add" ? "DB 추가" : "DB 삭제";
-  const fields =
-    type === "add"
+/* DB 추가/삭제 모달 */
+const DBModal: React.FC<{ title: string; onClose: () => void }> = ({
+  title,
+  onClose,
+}) => {
+  const placeholders =
+    title === "DB 추가"
       ? [
-          { label: "Name", placeholder: "추가할 DB의 이름을 입력해주세요." },
-          { label: "IP", placeholder: "추가할 DB의 IP를 입력해주세요." },
-          {
-            label: "Port",
-            placeholder: "추가할 DB의 포트번호를 입력해주세요.",
-          },
-          {
-            label: "Account",
-            placeholder: "추가할 DB의 접속 계정을 입력해주세요.",
-          },
-          {
-            label: "Password",
-            placeholder: "추가할 DB의 비밀번호를 입력해주세요.",
-          },
+          "추가할 DB의 이름을 입력해주세요.",
+          "추가할 DB의 IP를 입력해주세요.",
+          "추가할 DB의 포트번호를 입력해주세요.",
+          "추가할 DB의 계정을 입력해주세요.",
+          "추가할 DB의 비밀번호를 입력해주세요.",
         ]
       : [
-          { label: "Name", placeholder: "삭제할 DB의 이름을 입력해주세요." },
-          {
-            label: "Password",
-            placeholder: "삭제할 DB의 비밀번호를 입력해주세요.",
-          },
+          "삭제할 DB의 이름을 입력해주세요.",
+          "삭제할 DB의 비밀번호를 입력해주세요.",
         ];
 
   return (
     <div className="db-modal-overlay">
       <div className="db-modal">
         <h2 className="db-modal__title">{title}</h2>
-
-        {fields.map((field, i) => (
-          <div key={i} className="db-modal__row">
-            <label>{field.label}</label>
-            <input type="text" placeholder={field.placeholder} />
+        {placeholders.map((ph, i) => (
+          <div className="db-modal__row" key={i}>
+            <label>
+              {i === 0 ? "Name" : i === 1 ? "Password" : `Field ${i + 1}`}
+            </label>
+            <input type="text" placeholder={ph} />
           </div>
         ))}
-
         <div className="db-modal__buttons">
           <button className="cancel" onClick={onClose}>
             취소
           </button>
-          <button className="confirm" onClick={onClose}>
-            확인
-          </button>
+          <button className="confirm">확인</button>
         </div>
       </div>
     </div>
   );
 };
 
-/* 메인 페이지 */
+/* Hover 시 DB 요약정보 카드 */
+const DBHoverCard = () => {
+  return (
+    <div className="db-info-card">
+      <h3>DB Name</h3>
+      <p>
+        <strong>IP</strong> <span>localhost</span>
+      </p>
+      <p>
+        <strong>Port</strong> <span>1521</span>
+      </p>
+      <p>
+        <strong>Database</strong> <span>CDB$ROOT</span>
+      </p>
+      <hr />
+      <p>
+        <strong>Active Sessions</strong> <span>1</span>
+      </p>
+      <p>
+        <strong>Lock Wait Sessions</strong> <span>1</span>
+      </p>
+      <p>
+        <strong>Session Logical Reads</strong> <span>1</span>
+      </p>
+      <p>
+        <strong>Execute Count</strong> <span>1</span>
+      </p>
+    </div>
+  );
+};
+
+/* 상세 정보 패널 */
+const DBInfoPanel: React.FC<{ onBack: () => void }> = ({ onBack }) => (
+  <div className="db-info-layout">
+    <div className="db-info-left">
+      <div className="db-card">
+        <h3>DB</h3>
+        <p>
+          <strong>Type</strong> <span>Oracle Pro</span>
+        </p>
+        <p>
+          <strong>Version</strong> <span>23.0.0.0</span>
+        </p>
+        <p>
+          <strong>DB List</strong>
+          <span className="db-list">
+            <span>CDB$ROOT</span>
+            <span>CDB$ROOT</span>
+          </span>
+        </p>
+        <p>
+          <strong>IP</strong> <span>localhost / 192.168.122.1</span>
+        </p>
+        <p>
+          <strong>Port</strong> <span>1521</span>
+        </p>
+      </div>
+    </div>
+
+    <div className="db-model-center">
+      <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[5, 5, 5]} intensity={1.2} />
+        <Environment preset="city" />
+        <OracleDBModel onClick={() => {}} onHover={() => {}} />
+        <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.0} />
+      </Canvas>
+    </div>
+
+    <div className="db-info-right">
+      <div className="db-card">
+        <h3>Resource Map</h3>
+        <p>
+          <strong>CPU Usage</strong> <span>N%</span>
+        </p>
+        <p>
+          <strong>Disk Usage</strong> <span>N%</span>
+        </p>
+        <p>
+          <strong>Memory Usage</strong> <span>N%</span>
+        </p>
+      </div>
+      <div className="db-buttons">
+        <button className="back-btn" onClick={onBack}>
+          뒤로가기
+        </button>
+        <button className="connect-btn">접속하기</button>
+      </div>
+    </div>
+  </div>
+);
+
+/* 메인 */
 const Database: React.FC = () => {
-  const [hovered, setHovered] = useState(false);
-  const [modalType, setModalType] = useState<"add" | "delete" | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<null | "add" | "delete">(null);
+  const [isHovering, setIsHovering] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   return (
     <div className="database-page">
       <Header showTime={true} theme="database" />
 
-      <div className="db-container">
-        {/* 3D DB 모델 */}
-        <div className="db-box">
-          <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
-            <ambientLight intensity={0.6} />
-            <directionalLight position={[5, 5, 5]} intensity={1.2} />
-            <hemisphereLight args={["#b1e1ff", "#1e293b", 0.8]} />
-            <Environment preset="city" />
-            <OracleDBModel onHover={setHovered} />
-            <OrbitControls
-              enableZoom={false}
-              autoRotate
-              autoRotateSpeed={1.0}
-            />
-          </Canvas>
-
-          {/* Hover 시 DB 정보 */}
-          {hovered && (
-            <div className="db-info-card">
-              <h3>DB Name</h3>
-              <p>
-                <strong>IP</strong>
-                <span>localhost</span>
-              </p>
-              <p>
-                <strong>Port</strong>
-                <span>1521</span>
-              </p>
-              <p>
-                <strong>Database</strong>
-                <span>CDB$ROOT</span>
-              </p>
-              <hr />
-              <p>
-                <strong>Active Sessions</strong>
-                <span>1</span>
-              </p>
-              <p>
-                <strong>Lock Wait Sessions</strong>
-                <span>1</span>
-              </p>
-              <p>
-                <strong>Sessions Logical Reads</strong>
-                <span>1</span>
-              </p>
-              <p>
-                <strong>Execute Count</strong>
-                <span>1</span>
-              </p>
+      {!showInfo ? (
+        <>
+          <div className="db-container">
+            <div className="db-box">
+              <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
+                <ambientLight intensity={0.6} />
+                <directionalLight position={[5, 5, 5]} intensity={1.2} />
+                <Environment preset="city" />
+                <OracleDBModel
+                  onClick={() => setShowInfo(true)}
+                  onHover={(v) => setIsHovering(v)}
+                />
+                <OrbitControls
+                  enableZoom={false}
+                  autoRotate
+                  autoRotateSpeed={1.0}
+                />
+              </Canvas>
             </div>
-          )}
-        </div>
+            {isHovering && <DBHoverCard />}
+          </div>
 
-        {/* 하단 버튼 */}
-        <div className="zoom-controls">
-          <button className="zoom-btn" onClick={() => setModalType("add")}>
-            +
-          </button>
-          <button className="zoom-btn" onClick={() => setModalType("delete")}>
-            -
-          </button>
-        </div>
-      </div>
+          <div className="zoom-controls">
+            <button className="zoom-btn" onClick={() => setIsModalOpen("add")}>
+              +
+            </button>
+            <button
+              className="zoom-btn"
+              onClick={() => setIsModalOpen("delete")}
+            >
+              -
+            </button>
+          </div>
+        </>
+      ) : (
+        <DBInfoPanel onBack={() => setShowInfo(false)} />
+      )}
 
-      {/* 모달 렌더링 */}
-      {modalType && (
-        <DBModal type={modalType} onClose={() => setModalType(null)} />
+      {isModalOpen === "add" && (
+        <DBModal title="DB 추가" onClose={() => setIsModalOpen(null)} />
+      )}
+      {isModalOpen === "delete" && (
+        <DBModal title="DB 삭제" onClose={() => setIsModalOpen(null)} />
       )}
     </div>
   );
