@@ -1,8 +1,185 @@
 @use "sass:map";
 @use "@/styles/_typography.scss" as *;
-@use '@styles/variables' as *;
-@use '@styles/mixins' as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
 
-.background {
-    background-color: $darkmode;
+/* ✅ 배경 (다크블루 그라데이션) */
+$background-darkmode: radial-gradient(
+  circle at center,
+  #122c46 0%,
+  #081523 100%
+);
+
+.database-page {
+  width: 100%;
+  height: 100vh;
+  background: $background-darkmode;
+}
+
+/* sDB 영역 */
+.db-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* DB 아이콘 (3D 모델) */
+.db-box {
+  width: 300px;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Zoom 버튼 */
+.zoom-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+;
+
+  .zoom-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: $gray-0;
+    padding: 10px;
+    @include text-styles("title03");
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 4px rgba(30, 30, 30, 0.3);
+
+    &:hover {
+      transform: translateY(-2px) scale(1.05);
+      background: rgba(93, 184, 255, 0.15);
+      box-shadow: 0 0 10px rgba(93, 184, 255, 0.6);
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+}
+
+/* DB 추가 모달 */
+.db-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.db-modal {
+    width: 60%;
+    max-width: 450px;
+    border-radius: 10px;
+    background: $default-bg;
+    border: 1px solid $card-stroke;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    padding: 28px 32px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    backdrop-filter: blur(12px);
+    animation: fadeIn 0.3s ease;
+
+  &__title {
+    @include text-styles("heading03");
+    margin-bottom: 12px;
+    color: #eaf6ff;
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      @include text-styles("label02");
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    input {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 10px;
+      color: white;
+      font-size: 14px;
+      outline: none;
+      transition: 0.2s;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      &:focus {
+        border-color: $gray-0;
+        background: rgba(93, 184, 255, 0.1);
+      }
+    }
+  }
+
+  &__buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 12px;
+
+    button {
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .cancel {
+      background: $default-bg;
+      color: $gray-0;
+
+      &:hover {
+        background: $background-darkmode;
+      }
+    }
+
+    .confirm {
+      background: $main-600;
+      color: white;
+
+      &:hover {
+        background: $main-800;
+      }
+    }
+  }
+}
+
+/* Fade-in 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
