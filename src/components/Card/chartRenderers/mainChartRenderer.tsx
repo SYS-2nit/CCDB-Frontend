@@ -2,7 +2,6 @@ import LineChart from "@/components/Chart/LineChart";
 import GaugeChart from "@/components/Chart/GaugeChart";
 import StackChart from "@/components/Chart/StackChart";
 import MetricCard from "@/components/Card/MetricCard";
-import type { values } from "lodash";
 
 // Main Custom 탭 전용 차트 렌더러
 export const renderMainChart = (title: string) => {
