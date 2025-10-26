@@ -17,7 +17,7 @@ export const renderSessionChart = (title: string) => {
       />
     );
 
-  if (title.includes("Long-Idle Sessions"))
+  if (title.includes("Long-Idle Sessions ≥10/30/60m — Snapshot"))
     return (
       <BarChart
         barCount={3}
@@ -28,11 +28,10 @@ export const renderSessionChart = (title: string) => {
         colors={["#F1C40F", "#7FA4FA", "#75E093"]}
       />
     );
-
-  if (title.includes("Blocking"))
+  if (title.includes("Blocking — Blocker vs Blocked Sessions — Trend"))
     return (
       <LineChart
-        legends={["Blocker", "Blocked"]}
+        legends={["blocker_count", "blocked_sessions"]}
         seriesData={[
           [10, 15, 20, 18, 22, 25, 30],
           [40, 45, 48, 42, 44, 50, 55],
@@ -40,26 +39,47 @@ export const renderSessionChart = (title: string) => {
         yaxisTitle="Sessions"
       />
     );
-
-  if (title.includes("Top Blocker Sessions"))
+  if (title.includes("Lock Wait Sessions — TX vs TM vs Total"))
+    return (
+      <LineChart
+        legends={["lock_wait_tx", "lock_wait_tm", "lock_wait_total"]}
+        seriesData={[
+          [50, 52, 53, 55, 54, 56, 58],
+          [30, 32, 31, 29, 30, 31, 30],
+        ]}
+        yaxisTitle="SGA Ratio (%)"
+      />
+    );
+  if (title.includes("Active vs Inactive Sessions — Trend"))
+    return (
+      <LineChart
+        legends={["active_sessions", "inactive_sessions"]}
+        seriesData={[
+          [50, 52, 53, 55, 54, 56, 58],
+          [30, 32, 31, 29, 30, 31, 30],
+        ]}
+        yaxisTitle="SGA Ratio (%)"
+      />
+    );
+  if (title.includes("Top Blocker Sessions — Snapshot Top 5"))
     return (
       <TableChart
         columns={[
-          "Rank",
-          "SQL_ID",
-          "Plan Hash_VALUE",
-          "Parsing_Schema__Name",
-          "Module",
-          "Cpu_Time",
-          "Executions",
-          "Last_Active_TIme",
+          "inst_id",
+          "blocker_sid",
+          "victims",
+          "max_seconds_in_wait(s)",
+          "top_event",
+          "blocker_username",
+          "blocker_program",
+          "blocker_sql_id",
         ]}
         rows={[
           [1, 240, 35, 520, 12_340, 25_600, 0, 0, 0],
           [2, 180, 22, 410, 9_580, 18_320, 0, 0, 0],
+          [3, 130, 18, 340, 7_210, 14_850, 0, 0, 0],
         ]}
       />
     );
-
   return <LineChart />;
 };

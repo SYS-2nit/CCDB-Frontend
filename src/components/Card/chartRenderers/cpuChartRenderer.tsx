@@ -19,7 +19,7 @@ export const renderCPUChart = (title: string) => {
   if (title.includes("DB CPU Saturation (AAS vs Core)"))
     return (
       <LineChart
-        legends={["AAS", "Core"]}
+        legends={["AAS_OnCPU_Sessions", "Core_Baseline_Sessions"]}
         seriesData={[
           [10, 15, 20, 18, 22, 25, 30],
           [40, 45, 48, 42, 44, 50, 55],
@@ -31,7 +31,7 @@ export const renderCPUChart = (title: string) => {
   if (title.includes("DB CPU Share of Host (%) - Trend"))
     return (
       <LineChart
-        legends={["DB CPU", "Host CPU"]}
+        legends={["DB_of_Host_Share_Pct", "Other processes"]}
         seriesData={[
           [20, 25, 30, 28, 35, 32, 38],
           [60, 65, 68, 64, 66, 70, 72],
