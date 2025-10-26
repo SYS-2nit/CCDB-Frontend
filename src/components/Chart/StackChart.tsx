@@ -73,7 +73,7 @@ const StackChart: React.FC<StackChartProps> = ({ stackCount = 5 }) => {
     tooltip: {
       y: {
         formatter: (
-          val: number,
+          _val: number,
           { dataPointIndex }: { dataPointIndex: number }
         ) => {
           const idx = dataPointIndex;
