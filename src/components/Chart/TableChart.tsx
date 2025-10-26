@@ -1,30 +1,33 @@
 import React from "react";
+import "./TableChart.scss";
 
-const TableChart: React.FC = () => {
-  const columns = ["Text", "Text", "Text", "Text", "Text", "Text"];
-  const rows = Array.from({ length: 5 }).map(() =>
-    Array.from({ length: 6 }, () => "Data")
-  );
+interface TableChartProps {
+  columns: string[];
+  rows: (string | number)[][];
+}
 
+const TableChart: React.FC<TableChartProps> = ({ columns, rows }) => {
   return (
-    <table className="table-chart">
-      <thead>
-        <tr>
-          {columns.map((col, idx) => (
-            <th key={idx}>{col}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, rIdx) => (
-          <tr key={rIdx}>
-            {row.map((cell, cIdx) => (
-              <td key={cIdx}>{cell}</td>
+    <div className="table-chart__wrapper">
+      <table className="table-chart">
+        <thead>
+          <tr>
+            {columns.map((col, idx) => (
+              <th key={idx}>{col}</th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((row, rIdx) => (
+            <tr key={rIdx}>
+              {row.map((cell, cIdx) => (
+                <td key={cIdx}>{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

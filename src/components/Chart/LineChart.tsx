@@ -1,24 +1,33 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
-import { baseChartOptions } from "./baseChartOptions";
 import type { ApexOptions } from "apexcharts";
+import { baseChartOptions } from "./baseChartOptions";
 
 interface LineChartProps {
-  seriesCount?: number;
-  title?: string;
+  legends?: string[]; // 범례 이름 배열
+  seriesData?: number[][]; // 각 라인 데이터 배열
+  categories?: string[]; // X축 라벨
+  yaxisTitle?: string; // Y축 제목
 }
 
-const LineChart: React.FC<LineChartProps> = ({ seriesCount = 1, title }) => {
-  const series = Array.from({ length: seriesCount }, (_, i) => ({
-    name: `Line ${i + 1}`,
-    data: Array.from({ length: 7 }, () => Math.floor(Math.random() * 20) + 5),
+const LineChart: React.FC<LineChartProps> = ({
+  legends = ["Series 1"],
+  seriesData = [
+    Array.from({ length: 7 }, () => Math.floor(Math.random() * 20) + 5),
+  ],
+  categories = ["00:10", "00:20", "00:30", "00:40", "00:50", "01:00", "01:10"],
+  yaxisTitle,
+}) => {
+  const series = legends.map((name, i) => ({
+    name,
+    data: seriesData[i] || [],
   }));
 
   const options: ApexOptions = {
     ...baseChartOptions,
     chart: {
       ...baseChartOptions.chart,
-      type: "line" as const,
+      type: "line",
       toolbar: { show: false },
       animations: { enabled: false },
     },
@@ -28,16 +37,11 @@ const LineChart: React.FC<LineChartProps> = ({ seriesCount = 1, title }) => {
     },
     grid: {
       ...baseChartOptions.grid,
-      padding: {
-        top: 5,
-        right: 10,
-        bottom: 0,
-        left: 5,
-      },
+      padding: { top: 5, right: 10, bottom: 0, left: 5 },
     },
     xaxis: {
       ...baseChartOptions.xaxis,
-      categories: ["MM:SS", "MM:SS", "MM:SS", "MM:SS", "MM:SS", "MM:SS"],
+      categories,
       labels: {
         style: {
           fontSize: "10px",
@@ -49,6 +53,16 @@ const LineChart: React.FC<LineChartProps> = ({ seriesCount = 1, title }) => {
     },
     yaxis: {
       show: true,
+      title: yaxisTitle
+        ? {
+            text: yaxisTitle,
+            style: {
+              fontSize: "10px",
+              fontWeight: 600,
+              color: "#555",
+            },
+          }
+        : undefined,
       labels: {
         style: {
           fontSize: "10px",
@@ -60,27 +74,23 @@ const LineChart: React.FC<LineChartProps> = ({ seriesCount = 1, title }) => {
       axisBorder: { show: false },
       axisTicks: { show: false },
       min: 0,
-      max: 30,
     },
     legend: {
+      show: legends.length > 1,
       position: "bottom",
       horizontalAlign: "center",
       fontSize: "10px",
       itemMargin: { horizontal: 10 },
     },
-    title: {
-      text: title,
-      style: { fontSize: "10px", color: "#111" },
-    },
   };
 
   return (
-    <div style={{ width: "100%", height: "135px" }}>
+    <div style={{ width: "100%", height: "150px" }}>
       <ReactApexChart
         options={options}
         series={series}
         type="line"
-        height={135}
+        height={150}
       />
     </div>
   );

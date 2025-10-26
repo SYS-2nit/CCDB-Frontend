@@ -10,17 +10,16 @@ import {
   Draggable,
   type DropResult,
 } from "@hello-pangea/dnd";
+import { cloneDeep } from "lodash";
 
 const Dashboard: React.FC = () => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("main");
 
-  // chart 순서 관리 state
-  const [charts, setCharts] = useState<string[]>(chartData["main"]);
-
-  const handleSettingToggle = () => {
-    setIsSettingOpen((prev) => !prev);
-  };
+  const [charts, setCharts] = useState<string[]>(() =>
+    cloneDeep(chartData["main"])
+  );
+  const handleSettingToggle = () => setIsSettingOpen((prev) => !prev);
 
   const tabs: { id: TabType; label: string }[] = [
     { id: "main", label: "Main Custom" },
@@ -32,16 +31,19 @@ const Dashboard: React.FC = () => {
   ];
 
   React.useEffect(() => {
-    setCharts(chartData[activeTab]);
+    // 원본 데이터가 변형되지 않도록 깊은 복사
+    setCharts([...chartData[activeTab]]);
   }, [activeTab]);
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
+  const handleDragEnd = ({ source, destination }: DropResult) => {
+    if (!destination) return;
 
-    const reordered = Array.from(charts);
-    const [movedItem] = reordered.splice(result.source.index, 1);
-    reordered.splice(result.destination.index, 0, movedItem);
-    setCharts(reordered);
+    setCharts((prev) => {
+      const reordered = [...prev];
+      const [moved] = reordered.splice(source.index, 1);
+      reordered.splice(destination.index, 0, moved);
+      return reordered;
+    });
   };
 
   return (
@@ -63,7 +65,7 @@ const Dashboard: React.FC = () => {
 
       {/* 메인 콘텐츠 */}
       <div className="dashboard__content">
-        {/* 차트 그리드 */}
+        {/* 차트 그리드 (드래그 지원) */}
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="charts" direction="horizontal">
             {(provided) => (
@@ -72,6 +74,7 @@ const Dashboard: React.FC = () => {
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
+                {/* 상태 카드 (main 제외 탭) */}
                 {activeTab !== "main" && (
                   <div className="dashboard__status-cards">
                     <StatusCard label="무해" value={0} color="safe" />
@@ -81,12 +84,13 @@ const Dashboard: React.FC = () => {
                   </div>
                 )}
 
+                {/* 차트 카드 */}
                 {charts.map((title, index) => (
                   <Draggable
                     key={title}
                     draggableId={title}
                     index={index}
-                    isDragDisabled={activeTab !== "main"}
+                    isDragDisabled={activeTab !== "main"} // 메인 탭에서만 드래그 가능
                   >
                     {(provided) => (
                       <div
@@ -114,6 +118,7 @@ const Dashboard: React.FC = () => {
           </Droppable>
         </DragDropContext>
 
+        {/* 설정 패널 */}
         {isSettingOpen && <ChartSetting onClose={handleSettingToggle} />}
       </div>
     </div>
