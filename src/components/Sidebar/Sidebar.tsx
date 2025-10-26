@@ -196,7 +196,7 @@ const Sidebar: React.FC = () => {
 
           {/* 나가기 */}
           <NavLink
-            to="/logout"
+            to="/"
             className={({ isActive }) =>
               `sidebar__item ${isActive ? "active" : ""}`
             }

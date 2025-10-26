@@ -17,10 +17,8 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ✅ Database는 Layout 없이 바로 렌더 */}
+        {/* Database는 Layout 없이 바로 렌더 */}
         <Route path="/" element={<Database />} />
-
-        {/* ✅ 나머지 페이지들은 Layout 내부에 렌더 */}
         <Route
           path="/*"
           element={
