@@ -76,7 +76,7 @@ const Dashboard: React.FC = () => {
               >
                 {/* 상태 카드 (main 제외 탭) */}
                 {activeTab !== "main" && (
-                  <div className="dashboard__status-cards">
+                  <div className="status-cards">
                     <StatusCard label="무해" value={0} color="safe" />
                     <StatusCard label="주의" value={0} color="warning" />
                     <StatusCard label="위험" value={0} color="danger" />

@@ -3,19 +3,25 @@
 @use "@/styles/variables" as *;
 @use "@/styles/mixins" as *;
 
+.status-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); // 2개씩
+  grid-template-rows: repeat(2, 1fr);    // 2행
+  gap: 5px;
+}
+
 .status-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  padding: 16px;
   color: $gray-0;
   font-weight: 600;
   text-align: center;
-  height: 100px;
-  min-width: 100px;
-  flex: 1;
+
+  width: 100%;  
+  height: 100%;  
 
   &__label {
     @include text-styles("heading04");
@@ -26,7 +32,7 @@
   }
 
   &--safe {
-    background-color: $sematic-success 
+    background-color: $sematic-success;
   }
 
   &--warning {
@@ -38,6 +44,6 @@
   }
 
   &--critical {
-    background-color: $gray-900; 
+    background-color: $gray-900;
   }
 }
