@@ -45,7 +45,7 @@
   &__logo {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* 자동으로 양쪽 끝으로 배치 */
+    justify-content: space-between;
     padding: 0px 20px;
     cursor: pointer;
 
@@ -59,7 +59,8 @@
   }
 
   &__title {
-     @include text-styles("heading02");
+    color: $gray-0;
+    @include text-styles("title03");
   }
 
   &__divider {
@@ -161,8 +162,8 @@
   &__footer {
     display: flex;
     justify-content: center;  
-    flex-direction: column; // 세로 정렬
-    margin-top: auto; // 맨 아래로 자동 배치
+    flex-direction: column; 
+    margin-top: auto;
 
     .sidebar__item--user {
       gap: 10px;

@@ -1,0 +1,172 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.chart-setting {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 30%;
+  max-width: 380px;
+  height: 100%;
+  border-radius: 10px;
+  background-color: $gray-0;
+  color: $gray-900;
+
+  /* 헤더 */
+  &__header {
+    padding: 20px;
+    border-bottom: 1px solid $gray-100;
+
+    &--title {
+      @include text-styles("title03");
+      font-weight: 600;
+    }
+  }
+
+  /* 본문 */
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+
+    /* 검색창 */
+    &--search {
+      position: relative;
+      width: 100%;
+
+      img {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        width: 24px;
+        height: 24px;
+        transform: translateY(-50%);
+      }
+
+      input {
+        width: 100%;
+        padding: 12px 14px 12px 40px;
+        border: 1px solid $gray-300;
+        border-radius: 6px;
+        @include text-styles("body02");
+        color: $gray-900;
+        background-color: $gray-0;
+
+        &::placeholder {
+          color: $gray-300;
+        }
+      }
+    }
+
+    /* 미리보기 박스 */
+    &--preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 300px;
+      border-radius: 5px;
+      color: $gray-300;
+      border: 1px solid $gray-300;
+      @include text-styles("body02");
+    }
+
+    /* 탭 */
+    .chart-setting__tabs {
+        gap: 20px;
+        display: flex;
+        justify-content: flex-start;
+        @include text-styles("heading04");
+
+        .chart-setting__tab {
+            background: none;
+            text-align: center;
+            cursor: pointer;
+            color: $gray-300;
+            padding-bottom: 6px;
+            border-radius: 0; 
+
+            &.active {
+            color: $main-600;
+            border-bottom: 1px solid $main-600;
+            }
+        }
+    }
+
+    /* 체크박스 옵션 */
+    &--options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px 16px;
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: $gray-300;
+        @include text-styles("body02");
+        cursor: pointer;
+
+        input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
+          accent-color: $gray-300;
+          cursor: pointer;
+        }
+
+        &.active {
+          color: $main-600;
+          input[type="checkbox"] {
+            accent-color: $main-600;
+          }
+        }
+      }
+    }
+
+    &--no-result {
+        color: $gray-300;
+        @include text-styles("body02");
+    }
+  }
+
+  /* 푸터 */
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px;
+    border-top: 1px solid $gray-100;
+
+    button {
+        padding: 12px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        @include text-styles("body02");
+    }
+
+    .cancel {
+      color: $gray-500;
+      background-color: $gray-0;
+      border: 1px solid $gray-300;
+
+      &:hover {
+        background-color: $gray-50;
+      }
+    }
+
+    .confirm {
+        color: $gray-0;
+        background-color: $main-600;
+        border: 1px solid $gray-600;
+
+      &:hover {
+        background-color: $main-700;
+      }
+    }
+  }
+}

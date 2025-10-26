@@ -6,9 +6,8 @@ import AlertIcon from "@/assets/header/alert.svg";
 import LightIcon from "@/assets/header/light.svg";
 import DarkIcon from "@/assets/header/dark.svg";
 
-// ✅ props 정의
 interface HeaderProps {
-  showTime?: boolean; // 시간 표시 영역 보이기 여부 (기본값: true)
+  showTime?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({ showTime = true }) => {
@@ -83,7 +82,7 @@ const Header: React.FC<HeaderProps> = ({ showTime = true }) => {
           <div className="header__title">DB Name</div>
         </div>
 
-        {/* ✅ 시간 표시: showTime이 true일 때만 렌더링 */}
+        {/* 시간 표시: showTime이 true일 때만 렌더링 */}
         {showTime && (
           <div className="header__time">
             <div className="header__time--wrapper">

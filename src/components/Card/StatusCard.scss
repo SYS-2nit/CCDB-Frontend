@@ -1,0 +1,49 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.status-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); // 2개씩
+  grid-template-rows: repeat(2, 1fr);    // 2행
+  gap: 5px;
+}
+
+.status-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  color: $gray-0;
+  font-weight: 600;
+  text-align: center;
+
+  width: 100%;  
+  height: 100%;  
+
+  &__label {
+    @include text-styles("heading04");
+  }
+
+  &__value {
+    @include text-styles("title01");
+  }
+
+  &--safe {
+    background-color: $sematic-success;
+  }
+
+  &--warning {
+    background-color: $sematic-warning;
+  }
+
+  &--danger {
+    background-color: $sematic-error;
+  }
+
+  &--critical {
+    background-color: $gray-900;
+  }
+}

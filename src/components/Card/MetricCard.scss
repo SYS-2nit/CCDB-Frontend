@@ -1,0 +1,42 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.metric-grid {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid $gray-100;
+  padding: 5px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  &__title {
+    font-size: 10px;
+    color: $gray-500;
+  }
+
+  &__value {
+    color: $gray-900;
+    @include text-styles("heading01");
+  }
+
+  &__subtitle {
+    font-size: 10px;
+    color: $gray-200;
+  }
+}
