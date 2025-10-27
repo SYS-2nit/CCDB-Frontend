@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
 import Header from "@/components/Header/Header";
-import InfoCard from "@/components/Card/InfoCard";
 import OracleDBModel from "./3dDatabase";
 import Modal from "@/components/Modal/Modal";
-import DetaileInfo from "@/components/Card/DetaileInfo";
+import DetaileInfo from "./Card/DetaileInfo";
+import InfoCard from "./Card/InfoCard";
 
 const Database: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<null | "add" | "delete">(null);

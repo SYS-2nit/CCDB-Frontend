@@ -1,4 +1,5 @@
 import React from "react";
+import "./Modal.scss";
 
 interface FieldItem {
   label: string;
@@ -7,10 +8,10 @@ interface FieldItem {
 }
 
 interface ModalProps {
-  title: string; // 모달 제목
-  onClose: () => void; // 닫기 버튼 이벤트
-  onConfirm?: () => void; // 확인 버튼 이벤트 (선택)
-  fields: FieldItem[]; // 입력 필드 정보 배열
+  title: string;
+  onClose: () => void;
+  onConfirm?: () => void;
+  fields: FieldItem[];
 }
 
 const Modal: React.FC<ModalProps> = ({ title, onClose, onConfirm, fields }) => {
@@ -18,7 +19,7 @@ const Modal: React.FC<ModalProps> = ({ title, onClose, onConfirm, fields }) => {
     <div className="db-modal-overlay">
       <div className="db-modal">
         <h2 className="db-modal__title">{title}</h2>
-
+        <hr />
         {fields.map((field, i) => (
           <div className="db-modal__row" key={i}>
             <label>{field.label}</label>

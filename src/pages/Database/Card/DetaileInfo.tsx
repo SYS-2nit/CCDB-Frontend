@@ -2,7 +2,9 @@ import React from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
 import { useNavigate } from "react-router-dom";
-import OracleDBModel from "../../pages/Database/3dDatabase";
+import DBStatusCard from "./DBStatusCard";
+import "./DetaileInfo.scss";
+import OracleDBModel from "../3dDatabase";
 
 interface InfoItem {
   label: string;
@@ -62,6 +64,7 @@ const DBInfoPanel: React.FC<DBInfoPanelProps> = ({
       <div className="db-info-left">
         <div className="db-card">
           <h3>DB</h3>
+          <hr />
           {dbInfo.map((item, i) => (
             <DBInfoRow key={i} {...item} />
           ))}
@@ -69,6 +72,7 @@ const DBInfoPanel: React.FC<DBInfoPanelProps> = ({
 
         <div className="db-card">
           <h3>Metrics</h3>
+          <hr />
           {metricsInfo.map((item, i) => (
             <DBInfoRow key={i} {...item} />
           ))}
@@ -92,8 +96,15 @@ const DBInfoPanel: React.FC<DBInfoPanelProps> = ({
 
       {/* 오른쪽 리소스/인스턴스 영역 */}
       <div className="db-info-right">
+        <div className="status-card-group">
+          <DBStatusCard title="주의" value="N" subValue="N" trend="down" />
+          <DBStatusCard title="위험" value="N" subValue="N" trend="up" />
+          <DBStatusCard title="치명" value="N" subValue="N" trend="up" />
+        </div>
+
         <div className="db-card">
           <h3>Instance</h3>
+          <hr />
           {instanceInfo.map((item, i) => (
             <DBInfoRow key={i} {...item} />
           ))}
@@ -101,6 +112,7 @@ const DBInfoPanel: React.FC<DBInfoPanelProps> = ({
 
         <div className="db-card">
           <h3>Resource Map</h3>
+          <hr />
           {resourceInfo.map((item, i) => (
             <DBInfoRow key={i} {...item} />
           ))}

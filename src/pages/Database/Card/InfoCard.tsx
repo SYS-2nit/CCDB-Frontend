@@ -1,4 +1,5 @@
 import React from "react";
+import "./InfoCard.scss";
 
 interface InfoItem {
   label: string;
@@ -25,6 +26,7 @@ const InfoCard: React.FC<DBHoverCardProps> = ({
   return (
     <div className="db-info-card">
       <h3>{name}</h3>
+      <hr />
       {data.map((item, i) => (
         <React.Fragment key={i}>
           <DBInfoRow {...item} />
