@@ -67,7 +67,7 @@ const Database: React.FC = () => {
                 <OrbitControls
                   enableZoom={true} // 확대/축소 허용
                   enablePan={true} // 마우스로 이동 가능
-                  maxDistance={Math.max(15, dbCount * 4)} // 너무 가까워지지 않도록 제한
+                  maxDistance={Math.max(15, dbCount * 4)}
                   minDistance={5}
                   target={[0, 0, 0]}
                 />
