@@ -70,7 +70,7 @@ $btn-stroke: linear-gradient(
     #3B5775 100%
 );
 $card-stroke: linear-gradient(
-    90deg,
+    210deg,
     #0F2F57 0%,
     #A8C6DF 25%,
     #0F2F57 100%,
@@ -95,9 +95,9 @@ $sematic-success: #16A34A;
 
 // Background
 $dashboard: #EEEEEE;
-$darkmode: radial-gradient(
+$background-darkmode: radial-gradient(
     circle at center,
-    #133555 0%
+    #133555 0%,
     #11253F 25%,
     #0B101B 100%
 );

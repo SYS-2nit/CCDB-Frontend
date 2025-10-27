@@ -1,8 +1,74 @@
 @use "sass:map";
 @use "@/styles/_typography.scss" as *;
-@use '@styles/variables' as *;
-@use '@styles/mixins' as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
 
-.background {
-    background-color: $darkmode;
+/* 전체 페이지 */
+.database-page {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, #122c46 0%, #081523 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 중앙 DB 컨테이너 */
+.db-container {
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: visible;
+}
+
+/* 3D DB 모델 */
+.db-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* + / - 버튼 */
+.zoom-controls {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  z-index: 150;
+
+  .zoom-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: $gray-0;
+    padding: 10px;
+    @include text-styles("title03");
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 4px rgba(30, 30, 30, 0.3);
+
+    &:hover {
+      transform: translateY(-2px) scale(1.05);
+      background: rgba(93, 184, 255, 0.15);
+      box-shadow: 0 0 10px rgba(93, 184, 255, 0.6);
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Header.scss";
-import BedgeSuccessIcon from "../../assets/header/bedge-success.svg";
+import BedgeSuccessIcon from "@/assets/header/bedge-success.svg";
 import TimeIcon from "@/assets/header/time.svg";
 import AlertIcon from "@/assets/header/alert.svg";
 import LightIcon from "@/assets/header/light.svg";
@@ -8,10 +8,13 @@ import DarkIcon from "@/assets/header/dark.svg";
 
 interface HeaderProps {
   showTime?: boolean;
+  theme?: "default" | "database";
 }
 
-const Header: React.FC<HeaderProps> = ({ showTime = true }) => {
-  // 다크모드 상태 관리 (로컬스토리지 + 시스템 기본값)
+const Header: React.FC<HeaderProps> = ({
+  showTime = true,
+  theme = "default",
+}) => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
@@ -38,7 +41,6 @@ const Header: React.FC<HeaderProps> = ({ showTime = true }) => {
     });
   };
 
-  // 현재 시간 상태
   const [currentTime, setCurrentTime] = useState(new Date());
   const [seconds, setSeconds] = useState(currentTime.getSeconds());
 
@@ -48,14 +50,11 @@ const Header: React.FC<HeaderProps> = ({ showTime = true }) => {
       setCurrentTime(now);
       setSeconds(now.getSeconds());
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
-  // 게이지 채우기 비율 (0 → 100%)
   const progressPercent = (seconds / 60) * 100;
 
-  // 시간 포맷 함수
   const formatDateTime = (
     date: Date,
     mode: "full" | "minuteOnly" | "timeOnly" = "full"
@@ -72,8 +71,12 @@ const Header: React.FC<HeaderProps> = ({ showTime = true }) => {
     return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
   };
 
+  const headerClass = `header ${
+    theme === "database" ? "header--database" : ""
+  }`;
+
   return (
-    <header className="header">
+    <header className={headerClass}>
       {/* 왼쪽 영역 */}
       <div className="header__left">
         {/* DB 상태 및 이름 */}
@@ -82,7 +85,7 @@ const Header: React.FC<HeaderProps> = ({ showTime = true }) => {
           <div className="header__title">DB Name</div>
         </div>
 
-        {/* 시간 표시: showTime이 true일 때만 렌더링 */}
+        {/* 시간 표시 */}
         {showTime && (
           <div className="header__time">
             <div className="header__time--wrapper">
@@ -90,7 +93,6 @@ const Header: React.FC<HeaderProps> = ({ showTime = true }) => {
                 className="header__time--progress"
                 style={{
                   width: `${progressPercent}%`,
-                  backgroundColor: "white",
                 }}
               ></div>
               <img

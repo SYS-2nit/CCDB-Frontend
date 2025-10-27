@@ -1,7 +1,7 @@
 @use "sass:map";
 @use "@/styles/typography" as *;
-@use '@styles/variables' as *;
-@use '@styles/mixins' as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
 
 .header {
   width: 100%;
@@ -12,19 +12,21 @@
   justify-content: space-between;
   background-color: var(--color-bg);
 
-
   // 왼쪽, 오른쪽 영역 
-  &__left, &__right, &__status {
+  &__left,
+  &__right,
+  &__status {
     display: flex;
     align-items: center;
     height: 80px;
     color: var(--color-text);
   }
 
-    &__left, &__right {
+  &__left,
+  &__right {
     gap: 20px;
   }
-  
+
   // DB 상태 
   &__status {
     gap: 10px;
@@ -34,9 +36,9 @@
   &__title {
     @include text-styles("heading02");
   }
+
   // 시간
   &__time {
-
     &--wrapper {
       gap: 10px;
       display: flex;
@@ -100,7 +102,6 @@
       border-radius: 50%;
       background-color: transparent;
       transition: background-color 0.2s ease;
-
     }
 
     // 클릭된 상태
@@ -113,24 +114,84 @@
     }
   }
 
-  // 시간
+  // 업데이트 시간
   &__update {
     display: flex;
     align-items: flex-start;
     flex-direction: column;
-    padding: 7px 20px; 
-    border-radius: 24px; 
+    padding: 7px 20px;
+    border-radius: 24px;
     background-color: $gray-0;
 
-      .header__date {
-        @include text-styles("label01");
-        color: $gray-900;
-      }
+    .header__date {
+      @include text-styles("label01");
+      color: $gray-900;
+    }
 
-      .header__text {
-        @include text-styles("label02");
-        color: $gray-500;
-      }
+    .header__text {
+      @include text-styles("label02");
+      color: $gray-500;
     }
   }
 
+  // Database 전용 테마
+  &--database {
+    // 어두운 배경에 대비되는 흰색 계열 테마
+    background-color: transparent;
+
+    .header__status,
+    .header__title,
+    .header__time--title,
+    .header__update,
+    .header__mode {
+      color: $gray-0;
+    }
+
+    .header__update,
+    .header__mode {
+      border: 1px solid $gray-500;
+    }
+
+    .header__alert {
+      color: $gray-0;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .header__time--wrapper {
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .header__time--progress {
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .header__time--title {
+      color: $gray-500;
+    }
+
+    .header__alert img,
+    .header__mode img {
+      filter: brightness(2);
+    }
+
+    .header__update {
+      background-color: rgba(255, 255, 255, 0.1);
+
+      .header__date {
+        color: $gray-0;
+      }
+
+      .header__text {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+
+    .header__mode {
+      background-color: rgba(255, 255, 255, 0.1);
+
+      &--active {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+      }
+    }
+  }
+}
