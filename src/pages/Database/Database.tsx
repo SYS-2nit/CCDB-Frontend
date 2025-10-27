@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
 import Header from "@/components/Header/Header";
-import OracleDBModel from "@/components/Modal/OracleDBModel";
-import DBHoverCard from "@/components/Modal/DBHoverCard";
-import DBInfoPanel from "@/components/Modal/DBInfoPanel";
-import DBModal from "@/components/Modal/DBModal";
+import InfoCard from "@/components/Card/InfoCard";
+import OracleDBModel from "./3dDatabase";
+import Modal from "@/components/Modal/Modal";
+import DetaileInfo from "@/components/Card/DetaileInfo";
 
 const Database: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<null | "add" | "delete">(null);
@@ -37,7 +37,21 @@ const Database: React.FC = () => {
                 />
               </Canvas>
             </div>
-            {isHovering && <DBHoverCard />}
+            {isHovering && (
+              <InfoCard
+                name="DB Name"
+                data={[
+                  { label: "IP", value: "localhost" },
+                  { label: "Port", value: "1521" },
+                  { label: "Database", value: "CDB$ROOT" },
+                  { label: "Active Sessions", value: "1" },
+                  { label: "Lock Wait Sessions", value: "1" },
+                  { label: "Session Logical Reads", value: "1" },
+                  { label: "Execute Count", value: "1" },
+                ]}
+                dividerIndex={3}
+              />
+            )}
           </div>
 
           <div className="zoom-controls">
@@ -53,13 +67,53 @@ const Database: React.FC = () => {
           </div>
         </>
       ) : (
-        <DBInfoPanel onBack={() => setShowInfo(false)} />
+        <DetaileInfo onBack={() => setShowInfo(false)} />
       )}
 
       {isModalOpen && (
-        <DBModal
+        <Modal
           title={isModalOpen === "add" ? "DB 추가" : "DB 삭제"}
           onClose={() => setIsModalOpen(null)}
+          onConfirm={() =>
+            console.log(isModalOpen === "add" ? "DB 추가 완료" : "DB 삭제 완료")
+          }
+          fields={
+            isModalOpen === "add"
+              ? [
+                  {
+                    label: "Name",
+                    placeholder: "추가할 DB의 이름을 입력해주세요.",
+                  },
+                  {
+                    label: "IP",
+                    placeholder: "추가할 DB의 IP를 입력해주세요.",
+                  },
+                  {
+                    label: "Port",
+                    placeholder: "추가할 DB의 포트번호를 입력해주세요.",
+                  },
+                  {
+                    label: "Account",
+                    placeholder: "추가할 DB의 계정을 입력해주세요.",
+                  },
+                  {
+                    label: "Password",
+                    placeholder: "추가할 DB의 비밀번호를 입력해주세요.",
+                    type: "password",
+                  },
+                ]
+              : [
+                  {
+                    label: "Name",
+                    placeholder: "삭제할 DB의 이름을 입력해주세요.",
+                  },
+                  {
+                    label: "Password",
+                    placeholder: "삭제할 DB의 비밀번호를 입력해주세요.",
+                    type: "password",
+                  },
+                ]
+          }
         />
       )}
     </div>

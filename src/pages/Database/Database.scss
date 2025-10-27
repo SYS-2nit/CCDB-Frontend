@@ -50,36 +50,27 @@
   width: 260px;
   padding: 20px;
   border-radius: 10px;
-  background: rgba(18, 40, 70, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: $default-bg;
+  border: 1px solid transparent;
+  border-image: $card-stroke 1;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   color: $gray-0;
   animation: fadeIn 0.25s ease-in-out;
   backdrop-filter: blur(10px);
-  z-index: 200;
-  pointer-events: none; 
 
   h3 {
-    @include text-styles("heading03");
-    margin-bottom: 12px;
-    color: #eaf6ff;
+    @include text-styles("heading04");
+    margin-bottom: 16px;
+    color: $gray-0;
   }
 
   p {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 5px 0;
-    @include text-styles("label02");
-    color: rgba(255, 255, 255, 0.85);
-
-    strong {
-      font-weight: 600;
-    }
-
-    span {
-      color: rgba(255, 255, 255, 0.7);
-    }
+    margin: 10px 0;
+    @include text-styles("body02");
+    color: $gray-300;;
   }
 
   hr {
