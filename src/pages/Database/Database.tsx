@@ -12,6 +12,18 @@ const Database: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<null | "add" | "delete">(null);
   const [isHovering, setIsHovering] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [dbCount, setDbCount] = useState(1);
+
+  const handleConfirm = () => {
+    if (isModalOpen == "add") {
+      setDbCount((prev) => prev + 1);
+      console.log("DB 추가 완료");
+    } else {
+      setDbCount((prev) => Math.max(1, prev - 1));
+      console.log("DB 삭제 완료");
+    }
+    setIsModalOpen(null); // 모달창 닫기
+  };
 
   return (
     <div className="database-page">
@@ -21,19 +33,43 @@ const Database: React.FC = () => {
         <>
           <div className="db-container">
             <div className="db-box">
-              <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
+              <Canvas
+                camera={{
+                  position: [0, 0, Math.max(8, dbCount * 2)],
+                  fov: 50,
+                }}
+                style={{
+                  width: "100vw",
+                  height: "100vh",
+                }}
+              >
                 <ambientLight intensity={0.6} />
                 <directionalLight position={[5, 5, 5]} intensity={1.2} />
                 <Environment preset="city" />
-                <OracleDBModel
-                  onClick={() => setShowInfo(true)}
-                  onHover={(v) => setIsHovering(v)}
-                  isZoomed={false}
-                />
+
+                {Array.from({ length: dbCount }).map((_, i) => (
+                  <group
+                    key={i}
+                    position={[
+                      (i - (dbCount - 1) / 2) * 4.0, // 간격 균등 배치
+                      0,
+                      0,
+                    ]}
+                  >
+                    <OracleDBModel
+                      onClick={() => setShowInfo(true)}
+                      onHover={(v) => setIsHovering(v)}
+                      isZoomed={false}
+                    />
+                  </group>
+                ))}
+
                 <OrbitControls
-                  enableZoom={false}
-                  autoRotate
-                  autoRotateSpeed={1.0}
+                  enableZoom={true} // 확대/축소 허용
+                  enablePan={true} // 마우스로 이동 가능
+                  maxDistance={Math.max(15, dbCount * 4)} // 너무 가까워지지 않도록 제한
+                  minDistance={5}
+                  target={[0, 0, 0]}
                 />
               </Canvas>
             </div>
@@ -74,9 +110,7 @@ const Database: React.FC = () => {
         <Modal
           title={isModalOpen === "add" ? "DB 추가" : "DB 삭제"}
           onClose={() => setIsModalOpen(null)}
-          onConfirm={() =>
-            console.log(isModalOpen === "add" ? "DB 추가 완료" : "DB 삭제 완료")
-          }
+          onConfirm={handleConfirm}
           fields={
             isModalOpen === "add"
               ? [
