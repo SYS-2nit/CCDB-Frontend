@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "./EventSettingPanel.scss";
+import ArroWFillBottomIcon from "@/assets/general/arrow-fill-bottom.svg";
+import ArroWFillTopIcon from "@/assets/general/arrow-fill-top.svg";
 
 interface EventSettingPanelProps {
   title: string;
@@ -49,7 +51,19 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     <div className="event-panel">
       {/* 헤더 (아이콘 + 제목 + 토글(설정 기록 탭만)) */}
       <button className="event-panel__header" onClick={onToggle}>
-        <span className="arrow">{isOpen ? "▲" : "▼"}</span>
+        {isOpen ? (
+          <img
+            src={ArroWFillTopIcon}
+            alt="Arrow Down"
+            style={{ width: "24px", height: "24px" }}
+          />
+        ) : (
+          <img
+            src={ArroWFillBottomIcon}
+            alt="Arrow Down"
+            style={{ width: "24px", height: "24px" }}
+          />
+        )}
         <span>{mode == "default" ? title : "이벤트 이름"}</span>
         {mode === "log" && (
           <label className="toggle-switch" onClick={(e) => e.stopPropagation()}>

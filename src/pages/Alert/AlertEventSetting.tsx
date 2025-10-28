@@ -2,11 +2,15 @@ import TabMenu from "@/components/Tabs/TabMenu";
 import React, { useState } from "react";
 import EventSettingPanel from "./EventSettingPanel/EventSettingPanel";
 import "./AlertEventSetting.scss";
+import ReceiveIcon from "@/assets/general/receive.svg";
+import Modal from "@/components/Modal/Modal";
 
 type AlertTabType = "1" | "2";
 
 const AlertEventSetting: React.FC = () => {
+  const [isModal, setIsModal] = useState(false);
   const [activeTab, setActiveTab] = useState<AlertTabType>("1");
+
   const tabs = [
     { id: "1", label: "기본" },
     { id: "2", label: "설정 기록" },
@@ -21,10 +25,15 @@ const AlertEventSetting: React.FC = () => {
 
   return (
     <div className="alert-setting">
-      {/* 상단 탭 + 버튼 */}
       <div className="alert-setting__header">
         <TabMenu tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
-        <button className="alert-setting__btn">수신 설정</button>
+        <button
+          className="alert-setting__receive-btn"
+          onClick={() => setIsModal(true)}
+        >
+          <img src={ReceiveIcon} alt="Receive Icon" />
+          수신 설정
+        </button>
       </div>
 
       {/* 콘텐츠 */}
@@ -39,6 +48,37 @@ const AlertEventSetting: React.FC = () => {
           />
         ))}
       </div>
+
+      {/* 모달 */}
+      {isModal && (
+        <Modal
+          title="수신 설정"
+          cancelText="취소"
+          buttonText="저장"
+          onClose={() => setIsModal(false)}
+          onConfirm={() => setIsModal(false)}
+          fields={[
+            {
+              label: "Slack",
+              placeholder: "https://hooks.slack.com/services/...",
+            },
+            { label: "Email", placeholder: "example@company.com" },
+            {
+              label: "Critical",
+              placeholder: "주요 알림 채널을 선택해주세요.",
+              type: "select",
+              options: ["Slack", "Email"],
+            },
+            {
+              label: "Warning",
+              placeholder: "주요 알림 채널을 선택해주세요.",
+              type: "select",
+              options: ["Slack", "Email"],
+            },
+          ]}
+          theme="light"
+        />
+      )}
     </div>
   );
 };

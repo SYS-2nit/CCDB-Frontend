@@ -20,6 +20,11 @@
     cursor: pointer;
     border-radius: 10px 10px 0px 0px;
 
+    &:hover {
+      border-color: $main-400;
+      color: $main-600;
+    }
+
     // 토글 (설정 기록 탭에서만) 
     .toggle-switch {
       position: relative;
