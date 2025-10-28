@@ -5,12 +5,14 @@ interface EventSettingPanelProps {
   title: string;
   isOpen: boolean;
   onToggle: () => void;
+  mode?: "default" | "log"; // 모드: 기본 or 설정 기록
 }
 
 const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   title,
   isOpen,
   onToggle,
+  mode = "default",
 }) => {
   const [eventName, setEventName] = useState("");
   const [graphName, setGraphName] = useState("");
@@ -31,22 +33,22 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   };
 
   const handleSave = () => {
-    console.log({
-      eventName,
-      graphName,
-      frequency,
-      days,
-      startTime,
-      endTime,
-      levels,
-    });
+    console.log("Saved", eventName);
+  };
+
+  const handleEdit = () => {
+    console.log("Edited", eventName);
+  };
+
+  const handleDelete = () => {
+    console.log("Deleted", eventName);
   };
 
   return (
     <div className="event-panel">
       <button className="event-panel__header" onClick={onToggle}>
         <span className="arrow">{isOpen ? "▲" : "▼"}</span>
-        <span>{title}</span>
+        <span>{mode == "default" ? title : "이벤트 이름"}</span>
       </button>
 
       {isOpen && (
@@ -61,20 +63,24 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                 onChange={(e) => setEventName(e.target.value)}
               />
             </div>
-            <div className="field">
-              <label>그래프 이름</label>
-              <select
-                value={graphName}
-                onChange={(e) => setGraphName(e.target.value)}
-              >
-                <option value="그래프 이름을 선택해주세요.">
-                  그래프 이름을 선택해주세요.
-                </option>
-                <option value="그래프 이름 1">그래프 이름 1</option>
-                <option value="그래프 이름 2">그래프 이름 2</option>
-                <option value="그래프 이름 3">그래프 이름 3</option>
-              </select>
-            </div>
+
+            {mode === "default" && (
+              <div className="field">
+                <label>그래프 이름</label>
+                <select
+                  value={graphName}
+                  onChange={(e) => setGraphName(e.target.value)}
+                >
+                  <option value="그래프 이름을 선택해주세요.">
+                    그래프 이름을 선택해주세요.
+                  </option>
+                  <option value="그래프 이름 1">그래프 이름 1</option>
+                  <option value="그래프 이름 2">그래프 이름 2</option>
+                  <option value="그래프 이름 3">그래프 이름 3</option>
+                </select>
+              </div>
+            )}
+
             <div className="field">
               <label>누적 횟수</label>
               <select
@@ -177,7 +183,17 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
           </div>
 
           <div className="event-panel__actions">
-            <button onClick={handleSave}>저장</button>
+            {mode === "log" && (
+              <button className="delete" onClick={handleDelete}>
+                삭제
+              </button>
+            )}
+            <button
+              className={mode === "default" ? "save" : "edit"}
+              onClick={mode === "default" ? handleSave : handleEdit}
+            >
+              {mode === "default" ? "저장" : "수정"}
+            </button>
           </div>
         </div>
       )}

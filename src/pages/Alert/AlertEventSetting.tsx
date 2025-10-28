@@ -1,6 +1,7 @@
 import TabMenu from "@/components/Tabs/TabMenu";
 import React, { useState } from "react";
-import EventSettingPanel from "./AlertEventSetting/EventSettingPanel/EventSettingPanel";
+import EventSettingPanel from "./EventSettingPanel/EventSettingPanel";
+import "./AlertEventSetting.scss";
 
 type AlertTabType = "1" | "2";
 
@@ -11,19 +12,22 @@ const AlertEventSetting: React.FC = () => {
     { id: "2", label: "설정 기록" },
   ] as const;
 
-  // 한 번에 하나만 open
   const [openPanel, setOpenPanel] = useState<string | null>("CPU");
-
   const panels = ["CPU", "Memory", "Session", "I/O", "Storage"];
 
   const handleToggle = (title: string) => {
-    setOpenPanel((prev) => (prev === title ? null : title)); // 같은 걸 클릭하면 닫힘
+    setOpenPanel((prev) => (prev === title ? null : title));
   };
 
   return (
-    <div>
-      {/* 탭 메뉴 */}
-      <TabMenu tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+    <div className="alert-setting">
+      {/* 상단 탭 + 버튼 */}
+      <div className="alert-setting__header">
+        <TabMenu tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+        <button className="alert-setting__btn">수신 설정</button>
+      </div>
+
+      {/* 콘텐츠 */}
       <div className="alert-setting__container">
         {panels.map((title) => (
           <EventSettingPanel
@@ -31,6 +35,7 @@ const AlertEventSetting: React.FC = () => {
             title={title}
             isOpen={openPanel === title}
             onToggle={() => handleToggle(title)}
+            mode={activeTab === "1" ? "default" : "log"}
           />
         ))}
       </div>
