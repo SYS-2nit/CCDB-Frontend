@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
 import ChartSetting from "@/components/Card/ChartSetting";
-import { chartData, type TabType } from "./data/chartData";
+import { chartData } from "./data/chartData";
 import StatusCard from "@/components/Card/StatusCard";
 import {
   DragDropContext,
@@ -11,27 +11,33 @@ import {
   type DropResult,
 } from "@hello-pangea/dnd";
 import { cloneDeep } from "lodash";
+import TabMenu from "@/components/Tabs/TabMenu";
+
+// chartData 키와 동일한 타입으로 명시
+type TabType = keyof typeof chartData;
 
 const Dashboard: React.FC = () => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
+  // 초기값을 실제 존재하는 key로 변경
   const [activeTab, setActiveTab] = useState<TabType>("main");
 
   const [charts, setCharts] = useState<string[]>(() =>
     cloneDeep(chartData["main"])
   );
+
   const handleSettingToggle = () => setIsSettingOpen((prev) => !prev);
 
-  const tabs: { id: TabType; label: string }[] = [
+  const tabs = [
     { id: "main", label: "Main Custom" },
     { id: "cpu", label: "CPU" },
     { id: "memory", label: "Memory" },
     { id: "session", label: "Session" },
     { id: "io", label: "I/O" },
     { id: "storage", label: "Storage" },
-  ];
+  ] as const; // 리터럴 타입 유지
 
   React.useEffect(() => {
-    // 원본 데이터가 변형되지 않도록 깊은 복사
+    // 타입 단언으로 안전하게 접근
     setCharts([...chartData[activeTab]]);
   }, [activeTab]);
 
@@ -50,22 +56,14 @@ const Dashboard: React.FC = () => {
     <div
       className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}
     >
-      {/* 탭 메뉴 */}
-      <div className="dashboard__tabs">
-        {tabs.map(({ id, label }) => (
-          <button
-            key={id}
-            className={`dashboard__tab ${activeTab === id ? "active" : ""}`}
-            onClick={() => setActiveTab(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      {/* setActiveTab을 콜백으로 래핑 */}
+      <TabMenu
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(tab) => setActiveTab(tab as TabType)}
+      />
 
-      {/* 메인 콘텐츠 */}
       <div className="dashboard__content">
-        {/* 차트 그리드 (드래그 지원) */}
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="charts" direction="horizontal">
             {(provided) => (
@@ -74,7 +72,6 @@ const Dashboard: React.FC = () => {
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {/* 상태 카드 (main 제외 탭) */}
                 {activeTab !== "main" && (
                   <div className="status-cards">
                     <StatusCard label="무해" value={0} color="safe" />
@@ -84,13 +81,12 @@ const Dashboard: React.FC = () => {
                   </div>
                 )}
 
-                {/* 차트 카드 */}
                 {charts.map((title, index) => (
                   <Draggable
                     key={title}
                     draggableId={title}
                     index={index}
-                    isDragDisabled={activeTab !== "main"} // 메인 탭에서만 드래그 가능
+                    isDragDisabled={activeTab !== "main"}
                   >
                     {(provided) => (
                       <div
@@ -118,7 +114,6 @@ const Dashboard: React.FC = () => {
           </Droppable>
         </DragDropContext>
 
-        {/* 설정 패널 */}
         {isSettingOpen && <ChartSetting onClose={handleSettingToggle} />}
       </div>
     </div>
