@@ -9,9 +9,9 @@ import Setting from "./pages/Setting/Setting";
 import SqlTop from "./pages/SQL/SqlTop";
 import SqlAnalysis from "./pages/SQL/SqlAnalysis";
 import SqlStat from "./pages/SQL/SqlStat";
+import Database from "./pages/Database/Database";
 import AlertEventSetting from "./pages/Alert/AlertEventSetting";
 import AlerEventtLog from "./pages/Alert/AlerEventtLog";
-import Database from "./pages/Database/Database";
 
 const App: React.FC = () => {
   return (
