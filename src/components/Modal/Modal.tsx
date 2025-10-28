@@ -1,19 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./Modal.scss";
 
 interface FieldItem {
   label: string;
-  placeholder: string;
-  type?: "text" | "select" | "password";
+  placeholder?: string;
+  type?: "text" | "select" | "password" | "button-group" | "date";
   options?: string[];
 }
 
 interface ModalProps {
   title: string;
-  onClose: () => void;
+  onClose?: () => void;
   onConfirm?: () => void;
   fields?: FieldItem[];
-  buttonText?: string;
+  confirmText?: string;
   cancelText?: string;
   theme?: "light" | "dark";
 }
@@ -23,10 +23,12 @@ const Modal: React.FC<ModalProps> = ({
   onClose,
   onConfirm,
   fields = [],
-  buttonText = "확인",
+  confirmText = "확인",
   cancelText = "취소",
   theme = "light",
 }) => {
+  const [selected, setSelected] = useState<{ [key: string]: string }>({});
+
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -34,35 +36,56 @@ const Modal: React.FC<ModalProps> = ({
     };
   }, []);
 
+  const handleSelect = (label: string, value: string) => {
+    setSelected((prev) => ({ ...prev, [label]: value }));
+  };
+
   return (
     <div className={`modal-overlay ${theme}`}>
       <div className={`modal ${theme}`}>
-        {/* Header */}
+        {/* 헤더 */}
         <div className="modal__header">
-          <h2>{title}</h2>
+          <div className="modal__title">
+            <h2>{title}</h2>
+          </div>
           <button className="modal__close" onClick={onClose}>
             ✕
           </button>
         </div>
 
-        {/* Body */}
-        <div
-          className={`modal__body ${
-            fields.length > 2 ? "two-column" : "single-column"
-          }`}
-        >
+        {/* 바디 */}
+        <div className="modal__body">
           {fields.map((field, i) => (
             <div className="modal__row" key={i}>
-              <label>{field.label}</label>
-              {field.type === "select" ? (
+              <div className="modal__row-header">
+                <label>{field.label}</label>
+              </div>
+
+              {/* 필드 렌더링 */}
+              {field.type === "button-group" && field.options ? (
+                <div className="button-group">
+                  {field.options.map((opt, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`button-group__btn ${
+                        selected[field.label] === opt ? "active" : ""
+                      }`}
+                      onClick={() => handleSelect(field.label, opt)}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              ) : field.type === "date" ? (
+                <input type="date" placeholder={field.placeholder} />
+              ) : field.type === "select" ? (
                 <select defaultValue="">
                   <option value="" disabled>
                     {field.placeholder}
                   </option>
                   {field.options?.map((opt, idx) => (
-                    <option key={idx} value={opt}>
-                      {opt}
-                    </option>
+                    <option key={idx}>{opt}</option>
                   ))}
                 </select>
               ) : (
@@ -75,13 +98,13 @@ const Modal: React.FC<ModalProps> = ({
           ))}
         </div>
 
-        {/* Footer */}
+        {/* 푸터 */}
         <div className="modal__footer">
           <button className="cancel" onClick={onClose}>
             {cancelText}
           </button>
           <button className="confirm" onClick={onConfirm}>
-            {buttonText}
+            {confirmText}
           </button>
         </div>
       </div>

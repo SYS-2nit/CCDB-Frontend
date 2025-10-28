@@ -1,9 +1,9 @@
 import TabMenu from "@/components/Tabs/TabMenu";
 import React, { useState } from "react";
-import EventSettingPanel from "./EventSettingPanel/EventSettingPanel";
 import "./AlertEventSetting.scss";
 import ReceiveIcon from "@/assets/general/receive.svg";
 import Modal from "@/components/Modal/Modal";
+import EventSettingPanel from "./AlertEventSetting/EventSettingPanel";
 
 type AlertTabType = "1" | "2";
 
@@ -54,7 +54,7 @@ const AlertEventSetting: React.FC = () => {
         <Modal
           title="수신 설정"
           cancelText="취소"
-          buttonText="저장"
+          confirmText="저장"
           onClose={() => setIsModal(false)}
           onConfirm={() => setIsModal(false)}
           fields={[

@@ -10,8 +10,8 @@ import SqlTop from "./pages/SQL/SqlTop";
 import SqlAnalysis from "./pages/SQL/SqlAnalysis";
 import SqlStat from "./pages/SQL/SqlStat";
 import Database from "./pages/Database/Database";
-import AlertEventSetting from "./pages/Alert/AlertEventSetting";
 import AlerEventLog from "./pages/Alert/AlerEventLog";
+import AlertEventSetting from "./pages/Alert/AlertEventSetting";
 
 const App: React.FC = () => {
   return (

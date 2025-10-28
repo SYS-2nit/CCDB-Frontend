@@ -1,7 +1,10 @@
-@use "@styles/variables" as *;
+@use "sass:map";
 @use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
 
-/* === 공통 === */
+
+/* 공통 */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -10,7 +13,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
 }
 
 .modal {
@@ -24,7 +26,7 @@
   flex-direction: column;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 
-  /* === 헤더 === */
+  /* 헤더 */
   &__header {
     display: flex;
     justify-content: space-between;
@@ -33,83 +35,103 @@
     border-bottom: 1px solid $gray-200;
     @include text-styles("heading02");
 
-    .modal__close {
-      background: none;
+    .modal__title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &-icon {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+
+  &__body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+
+    label {
+      @include text-styles("body02");
+      color: $gray-900;
+    }
+  }
+
+  input,
+  select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1px solid $gray-300;
+    background: $gray-0;
+    color: $gray-800;
+    @include text-styles("body02");
+
+    &:focus {
+      border-color: $main-500;
+      box-shadow: 0 0 0 3px rgba($main-400, 0.15);
+    }
+  }
+
+  /* 버튼 그룹 */
+  .button-group {
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid $gray-300;
+
+    &__btn {
+      flex: 1;
+      padding: 10px 0;
+      background: $gray-0;
+      color: $gray-700;
       border: none;
-      color: $gray-500;
-      color: $gray-500;
       cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:not(:last-child) {
+        border-right: 1px solid $gray-300;
+      }
 
       &:hover {
-        color: $gray-900;
+        background: $gray-100;
+      }
+
+      &.active {
+        background: $main-600;
+        color: $gray-0;
       }
     }
   }
 
-  /* === 바디 === */
-  &__body {
-    padding: 24px;
-    display: grid;
-    gap: 20px;
-
-    .modal__row {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-
-      label {
-        @include text-styles("body02");
-        color: $gray-900;
-      }
-
-      /* input + select 공통 스타일 */
-      input,
-      select {
-        border: 1px solid $gray-300;
-        border-radius: 5px;
-        padding: 12px 16px;
-        @include text-styles("label02");
-        color: $gray-500;
-
-        &:focus {
-          border-color: $main-500;
-          box-shadow: 0 0 0 3px rgba($main-500, 0.15);
-          color: $gray-900;
-        }
-      }
-
-      /* select 전용 화살표 */
-      select {
-        appearance: none;
-        background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-size: 24px;
-        cursor: pointer;
-      }
-    }
-  }
-
-  /* === 푸터 === */
   &__footer {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    padding: 20px;
-    border-top: 1px solid $gray-300;
+    padding: 16px 24px;
+    border-top: 1px solid $gray-200;
 
     button {
-      border-radius: 5px;
+      padding: 10px 16px;
+      border-radius: 6px;
       cursor: pointer;
-      padding: 12px 16px;
       @include text-styles("body02");
       transition: 0.2s;
     }
 
     .cancel {
+      background: $gray-0;
       border: 1px solid $gray-300;
       color: $gray-700;
-      background-color: $gray-0;
 
       &:hover {
         background: $gray-100;
@@ -118,94 +140,12 @@
 
     .confirm {
       background: $main-600;
+      border: none;
       color: $gray-0;
-      border: 1px solid transparent;
 
       &:hover {
         background: $main-800;
       }
     }
-  }
-}
-
-/* === 다크 테마 === */
-.modal.dark {
-  background: rgba(16, 35, 60, 0.9);
-  color: $gray-0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-
-  .modal__header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-
-    .modal__close {
-      color: $gray-300;
-
-      &:hover {
-        color: $gray-0;
-      }
-    }
-  }
-
-  .modal__body {
-    .modal__row {
-      label {
-        color: $gray-0;
-      }
-
-      input,
-      select {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: $gray-0;
-
-        &::placeholder {
-          color: $gray-400;
-        }
-
-        &:focus {
-          border-color: $main-400;
-          background: rgba(93, 184, 255, 0.15);
-        }
-      }
-
-      select {
-        background-image: url("data:image/svg+xml;utf8,<svg fill='%23ccc' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-      }
-    }
-  }
-
-  .modal__footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-
-    .cancel {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: $gray-0;
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
-    }
-
-    .confirm {
-      background: $main-500;
-      color: $gray-0;
-
-      &:hover {
-        background: $main-600;
-      }
-    }
-  }
-}
-
-/* === 애니메이션 === */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
   }
 }
