@@ -6,12 +6,13 @@
 
 .event-panel {
   margin-bottom: 10px;
+  overflow: hidden; // 넘치는 부분 숨기기
 
   &__header {
     width: 100%;
     background: $gray-0;
-    padding: 20px;
-    @include text-styles("heading01");
+    padding: 12px 16px;
+    @include text-styles("heading02");
     color: $gray-900;
     display: flex;
     gap: 20px;
@@ -34,10 +35,85 @@
     display: flex;
     align-items: flex-end;
 
-    .field {
+  .field {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+
+    label {
+      @include text-styles("body02");
+      color: $gray-900;
+      margin-bottom: 10px;
+    }
+
+    input,
+    select {
+      border: 1px solid $gray-300;
+      border-radius: 5px;
+      padding: 12px 16px;
+      color: $gray-800;
+
+      &:focus {
+        border-color: $main-500;
+        box-shadow: 0 0 0 3px rgba($main-500, 0.15);
+        outline: none;
+      }
+    }
+
+    // select 전용 스타일 
+    select {
+      appearance: none; // 기본 화살표 제거
+      background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 24px;
+      cursor: pointer;
+    }
+
+    // 요일 버튼
+    .days {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+
+      button {
+        flex: 1;
+        border: 1px solid $gray-300;
+        border-radius: 6px;
+        padding: 10px 0;
+        cursor: pointer;
+        background: $gray-0;
+        color: $gray-700;
+        font-weight: 500;
+        transition: all 0.15s ease;
+
+        &:hover {
+          border-color: $main-400;
+          color: $main-600;
+        }
+
+        &.active {
+          background: $main-600;
+          color: $gray-0;
+          border-color: $main-600;
+        }
+      }
+    }
+  }
+  }
+
+ // 주의, 위험, 치명 슬라이더
+  &__sliders {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+
+    .slider-group {
+      flex: 1;
+      gap: 24px;
       display: flex;
       flex-direction: column;
-      flex: 1;
 
       label {
         @include text-styles("body02");
@@ -45,49 +121,51 @@
         margin-bottom: 10px;
       }
 
-      input,
-      select {
-        border: 1px solid $gray-300;
-        border-radius: 5px;
-        padding: 12px 16px;
+      .slider-wrapper {
+        position: relative;
       }
 
-      .days {
-        display: flex;
-        gap: 5px;
+      input[type="range"] {
+        appearance: none;
+        width: 100%;
+        height: 12px;
+        border-radius: 5px;
+        background: linear-gradient(
+          to right,
+          $main-600 calc(var(--value) * 1%),
+          $gray-50 calc(var(--value) * 1%)
+        );
+        cursor: pointer;
 
-        button {
-            border: 1px solid $gray-300;
-            border-radius: 5px;
-            padding: 12px 16px;
-            cursor: pointer;
-
-            background: $gray-0;
-
-          &.active {
-            background: $main-600;
-            color: $gray-0;
+        // 동그라미
+        &::-webkit-slider-thumb {
+          appearance: none;
+          width: 24px;
+          height: 24px;
+          background: $gray-0;
+          border-radius: 50%;
+          box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+          cursor: pointer;
+          &:hover {
+            transform: scale(1.2);
           }
         }
       }
-    }
-  }
 
-  // 주의, 위험, 경고 슬라이더 
-  &__sliders {
-    display: flex;
-    gap: 30px;
-    
-    .slider-group {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      label {
-        margin-bottom: 8px;
-        font-weight: 600;
+      // 핸들 위 숫자
+      .slider-value {
+        position: absolute;
+        top: -30px;
+        @include text-styles("body02");
+        color: $main-500;
       }
-      input[type="range"] {
-        accent-color: #2563eb;
+
+      // 하단 0~100 라벨
+      .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        @include text-styles("body02");
+        color: $gray-500;
       }
     }
   }
