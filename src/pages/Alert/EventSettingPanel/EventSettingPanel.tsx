@@ -15,6 +15,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   mode = "default",
 }) => {
   const [eventName, setEventName] = useState("");
+  const [isActive, setIsActive] = useState(true);
   const [graphName, setGraphName] = useState("");
   const [frequency, setFrequency] = useState("매번");
   const [days, setDays] = useState<string[]>([]);
@@ -46,9 +47,20 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
 
   return (
     <div className="event-panel">
+      {/* 헤더 (아이콘 + 제목 + 토글(설정 기록 탭만)) */}
       <button className="event-panel__header" onClick={onToggle}>
         <span className="arrow">{isOpen ? "▲" : "▼"}</span>
         <span>{mode == "default" ? title : "이벤트 이름"}</span>
+        {mode === "log" && (
+          <label className="toggle-switch" onClick={(e) => e.stopPropagation()}>
+            <input
+              type="checkbox"
+              checked={isActive}
+              onChange={() => setIsActive(!isActive)}
+            />
+            <span className="slider"></span>
+          </label>
+        )}
       </button>
 
       {isOpen && (

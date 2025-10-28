@@ -6,19 +6,61 @@
 
 .event-panel {
   margin-bottom: 10px;
-  overflow: hidden; // 넘치는 부분 숨기기
+  overflow: hidden;
 
   &__header {
+    gap: 20px;
     width: 100%;
     background: $gray-0;
     padding: 12px 16px;
     @include text-styles("heading02");
     color: $gray-900;
     display: flex;
-    gap: 20px;
     align-items: center;
     cursor: pointer;
     border-radius: 10px 10px 0px 0px;
+
+    // 토글 (설정 기록 탭에서만) 
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 22px;
+
+      .slider {
+        position: absolute;
+        inset: 0;
+        background-color: $gray-100;
+        border-radius: 20px;
+        cursor: pointer;
+
+        &:before {
+          content: "";
+          position: absolute;
+          height: 16px;
+          width: 16px;
+          left: 3px;
+          bottom: 3px;
+          background-color: $gray-0;
+          border-radius: 50%;
+          transition: transform 0.3s ease;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+      }
+
+      input:checked + .slider {
+        background-color: $main-600;
+        box-shadow: 0 0 2px $main-600;
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(16px);
+      }
+
+      input:focus + .slider {
+        box-shadow: 0 0 1px $main-600;
+      }
+    }
   }
 
   &__content {
