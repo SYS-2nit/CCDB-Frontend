@@ -7,6 +7,7 @@ import InfoIcon from "@/assets/general/info.svg";
 import SettingIcon from "@/assets/general/setting.svg";
 import DownloadIcon from "@/assets/general/download.svg";
 import Button from "@/components/Button/Button";
+import Input from "@/components/Input/Input";
 
 const AlerEventLog: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -15,7 +16,14 @@ const AlerEventLog: React.FC = () => {
     <div className="alert-log">
       {/* 검색란 + 검색 버튼 + 필터 버튼 */}
       <div className="alert-log__top">
-        <Button text="검색" size="sm" variant="primary" />
+        <div className="alert-log__top-left">
+          <Input
+            size="sm"
+            variant="default"
+            placeholder="키워드를 입력해주세요. (예: FRA, Deadlock)"
+          />
+          <Button text="검색" size="sm" variant="primary" />
+        </div>
         <Button
           text="필터"
           icon={FilterIcon}
