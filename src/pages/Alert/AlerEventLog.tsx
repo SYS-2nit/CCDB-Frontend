@@ -1,22 +1,28 @@
 import React, { useState } from "react";
 import "./AlerEventLog.scss";
 import Modal from "@/components/Modal/Modal";
-import SearchBar from "./AlerEventLog/SearchBar";
-import FilterButton from "./AlerEventLog/FilterButton";
 import AlertTable from "./AlerEventLog/AlertTable";
+import FilterIcon from "@/assets/general/filter.svg";
 import InfoIcon from "@/assets/general/info.svg";
 import SettingIcon from "@/assets/general/setting.svg";
 import DownloadIcon from "@/assets/general/download.svg";
+import Button from "@/components/Button/Button";
 
 const AlerEventLog: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
     <div className="alert-log">
-      {/* 상단 검색 + 필터 */}
+      {/* 검색란 + 검색 버튼 + 필터 버튼 */}
       <div className="alert-log__top">
-        <SearchBar placeholder="키워드를 입력해주세요. (예: FRA, Deadlock)" />
-        <FilterButton onClick={() => setIsFilterOpen(true)} />
+        <Button text="검색" size="sm" variant="primary" />
+        <Button
+          text="필터"
+          icon={FilterIcon}
+          size="sm"
+          variant="white"
+          onClick={() => setIsFilterOpen(true)}
+        />
       </div>
 
       {/* 테이블 */}

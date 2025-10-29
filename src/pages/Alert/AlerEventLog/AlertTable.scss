@@ -3,68 +3,23 @@
 @use "@styles/variables" as *;
 @use "@styles/mixins" as *;
 
-.alert-log {
-  background: $gray-50;
-  padding: 20px;
-  border-radius: 10px;
-
-  &__top {
+&__table-wrapper {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 10px;
+    background: $gray-0;
+}
 
-    .search-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-
-      input {
-        width: 280px;
-        padding: 12px 16px;
-        border-radius: 5px;
-        border: 1px solid $gray-300;
-        @include text-styles("body02");
-      }
-
-      button {
-        background: $main-600;
-        color: $gray-0;
-        border-radius: 5px;
-        padding: 12px 16px;
-        cursor: pointer;
-      }
-    }
-
-    .filter-btn {
-      gap: 5px;
-      display: flex;
-      align-items: center;
-      background: $gray-0;
-      border: 1px solid $gray-300;
-      border-radius: 5px;
-      padding: 12px 16px;
-      cursor: pointer;
-    }
-  }
-
-    &__table-wrapper {
-        display: flex;
-        flex-direction: column;
-        padding: 20px;
-        border-radius: 10px;
-        background: $gray-0;
-    }
-
-    &__table-header {
+&__table-header {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         border-radius: 5px;
         margin-bottom: 10px
-    }
+}
 
-    &__table-icons {
+&__table-icons {
       display: flex;
       align-items: center;
       gap: 5px;
@@ -73,7 +28,7 @@
         width: 24px;
         height: 24px;
       }
-    }
+}
 
     &__table-title {
         @include text-styles("heading04");
@@ -89,8 +44,8 @@
 
     &-btn {
         padding: 12px 16px;
-        border: 1px solid $gray-300;
-        @include text-styles("heading04");
+      border-bottom: 1px solid $gray-200;
+      @include text-styles("heading04");
     }
 
     th {
@@ -130,4 +85,3 @@
       background: $gray-900;
     }
   }
-}

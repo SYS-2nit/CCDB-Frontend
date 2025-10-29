@@ -40,7 +40,9 @@ const AlertTable: React.FC = () => {
       <tbody>
         {data.map((row, idx) => (
           <tr key={idx}>
-            <td>{row.status}</td>
+            <td>
+              <button className="alert-table-btn">처리내역</button>
+            </td>
             <td>
               <SeverityDot color={row.severity as "yellow" | "red" | "black"} />
             </td>
