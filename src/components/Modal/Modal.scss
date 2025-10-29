@@ -149,3 +149,75 @@
     }
   }
 }
+
+/* 다크 테마 */
+.modal.dark {
+  background: $default-bg;
+  color: $gray-0; // 제목 글씨 색상
+  border: 1px solid transparent;
+  border-image: linear-gradient(
+    210deg,
+    #0F2F57 0%,
+    #A8C6DF 25%,
+    #0F2F57 100%
+  );
+  border-image-slice: 1;
+
+  label {
+    color: $gray-100; // 각각의 필드 제목 글씨 색상
+  }
+
+  .modal__header {
+    border-bottom: 1px solid $gray-600;
+
+    .modal__close {
+      color: $gray-300;
+      background: none;
+      border: none;
+
+      &:hover {
+        color: $gray-0;
+      }
+    }
+  }
+
+  .modal__body {
+    .modal__row input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: $gray-0;
+
+      &::placeholder {
+        color: $gray-300;
+      }
+
+      &:focus {
+        border-color: $main-400;
+        background: rgba(93, 184, 255, 0.15);
+      }
+    }
+  }
+
+  .modal__footer {
+    border-top: 1px solid $gray-700;
+
+    .cancel {
+      background: $default-bg;
+      border: 1px solid $gray-500;
+      color: $gray-0;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    .confirm {
+      background: $main-500;
+      color: $gray-0;
+
+      &:hover {
+        background: $main-600;
+      }
+    }
+  }
+}
