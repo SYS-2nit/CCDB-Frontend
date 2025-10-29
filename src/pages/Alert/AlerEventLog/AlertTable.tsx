@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import SeverityDot from "./SeverityDot";
+import Button from "@/components/Button/Button";
+import Modal from "@/components/Modal/Modal";
 
 const AlertTable: React.FC = () => {
+  const [isListOpen, setIsListOpen] = useState(false);
+
   const data = [
     {
       status: "발생",
@@ -41,7 +45,12 @@ const AlertTable: React.FC = () => {
         {data.map((row, idx) => (
           <tr key={idx}>
             <td>
-              <button className="alert-table-btn">처리내역</button>
+              <Button
+                size="sm"
+                variant="white"
+                text="처리내역"
+                onClick={() => setIsListOpen(true)}
+              />
             </td>
             <td>
               <SeverityDot color={row.severity as "yellow" | "red" | "black"} />
@@ -52,6 +61,38 @@ const AlertTable: React.FC = () => {
           </tr>
         ))}
       </tbody>
+
+      {/* 처리내역 모달 */}
+      {isListOpen && (
+        <Modal
+          title="처리내역 추가"
+          onClose={() => setIsListOpen(false)}
+          onConfirm={() => setIsListOpen(false)}
+          confirmText="저장"
+          theme="light"
+          fields={[
+            {
+              label: "처리내역",
+              placeholder: "처리내역을 입력해주세요.",
+              type: "text",
+            },
+            {
+              label: "처리내역 상세",
+              type: "table",
+              tableHeaders: ["작성 시간", "작성자", "처리내역"],
+              tableData: [
+                {
+                  작성시간: "YYYY-MM-DD HH:MM",
+                  작성자: "email1234@gmail.com",
+                  처리내역: "어쩌구 저쩌구 ~~~~~ ...",
+                },
+                { 작성시간: "Data", 작성자: "Data", 처리내역: "Data" },
+                { 작성시간: "Data", 작성자: "Data", 처리내역: "Data" },
+              ],
+            },
+          ]}
+        />
+      )}
     </table>
   );
 };

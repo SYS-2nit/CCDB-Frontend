@@ -4,8 +4,10 @@ import "./Modal.scss";
 interface FieldItem {
   label: string;
   placeholder?: string;
-  type?: "text" | "select" | "password" | "button-group" | "date";
+  type?: "text" | "select" | "password" | "button-group" | "date" | "table";
   options?: string[];
+  tableData?: { [key: string]: string }[];
+  tableHeaders?: string[];
 }
 
 interface ModalProps {
@@ -61,7 +63,7 @@ const Modal: React.FC<ModalProps> = ({
                 <label>{field.label}</label>
               </div>
 
-              {/* 필드 렌더링 */}
+              {/* 필드 렌더링*/}
               {field.type === "button-group" && field.options ? (
                 <div className="button-group">
                   {field.options.map((opt, idx) => (
@@ -88,6 +90,27 @@ const Modal: React.FC<ModalProps> = ({
                     <option key={idx}>{opt}</option>
                   ))}
                 </select>
+              ) : field.type === "table" && field.tableHeaders ? (
+                <div className="modal__table-wrapper">
+                  <table className="modal__table">
+                    <thead>
+                      <tr>
+                        {field.tableHeaders.map((header, idx) => (
+                          <th key={idx}>{header}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {field.tableData?.map((row, rowIdx) => (
+                        <tr key={rowIdx}>
+                          {field.tableHeaders?.map((header, colIdx) => (
+                            <td key={colIdx}>{row[header] || "Data"}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               ) : (
                 <input
                   type={field.type || "text"}

@@ -148,6 +148,32 @@
       }
     }
   }
+
+    &__table-wrapper {
+    background: $gray-0;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    color: $gray-700;
+
+    th {
+      background: $gray-50;
+      text-align: center;
+      @include text-styles("label02");
+    }
+
+    td {
+      @include text-styles("label02");
+    }
+
+    tr:hover {
+      background: $gray-50;
+    }
+  }
 }
 
 /* 다크 테마 */
