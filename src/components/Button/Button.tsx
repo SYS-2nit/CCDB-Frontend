@@ -3,7 +3,7 @@ import clsx from "clsx";
 import React from "react";
 
 type ButtonSize = "sm" | "md";
-type ButtonVariant = "primary" | "white" | "disabled";
+type ButtonVariant = "primary" | "error" | "white";
 
 interface ButtonProps {
   text?: string;
@@ -33,10 +33,9 @@ const Button: React.FC<ButtonProps> = ({
         }
       )}
       onClick={onClick}
-      disabled={variant === "disabled"}
     >
       {icon && <img src={icon} alt="icon" className="custom-btn__icon" />}
-      {text && <span>{text}</span>}
+      {text && <div> {text} </div>}
     </button>
   );
 };

@@ -3,7 +3,6 @@
 @use "@styles/variables" as *;
 @use "@styles/mixins" as *;
 
-
 .event-panel {
   margin-bottom: 10px;
   overflow: hidden;
@@ -11,7 +10,7 @@
   &__header {
     gap: 20px;
     width: 100%;
-    background: $gray-0;
+    background: $gray-50;
     padding: 12px 16px;
     @include text-styles("heading02");
     color: $gray-900;
@@ -25,12 +24,27 @@
       color: $main-600;
     }
 
-    // 토글 (설정 기록 탭에서만) 
+    img {
+      flex-shrink: 0;
+    }
+
+    span {
+      flex: 1;
+      text-align: left;
+    }
+
+    /* 설정 기록 모드 토글 스위치 */
     .toggle-switch {
       position: relative;
       display: inline-block;
       width: 38px;
       height: 22px;
+
+      input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
 
       .slider {
         position: absolute;
@@ -55,15 +69,10 @@
 
       input:checked + .slider {
         background-color: $main-600;
-        box-shadow: 0 0 2px $main-600;
       }
 
       input:checked + .slider:before {
         transform: translateX(16px);
-      }
-
-      input:focus + .slider {
-        box-shadow: 0 0 1px $main-600;
       }
     }
   }
@@ -81,109 +90,99 @@
     gap: 20px;
     display: flex;
     align-items: flex-end;
+    flex-wrap: wrap;
 
-  .field {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-
-
-    label {
-      @include text-styles("body02");
-      color: $gray-900;
-      margin-bottom: 10px;
-    }
-
-    input,
-    select {
-      border: 1px solid $gray-300;
-      border-radius: 5px;
-      padding: 12px 16px;
-      color: $gray-800;
-
-      &:focus {
-        border-color: $main-500;
-        box-shadow: 0 0 0 3px rgba($main-500, 0.15);
-        outline: none;
-      }
-    }
-
-    // select 전용 스타일 
-    select {
-      appearance: none; // 기본 화살표 제거
-      background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      background-size: 24px;
-      cursor: pointer;
-    }
-
-    // 요일 버튼
-    .days {
+    .field {
       display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      flex: 1;
 
-      button {
-        flex: 1;
+      label {
+        @include text-styles("body02");
+        color: $gray-900;
+        margin-bottom: 10px;
+      }
+
+      input,
+      select {
         border: 1px solid $gray-300;
-        border-radius: 6px;
-        padding: 10px 0;
-        cursor: pointer;
-        background: $gray-0;
-        color: $gray-700;
-        font-weight: 500;
-        transition: all 0.15s ease;
+        border-radius: 5px;
+        padding: 12px 16px;
+        color: $gray-800;
 
-        &:hover {
-          border-color: $main-400;
-          color: $main-600;
+        &:focus {
+          border-color: $main-500;
+          box-shadow: 0 0 0 3px rgba($main-500, 0.15);
+          outline: none;
         }
+      }
 
-        &.active {
-          background: $main-600;
-          color: $gray-0;
-          border-color: $main-600;
+      select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        background-size: 24px;
+        cursor: pointer;
+      }
+
+      /* 요일 버튼 */
+      .days {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+
+        button {
+          flex: 1;
+          border: 1px solid $gray-300;
+          border-radius: 6px;
+          padding: 10px 0;
+          cursor: pointer;
+          background: $gray-0;
+          color: $gray-700;
+          font-weight: 500;
+          transition: all 0.15s ease;
+
+          &:hover {
+            border-color: $main-400;
+            color: $main-600;
+          }
+
+          &.active {
+            background: $main-600;
+            color: $gray-0;
+            border-color: $main-600;
+          }
         }
       }
     }
   }
-  }
 
- // 주의, 위험, 치명 슬라이더
+  /* 주의/위험/치명 슬라이더 */
   &__sliders {
     display: flex;
     gap: 20px;
 
     .slider-group {
       flex: 1;
-      gap: 24px;
       display: flex;
       flex-direction: column;
 
       label {
         @include text-styles("body02");
         color: $gray-900;
-
       }
 
-      .slider-wrapper {
-        position: relative;
-      }
-
+      /* 슬라이더 배경 */
       input[type="range"] {
         appearance: none;
         width: 100%;
-        height: 10px;
+        height: 16px;
         border-radius: 5px;
-        background: linear-gradient(
-          to right,
-          $main-600 calc(var(--value) * 1%),
-          $gray-50 calc(var(--value) * 1%)
-        );
+        background: $gray-50;
         cursor: pointer;
 
-        // 동그라미
+        /* 원 */
         &::-webkit-slider-thumb {
           appearance: none;
           width: 24px;
@@ -192,59 +191,53 @@
           border-radius: 50%;
           box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
           cursor: pointer;
+
           &:hover {
             transform: scale(1.2);
           }
         }
       }
 
-      // 핸들 위 숫자
-      .slider-value {
-        position: absolute;
-        top: -24px;
-        @include text-styles("body02");
-        color: $main-500;
-      }
-
-      // 하단 0~100 라벨
+      /* 최댓값, 최솟값 */
       .slider-labels {
         display: flex;
         justify-content: space-between;
         @include text-styles("body02");
-        color: $gray-500;
+        color: $main-500;
       }
     }
   }
 
-  // 저장 버튼 
+  /* 저장 / 수정 / 삭제 버튼 */
   &__actions {
     gap: 10px;
     display: flex;
     justify-content: flex-end;
+  }
 
-    button {
-        color: $gray-0;
-        padding: 12px 16px;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+  /* 설정 기록 모드 (log) 리스트 스타일 */
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 
-      .save, .edit  {
-        background: $main-600;
-        @include text-styles("body02");
-      
-        &:hover {
-          background: $main-800;
-        }
+    .event-row {
+      background: $gray-50;
+      border: 1px solid $gray-200;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      &:hover {
+        background: $gray-100;
       }
 
-      .delete {
-        background: $sematic-error;
+      span {
         @include text-styles("body02");
-
-        &:hover {
-          background: $red-500;
-        }
+        color: $gray-900;
       }
     }
   }
+}

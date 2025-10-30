@@ -63,6 +63,8 @@
     display: flex;
     color: $gray-900;
     margin-bottom: 10px;
+    white-space: pre-line;
+    line-height: 1.6;
     @include text-styles("heading04");
   }
 

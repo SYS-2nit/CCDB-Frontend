@@ -16,11 +16,10 @@ const AlertEventSetting: React.FC = () => {
     { id: "2", label: "설정 기록" },
   ] as const;
 
-  const [openPanel, setOpenPanel] = useState<string | null>("CPU");
-  const panels = ["CPU", "Memory", "Session", "I/O", "Storage"];
+  const [openPanel, setOpenPanel] = useState<boolean>(true);
 
-  const handleToggle = (title: string) => {
-    setOpenPanel((prev) => (prev === title ? null : title));
+  const handleToggle = () => {
+    setOpenPanel((prev) => !prev);
   };
 
   return (
@@ -38,15 +37,12 @@ const AlertEventSetting: React.FC = () => {
 
       {/* 콘텐츠 */}
       <div className="alert-setting__container">
-        {panels.map((title) => (
-          <EventSettingPanel
-            key={title}
-            title={title}
-            isOpen={openPanel === title}
-            onToggle={() => handleToggle(title)}
-            mode={activeTab === "1" ? "default" : "log"}
-          />
-        ))}
+        <EventSettingPanel
+          title="정책 이름"
+          isOpen={openPanel}
+          onToggle={() => handleToggle}
+          mode={activeTab === "1" ? "default" : "log"}
+        />
       </div>
 
       {/* 모달 */}

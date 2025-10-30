@@ -79,14 +79,11 @@ const Modal: React.FC<ModalProps> = ({
             ✕
           </button>
         </div>
-
         {/* 바디 */}
         <div className="modal__body">
           {fields.map((field, i) => (
             <div className="modal__row" key={i}>
-              <div className="modal__row-header">
-                <label>{field.label}</label>
-              </div>
+              <div className="modal__row-header">{field.label}</div>
 
               {/* 테이블 타입 */}
               {field.type === "table" && field.tableHeaders ? (
@@ -262,17 +259,7 @@ const Modal: React.FC<ModalProps> = ({
                           </div>
                         );
                       default:
-                        return (
-                          <input
-                            type={field.type || "text"}
-                            placeholder={field.placeholder}
-                            maxLength={field.maxBytes}
-                            value={(inputs[field.label] as string) || ""}
-                            onChange={(e) =>
-                              handleChange(field.label, e.target.value)
-                            }
-                          />
-                        );
+                        return <></>;
                     }
                   })()}
 
@@ -300,15 +287,20 @@ const Modal: React.FC<ModalProps> = ({
             </div>
           ))}
         </div>
-
         {/* 푸터 */}
         <div className="modal__footer">
-          <button className="cancel" onClick={onClose}>
-            {cancelText}
-          </button>
-          <button className="confirm" onClick={onConfirm}>
-            {confirmText}
-          </button>
+          <Button
+            text={cancelText}
+            size="sm"
+            variant="white"
+            onClick={onClose}
+          />
+          <Button
+            text={confirmText}
+            size="sm"
+            variant="primary"
+            onClick={onConfirm}
+          />
         </div>
       </div>
     </div>
