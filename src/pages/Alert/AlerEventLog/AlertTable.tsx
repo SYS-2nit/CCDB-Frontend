@@ -10,22 +10,25 @@ const AlertTable: React.FC = () => {
     {
       status: "발생",
       severity: "yellow",
-      name: "Text",
-      message: "FRA Tablespace Full",
+      category: "카테고리1",
+      policy: "정책1",
+      event: "이벤트1",
       time: "YYYY-MM-DD HH:MM",
     },
     {
       status: "종료",
       severity: "red",
-      name: "Text",
-      message: "Session 수 임계치 초과",
+      category: "카테고리2",
+      policy: "정책2",
+      event: "이벤트2",
       time: "YYYY-MM-DD HH:MM",
     },
     {
       status: "종료",
       severity: "black",
-      name: "Text",
-      message: "FRA Tablespace Full",
+      category: "카테고리3",
+      policy: "정책3",
+      event: "이벤트3",
       time: "YYYY-MM-DD HH:MM",
     },
   ];
@@ -36,9 +39,10 @@ const AlertTable: React.FC = () => {
         <tr>
           <th>처리 내역</th>
           <th>심각도</th>
-          <th>이벤트 이름</th>
-          <th>메시지 요약</th>
-          <th>발생 시간</th>
+          <th>카테고리</th>
+          <th>정책</th>
+          <th>이벤트</th>
+          <th>발생시간</th>
         </tr>
       </thead>
       <tbody>
@@ -55,8 +59,9 @@ const AlertTable: React.FC = () => {
             <td>
               <SeverityDot color={row.severity as "yellow" | "red" | "black"} />
             </td>
-            <td>{row.name}</td>
-            <td>{row.message}</td>
+            <td>{row.category}</td>
+            <td>{row.policy}</td>
+            <td>{row.event}</td>
             <td>{row.time}</td>
           </tr>
         ))}
@@ -73,13 +78,17 @@ const AlertTable: React.FC = () => {
           fields={[
             {
               label: "처리내역",
-              placeholder: "처리내역을 입력해주세요.",
+              helperText:
+                "처리 내역을 등록하면 해당 이벤트의 반복 알림 기능은 중지됩니다.",
               type: "text",
+              placeholder: "255byte 미만까지만 입력 가능합니다.",
+              showRegister: true,
+              maxBytes: 255,
             },
             {
               label: "처리내역 상세",
               type: "table",
-              tableHeaders: ["작성 시간", "작성자", "처리내역"],
+              tableHeaders: ["작성시간", "작성자", "처리내역"],
               tableData: [
                 {
                   작성시간: "YYYY-MM-DD HH:MM",

@@ -3,8 +3,6 @@ import "./AlerEventLog.scss";
 import Modal from "@/components/Modal/Modal";
 import AlertTable from "./AlerEventLog/AlertTable";
 import FilterIcon from "@/assets/general/filter.svg";
-import InfoIcon from "@/assets/general/info.svg";
-import SettingIcon from "@/assets/general/setting.svg";
 import DownloadIcon from "@/assets/general/download.svg";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
@@ -38,8 +36,6 @@ const AlerEventLog: React.FC = () => {
         <div className="alert-log__table-header">
           <span className="alert-log__table-title">조회 결과</span>
           <div className="alert-log__table-icons">
-            <img src={InfoIcon} alt="Info Icon" />
-            <img src={SettingIcon} alt="Setting Icon" />
             <img src={DownloadIcon} alt="Download Icon" />
           </div>
         </div>
@@ -56,6 +52,12 @@ const AlerEventLog: React.FC = () => {
           cancelText="초기화"
           theme="light"
           fields={[
+            {
+              label: "카테고리",
+              placeholder: "카테고리를 정해주세요.",
+              type: "select",
+              options: ["CPU", "Memory", "Session", "I/O", "Storage"],
+            },
             { label: "기간", placeholder: "기간을 정해주세요.", type: "date" },
             {
               label: "위험도",

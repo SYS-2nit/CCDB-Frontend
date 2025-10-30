@@ -53,7 +53,7 @@ const AlertEventSetting: React.FC = () => {
       {isModal && (
         <Modal
           title="수신 설정"
-          cancelText="취소"
+          cancelText="테스트"
           confirmText="저장"
           onClose={() => setIsModal(false)}
           onConfirm={() => setIsModal(false)}

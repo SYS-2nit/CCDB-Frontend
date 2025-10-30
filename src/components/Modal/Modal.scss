@@ -3,8 +3,6 @@
 @use "@styles/variables" as *;
 @use "@styles/mixins" as *;
 
-
-/* 공통 */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -16,39 +14,46 @@
 }
 
 .modal {
-  max-width: 480px;
   width: 100%;
+  max-width: 520px;
   background: $gray-0;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  animation: fadeIn 0.25s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.25s ease;
 
   /* 헤더 */
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
+    padding: 22px 24px;
     border-bottom: 1px solid $gray-200;
-    @include text-styles("heading02");
 
-    .modal__title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    h2 {
+      @include text-styles("heading02");
+      font-weight: 700;
+      color: $gray-900;
+    }
 
-      &-icon {
-        width: 24px;
-        height: 24px;
+    .modal__close {
+      border: none;
+      background: none;
+      color: $gray-500;
+      font-size: 20px;
+      cursor: pointer;
+
+      &:hover {
+        color: $gray-700;
       }
     }
   }
 
+  /* 바디 */
   &__body {
-    padding: 20px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -56,75 +61,150 @@
 
   &__row-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-
-    label {
-      @include text-styles("body02");
-      color: $gray-900;
-    }
+    color: $gray-900;
+    margin-bottom: 10px;
+    @include text-styles("heading04");
   }
 
-  input,
-  select {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 6px;
-    border: 1px solid $gray-300;
-    background: $gray-0;
-    color: $gray-800;
-    @include text-styles("body02");
+  /* 입력 영역 (input, select) */
+  &__input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 
-    &:focus {
-      border-color: $main-500;
-      box-shadow: 0 0 0 3px rgba($main-400, 0.15);
+    input,
+    select {
+      padding: 12px 16px;
+      border: 1px solid $gray-300;
+      border-radius: 5px;
+      color: $gray-700;
+      box-sizing: border-box;
+      @include text-styles("label02");
+
+      &::placeholder {
+        color: $gray-300;
+      }
+
+      &:focus {
+        border-color: $main-500;
+      }
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      width: 100%;
+    }
+
+    /* byte count + 등록 버튼 */
+    .modal__byte-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+
+      .byte-count {
+        font-size: 13px;
+        color: $gray-500;
+      }
+    }
+
+    /* 안내문 */
+    .modal__helper {
+      gap: 5px;
+      color: $gray-500;
+      display: flex;
+      align-items: flex-start;
+      @include text-styles("label02");
+
+      .icon {
+        font-style: normal;
+        font-weight: bold;
+        color: $gray-400;
+      }
     }
   }
 
   /* 버튼 그룹 */
-  .button-group {
+  &__button-group {
     display: flex;
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid $gray-300;
+    gap: 5px;
 
-    &__btn {
-      flex: 1;
-      padding: 10px 0;
-      background: $gray-0;
+    .custom-btn {
+      width: 100%;
+      justify-content: center;
+      @include text-styles("body02");
+    }
+
+    .custom-btn--white {
       color: $gray-700;
-      border: none;
-      cursor: pointer;
-      transition: all 0.15s ease;
-
-      &:not(:last-child) {
-        border-right: 1px solid $gray-300;
-      }
+      background-color: $gray-0;
 
       &:hover {
+        color: $gray-900;
         background: $gray-100;
       }
+    }
 
-      &.active {
-        background: $main-600;
+      .custom-btn--primary {
         color: $gray-0;
+        background: $main-600;
+
+        &:hover {
+          background: $main-800;
       }
     }
   }
 
+  /* 테이블 */
+  &__table-wrapper {
+    margin-top: 4px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid $gray-200;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    color: $gray-700;
+
+    th {
+      background: $gray-50;
+      padding: 10px;
+      font-weight: 600;
+      border-bottom: 1px solid $gray-200;
+      @include text-styles("label02");
+    }
+
+    td {
+      padding: 10px;
+      border-top: 1px solid $gray-100;
+      @include text-styles("label02");
+    }
+
+    tr:hover {
+      background: $gray-50;
+    }
+  }
+
+  /* 푸터 */
   &__footer {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    padding: 16px 24px;
+    padding: 18px 24px;
     border-top: 1px solid $gray-200;
 
     button {
       padding: 10px 16px;
       border-radius: 6px;
+      font-size: 15px;
       cursor: pointer;
-      @include text-styles("body02");
       transition: 0.2s;
     }
 
@@ -140,38 +220,12 @@
 
     .confirm {
       background: $main-600;
-      border: none;
       color: $gray-0;
+      border: none;
 
       &:hover {
         background: $main-800;
       }
-    }
-  }
-
-    &__table-wrapper {
-    background: $gray-0;
-    border-radius: 5px;
-    overflow: hidden;
-  }
-
-  &__table {
-    width: 100%;
-    border-collapse: collapse;
-    color: $gray-700;
-
-    th {
-      background: $gray-50;
-      text-align: center;
-      @include text-styles("label02");
-    }
-
-    td {
-      @include text-styles("label02");
-    }
-
-    tr:hover {
-      background: $gray-50;
     }
   }
 }
@@ -179,70 +233,21 @@
 /* 다크 테마 */
 .modal.dark {
   background: $default-bg;
-  color: $gray-0; // 제목 글씨 색상
-  border: 1px solid transparent;
-  border-image: linear-gradient(
-    210deg,
-    #0F2F57 0%,
-    #A8C6DF 25%,
-    #0F2F57 100%
-  );
-  border-image-slice: 1;
-
-  label {
-    color: $gray-100; // 각각의 필드 제목 글씨 색상
-  }
+  color: $gray-0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 
   .modal__header {
-    border-bottom: 1px solid $gray-600;
-
-    .modal__close {
-      color: $gray-300;
-      background: none;
-      border: none;
-
-      &:hover {
-        color: $gray-0;
-      }
-    }
+    border-bottom: 1px solid $gray-700;
   }
 
-  .modal__body {
-    .modal__row input {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+  .modal__button-group {
+    .custom-btn--white {
+      background: $gray-800;
       color: $gray-0;
-
-      &::placeholder {
-        color: $gray-300;
-      }
-
-      &:focus {
-        border-color: $main-400;
-        background: rgba(93, 184, 255, 0.15);
-      }
-    }
-  }
-
-  .modal__footer {
-    border-top: 1px solid $gray-700;
-
-    .cancel {
-      background: $default-bg;
-      border: 1px solid $gray-500;
-      color: $gray-0;
+      border: 1px solid $gray-600;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
-    }
-
-    .confirm {
-      background: $main-500;
-      color: $gray-0;
-
-      &:hover {
-        background: $main-600;
+        background: $gray-700;
       }
     }
   }

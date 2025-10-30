@@ -1,13 +1,32 @@
 import React, { useEffect, useState } from "react";
 import "./Modal.scss";
+import InfoIcon from "@/assets/general/info.svg";
+import Button from "../Button/Button";
 
 interface FieldItem {
   label: string;
   placeholder?: string;
-  type?: "text" | "select" | "password" | "button-group" | "date" | "table";
+  type?:
+    | "text"
+    | "number"
+    | "email"
+    | "password"
+    | "select"
+    | "radio"
+    | "checkbox"
+    | "textarea"
+    | "button-group"
+    | "date"
+    | "datetime"
+    | "file"
+    | "table"
+    | "switch";
   options?: string[];
   tableData?: { [key: string]: string }[];
   tableHeaders?: string[];
+  showRegister?: boolean;
+  maxBytes?: number;
+  helperText?: string;
 }
 
 interface ModalProps {
@@ -29,7 +48,9 @@ const Modal: React.FC<ModalProps> = ({
   cancelText = "취소",
   theme = "light",
 }) => {
-  const [selected, setSelected] = useState<{ [key: string]: string }>({});
+  const [inputs, setInputs] = useState<{
+    [key: string]: string | string[] | boolean;
+  }>({});
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -38,18 +59,22 @@ const Modal: React.FC<ModalProps> = ({
     };
   }, []);
 
-  const handleSelect = (label: string, value: string) => {
-    setSelected((prev) => ({ ...prev, [label]: value }));
+  const handleChange = (label: string, value: string | string[] | boolean) => {
+    setInputs((prev) => ({ ...prev, [label]: value }));
   };
+
+  const handleRegister = (label: string) => {
+    console.log(`[등록 완료] ${label}:`, inputs[label]);
+  };
+
+  const getByteLength = (str: string) => new TextEncoder().encode(str).length;
 
   return (
     <div className={`modal-overlay ${theme}`}>
       <div className={`modal ${theme}`}>
         {/* 헤더 */}
         <div className="modal__header">
-          <div className="modal__title">
-            <h2>{title}</h2>
-          </div>
+          <h2>{title}</h2>
           <button className="modal__close" onClick={onClose}>
             ✕
           </button>
@@ -63,34 +88,8 @@ const Modal: React.FC<ModalProps> = ({
                 <label>{field.label}</label>
               </div>
 
-              {/* 필드 렌더링*/}
-              {field.type === "button-group" && field.options ? (
-                <div className="button-group">
-                  {field.options.map((opt, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      className={`button-group__btn ${
-                        selected[field.label] === opt ? "active" : ""
-                      }`}
-                      onClick={() => handleSelect(field.label, opt)}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              ) : field.type === "date" ? (
-                <input type="date" placeholder={field.placeholder} />
-              ) : field.type === "select" ? (
-                <select defaultValue="">
-                  <option value="" disabled>
-                    {field.placeholder}
-                  </option>
-                  {field.options?.map((opt, idx) => (
-                    <option key={idx}>{opt}</option>
-                  ))}
-                </select>
-              ) : field.type === "table" && field.tableHeaders ? (
+              {/* 테이블 타입 */}
+              {field.type === "table" && field.tableHeaders ? (
                 <div className="modal__table-wrapper">
                   <table className="modal__table">
                     <thead>
@@ -112,10 +111,191 @@ const Modal: React.FC<ModalProps> = ({
                   </table>
                 </div>
               ) : (
-                <input
-                  type={field.type || "text"}
-                  placeholder={field.placeholder}
-                />
+                <div className="modal__input-wrapper">
+                  {/* 안내문 */}
+                  {field.helperText && (
+                    <p className="modal__helper">
+                      <img src={InfoIcon} alt="Info Icon" /> {field.helperText}
+                    </p>
+                  )}
+
+                  {/* 입력 유형별 처리 */}
+                  {(() => {
+                    switch (field.type) {
+                      case "textarea":
+                        return (
+                          <textarea
+                            placeholder={field.placeholder}
+                            maxLength={field.maxBytes}
+                            value={(inputs[field.label] as string) || ""}
+                            onChange={(e) =>
+                              handleChange(field.label, e.target.value)
+                            }
+                          />
+                        );
+                      case "select":
+                        return (
+                          <select
+                            value={(inputs[field.label] as string) || ""}
+                            onChange={(e) =>
+                              handleChange(field.label, e.target.value)
+                            }
+                          >
+                            <option value="">선택하세요</option>
+                            {field.options?.map((opt, idx) => (
+                              <option key={idx} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      case "radio":
+                        return (
+                          <div className="modal__radio-group">
+                            {field.options?.map((opt, idx) => (
+                              <label key={idx}>
+                                <input
+                                  type="radio"
+                                  name={field.label}
+                                  value={opt}
+                                  checked={inputs[field.label] === opt}
+                                  onChange={() =>
+                                    handleChange(field.label, opt)
+                                  }
+                                />
+                                {opt}
+                              </label>
+                            ))}
+                          </div>
+                        );
+                      case "checkbox":
+                        return (
+                          <div className="modal__checkbox-group">
+                            {field.options?.map((opt, idx) => (
+                              <label key={idx}>
+                                <input
+                                  type="checkbox"
+                                  value={opt}
+                                  checked={
+                                    Array.isArray(inputs[field.label])
+                                      ? (
+                                          inputs[
+                                            field.label
+                                          ] as unknown as string[]
+                                        ).includes(opt)
+                                      : false
+                                  }
+                                  onChange={(e) => {
+                                    const prev =
+                                      (inputs[field.label] as string[]) || [];
+                                    if (e.target.checked) {
+                                      handleChange(field.label, [...prev, opt]);
+                                    } else {
+                                      handleChange(
+                                        field.label,
+                                        prev.filter((v) => v !== opt)
+                                      );
+                                    }
+                                  }}
+                                />
+                                {opt}
+                              </label>
+                            ))}
+                          </div>
+                        );
+                      case "switch":
+                        return (
+                          <label className="modal__switch">
+                            <input
+                              type="checkbox"
+                              checked={!!inputs[field.label]}
+                              onChange={(e) =>
+                                handleChange(field.label, e.target.checked)
+                              }
+                            />
+                            <span className="slider"></span>
+                          </label>
+                        );
+                      case "file":
+                        return (
+                          <input
+                            type="file"
+                            onChange={(e) =>
+                              handleChange(
+                                field.label,
+                                e.target.files?.[0]?.name || ""
+                              )
+                            }
+                          />
+                        );
+                      case "date":
+                      case "datetime":
+                        return (
+                          <input
+                            type={
+                              field.type === "datetime"
+                                ? "datetime-local"
+                                : "date"
+                            }
+                            value={(inputs[field.label] as string) || ""}
+                            onChange={(e) =>
+                              handleChange(field.label, e.target.value)
+                            }
+                          />
+                        );
+                      case "button-group":
+                        return (
+                          <div className="modal__button-group">
+                            {field.options?.map((opt, idx) => (
+                              <Button
+                                key={idx}
+                                size="sm"
+                                variant={
+                                  inputs[field.label] === opt
+                                    ? "primary"
+                                    : "white"
+                                }
+                                text={opt}
+                                onClick={() => handleChange(field.label, opt)}
+                              />
+                            ))}
+                          </div>
+                        );
+                      default:
+                        return (
+                          <input
+                            type={field.type || "text"}
+                            placeholder={field.placeholder}
+                            maxLength={field.maxBytes}
+                            value={(inputs[field.label] as string) || ""}
+                            onChange={(e) =>
+                              handleChange(field.label, e.target.value)
+                            }
+                          />
+                        );
+                    }
+                  })()}
+
+                  {/* 글자수 카운트 & 등록 버튼 */}
+                  {(field.showRegister || field.maxBytes) && (
+                    <div className="modal__byte-row">
+                      {field.maxBytes && (
+                        <span className="byte-count">
+                          {getByteLength((inputs[field.label] as string) || "")}
+                          /{field.maxBytes}byte
+                        </span>
+                      )}
+                      {field.showRegister && (
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          text="등록"
+                          onClick={() => handleRegister(field.label)}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           ))}

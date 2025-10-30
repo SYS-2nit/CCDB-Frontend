@@ -30,23 +30,17 @@
       }
 }
 
-    &__table-title {
+  &__table-title {
         @include text-styles("heading04");
         color: $gray-900;
-    }
+  }
 
   .alert-table {
-    width: 100%;
-    background: $gray-0;
-    border-radius: 10px;
-    border-collapse: collapse;
-    color: $gray-700;
-
-    &-btn {
-        padding: 12px 16px;
-      border-bottom: 1px solid $gray-200;
-      @include text-styles("heading04");
-    }
+      width: 100%;
+      background: $gray-0;
+      border-radius: 10px;
+      border-collapse: collapse;
+      color: $gray-700;
 
     th {
         background: $gray-50;
@@ -57,6 +51,9 @@
     }
 
     td {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 12px 16px;
       border-bottom: 1px solid $gray-200;
       @include text-styles("heading04");
