@@ -17,6 +17,8 @@ const AlertEventSetting: React.FC = () => {
   ] as const;
 
   const [openPanel, setOpenPanel] = useState<boolean>(true);
+  const [policies, setPolicies] = useState<{ id: number; name: string }[]>([]);
+  const [selectedPolicyIndex, setSelectedPolicyIndex] = useState(0);
 
   const handleToggle = () => {
     setOpenPanel((prev) => !prev);
@@ -36,14 +38,36 @@ const AlertEventSetting: React.FC = () => {
       </div>
 
       {/* 콘텐츠 */}
-      <div className="alert-setting__container">
-        <EventSettingPanel
-          title="정책 이름"
-          isOpen={openPanel}
-          onToggle={() => handleToggle}
-          mode={activeTab === "1" ? "default" : "log"}
-        />
-      </div>
+      <EventSettingPanel
+        title={
+          activeTab === "2"
+            ? policies[selectedPolicyIndex]?.name || "정책 이름"
+            : "정책 이름"
+        }
+        isOpen={openPanel}
+        onToggle={handleToggle}
+        mode={activeTab === "1" ? "default" : "log"}
+        onPoliciesChange={(newPolicies) => {
+          setPolicies(newPolicies);
+        }}
+      />
+
+      {/* 설정 기록 탭에서 정책 선택 UI */}
+      {activeTab === "2" && policies.length > 0 && (
+        <div className="policy-selector">
+          <label>정책 선택:</label>
+          <select
+            value={selectedPolicyIndex}
+            onChange={(e) => setSelectedPolicyIndex(Number(e.target.value))}
+          >
+            {policies.map((policy, index) => (
+              <option key={policy.id} value={index}>
+                {policy.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* 모달 */}
       {isModal && (

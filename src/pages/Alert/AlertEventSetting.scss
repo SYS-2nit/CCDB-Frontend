@@ -4,11 +4,12 @@
 @use "@styles/mixins" as *;
 
 .alert-setting {
+  height: 100%;
+
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between; 
-    overflow: hidden;
   }
 
   &__receive-btn {
