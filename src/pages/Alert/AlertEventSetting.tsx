@@ -3,29 +3,34 @@ import React, { useState } from "react";
 import "./AlertEventSetting.scss";
 import ReceiveIcon from "@/assets/general/receive.svg";
 import Modal from "@/components/Modal/Modal";
-import EventSettingPanel from "./AlertEventSetting/EventSettingPanel";
+import EventSettingPanel, {
+  type EventCard,
+} from "./AlertEventSetting/EventSettingPanel";
 
 type AlertTabType = "1" | "2";
+
+interface Policy {
+  id: number;
+  name: string;
+  events: EventCard[];
+}
 
 const AlertEventSetting: React.FC = () => {
   const [isModal, setIsModal] = useState(false);
   const [activeTab, setActiveTab] = useState<AlertTabType>("1");
+  const [openPanel, setOpenPanel] = useState<boolean>(true);
+  const [policies, setPolicies] = useState<Policy[]>([]);
 
   const tabs = [
     { id: "1", label: "기본" },
     { id: "2", label: "설정 기록" },
   ] as const;
 
-  const [openPanel, setOpenPanel] = useState<boolean>(true);
-  const [policies, setPolicies] = useState<{ id: number; name: string }[]>([]);
-  const [selectedPolicyIndex, setSelectedPolicyIndex] = useState(0);
-
-  const handleToggle = () => {
-    setOpenPanel((prev) => !prev);
-  };
+  const handleToggle = () => setOpenPanel((prev) => !prev);
 
   return (
     <div className="alert-setting">
+      {/* 상단 탭 + 수신설정 버튼 */}
       <div className="alert-setting__header">
         <TabMenu tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
         <button
@@ -37,39 +42,38 @@ const AlertEventSetting: React.FC = () => {
         </button>
       </div>
 
-      {/* 콘텐츠 */}
-      <EventSettingPanel
-        title={
-          activeTab === "2"
-            ? policies[selectedPolicyIndex]?.name || "정책 이름"
-            : "정책 이름"
-        }
-        isOpen={openPanel}
-        onToggle={handleToggle}
-        mode={activeTab === "1" ? "default" : "log"}
-        onPoliciesChange={(newPolicies) => {
-          setPolicies(newPolicies);
-        }}
-      />
+      {/* 기본 탭 */}
+      {activeTab === "1" && (
+        <EventSettingPanel
+          title="정책 설정"
+          isOpen={openPanel}
+          onToggle={handleToggle}
+          mode="default"
+          onPoliciesChange={(updatedPolicies) => setPolicies(updatedPolicies)}
+        />
+      )}
 
-      {/* 설정 기록 탭에서 정책 선택 UI */}
-      {activeTab === "2" && policies.length > 0 && (
-        <div className="policy-selector">
-          <label>정책 선택:</label>
-          <select
-            value={selectedPolicyIndex}
-            onChange={(e) => setSelectedPolicyIndex(Number(e.target.value))}
-          >
-            {policies.map((policy, index) => (
-              <option key={policy.id} value={index}>
-                {policy.name}
-              </option>
-            ))}
-          </select>
+      {/* 설정 기록 탭 */}
+      {activeTab === "2" && (
+        <div className="log-panel">
+          {policies.length === 0 ? (
+            <p>저장된 정책이 없습니다.</p>
+          ) : (
+            policies.map((policy) => (
+              <div key={policy.id} className="log-policy">
+                <h4>{policy.name}</h4>
+                {policy.events.map((event) => (
+                  <div key={event.id} className="log-event">
+                    <span>{event.name}</span>
+                  </div>
+                ))}
+              </div>
+            ))
+          )}
         </div>
       )}
 
-      {/* 모달 */}
+      {/* 수신 설정 모달 */}
       {isModal && (
         <Modal
           title="수신 설정"

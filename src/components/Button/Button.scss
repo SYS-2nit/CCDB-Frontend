@@ -9,6 +9,7 @@
   justify-content: center;
   gap: 5px;
   cursor: pointer;
+  transition: all 0.2s ease;
 
   &__icon {
     width: 16px;
@@ -31,30 +32,55 @@
   /* === 색상 === */
   &--primary {
     color: $gray-0;
-    background: $main-600; 
+    background: $main-600;
 
     &:hover {
-      background: $main-800; 
+      background: $main-800;
+    }
+
+    &:disabled,
+    &.disabled {
+      background: $gray-300;
+      color: $gray-0;
+      cursor: not-allowed;
+      pointer-events: none;
     }
   }
 
   &--error {
     color: $gray-0;
-    background: $sematic-error; 
+    background: $sematic-error;
 
     &:hover {
-      background: $red-500; 
+      background: $red-500;
+    }
+
+    &:disabled,
+    &.disabled {
+      background: $gray-300;
+      color: $gray-0;
+      cursor: not-allowed;
+      pointer-events: none;
     }
   }
 
   &--white {
     color: $gray-700;
-    background: $gray-0; 
+    background: $gray-0;
     border: 1px solid $gray-200;
 
     &:hover {
-      background: $gray-50;  
+      background: $gray-50;
       border: 1px solid $gray-300;
+    }
+
+    &:disabled,
+    &.disabled {
+      background: $gray-300;
+      color: $gray-0;
+      border: none;
+      cursor: not-allowed;
+      pointer-events: none;
     }
   }
 }

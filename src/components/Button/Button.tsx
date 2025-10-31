@@ -12,6 +12,7 @@ interface ButtonProps {
   variant?: ButtonVariant;
   bordered?: boolean;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -21,6 +22,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = "primary",
   bordered = false,
   onClick,
+  disabled = false,
 }) => {
   return (
     <button
@@ -30,9 +32,11 @@ const Button: React.FC<ButtonProps> = ({
         `custom-btn--${variant}`,
         {
           bordered,
+          disabled,
         }
       )}
-      onClick={onClick}
+      onClick={!disabled ? onClick : undefined}
+      disabled={disabled}
     >
       {icon && <img src={icon} alt="icon" className="custom-btn__icon" />}
       {text && <div> {text} </div>}

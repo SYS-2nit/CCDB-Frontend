@@ -80,7 +80,7 @@ const AlertTable: React.FC = () => {
               label: "처리내역",
               helperText:
                 "처리 내역을 등록하면 해당 이벤트의 반복 알림 기능은 중지됩니다.",
-              type: "text",
+              type: "textarea",
               placeholder: "255byte 미만까지만 입력 가능합니다.",
               showRegister: true,
               maxBytes: 255,
