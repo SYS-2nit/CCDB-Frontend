@@ -1,7 +1,9 @@
+// src/pages/Analysis/Analysis.tsx
 import React from "react";
+import ScenarioPage from "@/components/Scenario/ScenarioPage";
 
 const Analysis: React.FC = () => {
-  return <div> 진단 화면입니다.</div>;
+  return <ScenarioPage />;
 };
 
 export default Analysis;
