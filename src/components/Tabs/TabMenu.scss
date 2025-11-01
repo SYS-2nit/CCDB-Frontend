@@ -1,0 +1,27 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+
+.tab-menu {
+    display: flex;;
+    margin-bottom: 20px;
+
+  &__tab {
+      background: none;
+      border: none;
+      border-radius: 0px;
+      cursor: pointer;
+      color: $gray-300;
+      @include text-styles("heading04");
+
+      &.active {
+        color: $main-600;
+        border-bottom: 1px solid $main-600;
+      }
+
+      &:hover {
+        color: $main-600;
+      }
+  }
+}

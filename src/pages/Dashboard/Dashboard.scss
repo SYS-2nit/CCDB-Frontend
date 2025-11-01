@@ -10,31 +10,7 @@
   flex-direction: column;
   overflow: hidden;
   box-sizing: border-box;
-
-  /* 탭 메뉴 */
-  &__tabs {
-    display: flex;;
-    margin-bottom: 20px;
-
-    button {
-      background: none;
-      border: none;
-      border-radius: 0px;
-      cursor: pointer;
-      color: $gray-300;
-      @include text-styles("heading04");
-
-      &.active {
-        color: $main-600;
-        border-bottom: 1px solid $main-600;
-      }
-
-      &:hover {
-        color: $main-600;
-      }
-    }
-  }
-
+  
   /* 콘텐츠 영역 */
   &__content {
     flex: 1;

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
 import ChartSetting from "@/components/Card/ChartSetting";
-import { chartData, type TabType } from "./data/chartData";
+import { chartData } from "./data/chartData";
 import StatusCard from "@/components/Card/StatusCard";
 import {
   DragDropContext,
@@ -11,28 +11,45 @@ import {
   type DropResult,
 } from "@hello-pangea/dnd";
 import { cloneDeep } from "lodash";
+import TabMenu from "@/components/Tabs/TabMenu";
 
-const Dashboard: React.FC = () => {
+export type TabType = keyof typeof chartData;
+
+interface DashboardProps {
+  /** 처음 보여줄 탭 (예: "cpu", "memory" 등) */
+  initialTab?: TabType;
+  /** 선택된 탭만 보여줄지 여부 (모달 전용) */
+  singleTabMode?: boolean;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({
+  initialTab = "main",
+  singleTabMode = false,
+}) => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>("main");
-
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [charts, setCharts] = useState<string[]>(() =>
-    cloneDeep(chartData["main"])
+    cloneDeep(chartData[initialTab])
   );
+
   const handleSettingToggle = () => setIsSettingOpen((prev) => !prev);
 
-  const tabs: { id: TabType; label: string }[] = [
+  const tabs = [
     { id: "main", label: "Main Custom" },
     { id: "cpu", label: "CPU" },
     { id: "memory", label: "Memory" },
     { id: "session", label: "Session" },
     { id: "io", label: "I/O" },
     { id: "storage", label: "Storage" },
-  ];
+  ] as const;
 
-  React.useEffect(() => {
-    // 원본 데이터가 변형되지 않도록 깊은 복사
-    setCharts([...chartData[activeTab]]);
+  useEffect(() => {
+    setActiveTab(initialTab);
+    setCharts(cloneDeep(chartData[initialTab]));
+  }, [initialTab]);
+
+  useEffect(() => {
+    setCharts(cloneDeep(chartData[activeTab]));
   }, [activeTab]);
 
   const handleDragEnd = ({ source, destination }: DropResult) => {
@@ -46,26 +63,25 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  /** singleTabMode일 때는 activeTab 하나만 렌더링 */
+  const visibleTabs = singleTabMode
+    ? tabs.filter((tab) => tab.id === initialTab)
+    : tabs;
+
   return (
     <div
       className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}
     >
-      {/* 탭 메뉴 */}
-      <div className="dashboard__tabs">
-        {tabs.map(({ id, label }) => (
-          <button
-            key={id}
-            className={`dashboard__tab ${activeTab === id ? "active" : ""}`}
-            onClick={() => setActiveTab(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      {/* ✅ 탭 메뉴 — singleTabMode일 경우 해당 탭만 표시 */}
+      {!singleTabMode && (
+        <TabMenu
+          tabs={visibleTabs}
+          activeTab={activeTab}
+          onTabChange={(tab) => setActiveTab(tab as TabType)}
+        />
+      )}
 
-      {/* 메인 콘텐츠 */}
       <div className="dashboard__content">
-        {/* 차트 그리드 (드래그 지원) */}
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="charts" direction="horizontal">
             {(provided) => (
@@ -74,7 +90,6 @@ const Dashboard: React.FC = () => {
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {/* 상태 카드 (main 제외 탭) */}
                 {activeTab !== "main" && (
                   <div className="status-cards">
                     <StatusCard label="무해" value={0} color="safe" />
@@ -84,13 +99,12 @@ const Dashboard: React.FC = () => {
                   </div>
                 )}
 
-                {/* 차트 카드 */}
                 {charts.map((title, index) => (
                   <Draggable
                     key={title}
                     draggableId={title}
                     index={index}
-                    isDragDisabled={activeTab !== "main"} // 메인 탭에서만 드래그 가능
+                    isDragDisabled={activeTab !== "main"}
                   >
                     {(provided) => (
                       <div
@@ -104,21 +118,21 @@ const Dashboard: React.FC = () => {
                             title.includes("지연량") ? "warning" : "normal"
                           }
                           onSettingClick={handleSettingToggle}
-                          showDragIcon={activeTab === "main"}
-                          showSettingIcon={activeTab === "main"}
+                          showDragIcon={!singleTabMode && activeTab === "main"}
+                          showSettingIcon={
+                            !singleTabMode && activeTab === "main"
+                          }
                         />
                       </div>
                     )}
                   </Draggable>
                 ))}
-
                 {provided.placeholder}
               </div>
             )}
           </Droppable>
         </DragDropContext>
 
-        {/* 설정 패널 */}
         {isSettingOpen && <ChartSetting onClose={handleSettingToggle} />}
       </div>
     </div>

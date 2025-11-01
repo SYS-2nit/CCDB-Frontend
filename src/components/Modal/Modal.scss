@@ -3,111 +3,285 @@
 @use "@styles/variables" as *;
 @use "@styles/mixins" as *;
 
-/* 모달 공통 배경 */
-.db-modal-overlay {
+.modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+   z-index: 10;
 }
 
-/* 모달 본체 */
-.db-modal {
-  width: 60%;
-  max-width: 450px;
-  border-radius: 10px;
-  background: rgba(16, 35, 60, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-  padding: 28px 32px;
-  color: $gray-0;
+.modal {
+  width: 100%;
+  background: $gray-0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  backdrop-filter: blur(12px);
-  animation: fadeIn 0.3s ease forwards;
+  animation: fadeIn 0.25s ease;
 
-  &__title {
-    @include text-styles("heading01");
-    color: $gray-0;
-  }
-  
-  hr {
-    border: none;
-    border-top: 1px solid $gray-700;
-    margin: 10px 0;
+  // 사이즈
+  &--sm {
+    max-width: 360px;
   }
 
-  &__row {
+  &--md {
+    max-width: 520px; 
+  }
+
+  &--lg {
+    max-width: 1280px;
+  }
+
+  /* 헤더 */
+  &__header {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 24px;
+    border-bottom: 1px solid $gray-200;
 
-    label {
-      @include text-styles("body02");
-      color: $gray-0;
-      margin: 5px 0px;
+    h2 {
+      @include text-styles("heading01");
+      font-weight: 700;
+      color: $gray-900;
     }
 
-    input {
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 6px;
-      padding: 10px;
-      color: $gray-0;
-      outline: none;
-      transition: 0.2s;
+    .modal__close {
+      border: none;
+      background: none;
+      color: $gray-500;
+      font-size: 20px;
+      cursor: pointer;
+
+      &:hover {
+        color: $gray-700;
+      }
+    }
+  }
+
+  /* 바디 */
+  &__body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__row-header {
+    display: flex;
+    color: $gray-900;
+    margin-bottom: 10px;
+    white-space: pre-line;
+    line-height: 1.6;
+    @include text-styles("heading04");
+  }
+
+  /* 입력 영역 (input, select) */
+  &__input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    input,
+    select {
+      padding: 12px 16px;
+      border: 1px solid $gray-300;
+      border-radius: 5px;
+      color: $gray-700;
+      box-sizing: border-box;
+      @include text-styles("label02");
 
       &::placeholder {
         color: $gray-300;
       }
 
       &:focus {
-        border-color: #5db8ff;
-        background: rgba(93, 184, 255, 0.1);
+        border-color: $main-500;
+      }
+    }
+
+    textarea {
+      padding: 12px 16px;
+      border: 1px solid $gray-300;
+      border-radius: 5px;
+      resize: none; 
+      color: $gray-900;
+
+      @include text-styles("label02"); 
+
+      &::placeholder {
+        color: $gray-300;
+        @include text-styles("body02");
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $main-500;
+      }
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      width: 100%;
+    }
+
+    /* byte count + 등록 버튼 */
+    .modal__byte-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+
+      .byte-count {
+        @include text-styles("body02");
+        color: $gray-300;
+      }
+    }
+
+    /* 안내문 */
+    .modal__helper {
+      gap: 5px;
+      color: $gray-500;
+      display: flex;
+      align-items: flex-start;
+      @include text-styles("label02");
+
+      .icon {
+        font-style: normal;
+        font-weight: bold;
+        color: $gray-400;
       }
     }
   }
 
-  &__buttons {
+  /* 버튼 그룹 */
+  &__button-group {
+    display: flex;
+    gap: 5px;
+
+    .custom-btn {
+      width: 100%;
+      justify-content: center;
+      @include text-styles("body02");
+    }
+
+    .custom-btn--white {
+      color: $gray-700;
+      background-color: $gray-0;
+
+      &:hover {
+        color: $gray-900;
+        background: $gray-100;
+      }
+    }
+
+      .custom-btn--primary {
+        color: $gray-0;
+        background: $main-600;
+
+        &:hover {
+          background: $main-800;
+      }
+    }
+  }
+
+  /* 테이블 */
+  &__table-wrapper {
+    margin-top: 4px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid $gray-200;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    color: $gray-700;
+
+    th {
+      background: $gray-50;
+      padding: 10px;
+      font-weight: 600;
+      border-bottom: 1px solid $gray-200;
+      @include text-styles("label02");
+    }
+
+    td {
+      padding: 10px;
+      border-top: 1px solid $gray-100;
+      @include text-styles("label02");
+    }
+
+    tr:hover {
+      background: $gray-50;
+    }
+  }
+
+  /* 푸터 */
+  &__footer {
     display: flex;
     justify-content: flex-end;
-    gap: 12px;
-    margin-top: 12px;
+    gap: 10px;
+    padding: 18px 24px;
+    border-top: 1px solid $gray-200;
 
     button {
-      border: none;
-      border-radius: 10px;
-      @include text-styles("heading03");
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 15px;
       cursor: pointer;
-      color: $gray-0;
-      width: 100%;
+      transition: 0.2s;
     }
 
     .cancel {
-      border-radius: 10px;
-      border: 1px solid transparent;
-      background-image: 
-          linear-gradient(#2D4054, #17263B), // 내부 배경
-          linear-gradient(90deg, #7F9CB6, #3B5775); // 외곽선 gradient
-      background-origin: border-box;
-      background-clip: padding-box, border-box;
+      background: $gray-0;
+      border: 1px solid $gray-300;
+      color: $gray-700;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: $gray-100;
       }
     }
 
     .confirm {
-      border: 1px solid $main-500;
       background: $main-600;
+      color: $gray-0;
+      border: none;
 
       &:hover {
-        background:  $main-700;
+        background: $main-800;
+      }
+    }
+  }
+}
+
+/* 다크 테마 */
+.modal.dark {
+  background: $default-bg;
+  color: $gray-0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  .modal__header {
+    border-bottom: 1px solid $gray-700;
+  }
+
+  .modal__button-group {
+    .custom-btn--white {
+      background: $gray-800;
+      color: $gray-0;
+      border: 1px solid $gray-600;
+
+      &:hover {
+        background: $gray-700;
       }
     }
   }

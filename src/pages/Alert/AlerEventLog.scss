@@ -1,0 +1,107 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.alert-log {
+
+  // 상단 영역
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+    padding: 10px 0px;
+
+    &-left {
+      display: flex;
+      align-items: center;
+      gap: 10px; 
+      flex: 1; 
+    }
+  }
+    
+    // 테이블 영역 
+    &__table-wrapper {
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        background: $gray-0;
+        text-align: center;
+    }
+
+    &__table-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        border-radius: 5px;
+        margin-bottom: 10px
+    }
+
+    &__table-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      img {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    &__table-title {
+        @include text-styles("heading04");
+        color: $gray-900;
+    }
+
+    .alert-table {
+      width: 100%;
+      background: $gray-0;
+      border-radius: 10px;
+      border-collapse: collapse;
+      color: $gray-700;
+
+      &-btn {
+          padding: 12px 16px;
+          border: 1px solid $gray-300;
+          @include text-styles("heading04");
+      }
+
+      th {
+          background: $gray-50;
+          padding: 12px 16px;
+          border-top: 1px solid $gray-300;
+          border-bottom: 1px solid $gray-300;
+          @include text-styles("heading04");
+      }
+
+      td {
+        padding: 12px 16px;
+        border-bottom: 1px solid $gray-200;
+        @include text-styles("heading04");
+      }
+
+      tr:hover {
+        background: $gray-50;
+      }
+    }
+
+    // 위험도 영역
+    .severity-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: inline-block;
+
+      &--yellow {
+        background: $sematic-warning;
+      }
+
+      &--red {
+        background: $sematic-error;
+      }
+
+      &--black {
+        background: $gray-900;
+      }
+    }
+  }

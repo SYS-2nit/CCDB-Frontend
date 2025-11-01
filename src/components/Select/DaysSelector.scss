@@ -1,0 +1,32 @@
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.days-selector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+
+  button {
+    flex: 1;
+    border: 1px solid $gray-300;
+    border-radius: 6px;
+    padding: 10px 0;
+    cursor: pointer;
+    background: $gray-0;
+    color: $gray-700;
+    font-weight: 500;
+    transition: all 0.15s ease;
+
+    &:hover {
+      border-color: $main-400;
+      color: $main-600;
+    }
+
+    &.active {
+      background: $main-600;
+      color: $gray-0;
+      border-color: $main-600;
+    }
+  }
+}

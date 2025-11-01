@@ -1,0 +1,69 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+
+  &__btn {
+    border: 1px solid $gray-300;
+    background: $gray-0;
+    color: $gray-700;
+    border-radius: 3px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    @include text-styles("body02");
+
+    &:hover:not(:disabled) {
+      border-color: $main-500;
+      color: $main-600;
+      background: $main-100;
+      
+    }
+
+    &:disabled {
+      border: 1px solid $gray-100;
+      color: $gray-200;
+      cursor: not-allowed;
+    }
+  }
+
+  &__pages {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__page {
+    border: none;
+    background: transparent;
+    color: $gray-700;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    @include text-styles("body02");
+
+    &:hover {
+      background: $main-100;
+      color: $main-600;
+    }
+
+    &.active {
+      background: $gray-0;
+      color: $main-600;
+      border: 1px solid $main-600;
+    }
+  }
+
+  &__dots {
+    color: $gray-500;
+    padding: 0 4px;
+  }
+}

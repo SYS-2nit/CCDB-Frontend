@@ -108,6 +108,7 @@ const Database: React.FC = () => {
 
       {isModalOpen && (
         <Modal
+          theme="dark"
           title={isModalOpen === "add" ? "DB 추가" : "DB 삭제"}
           onClose={() => setIsModalOpen(null)}
           onConfirm={handleConfirm}

@@ -9,9 +9,9 @@ import Setting from "./pages/Setting/Setting";
 import SqlTop from "./pages/SQL/SqlTop";
 import SqlAnalysis from "./pages/SQL/SqlAnalysis";
 import SqlStat from "./pages/SQL/SqlStat";
-import AlertEventSetting from "./pages/Alert/AlertEventSetting";
-import AlertLog from "./pages/Alert/AlertLog";
 import Database from "./pages/Database/Database";
+import AlerEventLog from "./pages/Alert/AlerEventLog";
+import AlertEventSetting from "./pages/Alert/AlertEventSetting";
 
 const App: React.FC = () => {
   return (
@@ -32,7 +32,7 @@ const App: React.FC = () => {
                   path="alert/event-setting"
                   element={<AlertEventSetting />}
                 />
-                <Route path="alert/log" element={<AlertLog />} />
+                <Route path="alert/event-log" element={<AlerEventLog />} />
                 <Route path="analysis" element={<Analysis />} />
                 <Route path="improvement" element={<Improvement />} />
                 <Route path="setting" element={<Setting />} />

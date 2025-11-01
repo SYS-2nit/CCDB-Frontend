@@ -1,0 +1,86 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.custom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &__icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* === 크기 === */
+  &--sm {
+    padding: 8px 12px;
+    border-radius: 3px;
+    @include text-styles("label02");
+  }
+
+  &--md {
+    padding: 12px 16px;
+    border-radius: 5px;
+    @include text-styles("body02");
+  }
+
+  /* === 색상 === */
+  &--primary {
+    color: $gray-0;
+    background: $main-600;
+
+    &:hover {
+      background: $main-800;
+    }
+
+    &:disabled,
+    &.disabled {
+      background: $gray-300;
+      color: $gray-0;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+
+  &--error {
+    color: $gray-0;
+    background: $sematic-error;
+
+    &:hover {
+      background: $red-500;
+    }
+
+    &:disabled,
+    &.disabled {
+      background: $gray-300;
+      color: $gray-0;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+
+  &--white {
+    color: $gray-700;
+    background: $gray-0;
+    border: 1px solid $gray-200;
+
+    &:hover {
+      background: $gray-50;
+      border: 1px solid $gray-300;
+    }
+
+    &:disabled,
+    &.disabled {
+      background: $gray-300;
+      color: $gray-0;
+      border: none;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+}
