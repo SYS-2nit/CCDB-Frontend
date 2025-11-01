@@ -78,8 +78,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   const [isInitial, setIsInitial] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [targetIndex, setTargetIndex] = useState<number | null>(null);
-
-  // ✅ 대시보드 미리보기용 상태 추가
   const [showDashboard, setShowDashboard] = useState(false);
   const [selectedResourceTab, setSelectedResourceTab] =
     useState<TabType>("main");
@@ -395,12 +393,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                 variant="primary"
                 onClick={handleSave}
                 disabled={createdCards.length === 0}
-              />
-              <Button
-                text="미리보기"
-                size="sm"
-                variant="white"
-                onClick={() => setShowDashboard(true)}
               />
             </div>
           )}
