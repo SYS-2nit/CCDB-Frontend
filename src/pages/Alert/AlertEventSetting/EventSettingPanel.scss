@@ -18,6 +18,7 @@
     display: flex;
     align-items: center;
     cursor: pointer;
+    border-bottom: 1px solid $gray-100;
     border-radius: 10px 10px 0px 0px;
     @include text-styles("heading02");
 
@@ -176,27 +177,75 @@
   // 저장 / 수정 / 삭제 버튼 
   &__actions {
     gap: 10px;
+    padding-top: 20px;
     display: flex;
     justify-content: flex-end;
+    border-top: 1px solid $gray-100;
   }
 }
 
 
-/*
-* ==== 설정 기록 탭 ==== 
-*/
-
-// 이벤트 목록  
-.policy-block {
-  align-items: center;
-  justify-content: center;
+.event-log__list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 10px;
 }
 
-// 이벤트 1개
-.policy-event {
-  margin-bottom: 10px;
+.event-log__policy {
+  background: $gray-0;
+  border: 1px solid $gray-200;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.event-log__policy-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  
+  color: $gray-900;
+  font-weight: 600;
+  @include text-styles("body01");
+
+  .event-log__policy-name {
+    @include text-styles("heading03");
+    color: $gray-800;
+  }
+}
+
+.event-log__events {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 10px;
+}
+
+.event-log__event-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: 8px;
+  padding: 12px 16px;
+
+  .event-log__event-name {
+    color: $gray-800;
+    @include text-styles("body02");
+  }
+
+  /* 삭제 버튼 */
+  .custom-btn {
+    flex-shrink: 0;
+  }
+}
+
+.event-log__empty {
+  text-align: center;
+  padding: 20px;
+  color: $gray-500;
+  @include text-styles("body02");
 }

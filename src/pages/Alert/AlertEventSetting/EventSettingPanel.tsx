@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "./EventSettingPanel.scss";
 import Button from "@/components/Button/Button";
 import Modal from "@/components/Modal/Modal";
-import ArrowFillTopIcon from "@/assets/general/arrow-fill-top.svg";
 import Input from "@/components/Input/Input";
 import Select from "@/components/Select/Select";
 import DaysSelector from "@/components/Select/DaysSelector";
@@ -65,7 +64,6 @@ function createEmptyEvent(index: number): EventCard {
 
 const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   isOpen,
-  onToggle,
   mode = "default",
   onPoliciesChange,
 }) => {
@@ -80,16 +78,13 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   const [targetIndex, setTargetIndex] = useState<number | null>(null);
 
   const handleAdd = () => {
-    // 현재 입력폼(항상 1개)
     const currentForm = inputForms[0];
 
-    // 모든 입력폼 유효성 검사
     if (!policyName.trim()) {
       alert("정책 이름을 입력하세요.");
       return;
     }
 
-    // 필수 입력값 확인
     const isInvalid =
       currentForm.eventType === "0" ||
       currentForm.resource === "0" ||
@@ -102,28 +97,23 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
       return;
     }
 
-    // 통과 시 새 이벤트 추가
     const newEvent = createEmptyEvent(createdCards.length);
     setInputForms([newEvent]);
     setCreatedCards((prev) => [...prev, currentForm]);
     setIsInitial(false);
   };
 
-  /* 저장 버튼 클릭 시 추가 가능 여부 검증 */
   const handleSave = () => {
-    // 1️⃣ 이벤트가 하나도 없으면 막기
     if (createdCards.length === 0) {
       alert("이벤트 하나 이상 추가하세요.");
       return;
     }
 
-    // 2️⃣ 정책 이름 확인
     if (!policyName.trim()) {
       alert("정책 이름을 입력하세요.");
       return;
     }
 
-    // 3️⃣ createdCards 내 유효성 검사
     const hasEmptyField = createdCards.some((event) => {
       return (
         event.eventType === "0" ||
@@ -139,7 +129,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
       return;
     }
 
-    // createdCards 하나라도 있으면 저장 진행
     const newPolicy: Policy = {
       id: policies.length,
       name: policyName,
@@ -149,8 +138,8 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     const updated = [...policies, newPolicy];
     setPolicies(updated);
     setIsInitial(true);
-    setCreatedCards([]); // 저장 후 초기화 (선택사항)
-    setInputForms([createEmptyEvent(0)]); // 폼 초기화
+    setCreatedCards([]);
+    setInputForms([createEmptyEvent(0)]);
 
     if (onPoliciesChange) onPoliciesChange(updated);
     alert("정책이 성공적으로 저장되었습니다!");
@@ -204,12 +193,12 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   return (
     <div className="event-panel">
       <div className="event-panel-header">
-        <img src={ArrowFillTopIcon} alt="toggle" onClick={onToggle} />
         <label>정책 설정</label>
       </div>
 
       {isOpen && (
         <div className="event-panel__content">
+          {/* 기본 정책 설정 화면 */}
           {mode === "default" && (
             <>
               {!isInitial && (
@@ -364,17 +353,79 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
             </>
           )}
 
+          {/* 설정 기록 탭 (Log 모드) */}
+          {mode === "log" && (
+            <div className="event-log__list">
+              {policies.length === 0 ? (
+                <p className="event-log__empty">저장된 정책이 없습니다.</p>
+              ) : (
+                policies.map((policy, pIndex) => (
+                  <div key={policy.id} className="event-log__policy">
+                    <div className="event-log__policy-header">
+                      <span className="event-log__policy-name">
+                        {policy.name}
+                      </span>
+                      <Button
+                        text="삭제"
+                        size="sm"
+                        variant="error"
+                        onClick={() => {
+                          if (confirm("이 정책을 삭제하시겠습니까?")) {
+                            const updated = policies.filter(
+                              (_, i) => i !== pIndex
+                            );
+                            setPolicies(updated);
+                            if (onPoliciesChange) onPoliciesChange(updated);
+                          }
+                        }}
+                      />
+                    </div>
+
+                    <div className="event-log__events">
+                      {policy.events.map((event, eIndex) => (
+                        <div key={event.id} className="event-log__event-item">
+                          <span className="event-log__event-name">
+                            {event.name}
+                          </span>
+                          <Button
+                            text="삭제"
+                            size="sm"
+                            variant="error"
+                            onClick={() => {
+                              const updatedPolicies = [...policies];
+                              updatedPolicies[pIndex].events.splice(eIndex, 1);
+                              setPolicies(updatedPolicies);
+                              if (onPoliciesChange)
+                                onPoliciesChange(updatedPolicies);
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
           {/* 하단 버튼 */}
-          <div className="event-panel__actions">
-            <Button text="추가" size="sm" variant="white" onClick={handleAdd} />
-            <Button
-              text="저장"
-              size="sm"
-              variant="primary"
-              onClick={handleSave}
-              disabled={createdCards.length === 0}
-            />
-          </div>
+          {mode === "default" && (
+            <div className="event-panel__actions">
+              <Button
+                text="추가"
+                size="sm"
+                variant="white"
+                onClick={handleAdd}
+              />
+              <Button
+                text="저장"
+                size="sm"
+                variant="primary"
+                onClick={handleSave}
+                disabled={createdCards.length === 0}
+              />
+            </div>
+          )}
 
           {/* 삭제 모달 */}
           {isModalOpen && (
