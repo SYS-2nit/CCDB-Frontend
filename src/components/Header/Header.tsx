@@ -32,6 +32,8 @@ const Header: React.FC<HeaderProps> = ({
     }
   });
 
+  const [showAlertPanel, setShowAlertPanel] = useState(false);
+
   const handleModeToggle = () => {
     setIsDarkMode((prev) => {
       const newMode = !prev;
@@ -76,72 +78,105 @@ const Header: React.FC<HeaderProps> = ({
   }`;
 
   return (
-    <header className={headerClass}>
-      {/* 왼쪽 영역 */}
-      <div className="header__left">
-        {/* DB 상태 및 이름 */}
-        <div className="header__status">
-          <img src={BedgeSuccessIcon} alt="Bedge Success Icon" />
-          <div className="header__title">DB Name</div>
-        </div>
+    <>
+      <header className={headerClass}>
+        {/* 왼쪽 영역 */}
+        <div className="header__left">
+          <div className="header__status">
+            <img src={BedgeSuccessIcon} alt="Bedge Success Icon" />
+            <div className="header__title">DB Name</div>
+          </div>
 
-        {/* 시간 표시 */}
-        {showTime && (
-          <div className="header__time">
-            <div className="header__time--wrapper">
-              <div
-                className="header__time--progress"
-                style={{
-                  width: `${progressPercent}%`,
-                }}
-              ></div>
-              <img
-                src={TimeIcon}
-                alt="Time Icon"
-                className="header__time--icon"
-              />
-              <div className="header__time--title">
-                {formatDateTime(currentTime, "timeOnly")}
+          {showTime && (
+            <div className="header__time">
+              <div className="header__time--wrapper">
+                <div
+                  className="header__time--progress"
+                  style={{ width: `${progressPercent}%` }}
+                ></div>
+                <img
+                  src={TimeIcon}
+                  alt="Time Icon"
+                  className="header__time--icon"
+                />
+                <div className="header__time--title">
+                  {formatDateTime(currentTime, "timeOnly")}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* 오른쪽 영역 */}
-      <div className="header__right">
-        {/* 알림 */}
-        <div className="header__alert">
-          <img src={AlertIcon} alt="Alert Icon" />
+          )}
         </div>
 
-        {/* 라이트 / 다크 모드 */}
-        <div className="header__mode" onClick={handleModeToggle}>
+        {/* 오른쪽 영역 */}
+        <div className="header__right">
+          {/* 알림 */}
           <div
-            className={`header__light ${
-              !isDarkMode ? "header__mode--active" : ""
-            }`}
+            className="header__alert"
+            onClick={() => setShowAlertPanel(true)}
           >
-            <img src={LightIcon} alt="Light Icon" />
+            <img src={AlertIcon} alt="Alert Icon" />
           </div>
-          <div
-            className={`header__dark ${
-              isDarkMode ? "header__mode--active" : ""
-            }`}
-          >
-            <img src={DarkIcon} alt="Dark Icon" />
-          </div>
-        </div>
 
-        {/* 사용자 */}
-        <div className="header__update">
-          <span className="header__date">
-            {formatDateTime(currentTime, "minuteOnly")}
-          </span>
-          <span className="header__text">최종 업데이트</span>
+          {/* 라이트 / 다크 모드 */}
+          <div className="header__mode" onClick={handleModeToggle}>
+            <div
+              className={`header__light ${
+                !isDarkMode ? "header__mode--active" : ""
+              }`}
+            >
+              <img src={LightIcon} alt="Light Icon" />
+            </div>
+            <div
+              className={`header__dark ${
+                isDarkMode ? "header__mode--active" : ""
+              }`}
+            >
+              <img src={DarkIcon} alt="Dark Icon" />
+            </div>
+          </div>
+
+          {/* 사용자 */}
+          <div className="header__update">
+            <span className="header__date">
+              {formatDateTime(currentTime, "minuteOnly")}
+            </span>
+            <span className="header__text">최종 업데이트</span>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* 알림 패널 */}
+      {showAlertPanel && (
+        <div
+          className="alert-panel__overlay"
+          onClick={() => setShowAlertPanel(false)}
+        >
+          <div className="alert-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="alert-panel__header">
+              <h3>알림 목록</h3>
+              <button
+                className="alert-panel__close"
+                onClick={() => setShowAlertPanel(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="alert-panel__content">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div key={i} className="alert-item">
+                  <div className="alert-item__icon">⚠️</div>
+                  <div className="alert-item__text">
+                    <strong>그래프 이름</strong> 에 에러 메시지 요약이
+                    발견되었습니다.
+                    <div className="alert-item__sub">N분 전 · DB명</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
