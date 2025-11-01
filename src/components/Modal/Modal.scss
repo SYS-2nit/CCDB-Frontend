@@ -11,6 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+   z-index: 10;
 }
 
 .modal {
@@ -33,7 +34,7 @@
     border-bottom: 1px solid $gray-200;
 
     h2 {
-      @include text-styles("heading02");
+      @include text-styles("heading01");
       font-weight: 700;
       color: $gray-900;
     }
@@ -96,7 +97,20 @@
       padding: 12px 16px;
       border: 1px solid $gray-300;
       border-radius: 5px;
-      @include text-styles("label02");
+      resize: none; 
+      color: $gray-900;
+
+      @include text-styles("label02"); 
+
+      &::placeholder {
+        color: $gray-300;
+        @include text-styles("body02");
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $main-500;
+      }
     }
 
     select {

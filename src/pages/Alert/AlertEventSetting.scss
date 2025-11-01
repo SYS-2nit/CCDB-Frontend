@@ -41,6 +41,15 @@
   gap: 24px;
   padding: 16px 0;
 
+  // 비었을 경우
+  &-empty {
+    border-radius: 10px;
+    padding: 20px;
+    background: $gray-0;
+    color: $gray-700;
+    @include text-styles("body02");
+  }
+
   // 정책 전체 블록
   &-container {
     border-radius: 10px;

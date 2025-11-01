@@ -2,7 +2,7 @@ import TabMenu from "@/components/Tabs/TabMenu";
 import React, { useState, useEffect } from "react";
 import "./AlertEventSetting.scss";
 import ReceiveIcon from "@/assets/general/receive.svg";
-import Modal from "@/components/Modal/Modal";
+import Modal, { type FieldItem } from "@/components/Modal/Modal";
 import EventSettingPanel, {
   type EventCard,
 } from "./AlertEventSetting/EventSettingPanel";
@@ -18,16 +18,18 @@ interface Policy {
   events: EventCard[];
 }
 
-const ITEMS_PER_PAGE = 3; // 한 페이지당 정책 수
+const ITEMS_PER_PAGE = 3;
 
 const AlertEventSetting: React.FC = () => {
-  const [isModal, setIsModal] = useState(false);
+  const [isReceiveModal, setIsReceiveModal] = useState(false);
+  const [isEventModal, setIsEventModal] = useState(false);
   const [activeTab, setActiveTab] = useState<AlertTabType>("1");
   const [openPanel, setOpenPanel] = useState<boolean>(true);
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [policyStates, setPolicyStates] = useState<boolean[]>([]);
   const [eventStates, setEventStates] = useState<boolean[][]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedEvent, setSelectedEvent] = useState<EventCard | null>(null);
 
   const tabs = [
     { id: "1", label: "기본" },
@@ -36,7 +38,7 @@ const AlertEventSetting: React.FC = () => {
 
   const handleToggle = () => setOpenPanel((prev) => !prev);
 
-  /* 정책 / 이벤트 상태 동기화 초기화 */
+  /* 정책 / 이벤트 상태 초기화 */
   useEffect(() => {
     setPolicyStates((prev) => {
       const next = [...prev];
@@ -56,14 +58,13 @@ const AlertEventSetting: React.FC = () => {
     );
   }, [policies]);
 
-  /* 정책 스위치 on/off → 하위 전체 제어 */
+  /* 정책 on/off */
   const handlePolicyToggle = (policyIndex: number, checked: boolean) => {
     setPolicyStates((prev) => {
       const updated = [...prev];
       updated[policyIndex] = checked;
       return updated;
     });
-
     setEventStates((prev) => {
       const updated = [...prev];
       updated[policyIndex] = updated[policyIndex].map(() => checked);
@@ -71,7 +72,7 @@ const AlertEventSetting: React.FC = () => {
     });
   };
 
-  /* 개별 이벤트 on/off → 부모 정책 반영 */
+  /* 이벤트 on/off */
   const handleEventToggle = (
     policyIndex: number,
     eventIndex: number,
@@ -87,35 +88,98 @@ const AlertEventSetting: React.FC = () => {
         newPolicy[policyIndex] = hasActive;
         return newPolicy;
       });
-
       return updated;
     });
   };
 
-  /* 정책 삭제 시 동기화 */
+  /* 이벤트 클릭 시 상세 모달 */
+  const handleEventClick = (event: EventCard) => {
+    setSelectedEvent(event);
+    setIsEventModal(true);
+  };
+
+  /* 정책 삭제 */
   const handleDeletePolicy = (policyIndex: number) => {
     setPolicies((prev) => prev.filter((_, i) => i !== policyIndex));
     setPolicyStates((prev) => prev.filter((_, i) => i !== policyIndex));
     setEventStates((prev) => prev.filter((_, i) => i !== policyIndex));
   };
 
-  /* 페이지네이션 관련 계산 */
+  /* 페이지네이션 계산 */
   const totalPages = Math.ceil(policies.length / ITEMS_PER_PAGE);
   const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedPolicies = policies.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
+  /* 이벤트 상세 모달 필드 */
+  const eventFields: FieldItem[] = selectedEvent
+    ? [
+        {
+          label: "이벤트 이름",
+          type: "text",
+          placeholder: selectedEvent.name,
+        },
+        {
+          label: "누적 횟수",
+          type: "text",
+          placeholder: selectedEvent.eventType,
+        },
+        {
+          label: "자원",
+          type: "text",
+          placeholder: selectedEvent.resource,
+        },
+        {
+          label: "요일",
+          type: "text",
+          placeholder: selectedEvent.days.join(", "),
+        },
+        {
+          label: "시작 시간",
+          type: "text",
+          placeholder: selectedEvent.startTime,
+        },
+        {
+          label: "종료 시간",
+          type: "text",
+          placeholder: selectedEvent.endTime,
+        },
+        {
+          label: "레벨 설정",
+          type: "table",
+          tableHeaders: ["구간", "Min", "Max"],
+          tableData: [
+            {
+              구간: "Warning",
+              Min: selectedEvent.levels.warningMin.toString(),
+              Max: selectedEvent.levels.warningMax.toString(),
+            },
+            {
+              구간: "Danger",
+              Min: selectedEvent.levels.dangerMin.toString(),
+              Max: selectedEvent.levels.dangerMax.toString(),
+            },
+            {
+              구간: "Critical",
+              Min: selectedEvent.levels.criticalMin.toString(),
+              Max: selectedEvent.levels.criticalMax.toString(),
+            },
+          ],
+        },
+      ]
+    : [];
+
   return (
     <div className="alert-setting">
-      {/* 상단 탭 + 수신 설정 버튼 */}
+      {/* 상단 탭 */}
       <div className="alert-setting__header">
         <TabMenu tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
-        <button
-          className="alert-setting__receive-btn"
-          onClick={() => setIsModal(true)}
-        >
-          <img src={ReceiveIcon} alt="Receive Icon" />
-          수신 설정
-        </button>
+        <Button
+          text="수신설정"
+          size="sm"
+          variant="white"
+          icon={ReceiveIcon}
+          onClick={() => setIsReceiveModal(true)} // ✅ 변경
+        />
       </div>
 
       {/* 기본 탭 */}
@@ -133,11 +197,11 @@ const AlertEventSetting: React.FC = () => {
       {activeTab === "2" && (
         <div className="log-policy">
           {policies.length === 0 ? (
-            <p>저장된 정책이 없습니다.</p>
+            <div className="log-policy-empty">저장된 정책이 없습니다.</div>
           ) : (
             <>
               {paginatedPolicies.map((policy, policyIndex) => {
-                const globalIndex = startIdx + policyIndex; // 실제 정책 인덱스
+                const globalIndex = startIdx + policyIndex;
                 return (
                   <div
                     key={policy.id}
@@ -169,7 +233,8 @@ const AlertEventSetting: React.FC = () => {
                     {policy.events.map((event, eventIndex) => (
                       <div
                         key={event.id}
-                        className="log-policy-container-content"
+                        className="log-policy-container-content clickable"
+                        onClick={() => handleEventClick(event)}
                       >
                         <Switch
                           checked={
@@ -188,7 +253,7 @@ const AlertEventSetting: React.FC = () => {
               })}
 
               {/* 페이지네이션 */}
-              {totalPages > 1 && (
+              {policies.length > ITEMS_PER_PAGE && (
                 <div className="log-policy__pagination">
                   <Pagination
                     totalPages={totalPages}
@@ -203,32 +268,56 @@ const AlertEventSetting: React.FC = () => {
       )}
 
       {/* 수신 설정 모달 */}
-      {isModal && (
+      {isReceiveModal && (
         <Modal
           title="수신 설정"
           cancelText="테스트"
           confirmText="저장"
-          onClose={() => setIsModal(false)}
-          onConfirm={() => setIsModal(false)}
+          onClose={() => setIsReceiveModal(false)}
+          onConfirm={() => setIsReceiveModal(false)}
           fields={[
             {
               label: "Slack",
+              type: "textarea",
               placeholder: "https://hooks.slack.com/services/...",
             },
-            { label: "Email", placeholder: "example@company.com" },
+            {
+              label: "Email",
+              type: "textarea",
+              placeholder: "example@company.com",
+            },
             {
               label: "Critical",
-              placeholder: "주요 알림 채널을 선택해주세요.",
               type: "select",
+              placeholder: "주요 알림 채널을 선택해주세요.",
               options: ["Slack", "Email"],
             },
             {
               label: "Warning",
-              placeholder: "주요 알림 채널을 선택해주세요.",
               type: "select",
+              placeholder: "주요 알림 채널을 선택해주세요.",
               options: ["Slack", "Email"],
             },
           ]}
+          theme="light"
+        />
+      )}
+
+      {/* 이벤트 상세 모달 */}
+      {selectedEvent && isEventModal && (
+        <Modal
+          title="이벤트 상세"
+          onClose={() => {
+            setIsEventModal(false);
+            setSelectedEvent(null);
+          }}
+          onConfirm={() => {
+            setIsEventModal(false);
+            setSelectedEvent(null);
+          }}
+          fields={eventFields}
+          confirmText="닫기"
+          cancelText="취소"
           theme="light"
         />
       )}

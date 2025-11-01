@@ -3,7 +3,7 @@ import "./Modal.scss";
 import InfoIcon from "@/assets/general/info.svg";
 import Button from "../Button/Button";
 
-interface FieldItem {
+export interface FieldItem {
   label: string;
   placeholder?: string;
   type?:
@@ -31,22 +31,26 @@ interface FieldItem {
 
 interface ModalProps {
   title: string;
+  onReset?: () => void;
   onClose?: () => void;
   onConfirm?: () => void;
   fields?: FieldItem[];
   confirmText?: string;
   cancelText?: string;
   theme?: "light" | "dark";
+  resetTrigger?: number;
 }
 
 const Modal: React.FC<ModalProps> = ({
   title,
+  onReset,
   onClose,
   onConfirm,
   fields = [],
   confirmText = "확인",
   cancelText = "취소",
   theme = "light",
+  resetTrigger,
 }) => {
   const [inputs, setInputs] = useState<{
     [key: string]: string | string[] | boolean;
@@ -58,6 +62,11 @@ const Modal: React.FC<ModalProps> = ({
       document.body.style.overflow = "auto";
     };
   }, []);
+
+  // resetTrigger 변경 시 모든 입력값 초기화
+  useEffect(() => {
+    setInputs({});
+  }, [resetTrigger]);
 
   const handleChange = (label: string, value: string | string[] | boolean) => {
     setInputs((prev) => ({ ...prev, [label]: value }));
@@ -259,7 +268,11 @@ const Modal: React.FC<ModalProps> = ({
                           </div>
                         );
                       default:
-                        return <></>;
+                        return (
+                          <p className="modal__text-value">
+                            {field.placeholder || "-"}
+                          </p>
+                        );
                     }
                   })()}
 
@@ -293,7 +306,10 @@ const Modal: React.FC<ModalProps> = ({
             text={cancelText}
             size="sm"
             variant="white"
-            onClick={onClose}
+            onClick={() => {
+              if (onReset) onReset();
+              else if (onClose) onClose();
+            }}
           />
           <Button
             text={confirmText}

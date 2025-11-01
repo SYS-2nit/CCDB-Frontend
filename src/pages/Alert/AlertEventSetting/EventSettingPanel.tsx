@@ -327,7 +327,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                       }
                     />
                     <TimeInput
-                      label="마감 시간"
+                      label="종료 시간"
                       value={event.endTime}
                       onChange={(e) =>
                         setInputForms((prev) =>

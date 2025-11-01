@@ -9,6 +9,7 @@ import Input from "@/components/Input/Input";
 
 const AlerEventLog: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   return (
     <div className="alert-log">
@@ -46,11 +47,12 @@ const AlerEventLog: React.FC = () => {
       {isFilterOpen && (
         <Modal
           title="필터"
-          onClose={() => setIsFilterOpen(false)}
-          onConfirm={() => setIsFilterOpen(false)}
           confirmText="적용"
           cancelText="초기화"
+          onReset={() => setResetKey((prev) => prev + 1)}
+          onConfirm={() => setIsFilterOpen(false)}
           theme="light"
+          resetTrigger={resetKey}
           fields={[
             {
               label: "카테고리",
