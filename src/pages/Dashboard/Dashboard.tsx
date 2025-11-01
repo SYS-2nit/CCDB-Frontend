@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
 import ChartSetting from "@/components/Card/ChartSetting";
@@ -13,16 +13,23 @@ import {
 import { cloneDeep } from "lodash";
 import TabMenu from "@/components/Tabs/TabMenu";
 
-// chartData 키와 동일한 타입으로 명시
-type TabType = keyof typeof chartData;
+export type TabType = keyof typeof chartData;
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  /** 처음 보여줄 탭 (예: "cpu", "memory" 등) */
+  initialTab?: TabType;
+  /** 선택된 탭만 보여줄지 여부 (모달 전용) */
+  singleTabMode?: boolean;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({
+  initialTab = "main",
+  singleTabMode = false,
+}) => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
-  // 초기값을 실제 존재하는 key로 변경
-  const [activeTab, setActiveTab] = useState<TabType>("main");
-
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [charts, setCharts] = useState<string[]>(() =>
-    cloneDeep(chartData["main"])
+    cloneDeep(chartData[initialTab])
   );
 
   const handleSettingToggle = () => setIsSettingOpen((prev) => !prev);
@@ -34,11 +41,15 @@ const Dashboard: React.FC = () => {
     { id: "session", label: "Session" },
     { id: "io", label: "I/O" },
     { id: "storage", label: "Storage" },
-  ] as const; // 리터럴 타입 유지
+  ] as const;
 
-  React.useEffect(() => {
-    // 타입 단언으로 안전하게 접근
-    setCharts([...chartData[activeTab]]);
+  useEffect(() => {
+    setActiveTab(initialTab);
+    setCharts(cloneDeep(chartData[initialTab]));
+  }, [initialTab]);
+
+  useEffect(() => {
+    setCharts(cloneDeep(chartData[activeTab]));
   }, [activeTab]);
 
   const handleDragEnd = ({ source, destination }: DropResult) => {
@@ -52,16 +63,23 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  /** singleTabMode일 때는 activeTab 하나만 렌더링 */
+  const visibleTabs = singleTabMode
+    ? tabs.filter((tab) => tab.id === initialTab)
+    : tabs;
+
   return (
     <div
       className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}
     >
-      {/* setActiveTab을 콜백으로 래핑 */}
-      <TabMenu
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={(tab) => setActiveTab(tab as TabType)}
-      />
+      {/* ✅ 탭 메뉴 — singleTabMode일 경우 해당 탭만 표시 */}
+      {!singleTabMode && (
+        <TabMenu
+          tabs={visibleTabs}
+          activeTab={activeTab}
+          onTabChange={(tab) => setActiveTab(tab as TabType)}
+        />
+      )}
 
       <div className="dashboard__content">
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -100,14 +118,15 @@ const Dashboard: React.FC = () => {
                             title.includes("지연량") ? "warning" : "normal"
                           }
                           onSettingClick={handleSettingToggle}
-                          showDragIcon={activeTab === "main"}
-                          showSettingIcon={activeTab === "main"}
+                          showDragIcon={!singleTabMode && activeTab === "main"}
+                          showSettingIcon={
+                            !singleTabMode && activeTab === "main"
+                          }
                         />
                       </div>
                     )}
                   </Draggable>
                 ))}
-
                 {provided.placeholder}
               </div>
             )}

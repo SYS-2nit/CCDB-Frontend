@@ -7,6 +7,8 @@ import Select from "@/components/Select/Select";
 import DaysSelector from "@/components/Select/DaysSelector";
 import TimeInput from "@/components/Input/TimeInput";
 import RangeSliderGroup from "@/components/Slider/RangeSliderGroup";
+import type { TabType } from "@/pages/Dashboard/Dashboard";
+import Dashboard from "@/pages/Dashboard/Dashboard";
 
 interface EventSettingPanelProps {
   title: string;
@@ -76,6 +78,11 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   const [isInitial, setIsInitial] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [targetIndex, setTargetIndex] = useState<number | null>(null);
+
+  // ✅ 대시보드 미리보기용 상태 추가
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [selectedResourceTab, setSelectedResourceTab] =
+    useState<TabType>("main");
 
   const handleAdd = () => {
     const currentForm = inputForms[0];
@@ -190,6 +197,24 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     );
   };
 
+  // 자원 값 → TabType 매핑 함수
+  const mapResourceToTab = (value: string): TabType => {
+    switch (value) {
+      case "cpu":
+        return "cpu";
+      case "memory":
+        return "memory";
+      case "session":
+        return "session";
+      case "io":
+        return "io";
+      case "storage":
+        return "storage";
+      default:
+        return "main";
+    }
+  };
+
   return (
     <div className="event-panel">
       <div className="event-panel-header">
@@ -287,19 +312,21 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                       value={event.resource}
                       options={[
                         { label: "선택하세요", value: "0" },
-                        { label: "자원 1", value: "1" },
-                        { label: "자원 2", value: "2" },
-                        { label: "자원 3", value: "3" },
+                        { label: "CPU", value: "cpu" },
+                        { label: "Memory", value: "memory" },
+                        { label: "Session", value: "session" },
+                        { label: "I/O", value: "io" },
+                        { label: "Storage", value: "storage" },
                       ]}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const value = e.target.value;
                         setInputForms((prev) =>
                           prev.map((ev, i) =>
-                            i === index
-                              ? { ...ev, resource: e.target.value }
-                              : ev
+                            i === index ? { ...ev, resource: value } : ev
                           )
-                        )
-                      }
+                        );
+                        setSelectedResourceTab(mapResourceToTab(value)); // ✅ 선택 자원 연결
+                      }}
                     />
                   </div>
 
@@ -353,61 +380,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
             </>
           )}
 
-          {/* 설정 기록 탭 (Log 모드) */}
-          {mode === "log" && (
-            <div className="event-log__list">
-              {policies.length === 0 ? (
-                <p className="event-log__empty">저장된 정책이 없습니다.</p>
-              ) : (
-                policies.map((policy, pIndex) => (
-                  <div key={policy.id} className="event-log__policy">
-                    <div className="event-log__policy-header">
-                      <span className="event-log__policy-name">
-                        {policy.name}
-                      </span>
-                      <Button
-                        text="삭제"
-                        size="sm"
-                        variant="error"
-                        onClick={() => {
-                          if (confirm("이 정책을 삭제하시겠습니까?")) {
-                            const updated = policies.filter(
-                              (_, i) => i !== pIndex
-                            );
-                            setPolicies(updated);
-                            if (onPoliciesChange) onPoliciesChange(updated);
-                          }
-                        }}
-                      />
-                    </div>
-
-                    <div className="event-log__events">
-                      {policy.events.map((event, eIndex) => (
-                        <div key={event.id} className="event-log__event-item">
-                          <span className="event-log__event-name">
-                            {event.name}
-                          </span>
-                          <Button
-                            text="삭제"
-                            size="sm"
-                            variant="error"
-                            onClick={() => {
-                              const updatedPolicies = [...policies];
-                              updatedPolicies[pIndex].events.splice(eIndex, 1);
-                              setPolicies(updatedPolicies);
-                              if (onPoliciesChange)
-                                onPoliciesChange(updatedPolicies);
-                            }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-
           {/* 하단 버튼 */}
           {mode === "default" && (
             <div className="event-panel__actions">
@@ -423,6 +395,12 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                 variant="primary"
                 onClick={handleSave}
                 disabled={createdCards.length === 0}
+              />
+              <Button
+                text="미리보기"
+                size="sm"
+                variant="white"
+                onClick={() => setShowDashboard(true)}
               />
             </div>
           )}
@@ -442,6 +420,21 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                 },
               ]}
             />
+          )}
+
+          {/* Dashboard 모달 */}
+          {showDashboard && (
+            <Modal
+              title="자원 대시보드 미리보기"
+              onClose={() => setShowDashboard(false)}
+              confirmText="닫기"
+              size="lg"
+              theme="light"
+            >
+              <div className="dashboard-modal-content">
+                <Dashboard initialTab={selectedResourceTab} />
+              </div>
+            </Modal>
           )}
         </div>
       )}

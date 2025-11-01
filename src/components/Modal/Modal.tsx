@@ -39,6 +39,8 @@ interface ModalProps {
   cancelText?: string;
   theme?: "light" | "dark";
   resetTrigger?: number;
+  children?: React.ReactNode;
+  size?: "sm" | "md" | "lg";
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -51,6 +53,8 @@ const Modal: React.FC<ModalProps> = ({
   cancelText = "취소",
   theme = "light",
   resetTrigger,
+  children,
+  size = "md",
 }) => {
   const [inputs, setInputs] = useState<{
     [key: string]: string | string[] | boolean;
@@ -80,7 +84,7 @@ const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className={`modal-overlay ${theme}`}>
-      <div className={`modal ${theme}`}>
+      <div className={`modal ${theme} modal--${size}`}>
         {/* 헤더 */}
         <div className="modal__header">
           <h2>{title}</h2>
@@ -300,6 +304,22 @@ const Modal: React.FC<ModalProps> = ({
             </div>
           ))}
         </div>
+
+        {children ? (
+          <div className="modal__custom-content">
+            {children}
+            <div className="modal__body">
+              {fields.map((field, i) => (
+                <div className="modal__row" key={i}>
+                  <div className="modal__row-header">{field.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <></>
+        )}
+
         {/* 푸터 */}
         <div className="modal__footer">
           <Button
