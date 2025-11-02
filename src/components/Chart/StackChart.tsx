@@ -4,6 +4,10 @@ import ReactApexChart from "react-apexcharts";
 
 interface StackChartProps {
   stackCount?: number;
+  legends?: string[];
+  seriesData?: number[][];
+  categories?: string[];
+  yaxisTitle?: string;
 }
 
 const StackChart: React.FC<StackChartProps> = ({ stackCount = 5 }) => {

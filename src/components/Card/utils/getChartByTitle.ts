@@ -46,36 +46,36 @@ export const chartData: Record<TabType, string[]> = {
     "Active vs Inactive Sessions — Trend",
     "Top Blocker Sessions — Snapshot Top 5",
   ],
-  io: ["그래프1", "그래프2", "그래프3", "그래프4", "그래프5", "그래프6"],
+  io: [
+    "I/O Performance Dashboard",
+    "Physical Reads vs Logical Reads",
+    "Average I/O Wait Time",
+    "데이터파일별 I/O 통계 (Top 5)",
+    "Direct Path I/O",
+    "Redo Generation Rate",
+    "DBWR Checkpoint Activity",
+    "SQL Parsing & Execution",
+  ],
   storage: [
-    "그래프7",
-    "그래프8",
-    "그래프9",
-    "그래프10",
-    "그래프11",
-    "그래프12",
+    "Storage Health Dashboard",
+    "FRA 사용률 추세",
+    "Undo 사용률 추세",
+    "Total Database Usage Trend (%)",
+    "테이블스페이스 사용률 추세",
+    "테이블스페이스 증가 추세",
+    "Temp Tablespace Active Usage (GB)",
+    "대용량 세그먼트 Top 5",
   ],
 };
 
 // title을 기반으로 적절한 렌더러를 자동 반환
 export const getChartByTitle = (title: string) => {
-  // Main Custom 탭
   if (chartData.main.includes(title)) return renderMainChart(title);
-
-  // CPU 탭
   if (chartData.cpu.includes(title)) return renderCPUChart(title);
-
-  // Memory 탭
   if (chartData.memory.includes(title)) return renderMemoryChart(title);
-
-  // Session 탭
   if (chartData.session.includes(title)) return renderSessionChart(title);
-
-  // I/O 탭
   if (chartData.io.includes(title)) return renderIOChart(title);
-
-  // Storage 탭
   if (chartData.storage.includes(title)) return renderStorageChart(title);
 
-  return null; // 해당되는 차트가 없을 때
+  return null;
 };

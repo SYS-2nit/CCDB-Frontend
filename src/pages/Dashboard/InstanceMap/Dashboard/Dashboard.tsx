@@ -16,9 +16,7 @@ import TabMenu from "@/components/Tabs/TabMenu";
 export type TabType = keyof typeof chartData;
 
 interface DashboardProps {
-  /** 처음 보여줄 탭 (예: "cpu", "memory" 등) */
   initialTab?: TabType;
-  /** 선택된 탭만 보여줄지 여부 (모달 전용) */
   singleTabMode?: boolean;
 }
 
@@ -63,7 +61,6 @@ const Dashboard: React.FC<DashboardProps> = ({
     });
   };
 
-  /** singleTabMode일 때는 activeTab 하나만 렌더링 */
   const visibleTabs = singleTabMode
     ? tabs.filter((tab) => tab.id === initialTab)
     : tabs;
@@ -72,7 +69,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     <div
       className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}
     >
-      {/* 탭 메뉴 — singleTabMode일 경우 해당 탭만 표시 */}
+      {/* 탭 메뉴 */}
       {!singleTabMode && (
         <TabMenu
           tabs={visibleTabs}
@@ -90,15 +87,17 @@ const Dashboard: React.FC<DashboardProps> = ({
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
+                {/* 탭별 상태 카드 (Main 제외) */}
                 {activeTab !== "main" && (
                   <div className="status-cards">
-                    <StatusCard label="무해" value={0} color="safe" />
-                    <StatusCard label="주의" value={0} color="warning" />
-                    <StatusCard label="위험" value={0} color="danger" />
-                    <StatusCard label="치명" value={0} color="critical" />
+                    <StatusCard label="무해" value={2} color="safe" />
+                    <StatusCard label="주의" value={5} color="warning" />
+                    <StatusCard label="위험" value={8} color="danger" />
+                    <StatusCard label="치명" value={1} color="critical" />
                   </div>
                 )}
 
+                {/* 차트 카드 렌더링 */}
                 {charts.map((title, index) => (
                   <Draggable
                     key={title}
