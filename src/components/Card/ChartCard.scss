@@ -9,14 +9,12 @@
   justify-content: space-between;
   color: $gray-900;
   background-color: $gray-0;
-  padding: 20px;
+  padding: 10px;
   border-radius: 5px;
   transition: box-shadow 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
   width: 100%;
   height: 100%;
-  aspect-ratio: unset; 
 
   &.warning {
     border: 1.5px solid $sematic-error;
@@ -34,7 +32,7 @@
   }
 
   &__title {
-    @include text-styles("heading04");
+    @include text-styles("body02");
   }
 
   &__left,
@@ -47,7 +45,6 @@
 
   &__body {
     flex: 1;
-    height: 135px; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -58,3 +55,20 @@
     @include text-styles("body02");
   }
 }
+
+.temp-chart-container {
+  position: relative;
+  background: $gray-0;
+
+  &-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &-text {
+      font-size: 8px;
+      color: $gray-300;
+    }
+  }
+}
+

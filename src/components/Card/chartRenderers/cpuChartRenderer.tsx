@@ -3,7 +3,7 @@ import GaugeChart from "@/components/Chart/GaugeChart";
 import TableChart from "@/components/Chart/TableChart";
 
 // CPU 탭 전용 차트 렌더러
-export const renderCPUChart = (title: string) => {
+export const cpuChartRenderer = (title: string) => {
   if (title.includes("Host CPU Utilization (%) - Current"))
     return <GaugeChart />;
 

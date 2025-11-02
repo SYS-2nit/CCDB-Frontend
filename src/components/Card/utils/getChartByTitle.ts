@@ -1,9 +1,9 @@
-import { renderMainChart } from "../chartRenderers/mainChartRenderer";
-import { renderCPUChart } from "../chartRenderers/cpuChartRenderer";
-import { renderMemoryChart } from "../chartRenderers/memoryChartRenderer";
-import { renderSessionChart } from "../chartRenderers/sessionChartRenderer";
-import { renderIOChart } from "../chartRenderers/ioChartRenderer";
-import { renderStorageChart } from "../chartRenderers/storageChartRenderer";
+import { mainChartRenderer } from "../chartRenderers/mainChartRenderer";
+import { cpuChartRenderer } from "../chartRenderers/cpuChartRenderer";
+import { sessionChartRenderer } from "../chartRenderers/sessionChartRenderer";
+import { ioChartRenderer } from "../chartRenderers/ioChartRenderer";
+import { storageChartRenderer } from "../chartRenderers/storageChartRenderer";
+import { memoryChartRenderer } from "../chartRenderers/memoryChartRenderer";
 
 export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 
@@ -70,12 +70,12 @@ export const chartData: Record<TabType, string[]> = {
 
 // title을 기반으로 적절한 렌더러를 자동 반환
 export const getChartByTitle = (title: string) => {
-  if (chartData.main.includes(title)) return renderMainChart(title);
-  if (chartData.cpu.includes(title)) return renderCPUChart(title);
-  if (chartData.memory.includes(title)) return renderMemoryChart(title);
-  if (chartData.session.includes(title)) return renderSessionChart(title);
-  if (chartData.io.includes(title)) return renderIOChart(title);
-  if (chartData.storage.includes(title)) return renderStorageChart(title);
+  if (chartData.main.includes(title)) return mainChartRenderer(title);
+  if (chartData.cpu.includes(title)) return cpuChartRenderer(title);
+  if (chartData.memory.includes(title)) return memoryChartRenderer(title);
+  if (chartData.session.includes(title)) return sessionChartRenderer(title);
+  if (chartData.io.includes(title)) return ioChartRenderer(title);
+  if (chartData.storage.includes(title)) return storageChartRenderer(title);
 
   return null;
 };

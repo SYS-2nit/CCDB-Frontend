@@ -6,7 +6,7 @@ import SuccessGreenIcon from "@/assets/general/succes-green.svg";
 import ErrorRedIcon from "@/assets/general/error-red.svg";
 
 // Main Custom 탭 전용 차트 렌더러
-export const renderMainChart = (title: string) => {
+export const mainChartRenderer = (title: string) => {
   // PGA / SGA 압박률 — MetricCard
   if (title.includes("PGA / SGA 압박률")) {
     const metrics = [

@@ -4,7 +4,7 @@ import TableChart from "@/components/Chart/TableChart";
 import MetricCard from "@/components/Card/MetricCard";
 
 // Session 탭 전용 차트 렌더러
-export const renderSessionChart = (title: string) => {
+export const sessionChartRenderer = (title: string) => {
   if (title.includes("Now Tiles"))
     return (
       <MetricCard
@@ -23,7 +23,7 @@ export const renderSessionChart = (title: string) => {
         barCount={3}
         categories={["idle_10m", "idle_30m", "idle_60m"]}
         data={[72, 41, 9]}
-        yaxisTitle="Sessions(count)"
+        yaxisTitle="Sessions (count)"
         xaxisTitle="Idle Duration"
         colors={["#F1C40F", "#7FA4FA", "#75E093"]}
       />

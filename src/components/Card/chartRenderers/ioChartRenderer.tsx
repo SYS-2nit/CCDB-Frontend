@@ -3,7 +3,7 @@ import StackChart from "@/components/Chart/StackChart";
 import MetricCard from "@/components/Card/MetricCard";
 
 // I/O 탭 전용 차트 렌더러
-export const renderIOChart = (title: string) => {
+export const ioChartRenderer = (title: string) => {
   // I/O Performance Dashboard — MetricCard
   if (title.includes("I/O Performance Dashboard")) {
     const metrics = [

@@ -5,8 +5,7 @@
 
 .status-cards {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); // 2개씩
-  grid-template-rows: repeat(2, 1fr);    // 2행
+  grid-template-columns: repeat(2, 2fr); // 2개씩
   gap: 5px;
 }
 
@@ -18,9 +17,7 @@
   border-radius: 5px;
   color: $gray-0;
   text-align: center;
-  gap: 5px;
-  width: 100%;  
-  height: 100%;  
+  gap: 5px; 
 
   &__label {
     @include text-styles("heading04");

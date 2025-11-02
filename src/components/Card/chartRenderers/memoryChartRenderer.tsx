@@ -3,7 +3,7 @@ import LineChart from "@/components/Chart/LineChart";
 import TableChart from "@/components/Chart/TableChart";
 
 // Memory 탭 전용 차트 렌더러
-export const renderMemoryChart = (title: string) => {
+export const memoryChartRenderer = (title: string) => {
   if (title.includes("PGA Utilization (%) - Current")) return <GaugeChart />;
   if (title.includes("SGA Utilization (%) - Current")) return <GaugeChart />;
   if (title.includes("PGA Utilization (%) - Trend"))

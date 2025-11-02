@@ -91,7 +91,7 @@ const StackChart: React.FC<StackChartProps> = ({ stackCount = 5 }) => {
   };
 
   return (
-    <div id="stack-chart" style={{ width: "100%", height: "150px" }}>
+    <div id="stack-chart" style={{ width: "100%", height: "100%" }}>
       <ReactApexChart
         options={options}
         series={series}
