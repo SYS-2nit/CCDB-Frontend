@@ -194,25 +194,6 @@ const Sidebar: React.FC = () => {
             </>
           </NavLink>
 
-          {/* 나가기 */}
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `sidebar__item ${isActive ? "active" : ""}`
-            }
-          >
-            <>
-              <img
-                src={LogoutIcon}
-                alt="logout"
-                onClick={() => setIsCollapsed(false)}
-              />
-              {!isCollapsed && (
-                <span className="sidebar__item--title">나가기</span>
-              )}
-            </>
-          </NavLink>
-
           <div className="sidebar__item--user">
             <img src={ProfileIcon} alt="user" />
             {!isCollapsed && (
