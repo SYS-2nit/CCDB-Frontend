@@ -2,6 +2,8 @@ import LineChart from "@/components/Chart/LineChart";
 import GaugeChart from "@/components/Chart/GaugeChart";
 import StackChart from "@/components/Chart/StackChart";
 import MetricCard from "@/components/Card/MetricCard";
+import SuccessGreenIcon from "@/assets/general/succes-green.svg";
+import ErrorRedIcon from "@/assets/general/error-red.svg";
 
 // Main Custom 탭 전용 차트 렌더러
 export const renderMainChart = (title: string) => {
@@ -49,12 +51,16 @@ export const renderMainChart = (title: string) => {
   // 백그라운드 프로세스 상태 — LineChart
   if (title.includes("백그라운드 프로세스 상태")) {
     const backMetrics = [
-      { title: "LGWR", subtitle: "PID: 1234", value: "Active" },
-      { title: "DRWR", subtitle: "PID: 1235", value: "Active" },
-      { title: "PMON", subtitle: "PID: 1236", value: "Active" },
-      { title: "SMON", subtitle: "PID: 1237", value: "Active" },
-      { title: "CKPT", subtitle: "PID: 1238", value: "Active" },
-      { title: "ARC0", subtitle: "PID: 1239", value: "Active" },
+      {
+        title: "LGWR",
+        subtitle: "PID: 1234",
+        icon: SuccessGreenIcon,
+      },
+      { title: "DRWR", subtitle: "PID: 1235", icon: SuccessGreenIcon },
+      { title: "PMON", subtitle: "PID: 1236", icon: SuccessGreenIcon },
+      { title: "SMON", subtitle: "PID: 1237", icon: ErrorRedIcon },
+      { title: "CKPT", subtitle: "PID: 1238", icon: SuccessGreenIcon },
+      { title: "ARC0", subtitle: "PID: 1239", icon: ErrorRedIcon },
     ];
     return <MetricCard metrics={backMetrics} columns={3} />;
   }

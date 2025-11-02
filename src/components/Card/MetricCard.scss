@@ -7,6 +7,7 @@
   display: grid;
   gap: 5px;
   width: 100%;
+  height: 90%;;
   margin-top: 5px;
 }
 
@@ -16,7 +17,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  border-radius: 5px;
+  border-radius: 3px;
   background-color: $gray-50;
   padding: 5px;
 
@@ -27,16 +28,23 @@
 
   &__title {
     color: $gray-500;
-    @include text-styles("label02");
+    font-size: 10px;
   }
 
   &__value {
     color: $gray-900;
-    @include text-styles("heading01");
+    @include text-styles("title02");
+    margin: 2px 0;
   }
 
   &__subtitle {
-    font-size: 10px;
+    font-size: 8px;
     color: $gray-300;
+  }
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    margin: 2px 0;
   }
 }

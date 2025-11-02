@@ -10,7 +10,7 @@
   color: $gray-900;
   background-color: $gray-0;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 5px;
   transition: box-shadow 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
@@ -20,7 +20,7 @@
 
   &.warning {
     border: 1.5px solid $sematic-error;
-    background-color: $red-100;
+    background-color: $red-0;
   }
 
   &:hover {
