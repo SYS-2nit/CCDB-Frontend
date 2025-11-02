@@ -3,12 +3,11 @@ import React, { useState, useEffect } from "react";
 import "./AlertEventSetting.scss";
 import ReceiveIcon from "@/assets/general/receive.svg";
 import Modal, { type FieldItem } from "@/components/Modal/Modal";
-import EventSettingPanel, {
-  type EventCard,
-} from "./AlertEventSetting/EventSettingPanel";
 import Button from "@/components/Button/Button";
 import Switch from "@/components/Toggle/Switch";
 import Pagination from "@/components/Pagination/Pagination";
+import type { EventCard } from "./EventSettingPanel/EventSettingPanel";
+import EventSettingPanel from "./EventSettingPanel/EventSettingPanel";
 
 type AlertTabType = "1" | "2";
 
@@ -178,7 +177,7 @@ const AlertEventSetting: React.FC = () => {
           size="sm"
           variant="white"
           icon={ReceiveIcon}
-          onClick={() => setIsReceiveModal(true)} // ✅ 변경
+          onClick={() => setIsReceiveModal(true)}
         />
       </div>
 

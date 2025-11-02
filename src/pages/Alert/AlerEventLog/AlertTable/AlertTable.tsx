@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import "./AlertTable.scss";
-import SeverityDot from "./SeverityDot";
 import Button from "@/components/Button/Button";
 import Modal from "@/components/Modal/Modal";
 import Dashboard, { type TabType } from "@/pages/Dashboard/Dashboard";
 import { createRoot } from "react-dom/client";
+import SeverityDot from "../SeverityDot/SeverityDot";
 
 const AlertTable: React.FC = () => {
   const [isListOpen, setIsListOpen] = useState(false);

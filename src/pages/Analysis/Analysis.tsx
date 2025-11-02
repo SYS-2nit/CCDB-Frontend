@@ -1,4 +1,3 @@
-// src/pages/Analysis/Analysis.tsx
 import React from "react";
 import ScenarioPage from "@/components/Scenario/ScenarioPage";
 

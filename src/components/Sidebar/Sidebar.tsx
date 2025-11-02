@@ -9,7 +9,6 @@ import AlertIcon from "@/assets/sidebar/alert.svg";
 import AnalysisIcon from "@/assets/sidebar/analysis.svg";
 import ImprovementIcon from "@/assets/sidebar/improvement.svg";
 import SettingIcon from "@/assets/sidebar/setting.svg";
-import LogoutIcon from "@/assets/sidebar/logout.svg";
 import ProfileIcon from "@/assets/sidebar/profile.svg";
 import BottomArrowIcon from "@/assets/general/bottom-arrow.svg";
 import ClickedTopArrowIcon from "@/assets/general/clicked-top-arrow.svg";
@@ -19,10 +18,7 @@ const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false); // 사이드바 축소 상태
 
   const toggleMenu = (menu: string) => {
-    // 축소된 상태에서 메뉴 클릭 시 복원
-    if (isCollapsed) {
-      setIsCollapsed(false);
-    }
+    if (isCollapsed) setIsCollapsed(false); // 축소 상태에서 클릭 시 복원
     setOpenMenu(openMenu === menu ? null : menu);
   };
 
@@ -34,7 +30,7 @@ const Sidebar: React.FC = () => {
           <img
             src={WhiteLogoIcon}
             alt="logoIcon"
-            onClick={() => setIsCollapsed(false)} // 복원
+            onClick={() => setIsCollapsed(false)}
           />
           {!isCollapsed && <span className="sidebar__title">CCDB</span>}
         </div>
@@ -42,33 +38,43 @@ const Sidebar: React.FC = () => {
         <img
           src={SidebarIcon}
           alt="sidebarIcon"
-          onClick={() => setIsCollapsed(true)} // 축소
+          onClick={() => setIsCollapsed(true)}
         />
       </div>
 
-      {/* Header와 Navigation 구분선 */}
+      {/* Divider */}
       <div className="sidebar__divider" />
 
       {/* Navigation */}
       <nav className="sidebar__nav">
         {/* 대시보드 */}
-        <NavLink
-          to="/dashboard"
-          className={({ isActive }) =>
-            `sidebar__item ${isActive ? "active" : ""}`
-          }
+        <div
+          className="sidebar__item--parent--arrow"
+          onClick={() => toggleMenu("dashboard")}
         >
-          <>
-            <img
-              src={DashboardIcon}
-              alt="dashboard"
-              onClick={() => setIsCollapsed(false)}
-            />
-            {!isCollapsed && (
-              <span className="sidebar__item--title">대시보드</span>
-            )}
-          </>
-        </NavLink>
+          <div className="sidebar__item--parent--left">
+            <img src={DashboardIcon} alt="dashboard" />
+            <span className="sidebar__item--title">대시보드</span>
+            <span className="arrow">
+              {openMenu === "dashboard" ? (
+                <img src={ClickedTopArrowIcon} alt="clicked-top-arrow" />
+              ) : (
+                <img src={BottomArrowIcon} alt="bottom-arrow" />
+              )}
+            </span>
+          </div>
+        </div>
+
+        {openMenu === "dashboard" && (
+          <div className="sidebar__submenu">
+            <NavLink to="/dashboard/instance-list" className="sidebar__subitem">
+              인스턴스 목록
+            </NavLink>
+            <NavLink to="/dashboard/instance-map" className="sidebar__subitem">
+              인스턴스 맵
+            </NavLink>
+          </div>
+        )}
 
         {/* SQL */}
         <div
@@ -80,21 +86,14 @@ const Sidebar: React.FC = () => {
             <span className="sidebar__item--title">SQL</span>
             <span className="arrow">
               {openMenu === "sql" ? (
-                <img
-                  src={ClickedTopArrowIcon}
-                  alt="clicked-top-arrow"
-                  onClick={() => setIsCollapsed(false)}
-                />
+                <img src={ClickedTopArrowIcon} alt="clicked-top-arrow" />
               ) : (
-                <img
-                  src={BottomArrowIcon}
-                  alt="bottom-arrow"
-                  onClick={() => setIsCollapsed(false)}
-                />
+                <img src={BottomArrowIcon} alt="bottom-arrow" />
               )}
             </span>
           </div>
         </div>
+
         {openMenu === "sql" && (
           <div className="sidebar__submenu">
             <NavLink to="/sql/analysis" className="sidebar__subitem">
@@ -126,6 +125,7 @@ const Sidebar: React.FC = () => {
             </span>
           </div>
         </div>
+
         {openMenu === "alert" && (
           <div className="sidebar__submenu">
             <NavLink to="/alert/event-setting" className="sidebar__subitem">
@@ -144,14 +144,12 @@ const Sidebar: React.FC = () => {
             `sidebar__item ${isActive ? "active" : ""}`
           }
         >
-          <>
-            <img
-              src={AnalysisIcon}
-              alt="analysis"
-              onClick={() => setIsCollapsed(false)}
-            />
-            {!isCollapsed && <span className="sidebar__item--title">진단</span>}
-          </>
+          <img
+            src={AnalysisIcon}
+            alt="analysis"
+            onClick={() => setIsCollapsed(false)}
+          />
+          {!isCollapsed && <span className="sidebar__item--title">진단</span>}
         </NavLink>
 
         {/* 개선 */}
@@ -161,14 +159,12 @@ const Sidebar: React.FC = () => {
             `sidebar__item ${isActive ? "active" : ""}`
           }
         >
-          <>
-            <img
-              src={ImprovementIcon}
-              alt="improvement"
-              onClick={() => setIsCollapsed(false)}
-            />
-            {!isCollapsed && <span className="sidebar__item--title">개선</span>}
-          </>
+          <img
+            src={ImprovementIcon}
+            alt="improvement"
+            onClick={() => setIsCollapsed(false)}
+          />
+          {!isCollapsed && <span className="sidebar__item--title">개선</span>}
         </NavLink>
       </nav>
 
@@ -182,18 +178,15 @@ const Sidebar: React.FC = () => {
               `sidebar__item ${isActive ? "active" : ""}`
             }
           >
-            <>
-              <img
-                src={SettingIcon}
-                alt="setting"
-                onClick={() => setIsCollapsed(false)}
-              />
-              {!isCollapsed && (
-                <span className="sidebar__item--title">설정</span>
-              )}
-            </>
+            <img
+              src={SettingIcon}
+              alt="setting"
+              onClick={() => setIsCollapsed(false)}
+            />
+            {!isCollapsed && <span className="sidebar__item--title">설정</span>}
           </NavLink>
 
+          {/* 사용자 정보 */}
           <div className="sidebar__item--user">
             <img src={ProfileIcon} alt="user" />
             {!isCollapsed && (
