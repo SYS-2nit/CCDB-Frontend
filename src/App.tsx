@@ -1,6 +1,6 @@
 import "./App.css";
 import "@/styles/_global.scss";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./layouts/Layout";
 import Dashboard from "./pages/Dashboard/InstanceMap/Dashboard/Dashboard";
 import Analysis from "./pages/Analysis/Analysis";
@@ -19,6 +19,10 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Layout>
         <Routes>
+          <Route
+            path="/"
+            element={<Navigate to="dashboard/instance-map" replace />}
+          />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="dashboard/instance-list" element={<InstanceList />} />
           <Route path="dashboard/instance-map" element={<Database />} />
