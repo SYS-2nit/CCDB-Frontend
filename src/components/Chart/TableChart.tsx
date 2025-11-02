@@ -3,13 +3,18 @@ import "./TableChart.scss";
 
 interface TableChartProps {
   columns: string[];
-  rows: (string | number)[][];
+  rows: React.ReactNode[][];
+  size?: "sm" | "md" | "lg";
 }
 
-const TableChart: React.FC<TableChartProps> = ({ columns, rows }) => {
+const TableChart: React.FC<TableChartProps> = ({
+  columns,
+  rows,
+  size = "sm",
+}) => {
   return (
-    <div className="table-chart__wrapper">
-      <table className="table-chart">
+    <div className={`table-chart__wrapper table-chart__wrapper--${size}`}>
+      <table className={`table-chart table-chart--${size}`}>
         <thead>
           <tr>
             {columns.map((col, idx) => (

@@ -1,0 +1,62 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.instance-list {
+  width: 100%;
+  background: $gray-0;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    @include text-styles("label02");
+    margin-bottom: 10px;
+
+    .danger {    
+        gap: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $gray-700; 
+    }
+    .warn { 
+        gap: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $gray-700 
+    }
+    .normal { 
+        gap: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color:$gray-700; 
+    }
+
+    &-right {
+        gap: 10px;
+        display: flex;
+    }
+  }
+
+  .status {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+
+    &--normal { background-color: $sematic-success; }
+    &--warn { background-color: $sematic-warning; }
+    &--danger { background-color: $sematic-error; }
+  }
+
+  .link {
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}

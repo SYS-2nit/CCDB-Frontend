@@ -5,13 +5,23 @@
 
 .table-chart__wrapper {
   width: 100%;
-  max-width: 400px;
   height: 160px; 
   overflow-x: auto;
   overflow-y: auto; 
   border: 1px solid $gray-100;
-  border-radius: 6px;
   background-color: $gray-0;
+
+  &--sm {
+    max-width: 400px;
+  }
+
+  &--md {
+    max-width: 900px;
+  }
+
+  &--lg {
+    max-width: 100%;
+  }
 }
 
 .table-chart {
