@@ -19,7 +19,8 @@
   aspect-ratio: unset; 
 
   &.warning {
-    border: 1px solid $sematic-error;
+    border: 1.5px solid $sematic-error;
+    background-color: $red-100;
   }
 
   &:hover {
