@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./List.scss";
 import DatabaseItem from "./Item";
 import ArrowFillTopIcon from "@/assets/general/arrow-fill-top.svg";
+import ArrowFillBottomIcon from "@/assets/general/arrow-fill-bottom.svg";
 import { useNavigate } from "react-router-dom";
 import Modal from "@/components/Modal/Modal";
 import Button from "@/components/Button/Button";
@@ -34,6 +35,7 @@ const List: React.FC<ListProps> = ({
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState<null | "add" | "delete">(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // 모달 확인 시 실행
   const handleConfirm = () => {
@@ -74,47 +76,56 @@ const List: React.FC<ListProps> = ({
     <div className="db-list">
       {/* 헤더 */}
       <div className="db-list-header">
-        데이터베이스 목록 ({filteredDatabases.length})
-        <img src={ArrowFillTopIcon} alt="arrow" />
-      </div>
-
-      {/* 검색창 + DB 목록 */}
-      <div className="db-list-body">
-        <Input
-          size="lg"
-          icon={SearchIcon}
-          placeholder="데이터베이스 이름을 입력해주세요."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-
-        {filteredDatabases.map((db, idx) => (
-          <DatabaseItem
-            key={idx}
-            name={db.name}
-            date={`IP: ${db.ip} | Port: ${db.port} | Account: ${db.account}`}
-            onClick={() => navigate("/dashboard")}
-          />
-        ))}
-      </div>
-
-      {/* 하단 버튼 */}
-      <div className="db-list-footer">
-        <Button
-          text="삭제"
-          size="sm"
-          variant="error"
-          onClick={() => setIsModalOpen("delete")}
-        />
-        <Button
-          text="추가"
-          size="sm"
-          variant="primary"
-          onClick={() => setIsModalOpen("add")}
+        목록 ({filteredDatabases.length})
+        <img
+          src={isCollapsed ? ArrowFillBottomIcon : ArrowFillTopIcon}
+          alt="toggle"
+          onClick={() => setIsCollapsed((prev) => !prev)}
+          style={{ cursor: "pointer" }}
         />
       </div>
 
-      {/* 모달창 */}
+      {/* 본문 (토글로 표시/숨김) */}
+      {!isCollapsed && (
+        <>
+          <div className="db-list-body">
+            <Input
+              size="lg"
+              icon={SearchIcon}
+              placeholder="데이터베이스 이름을 입력해주세요."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+
+            {filteredDatabases.map((db, idx) => (
+              <DatabaseItem
+                key={idx}
+                name={db.name}
+                date={`IP: ${db.ip} | Port: ${db.port} | Account: ${db.account}`}
+                onClick={() => navigate("/dashboard")}
+              />
+            ))}
+          </div>
+
+          {/* 푸터 (버튼 영역) */}
+          <div className="db-list-footer">
+            <Button
+              text="삭제"
+              size="sm"
+              variant="error"
+              onClick={() => setIsModalOpen("delete")}
+            />
+            <Button
+              text="추가"
+              size="sm"
+              variant="primary"
+              onClick={() => setIsModalOpen("add")}
+            />
+          </div>
+        </>
+      )}
+
+      {/* 모달 */}
       {isModalOpen && (
         <Modal
           title={isModalOpen === "add" ? "DB 추가" : "DB 삭제"}
