@@ -61,7 +61,7 @@ const List: React.FC<ListProps> = ({
       }
       const isDeleted = onDeleteDatabase(nameToDelete, passwordToCheck);
       if (isDeleted) alert(`${nameToDelete} 삭제 완료`);
-      else alert("DB 정보가 존재하지 않거나 비밀번호가 일치하지 않습니다.");
+      else alert("존재하는 DB 정보가 없습니다.");
     }
 
     setIsModalOpen(null);
@@ -101,7 +101,6 @@ const List: React.FC<ListProps> = ({
               <DatabaseItem
                 key={idx}
                 name={db.name}
-                date={`IP: ${db.ip} | Port: ${db.port} | Account: ${db.account}`}
                 onClick={() => navigate("/dashboard")}
               />
             ))}
