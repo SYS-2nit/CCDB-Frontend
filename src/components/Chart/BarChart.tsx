@@ -91,12 +91,12 @@ const BarChart: React.FC<BarChartProps> = ({
   };
 
   return (
-    <div style={{ width: "100%", height: "135px" }}>
+    <div style={{ width: "100%", height: "150px" }}>
       <ReactApexChart
         options={options}
         series={series}
         type="bar"
-        height={135}
+        height={150}
       />
     </div>
   );

@@ -3,25 +3,23 @@ import React from "react";
 import ReactApexChart from "react-apexcharts";
 
 interface StackChartProps {
-  stackCount?: number; // 막대 개수 (기본 5)
+  stackCount?: number;
 }
 
 const StackChart: React.FC<StackChartProps> = ({ stackCount = 5 }) => {
-  // 예시 데이터
   const labels = ["SYSTEM", "SYSAUX", "USERS", "UNDO", "TEMP"].slice(
     0,
     stackCount
   );
-
-  const usage = [90, 80, 70, 50, 30].slice(0, stackCount); // 사용률(%)
+  const usage = [90, 80, 70, 50, 30].slice(0, stackCount);
   const total = [5120, 3072, 10240, 2048, 4096].slice(0, stackCount);
   const used = usage.map((v, i) => ((v / 100) * total[i]).toFixed(0));
 
-  // 상태별 색상 설정
   const getColor = (percent: number) => {
-    if (percent >= 85) return "#E74C3C"; // 위험
-    if (percent >= 70) return "#F1C40F"; // 주의
-    return "#2ECC71"; // 정상
+    if (percent >= 90) return "#3B82F6";
+    if (percent >= 80) return "#22C55E";
+    if (percent >= 50) return "#6366F1";
+    return "#A855F7";
   };
 
   const series = [
@@ -38,23 +36,22 @@ const StackChart: React.FC<StackChartProps> = ({ stackCount = 5 }) => {
   const options: ApexOptions = {
     chart: {
       type: "bar",
-      stacked: true,
       toolbar: { show: false },
+      background: "transparent",
     },
     plotOptions: {
       bar: {
         horizontal: true,
-        barHeight: "100%",
         distributed: true,
-        borderRadius: 4,
+        barHeight: "90%",
       },
     },
     dataLabels: {
       enabled: true,
-      formatter: (val: number) => `${val.toFixed(0)}%`,
+      formatter: (val) => `${(val as number).toFixed(0)}%`,
       style: {
-        fontSize: "13px",
-        fontWeight: 600,
+        fontSize: "12px",
+        fontWeight: 700,
         colors: ["#fff"],
       },
     },
@@ -62,30 +59,31 @@ const StackChart: React.FC<StackChartProps> = ({ stackCount = 5 }) => {
       categories: labels,
       max: 100,
       labels: {
-        style: { colors: "#999", fontSize: "12px" },
+        style: { colors: "#888", fontSize: "10px" },
       },
     },
     yaxis: {
       labels: {
-        style: { colors: "#333", fontWeight: 600 },
+        style: { colors: "#555", fontSize: "10px", fontWeight: 500 },
       },
     },
+    grid: {
+      borderColor: "rgba(0,0,0,0.05)",
+      strokeDashArray: 3,
+    },
     tooltip: {
+      theme: "light",
       y: {
-        formatter: (
-          _val: number,
-          { dataPointIndex }: { dataPointIndex: number }
-        ) => {
+        formatter: (_val, { dataPointIndex }) => {
           const idx = dataPointIndex;
           const usedMB = Number(used[idx]).toLocaleString();
           const totalMB = total[idx].toLocaleString();
           const freeMB = (total[idx] - Number(used[idx])).toLocaleString();
-          return `사용: ${usedMB}MB / 여유: ${freeMB}MB / 총 ${totalMB}MB`;
+          return `Used: ${usedMB}MB / Free: ${freeMB}MB / Total: ${totalMB}MB`;
         },
       },
     },
     legend: { show: false },
-    grid: { show: false },
   };
 
   return (

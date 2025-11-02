@@ -98,11 +98,7 @@ export const renderMainChart = (title: string) => {
   if (title.includes("I/O 지연량"))
     return (
       <LineChart
-        legends={[
-          "Single-block Read Latency (ms)",
-          "Direct Path Read Latency (ms)",
-          "Direct Path Write Latency (ms)",
-        ]}
+        legends={["Single-block Read", "Direct Path Read", "Direct Path Write"]}
         seriesData={[
           [2.1, 2.3, 2.8, 2.5, 3.0, 2.7],
           [1.8, 2.0, 2.2, 2.3, 2.1, 2.4],

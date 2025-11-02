@@ -31,7 +31,6 @@ const MetricCard: React.FC<MetricData> = ({
           {value}
         </span>
       )}
-
       {subtitle && <span className="metric-card__subtitle">{subtitle}</span>}
     </div>
   );

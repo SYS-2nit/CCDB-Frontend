@@ -3,33 +3,45 @@ import React from "react";
 import ReactApexChart from "react-apexcharts";
 
 const GaugeChart: React.FC = () => {
+  const value = 72;
+
   const options: ApexOptions = {
-    chart: { type: "radialBar", sparkline: { enabled: true } },
+    chart: {
+      type: "radialBar",
+      sparkline: { enabled: true },
+      background: "transparent",
+    },
     plotOptions: {
       radialBar: {
-        startAngle: -135,
-        endAngle: 225,
+        startAngle: -140,
+        endAngle: 140,
         hollow: {
-          size: "40%",
-          background: "transparent",
+          size: "65%",
+          background: "#ffffff",
+          dropShadow: {
+            enabled: true,
+            top: 2,
+            blur: 3,
+            color: "rgba(0, 0, 0, 0.08)",
+          },
         },
         track: {
-          background: "#f0f2f5",
+          background: "#E5E7EB",
           strokeWidth: "100%",
-          margin: 5,
+          margin: 0,
         },
         dataLabels: {
           name: {
-            offsetY: 30,
-            color: "#6A6A6A",
-            fontSize: "12px",
-            fontWeight: "500",
+            offsetY: 60,
+            color: "#6B7280",
+            fontSize: "13px",
+            fontWeight: 500,
           },
           value: {
             offsetY: -10,
-            fontSize: "24px",
-            fontWeight: "700",
-            color: "#151515",
+            fontSize: "28px",
+            fontWeight: 700,
+            color: "#111827",
             formatter: (val: number) => `${val.toFixed(0)}%`,
           },
         },
@@ -40,23 +52,38 @@ const GaugeChart: React.FC = () => {
       gradient: {
         shade: "light",
         type: "horizontal",
-        gradientToColors: ["#A8C1FF"],
-        inverseColors: false,
+        gradientToColors: ["#6366F1"],
+        stops: [0, 100],
+        opacityFrom: 0.95,
+        opacityTo: 1,
       },
+      colors: ["#60A5FA"],
     },
-    stroke: { lineCap: "round" },
+    stroke: {
+      lineCap: "round",
+    },
     labels: ["사용률"],
   };
 
-  const series = [65];
+  const series = [value];
 
   return (
-    <ReactApexChart
-      options={options}
-      series={series}
-      type="radialBar"
-      height={150}
-    />
+    <div
+      style={{
+        width: "100%",
+        height: "150px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <ReactApexChart
+        options={options}
+        series={series}
+        type="radialBar"
+        height={150}
+      />
+    </div>
   );
 };
 

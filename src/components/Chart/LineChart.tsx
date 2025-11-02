@@ -1,13 +1,12 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
-import { baseChartOptions } from "./baseChartOptions";
 
 interface LineChartProps {
-  legends?: string[]; // 범례 이름 배열
-  seriesData?: number[][]; // 각 라인 데이터 배열
-  categories?: string[]; // X축 라벨
-  yaxisTitle?: string; // Y축 제목
+  legends?: string[];
+  seriesData?: number[][];
+  categories?: string[];
+  yaxisTitle?: string;
 }
 
 const LineChart: React.FC<LineChartProps> = ({
@@ -15,72 +14,67 @@ const LineChart: React.FC<LineChartProps> = ({
   seriesData = [
     Array.from({ length: 7 }, () => Math.floor(Math.random() * 20) + 5),
   ],
-  categories = ["00:10", "00:20", "00:30", "00:40", "00:50", "01:00", "01:10"],
-  yaxisTitle,
+  categories = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"],
 }) => {
+  const colors = ["#3B82F6", "#22C55E", "#A855F7"];
+
   const series = legends.map((name, i) => ({
     name,
     data: seriesData[i] || [],
   }));
 
   const options: ApexOptions = {
-    ...baseChartOptions,
     chart: {
-      ...baseChartOptions.chart,
-      type: "line",
+      type: "area",
       toolbar: { show: false },
-      animations: { enabled: false },
+      background: "transparent",
     },
     stroke: {
-      width: 1,
       curve: "smooth",
+      width: 2.5,
+    },
+    colors,
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 0.2,
+        opacityFrom: 0.4,
+        opacityTo: 0,
+        stops: [0, 100],
+      },
     },
     grid: {
-      ...baseChartOptions.grid,
-      padding: { top: 5, right: 10, bottom: 0, left: 5 },
+      borderColor: "rgba(0,0,0,0.08)",
+      strokeDashArray: 3,
+      padding: { top: 10, right: 10, bottom: 0, left: 5 },
     },
     xaxis: {
-      ...baseChartOptions.xaxis,
       categories,
       labels: {
         style: {
-          fontSize: "10px",
-          colors: "#666",
+          colors: "#777",
+          fontSize: "11px",
         },
       },
-      axisBorder: { show: false },
       axisTicks: { show: false },
+      axisBorder: { show: false },
     },
     yaxis: {
-      show: true,
-      title: yaxisTitle
-        ? {
-            text: yaxisTitle,
-            style: {
-              fontSize: "10px",
-              fontWeight: 600,
-              color: "#555",
-            },
-          }
-        : undefined,
       labels: {
-        style: {
-          fontSize: "10px",
-          colors: "#777",
-        },
-        offsetX: -5,
-        formatter: (val: number) => `${val}`,
+        style: { colors: "#777", fontSize: "11px" },
       },
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-      min: 0,
     },
+    dataLabels: { enabled: false },
     legend: {
       show: legends.length > 1,
       position: "bottom",
-      horizontalAlign: "center",
-      fontSize: "10px",
-      itemMargin: { horizontal: 10 },
+      fontSize: "11px",
+    },
+    tooltip: {
+      theme: "light",
+      style: {
+        fontSize: "12px",
+      },
     },
   };
 
@@ -89,7 +83,7 @@ const LineChart: React.FC<LineChartProps> = ({
       <ReactApexChart
         options={options}
         series={series}
-        type="line"
+        type="area"
         height={150}
       />
     </div>
