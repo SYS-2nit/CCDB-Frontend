@@ -4,7 +4,7 @@ import SearchIcon from "@/assets/general/search.svg";
 import {
   performanceGraphs,
   preventionGraphs,
-} from "@/pages/Dashboard/data/chartConfig";
+} from "@/pages/Dashboard/InstanceMap/Dashboard/data/chartConfig";
 
 interface ChartSettingProps {
   onClose: () => void;

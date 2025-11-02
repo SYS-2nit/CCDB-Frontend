@@ -7,8 +7,8 @@ import Select from "@/components/Select/Select";
 import DaysSelector from "@/components/Select/DaysSelector";
 import TimeInput from "@/components/Input/TimeInput";
 import RangeSliderGroup from "@/components/Slider/RangeSliderGroup";
-import type { TabType } from "@/pages/Dashboard/Dashboard";
-import Dashboard from "@/pages/Dashboard/Dashboard";
+import type { TabType } from "@/pages/Dashboard/InstanceMap/Dashboard/Dashboard";
+import Dashboard from "@/pages/Dashboard/InstanceMap/Dashboard/Dashboard";
 
 interface EventSettingPanelProps {
   title: string;
@@ -323,7 +323,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                             i === index ? { ...ev, resource: value } : ev
                           )
                         );
-                        setSelectedResourceTab(mapResourceToTab(value)); // ✅ 선택 자원 연결
+                        setSelectedResourceTab(mapResourceToTab(value));
                       }}
                     />
                   </div>

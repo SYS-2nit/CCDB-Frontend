@@ -72,7 +72,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     <div
       className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}
     >
-      {/* ✅ 탭 메뉴 — singleTabMode일 경우 해당 탭만 표시 */}
+      {/* 탭 메뉴 — singleTabMode일 경우 해당 탭만 표시 */}
       {!singleTabMode && (
         <TabMenu
           tabs={visibleTabs}

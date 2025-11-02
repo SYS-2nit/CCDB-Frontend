@@ -13,7 +13,7 @@ interface InputProps {
   disabled?: boolean;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void; // ✅ 키 입력 감지용 추가
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 const Input: React.FC<InputProps> = ({
