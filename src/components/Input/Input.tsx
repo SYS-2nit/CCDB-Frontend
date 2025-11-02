@@ -2,14 +2,11 @@ import React from "react";
 import clsx from "clsx";
 import "./Input.scss";
 
-type InputSize = "sm" | "md" | "lg";
-type InputVariant = "default" | "outlined";
-
 interface InputProps {
   placeholder?: string;
   icon?: string;
-  size?: InputSize;
-  variant?: InputVariant;
+  size?: "sm" | "md" | "lg";
+  variant?: "default" | "outlined";
   disabled?: boolean;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;

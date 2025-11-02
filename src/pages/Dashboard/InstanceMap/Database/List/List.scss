@@ -1,0 +1,96 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+// 목록 전체 범위
+.db-list {
+  background: $gray-0;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 300px;
+
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid $gray-100;
+    color: $gray-700;
+    @include text-styles("heading04");
+  }
+
+  &-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+  }
+
+  &-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+    padding: 20px;
+    border-top: 1px solid $gray-100;
+  }
+}
+
+// 개별 목록 범위
+.db-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: left;
+  flex-direction: column;
+  border-radius: 3px;
+  padding: 10px;
+  background: $gray-0;
+  border: 1px solid $gray-100;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+    &-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: $gray-500;
+        @include text-styles("body02");
+    }
+
+    &-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        color: $gray-300;
+        @include text-styles("label02");
+    }
+}
+
+// + / - 버튼  
+.zoom-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;  
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    color: $gray-700;
+    @include text-styles("heading04");
+
+  &:hover {
+    background: $main-500;
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

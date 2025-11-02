@@ -5,66 +5,60 @@ import "./OracleDBModel.scss";
 interface OracleDBModelProps {
   onClick: () => void;
   isZoomed: boolean;
-  name?: string;
   showInfoCard?: boolean;
+  name?: string;
+  ip?: string;
+  port?: string;
+  account?: string;
 }
 
 const OracleDBModel: React.FC<OracleDBModelProps> = ({
   onClick,
   isZoomed,
   name = "DB Name",
+  ip = "localhost",
+  port = "1521",
+  account = "admin",
   showInfoCard = false,
 }) => {
   const layers = [
-    { color: "#B9E9FF", y: 0.6 },
-    { color: "#63BFFF", y: 0.3 },
+    { color: "#B9E9FF", y: 0.8 },
+    { color: "#63BFFF", y: 0.4 },
     { color: "#1F76FF", y: 0 },
   ];
 
   return (
-    <group onClick={onClick} scale={isZoomed ? 1.5 : 1.0} position={[0, 0, 0]}>
-      {/* InfoCard */}
+    <group onClick={onClick} scale={isZoomed ? 1.8 : 3.0}>
       {showInfoCard && (
-        <Html position={[0.7, -0.2, 0]} center>
+        <Html position={[0.7, -0.2, 0]} center zIndexRange={[0, 1]}>
           <div className="db-info-card">
             <h3 className="db-info-card__title">{name}</h3>
             <hr className="db-info-card__divider" />
             <p>
-              <strong>IP:</strong> localhost
+              <strong>IP:</strong> {ip}
             </p>
             <p>
-              <strong>Port:</strong> 1521
+              <strong>Port:</strong> {port}
             </p>
             <p>
-              <strong>Database:</strong> CDB$ROOT
-            </p>
-            <p>
-              <strong>Active Sessions:</strong> 1
+              <strong>Account:</strong> {account}
             </p>
           </div>
         </Html>
       )}
 
-      {/* 3D DB 본체 */}
-      <group>
-        {layers.map((layer, i) => (
-          <mesh key={i} position={[0, layer.y, 0]}>
-            <cylinderGeometry args={[0.9, 0.9, 0.3, 64]} />
-            <meshPhysicalMaterial
-              color={layer.color}
-              metalness={1}
-              roughness={0.5}
-              transmission={1}
-              opacity={1}
-              transparent
-              ior={1}
-              envMapIntensity={1}
-              clearcoat={1}
-              clearcoatRoughness={1}
-            />
-          </mesh>
-        ))}
-      </group>
+      {layers.map((layer, i) => (
+        <mesh key={i} position={[0, layer.y, 0]}>
+          <cylinderGeometry args={[0.9, 0.9, 0.4, 64]} />
+          <meshPhysicalMaterial
+            color={layer.color}
+            metalness={1}
+            roughness={0.5}
+            transmission={1}
+            transparent
+          />
+        </mesh>
+      ))}
     </group>
   );
 };
