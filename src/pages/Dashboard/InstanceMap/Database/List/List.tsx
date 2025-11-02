@@ -9,6 +9,13 @@ import Input from "@/components/Input/Input";
 import SearchIcon from "@/assets/general/search.svg";
 
 interface ListProps {
+  databases: {
+    name: string;
+    ip: string;
+    port: string;
+    account: string;
+    password: string;
+  }[];
   onAddDatabase: (newDB: {
     name: string;
     ip: string;
@@ -16,15 +23,14 @@ interface ListProps {
     account: string;
     password: string;
   }) => void;
-  onDeleteDatabase: (name: string, password: string) => boolean; // 🔹 삭제 성공 여부 반환
+  onDeleteDatabase: (name: string, password: string) => boolean;
 }
 
-// 임시 DB 목록
-const initialDatabases = [
-  { name: "ev-LocalHost", date: "최종 업데이트: YYYY-MM-DD HH:MM:SS" },
-];
-
-const List: React.FC<ListProps> = ({ onAddDatabase, onDeleteDatabase }) => {
+const List: React.FC<ListProps> = ({
+  databases,
+  onAddDatabase,
+  onDeleteDatabase,
+}) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState<null | "add" | "delete">(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,7 +49,6 @@ const List: React.FC<ListProps> = ({ onAddDatabase, onDeleteDatabase }) => {
         return;
       }
       onAddDatabase({ name, ip, port, account, password });
-      console.log("DB 추가 완료:", name);
     }
 
     if (isModalOpen === "delete") {
@@ -52,22 +57,16 @@ const List: React.FC<ListProps> = ({ onAddDatabase, onDeleteDatabase }) => {
         alert("DB 이름과 비밀번호를 입력해주세요.");
         return;
       }
-
-      // 삭제 함수 호출
       const isDeleted = onDeleteDatabase(nameToDelete, passwordToCheck);
-
-      if (isDeleted) {
-        alert(`${nameToDelete} 삭제 완료`);
-      } else {
-        alert("DB 정보가 존재하지 않거나 비밀번호가 일치하지 않습니다.");
-      }
+      if (isDeleted) alert(`${nameToDelete} 삭제 완료`);
+      else alert("DB 정보가 존재하지 않거나 비밀번호가 일치하지 않습니다.");
     }
 
     setIsModalOpen(null);
   };
 
   // 검색 필터링
-  const filteredDatabases = initialDatabases.filter((db) =>
+  const filteredDatabases = databases.filter((db) =>
     db.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -93,7 +92,7 @@ const List: React.FC<ListProps> = ({ onAddDatabase, onDeleteDatabase }) => {
           <DatabaseItem
             key={idx}
             name={db.name}
-            date={db.date}
+            date={`IP: ${db.ip} | Port: ${db.port} | Account: ${db.account}`}
             onClick={() => navigate("/dashboard")}
           />
         ))}

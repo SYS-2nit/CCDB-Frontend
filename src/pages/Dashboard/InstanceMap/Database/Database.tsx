@@ -31,6 +31,7 @@ const Database: React.FC = () => {
   // DB 추가
   const handleAddDatabase = (newDB: DBInfo) => {
     setDbList((prev) => [...prev, newDB]);
+    console.log("DB 추가 완료:", newDB.name);
   };
 
   // DB 삭제
@@ -40,13 +41,11 @@ const Database: React.FC = () => {
   ): boolean => {
     const targetDB = dbList.find((db) => db.name === nameToDelete);
 
-    // 이름이 존재하지 않거나 비밀번호가 불일치하면 삭제 중단
     if (!targetDB || targetDB.password !== password) {
       console.warn("삭제 실패: DB가 존재하지 않거나 비밀번호 불일치");
       return false;
     }
 
-    // 일치할 경우만 삭제
     setDbList((prev) => prev.filter((db) => db.name !== nameToDelete));
     console.log(`${nameToDelete} 삭제 완료`);
     return true;
@@ -60,6 +59,7 @@ const Database: React.FC = () => {
             <div className="db-box">
               {/* 왼쪽: DB 목록 */}
               <List
+                databases={dbList}
                 onAddDatabase={handleAddDatabase}
                 onDeleteDatabase={handleDeleteDatabase}
               />
