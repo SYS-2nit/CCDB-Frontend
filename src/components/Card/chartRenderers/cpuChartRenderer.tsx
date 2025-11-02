@@ -1,21 +1,67 @@
 import LineChart from "@/components/Chart/LineChart";
-import GaugeChart from "@/components/Chart/GaugeChart";
-import TableChart from "@/components/Chart/TableChart";
+import StackChart from "@/components/Chart/StackChart";
 
-// CPU 탭 전용 차트 렌더러
+import MetricCard from "@/components/Card/MetricCard";
+import BarChart from "@/components/Chart/BarChart";
+
+/** CPU 탭 전용 차트 렌더러 */
 export const cpuChartRenderer = (title: string) => {
-  if (title.includes("Host CPU Utilization (%) - Current"))
-    return <GaugeChart />;
+  /**CPU 활동 현황 타일 (CPU Activity Overview Tiles) */
+  if (
+    title.includes("CPU Activity Overview") ||
+    title.includes("CPU 활동 현황") ||
+    title.includes("CPU 타일")
+  )
+    return (
+      <MetricCard
+        metrics={[
+          { title: "Host Busy Cores", value: 12 },
+          { title: "Host Total Cores", value: 16 },
+          { title: "Host CPU Util (%)", value: "76" },
+          { title: "AAS On-CPU Sessions", value: 3.8 },
+          { title: "Core Baseline Sessions", value: 4.2 },
+          { title: "CPU Saturation (%)", value: "91.3" },
+          { title: "DB Share of Host (%)", value: "63.5" },
+          { title: "Runnables Total", value: 42 },
+          { title: "CPU Cores for RunQ", value: 16 },
+          { title: "TPS per sec", value: 320 },
+          { title: "Execs per sec", value: 2550 },
+          { title: "User Calls per sec", value: 6240 },
+        ]}
+        columns={4}
+      />
+    );
 
+  /** Foreground vs Background CPU — AAS Trend */
+  if (
+    title.includes("Foreground vs Background") ||
+    title.includes("포그라운드") ||
+    title.includes("백그라운드")
+  )
+    return (
+      <LineChart
+        legends={["Foreground (FG)", "Background (BG)"]}
+        seriesData={[
+          [2.1, 2.3, 2.0, 2.5, 2.8, 3.0],
+          [1.5, 1.6, 1.7, 1.8, 1.9, 2.1],
+        ]}
+        categories={["00:00", "02:00", "04:00", "06:00", "08:00", "10:00"]}
+        yaxisTitle="Average Active Sessions (AAS)"
+      />
+    );
+
+  /** Host CPU Utilization (%) — Trend */
   if (title.includes("Host CPU Utilization (%) - Trend"))
     return (
       <LineChart
-        legends={["CPU Utilization"]}
+        legends={["Host CPU Utilization (%)"]}
         seriesData={[[40, 45, 48, 42, 44, 50, 55]]}
-        categories={["mm:ss", "mm:ss", "mm:ss", "mm:ss", "mm:ss"]}
+        categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
         yaxisTitle="CPU (%)"
       />
     );
+
+  /** DB CPU Saturation (AAS vs Core) */
   if (title.includes("DB CPU Saturation (AAS vs Core)"))
     return (
       <LineChart
@@ -24,22 +70,26 @@ export const cpuChartRenderer = (title: string) => {
           [10, 15, 20, 18, 22, 25, 30],
           [40, 45, 48, 42, 44, 50, 55],
         ]}
-        categories={["mm:ss", "mm:ss", "mm:ss", "mm:ss", "mm:ss"]}
+        categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
         yaxisTitle="Load"
       />
     );
+
+  /** DB CPU Share of Host (%) — Trend (Stack) */
   if (title.includes("DB CPU Share of Host (%) - Trend"))
     return (
-      <LineChart
-        legends={["DB_of_Host_Share_Pct", "Other processes"]}
+      <StackChart
+        legends={["DB of Host Share (%)", "Other Processes"]}
         seriesData={[
           [20, 25, 30, 28, 35, 32, 38],
           [60, 65, 68, 64, 66, 70, 72],
         ]}
-        categories={["mm:ss", "mm:ss", "mm:ss", "mm:ss", "mm:ss"]}
+        categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
         yaxisTitle="CPU (%)"
       />
     );
+
+  /** CPU Cost per Commit/Execution (ms) */
   if (title.includes("CPU Cost per Commit/Execution (ms)"))
     return (
       <LineChart
@@ -47,52 +97,52 @@ export const cpuChartRenderer = (title: string) => {
         seriesData={[
           [20, 30, 40, 45, 50],
           [25, 28, 35, 42, 47],
-          [10, 15, 20, 18, 22],
         ]}
         categories={["1m", "2m", "3m", "4m", "5m"]}
-        yaxisTitle="Usage (%)"
+        yaxisTitle="CPU Time (ms)"
       />
     );
-  if (title.includes("Run Queue per Core (Scheduler Load)"))
+
+  /** Run Queue per Core (Scheduler Load) */
+  if (title.includes("Run Queue per Core"))
     return (
       <LineChart
         legends={[
           "RunQ_per_Core",
           "Load_threshold",
-          "load_threshold_min",
-          "load_threshold_max ",
+          "Load_threshold_min",
+          "Load_threshold_max",
         ]}
         seriesData={[
           [20, 30, 40, 45, 50],
           [25, 28, 35, 42, 47],
           [10, 15, 20, 18, 22],
+          [50, 55, 60, 65, 70],
         ]}
         categories={["1m", "2m", "3m", "4m", "5m"]}
         yaxisTitle="Usage (%)"
       />
     );
 
-  if (title.includes("Top SQL by CPU (Last 10 min)"))
+  /** Top SQL by CPU (Last 10 min) */
+  if (title.includes("Top SQL by CPU"))
     return (
-      <TableChart
-        columns={[
-          "Rank",
-          "SQL_ID",
-          "Plan Hash_VALUE",
-          "Parsing_Schema__Name",
-          "Module",
-          "Cpu_Time",
-          "Executions",
-          "Last_Active_TIme",
+      <BarChart
+        legends={["CPU Time (ms)"]}
+        seriesData={[[16500, 13800, 12100, 9800, 7500]]}
+        categories={[
+          "Batch Job (HR)",
+          "AppSvc (AP)",
+          "QueryApp (SALES)",
+          "Dashboard (BI)",
+          "FinRep (FIN)",
         ]}
-        rows={[
-          [1, 240, 35, 520, 12_340, 25_600, 0, 0, 0],
-          [2, 180, 22, 410, 9_580, 18_320, 0, 0, 0],
-          [3, 130, 18, 340, 7_210, 14_850, 0, 0, 0],
-        ]}
+        xaxisTitle="CPU Time (ms)"
+        horizontal={true}
+        colors={["#4F46E5"]}
       />
     );
 
-  // 기본값
+  /** 기본 */
   return <LineChart />;
 };

@@ -71,7 +71,7 @@ const GaugeChart: React.FC = () => {
     <div
       style={{
         width: "100%",
-        height: "150px",
+        height: "130px",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -81,7 +81,7 @@ const GaugeChart: React.FC = () => {
         options={options}
         series={series}
         type="radialBar"
-        height={150}
+        height={130}
       />
     </div>
   );

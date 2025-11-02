@@ -15,6 +15,7 @@ export const chartData: Record<TabType, string[]> = {
     "I/O 처리량",
   ],
   cpu: [
+    "CPU 활동 현황 타일",
     "Host CPU Utilization (%) - Current",
     "Host CPU Utilization (%) - Trend",
     "DB CPU Saturation (AAS vs Core)",
@@ -34,11 +35,15 @@ export const chartData: Record<TabType, string[]> = {
     "Top SQL by Shared Pool Memory",
   ],
   session: [
-    "Now Tiles — Total Users / Blockers / Blocked",
+    "Session Activity & Resource Summary",
     "Long-Idle Sessions ≥10/30/60m — Snapshot",
     "Blocking — Blocker vs Blocked Sessions — Trend",
     "Lock Wait Sessions — TX vs TM vs Total",
     "Active vs Inactive Sessions — Trend",
+    "TPS — Trend",
+    "On-CPU vs Wait (AAS Decomposition) — Trend",
+    "Exec/s — Trend",
+    "Logons/sec & Disconnects/sec — Trend",
     "Top Blocker Sessions — Snapshot Top 5",
   ],
   io: [

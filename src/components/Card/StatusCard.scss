@@ -6,6 +6,7 @@
 .status-cards {
   display: grid;
   grid-template-columns: repeat(2, 2fr); // 2개씩
+  grid-template-rows: repeat(2, 2fr); // 2개씩
   gap: 5px;
 }
 
