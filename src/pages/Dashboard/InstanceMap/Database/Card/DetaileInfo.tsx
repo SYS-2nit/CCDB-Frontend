@@ -125,7 +125,7 @@ const DBInfoPanel: React.FC<DBInfoPanelProps> = ({
           </button>
           <button
             className="connect-btn"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/dashboard/instance-list")}
           >
             접속하기
           </button>

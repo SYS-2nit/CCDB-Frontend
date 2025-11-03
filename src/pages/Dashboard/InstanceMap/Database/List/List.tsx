@@ -103,7 +103,7 @@ const List: React.FC<ListProps> = ({
               <DatabaseItem
                 key={idx}
                 name={db.name}
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/dashboard/instance-list")}
               />
             ))}
           </div>
