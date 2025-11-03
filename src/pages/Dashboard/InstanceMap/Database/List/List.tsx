@@ -296,7 +296,7 @@ const List: React.FC<ListProps> = ({
               type: "textarea",
               placeholder: "삭제할 DB 이름을 입력해주세요.",
               value: inputs.name,
-              onChange: (label, val) =>
+              onChange: (_label, val) =>
                 setInputs((prev) => ({ ...prev, name: val })),
             },
             {
@@ -304,7 +304,7 @@ const List: React.FC<ListProps> = ({
               type: "textarea",
               placeholder: "삭제할 DB의 비밀번호를 입력해주세요.",
               value: inputs.password,
-              onChange: (label, val) =>
+              onChange: (_label, val) =>
                 setInputs((prev) => ({ ...prev, password: val })),
             },
           ]}
