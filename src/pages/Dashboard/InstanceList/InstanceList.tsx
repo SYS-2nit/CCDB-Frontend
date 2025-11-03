@@ -26,6 +26,7 @@ interface DBItem {
 }
 
 const InstanceList: React.FC = () => {
+  // 더미 데이터
   const [data, setData] = useState<DBItem[]>([
     {
       status: "정상",
@@ -76,7 +77,6 @@ const InstanceList: React.FC = () => {
   type StatusTab = "all" | "normal" | "warn" | "danger" | "error";
   const [activeTab, setActiveTab] = useState<StatusTab>("all");
   const [searchTerm, setSearchTerm] = useState("");
-
   const tabs = [
     { id: "all", label: "전체" },
     { id: "normal", label: "무해" },
@@ -84,7 +84,6 @@ const InstanceList: React.FC = () => {
     { id: "danger", label: "위험" },
     { id: "error", label: "장애" },
   ] as const;
-
   const filteredData = data.filter((item) =>
     item.sid.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -100,7 +99,7 @@ const InstanceList: React.FC = () => {
 
   // 모달 상태
   const [isModalOpen, setIsModalOpen] = useState<null | "add" | "edit">(null);
-  const [, setSelectedItem] = useState<DBItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<DBItem | null>(null);
   const [inputs, setInputs] = useState({
     name: "",
     ip: "",
@@ -108,9 +107,7 @@ const InstanceList: React.FC = () => {
     sid: "",
   });
   const [newDB, setNewDB] = useState({ sid: "" });
-  const [editDB, setEditDB] = useState({ name: "", ip: "", port: "", sid: "" });
   const [testResult, setTestResult] = useState<null | "success" | "fail">(null);
-
   const navigate = useNavigate();
 
   // 수정 아이콘 핸들러
@@ -143,21 +140,43 @@ const InstanceList: React.FC = () => {
   // 저장 버튼 핸들러
   const handleConfirm = () => {
     const allFilled = Object.values(inputs).every((v) => v.trim() !== "");
+
+    // 입력란이 비어있을 경우 알림 처리
     if (!allFilled) {
       alert("모든 필드를 입력해주세요.");
       return;
     }
+
+    // 테스트 결과가 없을 경우 알림 처리
     if (!testResult) {
       alert("저장 전에 테스트를 먼저 수행해주세요.");
       return;
     }
+
+    // 테스트 결과 실패 시 알림 처리
     if (testResult === "fail") {
       alert("테스트에 실패했습니다. 연결 정보를 확인해주세요.");
       return;
     }
 
-    alert(`${editDB.name} 정보가 성공적으로 수정되었습니다.`);
-    setEditDB({ name: "", ip: "", port: "", sid: "" });
+    // 테스트 결과 성공 시 수정된 데이터 반영
+    if (selectedItem) {
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.sid === selectedItem.sid
+            ? {
+                ...item,
+                server: inputs.name,
+                ip: inputs.ip,
+                port: inputs.port,
+                sid: inputs.sid,
+              }
+            : item
+        )
+      );
+    }
+
+    alert(`${inputs.name} 인스턴스가 수정되었습니다.`);
     setIsModalOpen(null);
   };
 
@@ -266,6 +285,8 @@ const InstanceList: React.FC = () => {
         rows={rows}
         onClick={() => navigate("/dashboard")}
       />
+
+      {/* 페이지네이션 */}
       <Pagination
         totalPages={totalPages}
         currentPage={currentPage}
@@ -330,7 +351,7 @@ const InstanceList: React.FC = () => {
         </Modal>
       )}
 
-      {/* 인스턴스 추가 모달 */}
+      {/* 인스턴스 생성 모달 */}
       {isModalOpen === "add" && (
         <Modal
           title="인스턴스 생성"
