@@ -123,6 +123,13 @@ const InstanceList: React.FC = () => {
     setTestResult(null);
   };
 
+  // 삭제 아이콘 핸들러
+  const handleDelete = (sid: string) => {
+    if (window.confirm("정말 삭제하시겠습니까?"));
+    setData((prev) => prev.filter((item) => item.sid !== sid));
+    alert(`${inputs.name} 인스턴스가 삭제되었습니다.`);
+  };
+
   // 테스트 버튼 핸들러
   const handleTest = () => {
     // 이전 테스트 결과 초기화
@@ -246,7 +253,7 @@ const InstanceList: React.FC = () => {
         src={TrashIcon}
         alt="Delete"
         className="action-btn delete"
-        onClick={() => alert("정상적으로 삭제되었습니다.")}
+        onClick={() => handleDelete(item.sid)}
       />
     </div>,
   ]);
