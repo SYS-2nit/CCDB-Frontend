@@ -50,7 +50,7 @@ const List: React.FC<ListProps> = ({
 
   // 테스트 버튼 핸들러
   const handleTest = () => {
-    // 모든 필드가 채워졌는지 확인
+    // 입력란이 비어있을 경우 알림 처리
     const allFilled = Object.values(inputs).every((v) => v.trim() !== "");
     if (!allFilled) {
       alert("모든 항목을 입력해주세요.");
@@ -62,21 +62,29 @@ const List: React.FC<ListProps> = ({
 
   // 저장 버튼 핸들러
   const handleConfirm = () => {
-    const allFilled = Object.values(inputs).every((v) => v.trim() !== "");
+    const allFilled = Object.values(inputs).every(
+      (v) => typeof v === "string" && v.trim() !== ""
+    );
+
+    // 입력란이 비어있을 경우 알림 처리
     if (!allFilled) {
       alert("모든 항목을 입력해주세요.");
       return;
     }
 
+    // 테스트 결과가 없을 경우 알림 처리
     if (!testResult) {
       alert("저장 전에 테스트를 먼저 수행해주세요.");
       return;
     }
+
+    // 테스트 결과 실패 시 알림 처리
     if (testResult === "fail") {
       alert("테스트에 실패했습니다. 연결 정보를 확인해주세요.");
       return;
     }
 
+    // 테스트 결과 성공 시 추가된 데이터 반영
     if (isModalOpen === "add") {
       const { name, ip, port, account, password, sid } = inputs;
       onAddDatabase({ name, ip, port, account, password, SID: sid });
