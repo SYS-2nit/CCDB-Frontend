@@ -108,6 +108,7 @@ const InstanceList: React.FC = () => {
     sid: "",
   });
   const [newDB, setNewDB] = useState({ sid: "" });
+  const [editDB, setEditDB] = useState({ name: "", ip: "", port: "", sid: "" });
   const [testResult, setTestResult] = useState<null | "success" | "fail">(null);
 
   const navigate = useNavigate();
@@ -127,8 +128,11 @@ const InstanceList: React.FC = () => {
 
   // 테스트 버튼 핸들러
   const handleTest = () => {
-    const allFilled = Object.values(inputs).every((v) => v.trim() !== "");
-    if (!allFilled) {
+    // 이전 테스트 결과 초기화
+    setTestResult(null);
+
+    // 입력란이 비어있을 경우 알림 처리
+    if (!inputs.sid.trim()) {
       alert("모든 필드를 입력해주세요.");
       return;
     }
@@ -152,10 +156,9 @@ const InstanceList: React.FC = () => {
       return;
     }
 
-    alert(`${inputs.name} 정보가 성공적으로 수정되었습니다.`);
+    alert(`${editDB.name} 정보가 성공적으로 수정되었습니다.`);
+    setEditDB({ name: "", ip: "", port: "", sid: "" });
     setIsModalOpen(null);
-    setSelectedItem(null);
-    setTestResult(null);
   };
 
   // 인스턴스 생성 - 확인 버튼 핸들러
@@ -277,8 +280,6 @@ const InstanceList: React.FC = () => {
           confirmText="저장"
           onClose={() => {
             setIsModalOpen(null);
-            setSelectedItem(null);
-            setTestResult(null);
           }}
           onConfirm={handleConfirm}
           onReset={handleTest}
@@ -287,21 +288,32 @@ const InstanceList: React.FC = () => {
               label: "DB NAME ",
               placeholder: "DB 이름을 입력해주세요.",
               type: "textarea",
+              value: inputs.name,
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, name: val })),
             },
             {
               label: "DB IP ",
               placeholder: "DB IP를 입력해주세요.",
               type: "textarea",
+              value: inputs.ip,
+              onChange: (_, val) => setInputs((prev) => ({ ...prev, ip: val })),
             },
             {
               label: "DB PORT ",
               placeholder: "DB 포트를 입력해주세요.",
               type: "textarea",
+              value: inputs.port,
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, port: val })),
             },
             {
               label: "SID ",
               placeholder: "SID를 입력해주세요.",
               type: "textarea",
+              value: inputs.sid,
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, sid: val })),
             },
           ]}
         >

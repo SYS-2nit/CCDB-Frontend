@@ -28,7 +28,7 @@ export interface FieldItem {
   maxBytes?: number;
   helperText?: string;
   value?: string | string[] | boolean;
-  onChange?: (value: string | string[] | boolean) => void;
+  onChange?: (label: string, value: string) => void;
 }
 
 interface ModalProps {
@@ -44,7 +44,7 @@ interface ModalProps {
   children?: React.ReactNode;
   size?: "sm" | "md" | "lg";
   value?: "0";
-  onChange?: () => void;
+  onChange?: (label: string, value: string) => void;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -59,6 +59,7 @@ const Modal: React.FC<ModalProps> = ({
   resetTrigger,
   children,
   size = "md",
+  onChange,
 }) => {
   const [inputs, setInputs] = useState<{
     [key: string]: string | string[] | boolean;
@@ -77,6 +78,9 @@ const Modal: React.FC<ModalProps> = ({
 
   const handleChange = (label: string, value: string | string[] | boolean) => {
     setInputs((prev) => ({ ...prev, [label]: value }));
+    if (onChange && typeof value === "string") {
+      onChange(label, value);
+    }
   };
 
   const handleRegister = (label: string) => {
@@ -147,7 +151,7 @@ const Modal: React.FC<ModalProps> = ({
                             }
                             onChange={(e) => {
                               if (field.onChange) {
-                                field.onChange(e.target.value);
+                                field.onChange(field.label, e.target.value);
                               } else {
                                 handleChange(field.label, e.target.value);
                               }
