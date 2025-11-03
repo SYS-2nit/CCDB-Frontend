@@ -77,14 +77,41 @@ const InstanceList: React.FC = () => {
   type StatusTab = "all" | "normal" | "warn" | "danger" | "error";
   const [activeTab, setActiveTab] = useState<StatusTab>("all");
   const [searchTerm, setSearchTerm] = useState("");
+
+  // 상태 탭 (이름(갯수))
   const tabs = [
-    { id: "all", label: "전체" },
-    { id: "normal", label: "무해" },
-    { id: "warn", label: "주의" },
-    { id: "danger", label: "위험" },
-    { id: "error", label: "장애" },
+    { id: "all", label: `전체(${data.length})` },
+    {
+      id: "normal",
+      label: `무해(${data.filter((d) => d.status === "무해").length})`,
+    },
+    {
+      id: "warn",
+      label: `주의(${data.filter((d) => d.status === "주의").length})`,
+    },
+    {
+      id: "danger",
+      label: `위험(${data.filter((d) => d.status === "위험").length})`,
+    },
+    {
+      id: "error",
+      label: `장애(${data.filter((d) => d.status === "장애").length})`,
+    },
   ] as const;
-  const filteredData = data.filter((item) =>
+
+  // 탭 필터링
+  const filteredByStatus =
+    activeTab === "all"
+      ? data
+      : data.filter((item) => {
+          if (activeTab === "normal") return item.status === "정상";
+          if (activeTab === "warn") return item.status === "주의";
+          if (activeTab === "danger") return item.status === "위험";
+          return false;
+        });
+
+  // SID 검색 필터링
+  const filteredData = filteredByStatus.filter((item) =>
     item.sid.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -125,8 +152,8 @@ const InstanceList: React.FC = () => {
 
   // 삭제 아이콘 핸들러
   const handleDelete = (sid: string) => {
-    if (window.confirm("정말 삭제하시겠습니까?"));
-    setData((prev) => prev.filter((item) => item.sid !== sid));
+    if (window.confirm("정말 삭제하시겠습니까?"))
+      setData((prev) => prev.filter((item) => item.sid !== sid));
     alert(`${inputs.name} 인스턴스가 삭제되었습니다.`);
   };
 
