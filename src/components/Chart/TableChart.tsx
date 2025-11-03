@@ -26,9 +26,14 @@ const TableChart: React.FC<TableChartProps> = ({
         </thead>
         <tbody>
           {rows.map((row, rIdx) => (
-            <tr key={rIdx} onClick={onClick}>
+            <tr key={rIdx}>
               {row.map((cell, cIdx) => (
-                <td key={cIdx}>{cell}</td>
+                <td
+                  key={cIdx}
+                  onClick={cIdx === 1 && onClick ? onClick : undefined}
+                >
+                  {cell}
+                </td>
               ))}
             </tr>
           ))}

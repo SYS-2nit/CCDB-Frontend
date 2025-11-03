@@ -27,6 +27,8 @@ export interface FieldItem {
   showRegister?: boolean;
   maxBytes?: number;
   helperText?: string;
+  value?: string | string[] | boolean;
+  onChange?: (value: string | string[] | boolean) => void;
 }
 
 interface ModalProps {
@@ -41,6 +43,8 @@ interface ModalProps {
   resetTrigger?: number;
   children?: React.ReactNode;
   size?: "sm" | "md" | "lg";
+  value?: "0";
+  onChange?: () => void;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -136,10 +140,18 @@ const Modal: React.FC<ModalProps> = ({
                           <textarea
                             placeholder={field.placeholder}
                             maxLength={field.maxBytes}
-                            value={(inputs[field.label] as string) || ""}
-                            onChange={(e) =>
-                              handleChange(field.label, e.target.value)
+                            value={
+                              (field.value as string) ??
+                              (inputs[field.label] as string) ??
+                              ""
                             }
+                            onChange={(e) => {
+                              if (field.onChange) {
+                                field.onChange(e.target.value);
+                              } else {
+                                handleChange(field.label, e.target.value);
+                              }
+                            }}
                           />
                         );
                       case "select":

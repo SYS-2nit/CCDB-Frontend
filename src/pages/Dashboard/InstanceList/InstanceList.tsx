@@ -26,13 +26,13 @@ interface DBItem {
 }
 
 const InstanceList: React.FC = () => {
-  const [data] = useState<DBItem[]>([
+  const [data, setData] = useState<DBItem[]>([
     {
       status: "정상",
       server: "db-prod-01",
       ip: "192.168.1.101",
       port: "3306",
-      db: "production_db",
+      db: "ccdb-database",
       sid: "ORCL001",
       cpu: "65%",
       session: "24",
@@ -44,9 +44,9 @@ const InstanceList: React.FC = () => {
     {
       status: "주의",
       server: "db-prod-02",
-      ip: "192.168.1.102",
+      ip: "192.168.1.101",
       port: "3306",
-      db: "analytics_db",
+      db: "ccdb-database",
       sid: "ORCL002",
       cpu: "82%",
       session: "48",
@@ -85,7 +85,6 @@ const InstanceList: React.FC = () => {
     { id: "error", label: "장애" },
   ] as const;
 
-  // SID 검색 필터
   const filteredData = data.filter((item) =>
     item.sid.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -100,35 +99,96 @@ const InstanceList: React.FC = () => {
   );
 
   // 모달 상태
-  const [isModalOpen, setIsModalOpen] = useState<
-    null | "add" | "edit" | "delete"
-  >(null);
-  const [selectedItem, setSelectedItem] = useState<DBItem | null>(null);
-
-  // 테스트 결과 상태
+  const [isModalOpen, setIsModalOpen] = useState<null | "add" | "edit">(null);
+  const [, setSelectedItem] = useState<DBItem | null>(null);
+  const [inputs, setInputs] = useState({
+    name: "",
+    ip: "",
+    port: "",
+    sid: "",
+  });
+  const [newDB, setNewDB] = useState({ sid: "" });
   const [testResult, setTestResult] = useState<null | "success" | "fail">(null);
+
   const navigate = useNavigate();
 
+  // 수정 아이콘 핸들러
   const handleEdit = (item: DBItem) => {
     setSelectedItem(item);
+    setInputs({
+      name: item.server,
+      ip: item.ip,
+      port: item.port,
+      sid: item.sid,
+    });
     setIsModalOpen("edit");
+    setTestResult(null);
   };
 
-  const handleConfirm = () => {
-    if (selectedItem) {
-      alert(`${selectedItem.server} 정보가 수정되었습니다.`);
+  // 테스트 버튼 핸들러
+  const handleTest = () => {
+    const allFilled = Object.values(inputs).every((v) => v.trim() !== "");
+    if (!allFilled) {
+      alert("모든 필드를 입력해주세요.");
+      return;
     }
+    const isSuccess = Math.random() > 0.5;
+    setTestResult(isSuccess ? "success" : "fail");
+  };
+
+  // 저장 버튼 핸들러
+  const handleConfirm = () => {
+    const allFilled = Object.values(inputs).every((v) => v.trim() !== "");
+    if (!allFilled) {
+      alert("모든 필드를 입력해주세요.");
+      return;
+    }
+    if (!testResult) {
+      alert("저장 전에 테스트를 먼저 수행해주세요.");
+      return;
+    }
+    if (testResult === "fail") {
+      alert("테스트에 실패했습니다. 연결 정보를 확인해주세요.");
+      return;
+    }
+
+    alert(`${inputs.name} 정보가 성공적으로 수정되었습니다.`);
     setIsModalOpen(null);
     setSelectedItem(null);
     setTestResult(null);
   };
 
-  // 테스트
-  const handleTest = () => {
-    const isSuccess = Math.random() > 0.5;
-    setTestResult(isSuccess ? "success" : "fail");
+  // 인스턴스 생성 - 확인 버튼 핸들러
+  const handleAdd = () => {
+    if (!newDB.sid.trim()) {
+      alert("SID를 입력해주세요.");
+      return;
+    }
+
+    setData((prev) => [
+      ...prev,
+      {
+        status: "정상",
+        server: "ccdb-server",
+        ip: "192.168.1.101",
+        port: "3306",
+        db: "ccdb-database",
+        sid: newDB.sid,
+        cpu: "0%",
+        session: "0",
+        activeSession: "0",
+        lockWait: "0ms",
+        pga: "0M",
+        sga: "0",
+      },
+    ]);
+
+    alert(`${newDB.sid} 인스턴스가 추가되었습니다.`);
+    setNewDB({ sid: "" });
+    setIsModalOpen(null);
   };
 
+  // 테이블 데이터
   const rows = paginatedData.map((item, index) => [
     <div
       key={`status-${index}`}
@@ -196,7 +256,7 @@ const InstanceList: React.FC = () => {
         </div>
       </div>
 
-      {/* 테이블 */}
+      {/* 테이블 차트 */}
       <TableChart
         size="lg"
         columns={columns}
@@ -209,8 +269,8 @@ const InstanceList: React.FC = () => {
         onPageChange={setCurrentPage}
       />
 
-      {/* 모달 */}
-      {isModalOpen && (
+      {/* 수정 모달 */}
+      {isModalOpen === "edit" && (
         <Modal
           title="DB 수정"
           cancelText="테스트"
@@ -224,32 +284,28 @@ const InstanceList: React.FC = () => {
           onReset={handleTest}
           fields={[
             {
-              label: "Name",
+              label: "DB NAME ",
+              placeholder: "DB 이름을 입력해주세요.",
               type: "textarea",
-              placeholder: "새로운 Name을 입력해주세요.",
-              ...(selectedItem && { value: selectedItem.server }),
             },
             {
-              label: "IP",
+              label: "DB IP ",
+              placeholder: "DB IP를 입력해주세요.",
               type: "textarea",
-              placeholder: "새로운 IP를 입력해주세요.",
-              ...(selectedItem && { value: selectedItem.ip }),
             },
             {
-              label: "Port",
+              label: "DB PORT ",
+              placeholder: "DB 포트를 입력해주세요.",
               type: "textarea",
-              placeholder: "새로운 포트번호를 입력해주세요.",
-              ...(selectedItem && { value: selectedItem.port }),
             },
             {
-              label: "SID",
+              label: "SID ",
+              placeholder: "SID를 입력해주세요.",
               type: "textarea",
-              placeholder: "새로운 SID를 입력해주세요.",
-              ...(selectedItem && { value: selectedItem.sid }),
             },
           ]}
         >
-          {/* 결과 표시 */}
+          {/* 테스트 결과 */}
           {testResult && (
             <div className="modal__test-result">
               {testResult === "success" ? (
@@ -260,6 +316,26 @@ const InstanceList: React.FC = () => {
             </div>
           )}
         </Modal>
+      )}
+
+      {/* 인스턴스 추가 모달 */}
+      {isModalOpen === "add" && (
+        <Modal
+          title="인스턴스 생성"
+          cancelText="취소"
+          confirmText="확인"
+          onClose={() => setIsModalOpen(null)}
+          onConfirm={handleAdd}
+          fields={[
+            {
+              label: "SID ",
+              placeholder: "SID를 입력해주세요.",
+              type: "textarea",
+              value: newDB.sid,
+              onChange: (val) => setNewDB({ ...newDB, sid: val as string }),
+            },
+          ]}
+        />
       )}
     </div>
   );
