@@ -8,6 +8,7 @@ import EditIcon from "@/assets/general/edit.svg";
 import TrashIcon from "@/assets/general/trash.svg";
 import Input from "@/components/Input/Input";
 import TabMenu from "@/components/Tabs/TabMenu";
+import SearchIcon from "@/assets/general/search.svg";
 
 const InstanceList: React.FC = () => {
   const columns = [
@@ -16,6 +17,7 @@ const InstanceList: React.FC = () => {
     "IP",
     "포트",
     "데이터베이스",
+    "SID",
     "CPU 사용률",
     "Session",
     "Active Session",
@@ -32,6 +34,7 @@ const InstanceList: React.FC = () => {
       ip: "192.168.1.101",
       port: "3306",
       db: "production_db",
+      sid: "ORCL001",
       cpu: "65%",
       session: "24",
       activeSession: "7",
@@ -45,6 +48,7 @@ const InstanceList: React.FC = () => {
       ip: "192.168.1.102",
       port: "3306",
       db: "analytics_db",
+      sid: "ORCL002",
       cpu: "82%",
       session: "48",
       activeSession: "12",
@@ -52,11 +56,28 @@ const InstanceList: React.FC = () => {
       pga: "2.15M",
       sga: "15,240",
     },
+    {
+      status: "위험",
+      server: "db-dev-01",
+      ip: "192.168.1.103",
+      port: "5432",
+      db: "development_db",
+      sid: "DEV003",
+      cpu: "94%",
+      session: "72",
+      activeSession: "15",
+      lockWait: "5.2ms",
+      pga: "3.50M",
+      sga: "22,800",
+    },
   ];
 
-  // ✅ 상태 탭 관리
+  // 상태 탭 관리
   type StatusTab = "all" | "normal" | "warn" | "danger" | "error";
   const [activeTab, setActiveTab] = useState<StatusTab>("all");
+
+  // 검색어 상태 관리
+  const [searchTerm, setSearchTerm] = useState("");
 
   const tabs = [
     { id: "all", label: "전체 6" },
@@ -66,8 +87,8 @@ const InstanceList: React.FC = () => {
     { id: "error", label: "장애 0" },
   ] as const;
 
-  // ✅ 탭에 따라 데이터 필터링 (예시)
-  const filteredData =
+  // 탭 필터링
+  const filteredByStatus =
     activeTab === "all"
       ? data
       : data.filter((item) => {
@@ -76,6 +97,11 @@ const InstanceList: React.FC = () => {
           if (activeTab === "danger") return item.status === "위험";
           return false;
         });
+
+  // SID 검색 필터링
+  const filteredData = filteredByStatus.filter((item) =>
+    item.sid.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
@@ -121,6 +147,7 @@ const InstanceList: React.FC = () => {
     item.ip,
     item.port,
     item.db,
+    item.sid,
     item.cpu,
     item.session,
     item.activeSession,
@@ -147,29 +174,29 @@ const InstanceList: React.FC = () => {
     <div className="instance-list">
       {/* 헤더 (탭 + 검색 + 추가 버튼) */}
       <div className="instance-list__header">
-        <div className="instance-list__header-left">
-          {/* ✅ 상태 탭 */}
-          <TabMenu
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={(tab) => setActiveTab(tab as StatusTab)}
-          />
+        <TabMenu
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={(tab) => setActiveTab(tab as StatusTab)}
+        />
 
-          {/* 검색 입력창 */}
+        <div className="instance-list__header-left">
+          {/* SID 검색창 */}
           <Input
             size="sm"
             variant="default"
-            placeholder="SID를 입력해주세요."
+            icon={SearchIcon}
+            placeholder="검색어를 입력해주세요(SID)"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Button
+            text="+ 인스턴스 생성"
+            size="sm"
+            variant="primary"
+            onClick={() => setIsModalOpen("add")}
           />
         </div>
-
-        {/* 추가 버튼 */}
-        <Button
-          text="+ 인스턴스 생성"
-          size="sm"
-          variant="primary"
-          onClick={() => setIsModalOpen("add")}
-        />
       </div>
 
       {/* 테이블 */}
@@ -196,53 +223,38 @@ const InstanceList: React.FC = () => {
           confirmText="저장"
           onClose={() => setIsModalOpen(null)}
           onConfirm={handleConfirm}
-          fields={
-            isModalOpen === "delete"
-              ? [
-                  {
-                    label: "Name",
-                    type: "textarea",
-                    placeholder: "삭제할 DB 이름을 입력해주세요.",
-                  },
-                  {
-                    label: "Password",
-                    type: "textarea",
-                    placeholder: "삭제할 DB의 비밀번호를 입력해주세요.",
-                  },
-                ]
-              : [
-                  {
-                    label: "Name",
-                    type: "textarea",
-                    placeholder: "DB 이름을 입력해주세요.",
-                  },
-                  {
-                    label: "IP",
-                    type: "textarea",
-                    placeholder: "DB IP를 입력해주세요.",
-                  },
-                  {
-                    label: "Port",
-                    type: "textarea",
-                    placeholder: "DB 포트번호를 입력해주세요.",
-                  },
-                  {
-                    label: "Account",
-                    type: "textarea",
-                    placeholder: "DB 계정을 입력해주세요.",
-                  },
-                  {
-                    label: "Password",
-                    type: "textarea",
-                    placeholder: "비밀번호를 입력해주세요.",
-                  },
-                  {
-                    label: "SID",
-                    type: "textarea",
-                    placeholder: "SID를 입력해주세요.",
-                  },
-                ]
-          }
+          fields={[
+            {
+              label: "Name",
+              type: "textarea",
+              placeholder: "DB 이름을 입력해주세요.",
+            },
+            {
+              label: "IP",
+              type: "textarea",
+              placeholder: "DB IP를 입력해주세요.",
+            },
+            {
+              label: "Port",
+              type: "textarea",
+              placeholder: "DB 포트번호를 입력해주세요.",
+            },
+            {
+              label: "Account",
+              type: "textarea",
+              placeholder: "DB 계정을 입력해주세요.",
+            },
+            {
+              label: "Password",
+              type: "textarea",
+              placeholder: "비밀번호를 입력해주세요.",
+            },
+            {
+              label: "SID",
+              type: "textarea",
+              placeholder: "SID를 입력해주세요.",
+            },
+          ]}
         />
       )}
     </div>
