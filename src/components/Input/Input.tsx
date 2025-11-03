@@ -16,7 +16,7 @@ interface InputProps {
 const Input: React.FC<InputProps> = ({
   placeholder,
   icon,
-  size = "md",
+  size = "sm",
   variant = "default",
   disabled = false,
   value,

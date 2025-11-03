@@ -6,6 +6,8 @@ import Modal from "@/components/Modal/Modal";
 import Pagination from "@/components/Pagination/Pagination";
 import EditIcon from "@/assets/general/edit.svg";
 import TrashIcon from "@/assets/general/trash.svg";
+import Input from "@/components/Input/Input";
+import TabMenu from "@/components/Tabs/TabMenu";
 
 const InstanceList: React.FC = () => {
   const columns = [
@@ -52,10 +54,33 @@ const InstanceList: React.FC = () => {
     },
   ];
 
+  // ✅ 상태 탭 관리
+  type StatusTab = "all" | "normal" | "warn" | "danger" | "error";
+  const [activeTab, setActiveTab] = useState<StatusTab>("all");
+
+  const tabs = [
+    { id: "all", label: "전체 6" },
+    { id: "normal", label: "무해 4" },
+    { id: "warn", label: "주의 1" },
+    { id: "danger", label: "위험 1" },
+    { id: "error", label: "장애 0" },
+  ] as const;
+
+  // ✅ 탭에 따라 데이터 필터링 (예시)
+  const filteredData =
+    activeTab === "all"
+      ? data
+      : data.filter((item) => {
+          if (activeTab === "normal") return item.status === "정상";
+          if (activeTab === "warn") return item.status === "주의";
+          if (activeTab === "danger") return item.status === "위험";
+          return false;
+        });
+
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
-  const totalPages = Math.ceil(data.length / rowsPerPage);
-  const paginatedData = data.slice(
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
@@ -120,17 +145,25 @@ const InstanceList: React.FC = () => {
 
   return (
     <div className="instance-list">
-      {/* 헤더 */}
+      {/* 헤더 (탭 + 검색 + 추가 버튼) */}
       <div className="instance-list__header">
-        <div className="instance-list__status-group">
-          <span>상태:</span>
-          <Button text="전체 6" size="sm" variant="white" />
-          <Button text="무해(정상) 4" size="sm" variant="white" />
-          <Button text="주의 1" size="sm" variant="white" />
-          <Button text="위험 1" size="sm" variant="white" />
-          <Button text="장애 0" size="sm" variant="white" />
+        <div className="instance-list__header-left">
+          {/* ✅ 상태 탭 */}
+          <TabMenu
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab as StatusTab)}
+          />
+
+          {/* 검색 입력창 */}
+          <Input
+            size="sm"
+            variant="default"
+            placeholder="SID를 입력해주세요."
+          />
         </div>
 
+        {/* 추가 버튼 */}
         <Button
           text="+ 인스턴스 생성"
           size="sm"
@@ -159,7 +192,7 @@ const InstanceList: React.FC = () => {
               ? "DB 삭제"
               : "DB 수정"
           }
-          cancelText="테스트"
+          cancelText="취소"
           confirmText="저장"
           onClose={() => setIsModalOpen(null)}
           onConfirm={handleConfirm}

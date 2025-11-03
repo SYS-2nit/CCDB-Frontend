@@ -6,9 +6,10 @@
 .custom-input {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
-  padding: 12px 16px;
-  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 
   input {
     width: 100%;
@@ -26,21 +27,26 @@
     object-fit: contain;
   }
 
-  /* Size */
+  /* === 크기 === */
   &--sm {
-    width: 30%;
+    padding: 8px 12px;
+    border-radius: 3px;
     @include text-styles("label02");
   }
 
   &--md {
-    width: 50%;
+    padding: 12px 16px;
+    border-radius: 5px;
     @include text-styles("body02");
   }
 
-    &--lg {
+  &--lg {
+    padding: 12px 16px;
     width: 100%;
-    @include text-styles("body02");
+    border-radius: 5px;
+    @include text-styles("heading04");
   }
+
 
   /*  Variant */
   &--default {
