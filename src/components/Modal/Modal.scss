@@ -42,7 +42,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 22px 24px;
+    padding: 24px;
     border-bottom: 1px solid $gray-200;
 
     h2 {
@@ -69,16 +69,15 @@
     padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
   }
 
   &__row-header {
     display: flex;
-    color: $gray-900;
-    margin-bottom: 10px;
+    color: $gray-700;
+    margin-bottom: 5px;
     white-space: pre-line;
-    line-height: 1.6;
-    @include text-styles("heading04");
+    @include text-styles("body02");
   }
 
   /* 입력 영역 (input, select) */
@@ -106,10 +105,11 @@
     }
 
     textarea {
-      padding: 12px 16px;
+      padding: 10px 14px;
       border: 1px solid $gray-300;
-      border-radius: 5px;
-      resize: none; 
+      border-radius: 3px;
+      resize: vertical;
+      min-height: 20px; 
       color: $gray-900;
 
       @include text-styles("label02"); 

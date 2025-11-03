@@ -67,7 +67,6 @@ const Modal: React.FC<ModalProps> = ({
     };
   }, []);
 
-  // resetTrigger 변경 시 모든 입력값 초기화
   useEffect(() => {
     setInputs({});
   }, [resetTrigger]);
