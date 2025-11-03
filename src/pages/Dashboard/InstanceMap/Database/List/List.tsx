@@ -107,6 +107,43 @@ const List: React.FC<ListProps> = ({
     });
   };
 
+  // 삭제 버튼 핸들러
+  const handleDelete = () => {
+    const { name, password } = inputs;
+
+    if (!name.trim() || !password.trim()) {
+      alert("데이터베이스 이름과 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    // 데이터에서 이름과 비밀번호가 일치하는 항목 찾기
+    const target = databases.find(
+      (item) => item.name === name && item.password === password
+    );
+
+    if (!target) {
+      alert("존재하는 정보가 없습니다.");
+      return;
+    }
+
+    const isDeleted = onDeleteDatabase(name, password);
+
+    if (isDeleted) {
+      alert(`${name} 데이터베이스가 삭제되었습니다.`);
+      setIsModalOpen(null);
+      setInputs({
+        name: "",
+        ip: "",
+        port: "",
+        account: "",
+        password: "",
+        sid: "",
+      });
+    } else {
+      alert("삭제 중 오류가 발생했습니다.");
+    }
+  };
+
   // 검색 필터링
   const filteredDatabases = databases.filter((db) =>
     db.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -170,10 +207,10 @@ const List: React.FC<ListProps> = ({
         </>
       )}
 
-      {/* 모달 */}
-      {isModalOpen && (
+      {/* 생성 모달 */}
+      {isModalOpen === "add" && (
         <Modal
-          title={isModalOpen === "add" ? "DB 추가" : "DB 삭제"}
+          title="데이터베이스 생성"
           cancelText="테스트"
           confirmText="저장"
           onClose={() => {
@@ -182,77 +219,55 @@ const List: React.FC<ListProps> = ({
           }}
           onReset={handleTest}
           onConfirm={handleConfirm}
-          fields={
-            isModalOpen === "add"
-              ? [
-                  {
-                    label: "Name",
-                    type: "textarea",
-                    placeholder: "DB 이름을 입력해주세요.",
-                    value: inputs.name,
-                    onChange: (_, val) =>
-                      setInputs((prev) => ({ ...prev, name: val })),
-                  },
-                  {
-                    label: "IP",
-                    type: "textarea",
-                    placeholder: "DB IP를 입력해주세요.",
-                    value: inputs.ip,
-                    onChange: (_, val) =>
-                      setInputs((prev) => ({ ...prev, ip: val })),
-                  },
-                  {
-                    label: "Port",
-                    type: "textarea",
-                    placeholder: "DB 포트번호를 입력해주세요.",
-                    value: inputs.port,
-                    onChange: (_, val) =>
-                      setInputs((prev) => ({ ...prev, port: val })),
-                  },
-                  {
-                    label: "Account",
-                    type: "textarea",
-                    placeholder: "DB 계정을 입력해주세요.",
-                    value: inputs.account,
-                    onChange: (_, val) =>
-                      setInputs((prev) => ({ ...prev, account: val })),
-                  },
-                  {
-                    label: "Password",
-                    type: "textarea",
-                    placeholder: "비밀번호를 입력해주세요.",
-                    value: inputs.password,
-                    onChange: (_, val) =>
-                      setInputs((prev) => ({ ...prev, password: val })),
-                  },
-                  {
-                    label: "SID",
-                    type: "textarea",
-                    placeholder: "SID를 입력해주세요.",
-                    value: inputs.sid,
-                    onChange: (_, val) =>
-                      setInputs((prev) => ({ ...prev, sid: val })),
-                  },
-                ]
-              : [
-                  {
-                    label: "Name",
-                    type: "textarea",
-                    placeholder: "삭제할 DB 이름을 입력해주세요.",
-                    value: inputs.name,
-                    onChange: (_, val) =>
-                      setInputs((prev) => ({ ...prev, name: val })),
-                  },
-                  {
-                    label: "Password",
-                    type: "textarea",
-                    placeholder: "삭제할 DB의 비밀번호를 입력해주세요.",
-                    value: inputs.password,
-                    onChange: (_, val) =>
-                      setInputs((prev) => ({ ...prev, password: val })),
-                  },
-                ]
-          }
+          fields={[
+            {
+              label: "Name",
+              type: "textarea",
+              placeholder: "DB 이름을 입력해주세요.",
+              value: inputs.name,
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, name: val })),
+            },
+            {
+              label: "IP",
+              type: "textarea",
+              placeholder: "DB IP를 입력해주세요.",
+              value: inputs.ip,
+              onChange: (_, val) => setInputs((prev) => ({ ...prev, ip: val })),
+            },
+            {
+              label: "Port",
+              type: "textarea",
+              placeholder: "DB 포트번호를 입력해주세요.",
+              value: inputs.port,
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, port: val })),
+            },
+            {
+              label: "Account",
+              type: "textarea",
+              placeholder: "DB 계정을 입력해주세요.",
+              value: inputs.account,
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, account: val })),
+            },
+            {
+              label: "Password",
+              type: "textarea",
+              placeholder: "비밀번호를 입력해주세요.",
+              value: inputs.password,
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, password: val })),
+            },
+            {
+              label: "SID",
+              type: "textarea",
+              placeholder: "SID를 입력해주세요.",
+              value: inputs.sid,
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, sid: val })),
+            },
+          ]}
         >
           {/* 테스트 결과 */}
           {testResult && (
@@ -265,6 +280,35 @@ const List: React.FC<ListProps> = ({
             </div>
           )}
         </Modal>
+      )}
+
+      {/* 삭제 모달 */}
+      {isModalOpen === "delete" && (
+        <Modal
+          title={"데이터베이스 삭제"}
+          cancelText="취소"
+          confirmText="확인"
+          onClose={() => setIsModalOpen(null)}
+          onConfirm={handleDelete}
+          fields={[
+            {
+              label: "Name",
+              type: "textarea",
+              placeholder: "삭제할 DB 이름을 입력해주세요.",
+              value: inputs.name,
+              onChange: (label, val) =>
+                setInputs((prev) => ({ ...prev, name: val })),
+            },
+            {
+              label: "Password",
+              type: "textarea",
+              placeholder: "삭제할 DB의 비밀번호를 입력해주세요.",
+              value: inputs.password,
+              onChange: (label, val) =>
+                setInputs((prev) => ({ ...prev, password: val })),
+            },
+          ]}
+        />
       )}
     </div>
   );
