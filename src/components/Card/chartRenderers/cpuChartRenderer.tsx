@@ -15,18 +15,25 @@ export const cpuChartRenderer = (title: string) => {
     return (
       <MetricCard
         metrics={[
-          { title: "Host Busy Cores", value: 12 },
-          { title: "Host Total Cores", value: 16 },
-          { title: "Host CPU Util (%)", value: "76" },
-          { title: "AAS On-CPU Sessions", value: 3.8 },
-          { title: "Core Baseline Sessions", value: 4.2 },
-          { title: "CPU Saturation (%)", value: "91.3" },
-          { title: "DB Share of Host (%)", value: "63.5" },
-          { title: "Runnables Total", value: 42 },
-          { title: "CPU Cores for RunQ", value: 16 },
-          { title: "TPS per sec", value: 320 },
-          { title: "Execs per sec", value: 2550 },
-          { title: "User Calls per sec", value: 6240 },
+          { title: "Host CPU", value: "73.8%", subtitle: "5.9 / 8 cores" },
+          {
+            title: "DB CPU Saturation(%)",
+            value: "46.3",
+            subtitle: "3.7 / 8 sessions",
+          },
+          {
+            title: "DB Share of Host(%)",
+            value: "62.7",
+            subtitle: "3.7 / 5.9 cores",
+          },
+          {
+            title: "Run Queue per Core",
+            value: "1.3",
+            subtitle: "runnables/core",
+          },
+          { title: "TPS", value: "284", subtitle: "txn/s" },
+          { title: "EXEC/S(K)", value: "1.4", subtitle: "exec/s" },
+          { title: "User Calls/S(K)", value: "5.2", subtitle: "calls/s" },
         ]}
         columns={4}
       />

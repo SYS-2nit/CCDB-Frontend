@@ -21,7 +21,7 @@ export const chartData: Record<TabType, string[]> = {
   ],
   cpu: [
     "CPU 활동 현황 타일",
-    "Host CPU Utilization (%) - Current",
+    "Foreground vs Background CPU — AAS Trend",
     "Host CPU Utilization (%) - Trend",
     "DB CPU Saturation (AAS vs Core)",
     "DB CPU Share of Host (%) - Trend",

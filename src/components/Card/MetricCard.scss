@@ -27,7 +27,6 @@
     transform: translateY(-3px);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 
-    // hover 시 subtitle 나타나기
     .metric-card__subtitle {
       opacity: 1;
       visibility: visible;
@@ -37,14 +36,12 @@
 
   &__title {
     color: $gray-500;
-    font-size: 8px;
-    font-weight: 500;
+    @include text-styles("label02");
   }
 
   &__value {
     color: $gray-900;
-    @include text-styles("title03");
-    margin: 2px 0;
+    @include text-styles("title02");
   }
 
   &__icon {
