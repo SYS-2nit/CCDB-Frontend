@@ -8,26 +8,25 @@ import EditIcon from "@/assets/general/edit.svg";
 import TrashIcon from "@/assets/general/trash.svg";
 import Input from "@/components/Input/Input";
 import TabMenu from "@/components/Tabs/TabMenu";
-import SearchIcon from "@/assets/general/search.svg";
+import { useNavigate } from "react-router-dom";
+
+interface DBItem {
+  status: string;
+  server: string;
+  ip: string;
+  port: string;
+  db: string;
+  sid: string;
+  cpu: string;
+  session: string;
+  activeSession: string;
+  lockWait: string;
+  pga: string;
+  sga: string;
+}
 
 const InstanceList: React.FC = () => {
-  const columns = [
-    "상태",
-    "서버명",
-    "IP",
-    "포트",
-    "데이터베이스",
-    "SID",
-    "CPU 사용률",
-    "Session",
-    "Active Session",
-    "Lock Wait",
-    "PGA",
-    "SGA",
-    "작업",
-  ];
-
-  const data = [
+  const [data] = useState<DBItem[]>([
     {
       status: "정상",
       server: "db-prod-01",
@@ -56,53 +55,42 @@ const InstanceList: React.FC = () => {
       pga: "2.15M",
       sga: "15,240",
     },
-    {
-      status: "위험",
-      server: "db-dev-01",
-      ip: "192.168.1.103",
-      port: "5432",
-      db: "development_db",
-      sid: "DEV003",
-      cpu: "94%",
-      session: "72",
-      activeSession: "15",
-      lockWait: "5.2ms",
-      pga: "3.50M",
-      sga: "22,800",
-    },
+  ]);
+
+  const columns = [
+    "상태",
+    "서버명",
+    "IP",
+    "포트",
+    "데이터베이스",
+    "SID",
+    "CPU 사용률",
+    "Session",
+    "Active Session",
+    "Lock Wait",
+    "PGA",
+    "SGA",
+    "작업",
   ];
 
-  // 상태 탭 관리
   type StatusTab = "all" | "normal" | "warn" | "danger" | "error";
   const [activeTab, setActiveTab] = useState<StatusTab>("all");
-
-  // 검색어 상태 관리
   const [searchTerm, setSearchTerm] = useState("");
 
   const tabs = [
-    { id: "all", label: "전체 6" },
-    { id: "normal", label: "무해 4" },
-    { id: "warn", label: "주의 1" },
-    { id: "danger", label: "위험 1" },
-    { id: "error", label: "장애 0" },
+    { id: "all", label: "전체" },
+    { id: "normal", label: "무해" },
+    { id: "warn", label: "주의" },
+    { id: "danger", label: "위험" },
+    { id: "error", label: "장애" },
   ] as const;
 
-  // 탭 필터링
-  const filteredByStatus =
-    activeTab === "all"
-      ? data
-      : data.filter((item) => {
-          if (activeTab === "normal") return item.status === "정상";
-          if (activeTab === "warn") return item.status === "주의";
-          if (activeTab === "danger") return item.status === "위험";
-          return false;
-        });
-
-  // SID 검색 필터링
-  const filteredData = filteredByStatus.filter((item) =>
+  // SID 검색 필터
+  const filteredData = data.filter((item) =>
     item.sid.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // 페이지네이션
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -111,23 +99,34 @@ const InstanceList: React.FC = () => {
     currentPage * rowsPerPage
   );
 
+  // 모달 상태
   const [isModalOpen, setIsModalOpen] = useState<
-    null | "add" | "delete" | "edit"
+    null | "add" | "edit" | "delete"
   >(null);
+  const [selectedItem, setSelectedItem] = useState<DBItem | null>(null);
 
-  const handleConfirm = () => {
-    alert("변경 사항이 저장되었습니다.");
-    setIsModalOpen(null);
-  };
+  // 테스트 결과 상태
+  const [testResult, setTestResult] = useState<null | "success" | "fail">(null);
+  const navigate = useNavigate();
 
-  const handleEdit = (server: string) => {
-    console.log(`${server} 수정 모달 오픈`);
+  const handleEdit = (item: DBItem) => {
+    setSelectedItem(item);
     setIsModalOpen("edit");
   };
 
-  const handleDelete = (server: string) => {
-    const confirmDelete = window.confirm(`${server}을(를) 삭제하시겠습니까?`);
-    if (confirmDelete) alert(`${server} 삭제 완료`);
+  const handleConfirm = () => {
+    if (selectedItem) {
+      alert(`${selectedItem.server} 정보가 수정되었습니다.`);
+    }
+    setIsModalOpen(null);
+    setSelectedItem(null);
+    setTestResult(null);
+  };
+
+  // 테스트
+  const handleTest = () => {
+    const isSuccess = Math.random() > 0.5;
+    setTestResult(isSuccess ? "success" : "fail");
   };
 
   const rows = paginatedData.map((item, index) => [
@@ -159,20 +158,20 @@ const InstanceList: React.FC = () => {
         src={EditIcon}
         alt="Edit"
         className="action-btn edit"
-        onClick={() => handleEdit(item.server)}
+        onClick={() => handleEdit(item)}
       />
       <img
         src={TrashIcon}
         alt="Delete"
         className="action-btn delete"
-        onClick={() => handleDelete(item.server)}
+        onClick={() => alert("정상적으로 삭제되었습니다.")}
       />
     </div>,
   ]);
 
   return (
     <div className="instance-list">
-      {/* 헤더 (탭 + 검색 + 추가 버튼) */}
+      {/* 헤더 */}
       <div className="instance-list__header">
         <TabMenu
           tabs={tabs}
@@ -180,13 +179,11 @@ const InstanceList: React.FC = () => {
           onTabChange={(tab) => setActiveTab(tab as StatusTab)}
         />
 
-        <div className="instance-list__header-left">
-          {/* SID 검색창 */}
+        <div className="instance-list__header-right">
           <Input
             size="sm"
             variant="default"
-            icon={SearchIcon}
-            placeholder="검색어를 입력해주세요(SID)"
+            placeholder="SID를 입력해주세요."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -200,9 +197,12 @@ const InstanceList: React.FC = () => {
       </div>
 
       {/* 테이블 */}
-      <TableChart size="lg" columns={columns} rows={rows} />
-
-      {/* 페이지네이션 */}
+      <TableChart
+        size="lg"
+        columns={columns}
+        rows={rows}
+        onClick={() => navigate("/dashboard")}
+      />
       <Pagination
         totalPages={totalPages}
         currentPage={currentPage}
@@ -212,50 +212,54 @@ const InstanceList: React.FC = () => {
       {/* 모달 */}
       {isModalOpen && (
         <Modal
-          title={
-            isModalOpen === "add"
-              ? "DB 추가"
-              : isModalOpen === "delete"
-              ? "DB 삭제"
-              : "DB 수정"
-          }
-          cancelText="취소"
+          title="DB 수정"
+          cancelText="테스트"
           confirmText="저장"
-          onClose={() => setIsModalOpen(null)}
+          onClose={() => {
+            setIsModalOpen(null);
+            setSelectedItem(null);
+            setTestResult(null);
+          }}
           onConfirm={handleConfirm}
+          onReset={handleTest}
           fields={[
             {
               label: "Name",
               type: "textarea",
-              placeholder: "DB 이름을 입력해주세요.",
+              placeholder: "새로운 Name을 입력해주세요.",
+              ...(selectedItem && { value: selectedItem.server }),
             },
             {
               label: "IP",
               type: "textarea",
-              placeholder: "DB IP를 입력해주세요.",
+              placeholder: "새로운 IP를 입력해주세요.",
+              ...(selectedItem && { value: selectedItem.ip }),
             },
             {
               label: "Port",
               type: "textarea",
-              placeholder: "DB 포트번호를 입력해주세요.",
-            },
-            {
-              label: "Account",
-              type: "textarea",
-              placeholder: "DB 계정을 입력해주세요.",
-            },
-            {
-              label: "Password",
-              type: "textarea",
-              placeholder: "비밀번호를 입력해주세요.",
+              placeholder: "새로운 포트번호를 입력해주세요.",
+              ...(selectedItem && { value: selectedItem.port }),
             },
             {
               label: "SID",
               type: "textarea",
-              placeholder: "SID를 입력해주세요.",
+              placeholder: "새로운 SID를 입력해주세요.",
+              ...(selectedItem && { value: selectedItem.sid }),
             },
           ]}
-        />
+        >
+          {/* 결과 표시 */}
+          {testResult && (
+            <div className="modal__test-result">
+              {testResult === "success" ? (
+                <div className="success">✅ 테스트 성공</div>
+              ) : (
+                <div className="fail">❌ 테스트 실패: 연결 오류</div>
+              )}
+            </div>
+          )}
+        </Modal>
       )}
     </div>
   );

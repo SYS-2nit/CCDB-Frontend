@@ -91,13 +91,13 @@ const Modal: React.FC<ModalProps> = ({
             ✕
           </button>
         </div>
+
         {/* 바디 */}
         <div className="modal__body">
           {fields.map((field, i) => (
             <div className="modal__row" key={i}>
               <div className="modal__row-header">{field.label}</div>
 
-              {/* 테이블 타입 */}
               {field.type === "table" && field.tableHeaders ? (
                 <div className="modal__table-wrapper">
                   <table className="modal__table">
@@ -128,7 +128,7 @@ const Modal: React.FC<ModalProps> = ({
                     </p>
                   )}
 
-                  {/* 입력 유형별 처리 */}
+                  {/* 입력폼 렌더링 */}
                   {(() => {
                     switch (field.type) {
                       case "textarea":
@@ -188,9 +188,7 @@ const Modal: React.FC<ModalProps> = ({
                                   checked={
                                     Array.isArray(inputs[field.label])
                                       ? (
-                                          inputs[
-                                            field.label
-                                          ] as unknown as string[]
+                                          inputs[field.label] as string[]
                                         ).includes(opt)
                                       : false
                                   }
@@ -302,22 +300,9 @@ const Modal: React.FC<ModalProps> = ({
               )}
             </div>
           ))}
-        </div>
 
-        {children ? (
-          <div className="modal__custom-content">
-            {children}
-            <div className="modal__body">
-              {fields.map((field, i) => (
-                <div className="modal__row" key={i}>
-                  <div className="modal__row-header">{field.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <></>
-        )}
+          {children && <div className="modal__custom-content">{children}</div>}
+        </div>
 
         {/* 푸터 */}
         <div className="modal__footer">

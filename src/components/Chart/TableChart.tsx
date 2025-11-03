@@ -5,12 +5,14 @@ interface TableChartProps {
   columns: string[];
   rows: React.ReactNode[][];
   size?: "sm" | "md" | "lg";
+  onClick?: () => void;
 }
 
 const TableChart: React.FC<TableChartProps> = ({
   columns,
   rows,
   size = "sm",
+  onClick,
 }) => {
   return (
     <div className={`table-chart__wrapper table-chart__wrapper--${size}`}>
@@ -24,7 +26,7 @@ const TableChart: React.FC<TableChartProps> = ({
         </thead>
         <tbody>
           {rows.map((row, rIdx) => (
-            <tr key={rIdx}>
+            <tr key={rIdx} onClick={onClick}>
               {row.map((cell, cIdx) => (
                 <td key={cIdx}>{cell}</td>
               ))}
