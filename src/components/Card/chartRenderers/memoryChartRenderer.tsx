@@ -1,6 +1,6 @@
+import BarChart from "@/components/Chart/BarChart";
 import GaugeChart from "@/components/Chart/GaugeChart";
 import LineChart from "@/components/Chart/LineChart";
-import TableChart from "@/components/Chart/TableChart";
 
 // Memory 탭 전용 차트 렌더러
 export const memoryChartRenderer = (title: string) => {
@@ -60,24 +60,16 @@ export const memoryChartRenderer = (title: string) => {
       />
     );
 
+  /** Top SQL by Shared Pool Memory */
   if (title.includes("Top SQL by Shared Pool Memory"))
     return (
-      <TableChart
-        columns={[
-          "inst_id",
-          "sql_id",
-          "plan_hash_value",
-          "sharable_mem (bytes)",
-          "loads",
-          "executions",
-          "parsing_schema_name",
-          "module",
-        ]}
-        rows={[
-          [1, 240, 35, 520, 12_340, 25_600, 0, 0, 0],
-          [2, 180, 22, 410, 9_580, 18_320, 0, 0, 0],
-          [3, 130, 18, 340, 7_210, 14_850, 0, 0, 0],
-        ]}
+      <BarChart
+        legends={["Sharable Memory (bytes)"]}
+        seriesData={[[520, 410, 340]]} // sharable_mem (bytes) 값만 시각화
+        categories={["SQL_ID 240", "SQL_ID 180", "SQL_ID 130"]}
+        xaxisTitle="Sharable Memory (bytes)"
+        horizontal={true}
+        colors={["#0EA5E9"]}
       />
     );
 

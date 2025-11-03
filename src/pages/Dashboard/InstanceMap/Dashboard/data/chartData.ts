@@ -25,7 +25,7 @@ export const chartData: Record<TabType, string[]> = {
     "Top SQL by CPU (Last 10 min)",
   ],
   memory: [
-    "???",
+    "SGA Efficiency & Memory Pools",
     "PGA Execution Memory & Processes",
     "SGA Utilization (%)",
     "PGA Utilization (%) - Trend",

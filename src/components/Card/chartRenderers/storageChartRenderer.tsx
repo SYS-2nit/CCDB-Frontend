@@ -108,21 +108,6 @@ export const storageChartRenderer = (title: string) => {
           categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
           yaxisTitle="Usage (GB)"
         />
-        {/* 추가 정보 */}
-        <div className="temp-chart-container-content">
-          <div className="temp-chart-container-content-text">
-            Current Active Usage(GB) - 3.5
-          </div>
-          <div className="temp-chart-container-content-text">
-            Current Allocated Size(GB) - 5.2
-          </div>
-          <div className="temp-chart-container-content-text">
-            Current Allocated Size(GB) - 7.6
-          </div>
-          <div className="temp-chart-container-content-text">
-            Peak Usage(GB) - 4.8
-          </div>
-        </div>
       </div>
     );
   }

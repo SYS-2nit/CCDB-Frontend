@@ -1,7 +1,6 @@
 import BarChart from "@/components/Chart/BarChart";
 import LineChart from "@/components/Chart/LineChart";
 import StackChart from "@/components/Chart/StackChart";
-import TableChart from "@/components/Chart/TableChart";
 import MetricCard from "@/components/Card/MetricCard";
 
 // Session 탭 전용 차트 렌더러
@@ -123,69 +122,19 @@ export const sessionChartRenderer = (title: string) => {
   /** Top Blocker Sessions — Snapshot Top 5 */
   if (title.includes("Top Blocker Sessions"))
     return (
-      <TableChart
-        columns={[
-          "inst_id",
-          "blocker_sid",
-          "victims",
-          "max_seconds_in_wait(s)",
-          "top_event",
-          "blocker_username",
-          "blocker_program",
-          "blocker_sql_id",
+      <BarChart
+        legends={["Max Seconds in Wait (s)"]}
+        seriesData={[[11, 7, 6, 4, 3]]} // max_seconds_in_wait(s)
+        categories={[
+          "SID 3289 (APPUSER)",
+          "SID 517 (APPUSER)",
+          "SID 1407 (REPORT)",
+          "SID 205 (ERP)",
+          "SID 911 (BI)",
         ]}
-        rows={[
-          [
-            1,
-            3289,
-            11,
-            243,
-            "enq: TX - row lock contention",
-            "APPUSER",
-            "app-batch.jar",
-            "6pft6aymn3d2j",
-          ],
-          [
-            2,
-            517,
-            7,
-            198,
-            "enq: TM - contention",
-            "APPUSER",
-            "web-node-12",
-            "91kc1u2dr7c1m",
-          ],
-          [
-            3,
-            1407,
-            6,
-            121,
-            "library cache lock",
-            "REPORT",
-            "sqlplus.exe",
-            "7n4sa80jc7lm1",
-          ],
-          [
-            4,
-            205,
-            4,
-            84,
-            "log file switch",
-            "ERP",
-            "erp-elt.sh",
-            "5d8h2s0bg8avt8g",
-          ],
-          [
-            5,
-            911,
-            3,
-            79,
-            "cursor pin s wait on X",
-            "BI",
-            "bi-svc",
-            "4dp1m9ltg6dv2",
-          ],
-        ]}
+        xaxisTitle="victims"
+        horizontal={true}
+        colors={["#F59E0B"]}
       />
     );
 
