@@ -19,6 +19,7 @@ export const sessionChartRenderer = (title: string) => {
           { title: "Processes Limit Util (%)", value: "59.3" },
           { title: "Blockers (now)", value: 7 },
           { title: "Blocked (now)", value: 12 },
+          { title: "User Calls/S(K)", value: "5.2", subtitle: "calls/s" },
         ]}
         columns={3}
       />
