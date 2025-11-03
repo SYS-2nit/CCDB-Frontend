@@ -12,6 +12,7 @@ interface DBInfo {
   port: string;
   account: string;
   password: string;
+  SID: string;
 }
 
 const Database: React.FC = () => {
@@ -25,6 +26,7 @@ const Database: React.FC = () => {
       port: "1521",
       account: "admin",
       password: "****",
+      SID: "1234",
     },
   ]);
 

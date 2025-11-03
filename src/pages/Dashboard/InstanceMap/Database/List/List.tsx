@@ -16,6 +16,7 @@ interface ListProps {
     port: string;
     account: string;
     password: string;
+    SID: string;
   }[];
   onAddDatabase: (newDB: {
     name: string;
@@ -23,6 +24,7 @@ interface ListProps {
     port: string;
     account: string;
     password: string;
+    SID: string;
   }) => void;
   onDeleteDatabase: (name: string, password: string) => boolean;
 }
@@ -45,12 +47,12 @@ const List: React.FC<ListProps> = ({
     const values = Array.from(inputs).map((input) => input.value.trim());
 
     if (isModalOpen === "add") {
-      const [name, ip, port, account, password] = values;
-      if (!name || !ip || !port || !account || !password) {
+      const [name, ip, port, account, password, SID] = values;
+      if (!name || !ip || !port || !account || !password || !SID) {
         alert("모든 항목을 입력해주세요.");
         return;
       }
-      onAddDatabase({ name, ip, port, account, password });
+      onAddDatabase({ name, ip, port, account, password, SID });
     }
 
     if (isModalOpen === "delete") {
@@ -157,6 +159,11 @@ const List: React.FC<ListProps> = ({
                     label: "Password",
                     type: "textarea",
                     placeholder: "비밀번호를 입력해주세요.",
+                  },
+                  {
+                    label: "SID",
+                    type: "textarea",
+                    placeholder: "SID를 입력해주세요.",
                   },
                 ]
               : [
