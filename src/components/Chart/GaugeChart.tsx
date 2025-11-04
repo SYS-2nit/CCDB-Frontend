@@ -16,7 +16,7 @@ const GaugeChart: React.FC = () => {
         startAngle: -140,
         endAngle: 140,
         hollow: {
-          size: "55%",
+          size: "60%",
           background: "#ffffff",
           dropShadow: {
             enabled: true,
@@ -39,7 +39,7 @@ const GaugeChart: React.FC = () => {
           },
           value: {
             offsetY: -10,
-            fontSize: "32px",
+            fontSize: "28px",
             fontWeight: 700,
             color: "#111827",
             formatter: (val: number) => `${val.toFixed(0)}%`,
@@ -71,7 +71,7 @@ const GaugeChart: React.FC = () => {
     <div
       style={{
         width: "100%",
-        height: "200px",
+        height: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",

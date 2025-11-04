@@ -5,14 +5,12 @@
 
 // 차트 추가 정보
 .chart-add-info {
-    align-items: center;
-    justify-content: center;
 
     &-container {
         gap: 10px;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-end;
 
         &-text {
             gap: 5px;
@@ -20,7 +18,7 @@
             align-items: center;
             justify-content: center;
             color: $gray-400;
-            @include text-styles("label02");
+            font-size: 8pt;
 
             &-success {
                 width: 10px;

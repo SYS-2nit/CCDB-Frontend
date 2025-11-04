@@ -5,13 +5,13 @@ export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 export const chartData: Record<TabType, string[]> = {
   main: [
     "Session 한도 상태",
-    "CPU 상태",
-    "Wait Class 분포",
     "PGA / SGA 압박률",
-    "I/O 지연량",
-    "I/O 처리량",
     "백그라운드 프로세스 상태",
-    "제한 근접 파라미터 상태",
+    "CPU 상태 (%)",
+    "Wait Class 분포 (Sessions)",
+    "I/O 지연량 (ms)",
+    "I/O 처리량 (MB/s)",
+    "제한 근접 파라미터 상태 (%)",
     "핵심 테이블스페이스 여유율",
   ],
   cpu: [

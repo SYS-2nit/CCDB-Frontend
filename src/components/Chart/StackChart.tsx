@@ -104,12 +104,12 @@ const StackChart: React.FC<StackChartProps> = ({
   };
 
   return (
-    <div id="stack-chart" style={{ width: "100%", height: "150px" }}>
+    <div id="stack-chart" style={{ width: "120%", height: "170px" }}>
       <ReactApexChart
         options={options}
         series={series}
         type="bar"
-        height={150}
+        height={170}
       />
     </div>
   );

@@ -23,12 +23,15 @@
   /* 차트 그리드 */
   &__grid {
     flex: 1;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: 1fr;
     gap: 10px;
     height: 100%;
     overflow: hidden;
+
+    &--main {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 1fr;
+    }
 
     .chart-card {
         transition: transform 0.15s ease;

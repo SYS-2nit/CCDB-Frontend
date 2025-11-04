@@ -34,7 +34,7 @@ export const cpuChartRenderer = (title: string) => {
           { title: "TPS", value: "284", subtitle: "txn/s" },
           { title: "EXEC/S(K)", value: "1.4", subtitle: "exec/s" },
         ]}
-        columns={3}
+        columns={2}
       />
     );
 

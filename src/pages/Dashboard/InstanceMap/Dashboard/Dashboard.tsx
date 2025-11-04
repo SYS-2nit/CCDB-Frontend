@@ -80,10 +80,13 @@ const Dashboard: React.FC<DashboardProps> = ({
 
       <div className="dashboard__content">
         <DragDropContext onDragEnd={handleDragEnd}>
+          {/* 메인 커스텀 탭에만 그리드 설정  */}
           <Droppable droppableId="charts" direction="horizontal">
             {(provided) => (
               <div
-                className="dashboard__grid"
+                className={`dashboard__grid ${
+                  activeTab === "main" ? "dashboard__grid--main" : ""
+                }`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >

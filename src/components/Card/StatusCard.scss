@@ -5,9 +5,8 @@
 
 .status-cards {
   display: grid;
-  grid-template-columns: repeat(2, 2fr); // 2개씩
-  grid-template-rows: repeat(2, 2fr); // 2개씩
-  gap: 5px;
+  grid-template-columns: repeat(4, 1fr); // 4개씩 1줄 나열
+  gap: 10px;
 }
 
 .status-card {
@@ -18,7 +17,7 @@
   border-radius: 5px;
   color: $gray-0;
   text-align: center;
-  gap: 5px; 
+  padding: 10px;
 
   &__label {
     @include text-styles("heading04");
@@ -29,18 +28,26 @@
   }
 
   &--safe {
-    background: $green-500;
+    color: $green-500;
+    border: 1px solid $green-500;
+    background: $green-100;
   }
 
   &--warning {
-    background: $sematic-warning;
+    color: $sematic-warning;
+    border: 1px solid $sematic-warning;
+    background: $yellow-100;
   }
 
   &--danger {
-    background: $sematic-error;
+    color: $sematic-error;
+    border: 1px solid $sematic-error;
+    background: $red-100;
   }
 
   &--critical {
-    background: $gray-800;
+    color: $gray-800;
+    border: 1px solid $gray-800;
+    background: $gray-100;
   }
 }

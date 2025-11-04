@@ -21,7 +21,7 @@ export const mainChartRenderer = (title: string) => {
   }
 
   // Wait Class 분포 — LineChart
-  if (title.includes("Wait Class 분포")) {
+  if (title.includes("Wait Class 분포 (Sessions)")) {
     return (
       <LineChart
         legends={[
@@ -45,7 +45,6 @@ export const mainChartRenderer = (title: string) => {
           [87, 98, 107, 102, 115, 120],
         ]}
         categories={["00:00", "00:10", "00:20", "00:30", "00:40", "00:50"]}
-        yaxisTitle="Sessions"
       />
     );
   }
@@ -101,7 +100,7 @@ export const mainChartRenderer = (title: string) => {
   }
 
   // 제한 근접 파라미터 상태 — LineChart
-  if (title.includes("제한 근접 파라미터 상태"))
+  if (title.includes("제한 근접 파라미터 상태 (%)"))
     return (
       <LineChart
         legends={["processes", "sessions", "open_cursors"]}
@@ -111,12 +110,11 @@ export const mainChartRenderer = (title: string) => {
           [16, 40, 93, 27, 100],
         ]}
         categories={["mm:ss", "mm:ss", "mm:ss", "mm:ss", "mm:ss"]}
-        yaxisTitle="%"
       />
     );
 
-  // CPU 상태 — GaugeChart
-  if (title.includes("CPU 상태"))
+  // CPU 상태 — Line Chart
+  if (title.includes("CPU 상태 (%)"))
     return (
       <LineChart
         legends={[
@@ -128,12 +126,11 @@ export const mainChartRenderer = (title: string) => {
           [55, 20, 142, 59, 169],
         ]}
         categories={["mm:ss", "mm:ss", "mm:ss", "mm:ss", "mm:ss"]}
-        yaxisTitle="%"
       />
     );
 
   // I/O 지연량 — LineChart
-  if (title.includes("I/O 지연량"))
+  if (title.includes("I/O 지연량 (ms)"))
     return (
       <LineChart
         legends={[
@@ -147,12 +144,11 @@ export const mainChartRenderer = (title: string) => {
           [1.0, 7.0, 3.2, 2.3, 5.1, 7.4],
         ]}
         categories={["10s", "20s", "30s", "40s", "50s", "60s"]}
-        yaxisTitle="Latency (ms)"
       />
     );
 
   // I/O 처리량 — LineChart
-  if (title.includes("I/O 처리량"))
+  if (title.includes("I/O 처리량 (MB/s)"))
     return (
       <LineChart
         legends={["Physical Read MB/s", "Physical Write MB/s"]}
@@ -161,7 +157,6 @@ export const mainChartRenderer = (title: string) => {
           [11, 60, 95, 360, 240, 120],
         ]}
         categories={["10s", "20s", "30s", "40s", "50s", "60s"]}
-        yaxisTitle="MB/s"
       />
     );
 

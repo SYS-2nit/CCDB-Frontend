@@ -4,6 +4,7 @@ import type { ApexOptions } from "apexcharts";
 
 interface LineChartProps {
   legends?: string[];
+  showLegend?: boolean;
   seriesData?: number[][];
   categories?: string[];
   yaxisTitle?: string;
@@ -11,8 +12,9 @@ interface LineChartProps {
 
 const LineChart: React.FC<LineChartProps> = ({
   legends = ["Series 1"],
+  showLegend = false,
   seriesData = [
-    Array.from({ length: 7 }, () => Math.floor(Math.random() * 20) + 5),
+    Array.from({ length: 5 }, () => Math.floor(Math.random() * 20) + 5),
   ],
   categories = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"],
   yaxisTitle = "",
@@ -35,24 +37,16 @@ const LineChart: React.FC<LineChartProps> = ({
 
   const options: ApexOptions = {
     chart: {
-      type: "area",
+      type: "line",
       toolbar: { show: false },
       background: "transparent",
+      animations: { enabled: true },
     },
     stroke: {
       curve: "smooth",
-      width: 2.5,
+      width: 2.0,
     },
     colors,
-    fill: {
-      type: "gradient",
-      gradient: {
-        shadeIntensity: 0.2,
-        opacityFrom: 0.4,
-        opacityTo: 0,
-        stops: [0, 100],
-      },
-    },
     grid: {
       borderColor: "rgba(0,0,0,0.08)",
       strokeDashArray: 3,
@@ -100,9 +94,16 @@ const LineChart: React.FC<LineChartProps> = ({
     },
     dataLabels: { enabled: false },
     legend: {
-      show: legends.length > 1,
+      show: showLegend,
       position: "bottom",
       fontSize: "11px",
+      itemMargin: { horizontal: 8 },
+      onItemClick: {
+        toggleDataSeries: true,
+      },
+      onItemHover: {
+        highlightDataSeries: true,
+      },
     },
     tooltip: {
       theme: "light",
@@ -113,12 +114,12 @@ const LineChart: React.FC<LineChartProps> = ({
   };
 
   return (
-    <div style={{ width: "100%", height: "220px" }}>
+    <div style={{ width: "100%", height: "100%" }}>
       <ReactApexChart
         options={options}
         series={series}
-        type="area"
-        height={220}
+        type="line"
+        height={190}
       />
     </div>
   );
