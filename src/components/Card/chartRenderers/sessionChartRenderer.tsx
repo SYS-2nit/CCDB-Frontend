@@ -21,7 +21,7 @@ export const sessionChartRenderer = (title: string) => {
           { title: "Blocked (now)", value: 12 },
           { title: "User Calls/S(K)", value: "5.2", subtitle: "calls/s" },
         ]}
-        columns={3}
+        columns={6}
       />
     );
 

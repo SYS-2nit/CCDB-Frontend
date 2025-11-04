@@ -15,7 +15,7 @@ export const storageChartRenderer = (title: string) => {
       { title: "Max TS Usage(%)", value: "68.4" },
       { title: "Total DB Usage(GB)", value: "52.3" },
     ];
-    return <MetricCard metrics={metrics} columns={3} />;
+    return <MetricCard metrics={metrics} columns={6} />;
   }
 
   // FRA 사용률 추세 — LineChart

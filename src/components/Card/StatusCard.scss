@@ -5,26 +5,30 @@
 
 .status-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); // 4개씩 1줄 나열
+  grid-template-columns: repeat(4, 1fr); 
   gap: 10px;
+  width: 100%;
+  grid-column: 1 / -1;
+  justify-content: stretch;
+  align-items: stretch;
+  margin: 0 auto;
 }
 
 .status-card {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   border-radius: 5px;
-  color: $gray-0;
-  text-align: center;
   padding: 10px;
+  color: $gray-0;
+  height: 100%;
 
   &__label {
-    @include text-styles("heading04");
+    @include text-styles("label02");
   }
 
   &__value {
-    @include text-styles("title01");
+    @include text-styles("heading01");
   }
 
   &--safe {
@@ -34,7 +38,7 @@
   }
 
   &--warning {
-    color: $sematic-warning;
+    color: $yellow-500;
     border: 1px solid $sematic-warning;
     background: $yellow-100;
   }

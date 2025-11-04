@@ -7,11 +7,7 @@ import BarChart from "@/components/Chart/BarChart";
 /** CPU 탭 전용 차트 렌더러 */
 export const cpuChartRenderer = (title: string) => {
   /**CPU 활동 현황 타일 (CPU Activity Overview Tiles) */
-  if (
-    title.includes("CPU Activity Overview") ||
-    title.includes("CPU 활동 현황") ||
-    title.includes("CPU 타일")
-  )
+  if (title.includes("CPU 활동 현황 타일"))
     return (
       <MetricCard
         metrics={[
@@ -34,7 +30,7 @@ export const cpuChartRenderer = (title: string) => {
           { title: "TPS", value: "284", subtitle: "txn/s" },
           { title: "EXEC/S(K)", value: "1.4", subtitle: "exec/s" },
         ]}
-        columns={2}
+        columns={6}
       />
     );
 

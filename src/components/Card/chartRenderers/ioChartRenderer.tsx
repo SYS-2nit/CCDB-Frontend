@@ -14,7 +14,7 @@ export const ioChartRenderer = (title: string) => {
       { title: "Parse/Execute Ratio", value: "1:7" },
       { title: "Direct Path I/O(/s)", value: "730" },
     ];
-    return <MetricCard metrics={metrics} columns={3} />;
+    return <MetricCard metrics={metrics} columns={6} />;
   }
 
   // Physical Reads vs Logical Reads — LineChart

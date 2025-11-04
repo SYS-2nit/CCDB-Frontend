@@ -6,7 +6,7 @@
 .metric-grid {
   display: grid;
   width: 100%;
-  height: 90%;
+  height: 100%;
 }
 
 .metric-card {
@@ -15,14 +15,14 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  border: 1px solid $gray-100;
   position: relative;
   transition: all 0.2s ease;
+  padding: 10px;
+
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-
+    
     .metric-card__subtitle {
       opacity: 1;
       visibility: visible;
@@ -31,13 +31,13 @@
   }
 
   &__title {
-    color: $gray-700;
-    font-size: 9pt;
+    color: $gray-400;
+    font-size: 8pt;
   }
 
   &__value {
     color: $gray-900;
-    @include text-styles("title02");
+    @include text-styles("heading01");
   }
 
   &__icon {
@@ -52,10 +52,10 @@
   }
 
   &__subtitle {
-    font-size: 9px;
+    font-size: 10px;
     color: $gray-400;
     position: absolute;
-    bottom: 4px;
+    bottom: 0px;
     opacity: 0;
     visibility: hidden;
     transform: translateY(5px);

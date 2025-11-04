@@ -80,17 +80,18 @@ const Dashboard: React.FC<DashboardProps> = ({
 
       <div className="dashboard__content">
         <DragDropContext onDragEnd={handleDragEnd}>
-          {/* 메인 커스텀 탭에만 그리드 설정  */}
-          <Droppable droppableId="charts" direction="horizontal">
+          <Droppable droppableId="charts">
             {(provided) => (
               <div
                 className={`dashboard__grid ${
-                  activeTab === "main" ? "dashboard__grid--main" : ""
+                  activeTab === "main"
+                    ? "dashboard__grid--main"
+                    : "dashboard__grid--other"
                 }`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {/* 탭별 상태 카드 (Main 제외) */}
+                {/* 상태 카드 (Main 제외) */}
                 {activeTab !== "main" && (
                   <div className="status-cards">
                     <StatusCard label="무해" value={2} color="safe" />
@@ -100,7 +101,6 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                 )}
 
-                {/* 차트 카드 렌더링 */}
                 {charts.map((title, index) => (
                   <Draggable
                     key={title}
@@ -110,6 +110,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                   >
                     {(provided) => (
                       <div
+                        className={`chart-card-wrapper ${
+                          activeTab !== "main" && index === 0
+                            ? "chart-card-wrapper--full"
+                            : ""
+                        }`}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
