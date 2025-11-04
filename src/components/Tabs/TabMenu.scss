@@ -4,9 +4,6 @@
 @use '@styles/mixins' as *;
 
 .tab-menu {
-    display: flex;;
-    margin-bottom: 20px;
-
   &__tab {
       background: none;
       border: none;

@@ -8,20 +8,12 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  box-sizing: border-box;
 
-  &__content {
-    flex: 1;
-    display: flex;
-    flex-direction: row;
-    overflow: hidden;
-  }
 
   &__grid {
     flex: 1;
     overflow: hidden;
-    padding: 10px;
+    padding: 20px 0px;
 
     /* 메인 커스텀 탭 — 고정 3x3 grid */
     &--main {
@@ -34,11 +26,11 @@
     /* 다른 탭 (CPU, Memory 등) — 첫 차트 전체, 나머지 2~3개씩 */
     &--other {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
       gap: 10px;
-
+      
       .chart-card-wrapper--full {
-        grid-column: 1 / -1; /* 첫 차트는 한 줄 전체 */
+        grid-column: 3 / -4; 
       }
     }
   }
@@ -57,15 +49,39 @@
     }
 
     aside.chart-setting {
-      flex-shrink: 0;
       width: 360px;
       height: 100%;
       background-color: $gray-0;
       border-radius: 10px;
       border: 1px solid $gray-100;
       overflow: hidden;
-      display: flex;
       flex-direction: column;
     }
+  }
+
+  &__header-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__metric-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100vw;
+  }
+}
+
+// 상태 카드
+.status-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  
+  &-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 }

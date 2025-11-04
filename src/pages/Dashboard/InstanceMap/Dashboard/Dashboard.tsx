@@ -91,49 +91,74 @@ const Dashboard: React.FC<DashboardProps> = ({
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {/* 상태 카드 (Main 제외) */}
                 {activeTab !== "main" && (
-                  <div className="status-cards">
-                    <StatusCard label="정상" value={2} color="safe" />
-                    <StatusCard label="주의" value={5} color="warning" />
-                    <StatusCard label="위험" value={8} color="danger" />
-                    <StatusCard label="에러" value={1} color="critical" />
-                  </div>
-                )}
+                  <div className="dashboard__header-row">
+                    {/* 상태 카드 */}
+                    <div className="status-cards">
+                      <div className="status-cards-column">
+                        <StatusCard label="정상" value={2} color="safe" />
+                        <StatusCard label="주의" value={5} color="warning" />
+                      </div>
+                      <div className="status-cards-column">
+                        <StatusCard label="위험" value={8} color="danger" />
+                        <StatusCard label="에러" value={1} color="critical" />
+                      </div>
+                    </div>
 
-                {charts.map((title, index) => (
-                  <Draggable
-                    key={title}
-                    draggableId={title}
-                    index={index}
-                    isDragDisabled={activeTab !== "main"}
-                  >
-                    {(provided) => (
-                      <div
-                        className={`chart-card-wrapper ${
-                          activeTab !== "main" && index === 0
-                            ? "chart-card-wrapper--full"
-                            : ""
-                        }`}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                      >
+                    {/* 첫 번째 MetricCard가 있을 경우만 오른쪽에 표시 */}
+                    {charts[1] && (
+                      <div className="dashboard__metric-wrapper">
                         <ChartCard
-                          title={title}
-                          status={
-                            title.includes("지연량") ? "warning" : "normal"
-                          }
+                          title={charts[0]}
+                          status="normal"
                           onSettingClick={handleSettingToggle}
-                          showDragIcon={!singleTabMode && activeTab === "main"}
-                          showSettingIcon={
-                            !singleTabMode && activeTab === "main"
-                          }
+                          showDragIcon={false}
+                          showSettingIcon={false}
                         />
                       </div>
                     )}
-                  </Draggable>
-                ))}
+                  </div>
+                )}
+
+                {/* 메인 탭이 아닌 경우 1번째 인덱스 차트부터 시작 */}
+
+                {(activeTab === "main" ? charts : charts.slice(1)).map(
+                  (title, index) => (
+                    <Draggable
+                      key={title}
+                      draggableId={title}
+                      index={activeTab === "main" ? index : index + 1}
+                      isDragDisabled={activeTab !== "main"}
+                    >
+                      {(provided) => (
+                        <div
+                          className={`chart-card-wrapper ${
+                            activeTab !== "main" && index === 0
+                              ? "chart-card-wrapper--full"
+                              : ""
+                          }`}
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          <ChartCard
+                            title={title}
+                            status={
+                              title.includes("지연량") ? "warning" : "normal"
+                            }
+                            onSettingClick={handleSettingToggle}
+                            showDragIcon={
+                              !singleTabMode && activeTab === "main"
+                            }
+                            showSettingIcon={
+                              !singleTabMode && activeTab === "main"
+                            }
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                  )
+                )}
                 {provided.placeholder}
               </div>
             )}

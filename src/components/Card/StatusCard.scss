@@ -3,25 +3,14 @@
 @use "@/styles/variables" as *;
 @use "@/styles/mixins" as *;
 
-.status-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); 
-  gap: 10px;
-  width: 100%;
-  grid-column: 1 / -1;
-  justify-content: stretch;
-  align-items: stretch;
-  margin: 0 auto;
-}
-
 .status-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 20px;
   border-radius: 5px;
-  padding: 10px;
-  color: $gray-0;
-  height: 100%;
+  padding: 16px 20px; 
+  transition: all 0.2s ease;
 
   &__label {
     @include text-styles("label02");

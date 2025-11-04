@@ -39,7 +39,6 @@ export const cpuChartRenderer = (title: string) => {
   if (title.includes("Foreground vs Background CPU 추이 (AAS)"))
     return (
       <LineChart
-        legends={["AAS_FG_SESSIONS", "AAS_BG_SESSIONS"]}
         seriesData={[
           [2.1, 2.3, 2.0, 2.5, 2.8, 3.0],
           [1.5, 1.6, 1.7, 1.8, 1.9, 2.1],
@@ -98,7 +97,7 @@ export const cpuChartRenderer = (title: string) => {
     );
 
   /** Run Queue per Core (Scheduler Load) */
-  if (title.includes("Run Queue per Core (Scheduler Load)"))
+  if (title.includes("Run Queue per Core - Scheduler Load (%)"))
     return (
       <LineChart
         legends={[
@@ -114,7 +113,6 @@ export const cpuChartRenderer = (title: string) => {
           [50, 55, 60, 65, 70],
         ]}
         categories={["1m", "2m", "3m", "4m", "5m"]}
-        yaxisTitle="Usage (%)"
       />
     );
 

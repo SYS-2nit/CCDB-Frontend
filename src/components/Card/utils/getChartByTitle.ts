@@ -26,7 +26,7 @@ export const chartData: Record<TabType, string[]> = {
     "DB CPU Saturation - AAS vs Core (Load)",
     "DB CPU Share of Host (%) - Trend",
     "CPU Cost per Commit/Execution (ms)",
-    "Run Queue per Core (Scheduler Load)",
+    "Run Queue per Core - Scheduler Load (%)",
     "Top SQL by CPU (Last 10 min)",
   ],
   memory: [
