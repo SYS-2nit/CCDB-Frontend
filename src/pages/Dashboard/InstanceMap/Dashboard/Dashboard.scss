@@ -34,7 +34,7 @@
     /* 다른 탭 (CPU, Memory 등) — 첫 차트 전체, 나머지 2~3개씩 */
     &--other {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(490px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
       gap: 10px;
 
       .chart-card-wrapper--full {

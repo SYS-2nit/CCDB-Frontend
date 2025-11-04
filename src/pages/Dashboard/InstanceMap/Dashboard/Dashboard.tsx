@@ -94,10 +94,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {/* 상태 카드 (Main 제외) */}
                 {activeTab !== "main" && (
                   <div className="status-cards">
-                    <StatusCard label="무해" value={2} color="safe" />
+                    <StatusCard label="정상" value={2} color="safe" />
                     <StatusCard label="주의" value={5} color="warning" />
                     <StatusCard label="위험" value={8} color="danger" />
-                    <StatusCard label="치명" value={1} color="critical" />
+                    <StatusCard label="에러" value={1} color="critical" />
                   </div>
                 )}
 

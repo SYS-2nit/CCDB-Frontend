@@ -29,26 +29,22 @@ export const cpuChartRenderer = (title: string) => {
           },
           { title: "TPS", value: "284", subtitle: "txn/s" },
           { title: "EXEC/S(K)", value: "1.4", subtitle: "exec/s" },
+          { title: "USER CALLS/S", value: "5.2", subtitle: "calls/s" },
         ]}
-        columns={6}
+        columns={7}
       />
     );
 
-  /** Foreground vs Background CPU — AAS Trend */
-  if (
-    title.includes("Foreground vs Background") ||
-    title.includes("포그라운드") ||
-    title.includes("백그라운드")
-  )
+  /** "Foreground vs Background CPU 추이 */
+  if (title.includes("Foreground vs Background CPU 추이 (AAS)"))
     return (
       <LineChart
-        legends={["Foreground (FG)", "Background (BG)"]}
+        legends={["AAS_FG_SESSIONS", "AAS_BG_SESSIONS"]}
         seriesData={[
           [2.1, 2.3, 2.0, 2.5, 2.8, 3.0],
           [1.5, 1.6, 1.7, 1.8, 1.9, 2.1],
         ]}
         categories={["00:00", "02:00", "04:00", "06:00", "08:00", "10:00"]}
-        yaxisTitle="Average Active Sessions (AAS)"
       />
     );
 
@@ -56,15 +52,14 @@ export const cpuChartRenderer = (title: string) => {
   if (title.includes("Host CPU Utilization (%) - Trend"))
     return (
       <LineChart
-        legends={["Host CPU Utilization (%)"]}
+        legends={["Host CPU Utilization"]}
         seriesData={[[40, 45, 48, 42, 44, 50, 55]]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
-        yaxisTitle="CPU (%)"
       />
     );
 
-  /** DB CPU Saturation (AAS vs Core) */
-  if (title.includes("DB CPU Saturation (AAS vs Core)"))
+  /** "DB CPU Saturation - AAS vs Core (Load) */
+  if (title.includes("DB CPU Saturation - AAS vs Core (Load)"))
     return (
       <LineChart
         legends={["AAS_OnCPU_Sessions", "Core_Baseline_Sessions"]}
@@ -73,7 +68,6 @@ export const cpuChartRenderer = (title: string) => {
           [40, 45, 48, 42, 44, 50, 55],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
-        yaxisTitle="Load"
       />
     );
 
@@ -81,13 +75,12 @@ export const cpuChartRenderer = (title: string) => {
   if (title.includes("DB CPU Share of Host (%) - Trend"))
     return (
       <StackChart
-        legends={["DB of Host Share (%)", "Other Processes"]}
+        legends={["DB_of_Host_Share_Pct", "Other processes"]}
         seriesData={[
           [20, 25, 30, 28, 35, 32, 38],
           [60, 65, 68, 64, 66, 70, 72],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
-        yaxisTitle="CPU (%)"
       />
     );
 
@@ -95,18 +88,17 @@ export const cpuChartRenderer = (title: string) => {
   if (title.includes("CPU Cost per Commit/Execution (ms)"))
     return (
       <LineChart
-        legends={["CPU_per_Commit_ms", "CPU_per_Exec_ms"]}
+        legends={["CPU_per_Commit", "CPU_per_Exec"]}
         seriesData={[
           [20, 30, 40, 45, 50],
           [25, 28, 35, 42, 47],
         ]}
         categories={["1m", "2m", "3m", "4m", "5m"]}
-        yaxisTitle="CPU Time (ms)"
       />
     );
 
   /** Run Queue per Core (Scheduler Load) */
-  if (title.includes("Run Queue per Core"))
+  if (title.includes("Run Queue per Core (Scheduler Load)"))
     return (
       <LineChart
         legends={[
@@ -127,7 +119,7 @@ export const cpuChartRenderer = (title: string) => {
     );
 
   /** Top SQL by CPU (Last 10 min) */
-  if (title.includes("Top SQL by CPU"))
+  if (title.includes("Top SQL by CPU (Last 10 min)"))
     return (
       <BarChart
         legends={["CPU Time (ms)"]}
