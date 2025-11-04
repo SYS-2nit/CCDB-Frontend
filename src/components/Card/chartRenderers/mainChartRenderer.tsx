@@ -4,6 +4,8 @@ import StackChart from "@/components/Chart/StackChart";
 import MetricCard from "@/components/Card/MetricCard";
 import SuccessGreenIcon from "@/assets/general/succes-green.svg";
 import ErrorRedIcon from "@/assets/general/error-red.svg";
+import "./mainChartRenderer.scss";
+import { getCssVar } from "@/styles/utils/getCssVar";
 
 // Main Custom 탭 전용 차트 렌더러
 export const mainChartRenderer = (title: string) => {
@@ -33,8 +35,14 @@ export const mainChartRenderer = (title: string) => {
           "AAS Total",
         ]}
         seriesData={[
-          [10, 15, 20, 18, 22, 25, 30],
-          [40, 45, 48, 42, 44, 50, 55],
+          [10, 15, 20, 18, 22, 25],
+          [40, 45, 48, 42, 44, 50],
+          [12, 18, 25, 20, 27, 22],
+          [5, 10, 8, 9, 11, 12],
+          [7, 9, 12, 14, 13, 15],
+          [4, 6, 8, 6, 5, 7],
+          [9, 14, 16, 13, 15, 18],
+          [87, 98, 107, 102, 115, 120],
         ]}
         categories={["00:00", "00:10", "00:20", "00:30", "00:40", "00:50"]}
         yaxisTitle="Sessions"
@@ -46,7 +54,34 @@ export const mainChartRenderer = (title: string) => {
   if (title.includes("Session 한도 상태")) return <GaugeChart />;
 
   // 핵심 테이블스페이스 여유율 — StackChart
-  if (title.includes("핵심 테이블스페이스 여유율")) return <StackChart />;
+  if (title.includes("핵심 테이블스페이스 여유율"))
+    return (
+      <div className="chart-add-info">
+        {/* 추가 정보 */}
+        <div className="chart-add-info-container">
+          <div className="chart-add-info-container-text">
+            <div className="chart-add-info-container-text-success" />
+            정상 (0~70%)
+          </div>
+          <div className="chart-add-info-container-text">
+            <div className="chart-add-info-container-text-warning" />
+            주의 (70~85%)
+          </div>
+          <div className="chart-add-info-container-text">
+            <div className="chart-add-info-container-text-error" />
+            위험 (85%~)
+          </div>
+        </div>
+        {/* 차트 */}
+        <StackChart
+          colorRules={[
+            { min: 0, max: 70, color: getCssVar("sematic-success") },
+            { min: 70, max: 85, color: getCssVar("sematic-warning") },
+            { min: 85, max: 100, color: getCssVar("red-400") },
+          ]}
+        />
+      </div>
+    );
 
   // 백그라운드 프로세스 상태 — LineChart
   if (title.includes("백그라운드 프로세스 상태")) {
@@ -84,7 +119,10 @@ export const mainChartRenderer = (title: string) => {
   if (title.includes("CPU 상태"))
     return (
       <LineChart
-        legends={["Host CPU", "DB CPU"]}
+        legends={[
+          "Host CPU Utilization (%)",
+          "DB CPU (On-CPU AAS / cpu_count x 100)",
+        ]}
         seriesData={[
           [70, 152, 180, 257, 122],
           [55, 20, 142, 59, 169],
@@ -98,10 +136,14 @@ export const mainChartRenderer = (title: string) => {
   if (title.includes("I/O 지연량"))
     return (
       <LineChart
-        legends={["Single-block Read", "Direct Path Read", "Direct Path Write"]}
+        legends={[
+          "Single-block Read latency(%)",
+          "Direct Path Read latency(%)",
+          "Direct Path Write latency(%)",
+        ]}
         seriesData={[
           [2.1, 2.3, 2.8, 2.5, 3.0, 2.7],
-          [1.8, 2.0, 2.2, 2.3, 2.1, 2.4],
+          [0.8, 2.0, 10.2, -3.3, 9.1, 2.4],
           [1.0, 7.0, 3.2, 2.3, 5.1, 7.4],
         ]}
         categories={["10s", "20s", "30s", "40s", "50s", "60s"]}

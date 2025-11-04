@@ -1,0 +1,47 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+// 차트 추가 정보
+.chart-add-info {
+    align-items: center;
+    justify-content: center;
+
+    &-container {
+        gap: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &-text {
+            gap: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $gray-400;
+            @include text-styles("label02");
+
+            &-success {
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+                background: $sematic-success;
+            }
+
+            &-warning {
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+                background: $sematic-warning;
+            }
+            
+            &-error {
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+                background: $sematic-error;
+            }
+        }
+    }
+}

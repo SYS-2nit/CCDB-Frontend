@@ -1,6 +1,13 @@
+import { getCssVar } from "@/styles/utils/getCssVar";
 import type { ApexOptions } from "apexcharts";
 import React from "react";
 import ReactApexChart from "react-apexcharts";
+
+interface ColorRule {
+  min: number;
+  max: number;
+  color: string;
+}
 
 interface StackChartProps {
   stackCount?: number;
@@ -8,9 +15,17 @@ interface StackChartProps {
   seriesData?: number[][];
   categories?: string[];
   yaxisTitle?: string;
+  colorRules?: ColorRule[];
 }
 
-const StackChart: React.FC<StackChartProps> = ({ stackCount = 5 }) => {
+const StackChart: React.FC<StackChartProps> = ({
+  stackCount = 5,
+  colorRules = [
+    { min: 0, max: 70, color: getCssVar("sematic-success") }, // 정상
+    { min: 71, max: 85, color: getCssVar("sematic-warning") }, // 주의
+    { min: 86, max: 100, color: getCssVar("sematic-error") }, // 위험
+  ],
+}) => {
   const labels = ["SYSTEM", "SYSAUX", "USERS", "UNDO", "TEMP"].slice(
     0,
     stackCount
@@ -19,11 +34,10 @@ const StackChart: React.FC<StackChartProps> = ({ stackCount = 5 }) => {
   const total = [5120, 3072, 10240, 2048, 4096].slice(0, stackCount);
   const used = usage.map((v, i) => ((v / 100) * total[i]).toFixed(0));
 
+  // 색상 결정 함수 — colorRules 기반
   const getColor = (percent: number) => {
-    if (percent >= 90) return "#3B82F6";
-    if (percent >= 80) return "#22C55E";
-    if (percent >= 50) return "#6366F1";
-    return "#A855F7";
+    const rule = colorRules.find((r) => percent >= r.min && percent < r.max);
+    return rule ? rule.color : getCssVar("$gray-300");
   };
 
   const series = [
@@ -46,7 +60,6 @@ const StackChart: React.FC<StackChartProps> = ({ stackCount = 5 }) => {
     plotOptions: {
       bar: {
         horizontal: true,
-        distributed: true,
         barHeight: "90%",
       },
     },

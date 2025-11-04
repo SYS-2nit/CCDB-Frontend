@@ -1,6 +1,6 @@
 // 공통 변수 정의 (컬러, 패딩, 쉐도우)
 
-// GrayScale
+/* GrayScale*/
 $gray-0: #FFFFFF;
 $gray-50: #F2F3F7;
 $gray-100: #E1E1E1;
@@ -13,7 +13,7 @@ $gray-700: #404040;
 $gray-800: #2B2B2B;
 $gray-900: #151515;
 
-// Main
+/* Main */
 $main-0: #F3F8FF;
 $main-100: #E5EEFF;
 $main-200: #CADBFF;
@@ -25,7 +25,7 @@ $main-700: #1E40B9;
 $main-800: #122F94;
 $main-900: #071D6E;
 
-// Red
+/* Red */
 $red-0: #FFF6F5;
 $red-100: #FFEAE9;
 $red-200: #FFBCBC;
@@ -33,7 +33,7 @@ $red-300: #E07B75;
 $red-400: #CC453C;
 $red-500: #97241D;
 
-// Yellow
+/* Yellow */
 $yellow-0: #FFFFF5;
 $yellow-100: #F3E7BC;
 $yellow-200: #E9D180;
@@ -41,7 +41,7 @@ $yellow-300: #CDB14F;
 $yellow-400: #B89108;
 $yellow-500: #9A7A08;
 
-// Purple
+/* Purple */
 $purple-0: #FFF5FF;
 $purple-100: #FCE9FF;
 $purple-200: #F6BCFF;
@@ -49,7 +49,7 @@ $purple-300: #E075D5;
 $purple-400: #C93CCC;
 $purple-500: #992B9B;
 
-// Green
+/* Green */
 $green-0: #F5FFF8;
 $green-100: #E9FFE9;
 $green-200: #C1FFBC;
@@ -57,63 +57,112 @@ $green-300: #75E093;
 $green-400: #20BF86;
 $green-500: #09714B;
 
-
-// gradient 
-$default-bg: linear-gradient(
-    180deg,
-    #2D4054 13%,
-    #17263B 100%
-);
-$btn-stroke: linear-gradient(
-    180deg,
-    #7F9CB6 0%,
-    #3B5775 100%
-);
-$card-stroke: linear-gradient(
-    210deg,
-    #0F2F57 0%,
-    #A8C6DF 25%,
-    #0F2F57 100%,
-);
-$graph-card: linear-gradient(
-    270deg,
-    #002B70 0%,
-    #000B1F 100%
-);
+/* Gradient */
+$default-bg: linear-gradient(180deg, #2D4054 13%, #17263B 100%);
+$btn-stroke: linear-gradient(180deg, #7F9CB6 0%, #3B5775 100%);
+$card-stroke: linear-gradient(210deg, #0F2F57 0%, #A8C6DF 25%, #0F2F57 100%);
+$graph-card: linear-gradient(270deg, #002B70 0%, #000B1F 100%);
 $graph-stroke: #2357A5;
+$tap-text: linear-gradient(180deg, #69CDFF 0%, #3464B8 100%);
 
-$tap-text: linear-gradient(
-    180deg,
-    #69CDFF 0%,
-    #3464B8 100%
-);
-
-// Sematic
+/* Semantic*/
 $sematic-error: #DC2626;
 $sematic-warning: #FACC15;
 $sematic-success: #16A34A;
 
-// Background
+/* Background */
 $dashboard: #EEEEEE;
-$background-darkmode: radial-gradient(
-    circle at center,
-    #133555 0%,
-    #11253F 25%,
-    #0B101B 100%
-);
-
+$background-darkmode: radial-gradient(circle at center, #133555 0%, #11253F 25%, #0B101B 100%);
 $sidebar-darkmode: #00030E;
-$content: radial-gradient(
-    circle at center,
-    #133555 0%
-    #11253F 25%,
-    #0B101B 100%
-);
+$content: radial-gradient(circle at center, #133555 0% #11253F 25%, #0B101B 100%);
 
-
-// Padding, Layout
+/* Padding, Layout, Shadow */
 $padding-page: 20px;
 $padding-section: 16px;
-
-// Shadow
 $shadow-basic: 0px 2px 6px rgba(0, 0, 0, 0.05);
+
+/* ======================================================
+   CSS Variables Export (for JS/TS access via getCssVar)
+====================================================== */
+:root {
+  /* GrayScale */
+  --gray-0: #{$gray-0};
+  --gray-50: #{$gray-50};
+  --gray-100: #{$gray-100};
+  --gray-200: #{$gray-200};
+  --gray-300: #{$gray-300};
+  --gray-400: #{$gray-400};
+  --gray-500: #{$gray-500};
+  --gray-600: #{$gray-600};
+  --gray-700: #{$gray-700};
+  --gray-800: #{$gray-800};
+  --gray-900: #{$gray-900};
+
+  /* Main */
+  --main-0: #{$main-0};
+  --main-100: #{$main-100};
+  --main-200: #{$main-200};
+  --main-300: #{$main-300};
+  --main-400: #{$main-400};
+  --main-500: #{$main-500};
+  --main-600: #{$main-600};
+  --main-700: #{$main-700};
+  --main-800: #{$main-800};
+  --main-900: #{$main-900};
+
+  /* Red */
+  --red-0: #{$red-0};
+  --red-100: #{$red-100};
+  --red-200: #{$red-200};
+  --red-300: #{$red-300};
+  --red-400: #{$red-400};
+  --red-500: #{$red-500};
+
+  /* Yellow */
+  --yellow-0: #{$yellow-0};
+  --yellow-100: #{$yellow-100};
+  --yellow-200: #{$yellow-200};
+  --yellow-300: #{$yellow-300};
+  --yellow-400: #{$yellow-400};
+  --yellow-500: #{$yellow-500};
+
+  /* Purple */
+  --purple-0: #{$purple-0};
+  --purple-100: #{$purple-100};
+  --purple-200: #{$purple-200};
+  --purple-300: #{$purple-300};
+  --purple-400: #{$purple-400};
+  --purple-500: #{$purple-500};
+
+  /* Green */
+  --green-0: #{$green-0};
+  --green-100: #{$green-100};
+  --green-200: #{$green-200};
+  --green-300: #{$green-300};
+  --green-400: #{$green-400};
+  --green-500: #{$green-500};
+
+  /* Gradient */
+  --default-bg: #{$default-bg};
+  --btn-stroke: #{$btn-stroke};
+  --card-stroke: #{$card-stroke};
+  --graph-card: #{$graph-card};
+  --graph-stroke: #{$graph-stroke};
+  --tap-text: #{$tap-text};
+
+  /* Semantic */
+  --sematic-error: #{$sematic-error};
+  --sematic-warning: #{$sematic-warning};
+  --sematic-success: #{$sematic-success};
+
+  /* Background */
+  --dashboard: #{$dashboard};
+  --background-darkmode: #{$background-darkmode};
+  --sidebar-darkmode: #{$sidebar-darkmode};
+  --content: #{$content};
+
+  /* Layout / Shadow */
+  --padding-page: #{$padding-page};
+  --padding-section: #{$padding-section};
+  --shadow-basic: #{$shadow-basic};
+}
