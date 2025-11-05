@@ -3,27 +3,36 @@ import clsx from "clsx";
 import "./Select.scss";
 
 interface SelectProps {
-  label?: string;
-  value?: string;
   placeholder?: string;
+  icon?: string;
+  size?: "sm" | "md" | "lg";
+  variant?: "default" | "outlined";
+  disabled?: boolean;
+  value?: string;
   options: { label: string; value: string }[];
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  disabled?: boolean;
-  size?: "sm" | "md" | "lg";
 }
 
 const Select: React.FC<SelectProps> = ({
-  label,
-  value,
   placeholder,
+  icon,
+  size,
+  variant = "default",
+  disabled = false,
+  value,
   options,
   onChange,
-  disabled = false,
-  size = "md",
 }) => {
   return (
-    <div className={clsx("select-field", `select-field--${size}`)}>
-      {label && <label>{label}</label>}
+    <div
+      className={clsx(
+        "custom-select",
+        `custom-select--${size}`,
+        `custom-select--${variant}`,
+        { disabled }
+      )}
+    >
+      {icon && <img src={icon} alt="icon" className="custom-select__icon" />}
       <select value={value} onChange={onChange} disabled={disabled}>
         {placeholder && (
           <option value="" disabled hidden>

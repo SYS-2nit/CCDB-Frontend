@@ -5,6 +5,7 @@ import TimeIcon from "@/assets/header/time.svg";
 import AlertIcon from "@/assets/header/alert.svg";
 import LightIcon from "@/assets/header/light.svg";
 import DarkIcon from "@/assets/header/dark.svg";
+import Select from "../Select/Select";
 
 interface HeaderProps {
   showTime?: boolean;
@@ -85,8 +86,18 @@ const Header: React.FC<HeaderProps> = ({
           <div className="header__status">
             <img src={BedgeSuccessIcon} alt="Bedge Success Icon" />
             <div className="header__title">DB Name</div>
+            {/* 인스턴스 선택란 */}
+            <Select
+              placeholder="인스턴스 선택"
+              size="md"
+              options={[
+                { label: "인스턴스 선택", value: "0" },
+                { label: "인스턴스 1", value: "1" },
+              ]}
+            />
           </div>
 
+          {/* 시간 */}
           {showTime && (
             <div className="header__time">
               <div className="header__time--wrapper">
