@@ -35,7 +35,7 @@ export const cpuChartRenderer = (title: string) => {
       />
     );
 
-  /** "Foreground vs Background CPU 추이 */
+  /** Foreground vs Background CPU 추이 */
   if (title.includes("Foreground vs Background CPU 추이 (AAS)"))
     return (
       <LineChart
@@ -51,13 +51,13 @@ export const cpuChartRenderer = (title: string) => {
   if (title.includes("Host CPU Utilization (%) - Trend"))
     return (
       <LineChart
-        legends={["Host CPU Utilization"]}
+        legends={["Host_CPU_Util_Pct "]}
         seriesData={[[40, 45, 48, 42, 44, 50, 55]]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
       />
     );
 
-  /** "DB CPU Saturation - AAS vs Core (Load) */
+  /** DB CPU Saturation - AAS vs Core (Load) */
   if (title.includes("DB CPU Saturation - AAS vs Core (Load)"))
     return (
       <LineChart
@@ -73,11 +73,11 @@ export const cpuChartRenderer = (title: string) => {
   /** DB CPU Share of Host (%) — Trend (Stack) */
   if (title.includes("DB CPU Share of Host (%) - Trend"))
     return (
-      <StackChart
+      <LineChart
         legends={["DB_of_Host_Share_Pct", "Other processes"]}
         seriesData={[
-          [20, 25, 30, 28, 35, 32, 38],
-          [60, 65, 68, 64, 66, 70, 72],
+          [10, 15, 20, 18, 22, 25, 30],
+          [40, 45, 48, 42, 44, 50, 55],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
       />

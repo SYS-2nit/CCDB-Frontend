@@ -9,6 +9,7 @@ interface SelectProps {
   variant?: "default" | "outlined";
   disabled?: boolean;
   value?: string;
+  bgColor?: "default" | "alt";
   options: { label: string; value: string }[];
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }
@@ -16,10 +17,11 @@ interface SelectProps {
 const Select: React.FC<SelectProps> = ({
   placeholder,
   icon,
-  size,
+  size = "md",
   variant = "default",
   disabled = false,
   value,
+  bgColor = "default",
   options,
   onChange,
 }) => {
@@ -29,6 +31,7 @@ const Select: React.FC<SelectProps> = ({
         "custom-select",
         `custom-select--${size}`,
         `custom-select--${variant}`,
+        `custom-select--bg-${bgColor}`,
         { disabled }
       )}
     >

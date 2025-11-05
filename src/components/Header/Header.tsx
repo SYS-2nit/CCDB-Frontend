@@ -7,187 +7,139 @@ import LightIcon from "@/assets/header/light.svg";
 import DarkIcon from "@/assets/header/dark.svg";
 import Select from "../Select/Select";
 
-interface HeaderProps {
-  showTime?: boolean;
-  theme?: "default" | "database";
-}
-
-const Header: React.FC<HeaderProps> = ({
-  showTime = true,
-  theme = "default",
-}) => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      document.body.classList.add("dark");
-      return true;
-    } else if (savedTheme === "light") {
-      document.body.classList.remove("dark");
-      return false;
-    } else {
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      if (prefersDark) document.body.classList.add("dark");
-      return prefersDark;
-    }
-  });
-
-  const [showAlertPanel, setShowAlertPanel] = useState(false);
-
-  const handleModeToggle = () => {
-    setIsDarkMode((prev) => {
-      const newMode = !prev;
-      document.body.classList.toggle("dark", newMode);
-      localStorage.setItem("theme", newMode ? "dark" : "light");
-      return newMode;
-    });
-  };
-
+const Header: React.FC = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [seconds, setSeconds] = useState(currentTime.getSeconds());
+  const [progress, setProgress] = useState(0);
+  const [progressDuration, setProgressDuration] = useState(60000); // 기본 1분
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
       setCurrentTime(now);
-      setSeconds(now.getSeconds());
-    }, 1000);
+
+      const totalMs = progressDuration;
+      const elapsed =
+        (now.getMinutes() * 60 + now.getSeconds()) * 1000 +
+        now.getMilliseconds();
+
+      // progress 계산 (현재 시간 % 선택된 주기)
+      const progressValue = ((elapsed % totalMs) / totalMs) * 100;
+      setProgress(progressValue);
+    }, 100);
+
     return () => clearInterval(timer);
-  }, []);
+  }, [progressDuration]);
 
-  const progressPercent = (seconds / 60) * 100;
+  const formatClock = (date: Date) => {
+    const hh = String(date.getHours()).padStart(2, "0");
+    const mm = String(date.getMinutes()).padStart(2, "0");
+    const ss = String(date.getSeconds()).padStart(2, "0");
+    return `${hh}:${mm}:${ss}`;
+  };
 
-  const formatDateTime = (
-    date: Date,
-    mode: "full" | "minuteOnly" | "timeOnly" = "full"
-  ) => {
+  const formatFullDateTime = (date: Date) => {
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const dd = String(date.getDate()).padStart(2, "0");
     const hh = String(date.getHours()).padStart(2, "0");
-    const min = String(date.getMinutes()).padStart(2, "0");
+    const mi = String(date.getMinutes()).padStart(2, "0");
     const ss = String(date.getSeconds()).padStart(2, "0");
-
-    if (mode === "timeOnly") return `${hh}:${min}:${ss}`;
-    if (mode === "minuteOnly") return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
   };
 
-  const headerClass = `header ${
-    theme === "database" ? "header--database" : ""
-  }`;
+  // progress 기간 변경 핸들러
+  const handleSelectDuration = (value: number) => {
+    setProgressDuration(value);
+    setShowDropdown(false);
+  };
 
   return (
-    <>
-      <header className={headerClass}>
-        {/* 왼쪽 영역 */}
-        <div className="header__left">
-          <div className="header__status">
-            <img src={BedgeSuccessIcon} alt="Bedge Success Icon" />
-            <div className="header__title">DB Name</div>
-            {/* 인스턴스 선택란 */}
-            <Select
-              placeholder="인스턴스 선택"
-              size="md"
-              options={[
-                { label: "인스턴스 선택", value: "0" },
-                { label: "인스턴스 1", value: "1" },
-              ]}
+    <header className="header">
+      {/* 왼쪽: DB 이름 + 인스턴스 선택 + 시계 게이지 */}
+      <div className="header__left">
+        <div className="header__dbinfo">
+          <img src={BedgeSuccessIcon} alt="DB badge" />
+          <div className="header__dbname">DB Name</div>
+        </div>
+
+        <Select
+          placeholder="인스턴스 선택"
+          size="md"
+          options={[
+            { label: "인스턴스 1", value: "1" },
+            { label: "인스턴스 2", value: "2" },
+          ]}
+        />
+
+        <div className="header-time">
+          <div className="header-time__info">
+            <img
+              src={TimeIcon}
+              alt="Time icon"
+              className="header-time__icon"
+              onClick={() => setShowDropdown((prev) => !prev)}
             />
+            <span className="header-time__text">
+              {formatClock(currentTime)}
+            </span>
           </div>
 
-          {/* 시간 */}
-          {showTime && (
-            <div className="header__time">
-              <div className="header__time--wrapper">
-                <div
-                  className="header__time--progress"
-                  style={{ width: `${progressPercent}%` }}
-                ></div>
-                <img
-                  src={TimeIcon}
-                  alt="Time Icon"
-                  className="header__time--icon"
-                />
-                <div className="header__time--title">
-                  {formatDateTime(currentTime, "timeOnly")}
-                </div>
+          {/* progress bar */}
+          <div className="header-time__bar">
+            <div
+              className="header-time__progress"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+
+          {/* dropdown 메뉴 */}
+          {showDropdown && (
+            <div className="header-time__dropdown">
+              <div
+                className="header-time__option"
+                onClick={() => handleSelectDuration(10 * 60 * 1000)} // 10분
+              >
+                10분
+              </div>
+              <div
+                className="header-time__option"
+                onClick={() => handleSelectDuration(60 * 60 * 1000)} // 1시간
+              >
+                1시간
+              </div>
+              <div
+                className="header-time__option"
+                onClick={() => handleSelectDuration(24 * 60 * 60 * 1000)} // 하루
+              >
+                하루
               </div>
             </div>
           )}
         </div>
+      </div>
 
-        {/* 오른쪽 영역 */}
-        <div className="header__right">
-          {/* 알림 */}
+      {/* 오른쪽: 알림 + 테마 + 현재 시간 표시 */}
+      <div className="header__right">
+        <div className="header__right-icons">
+          <button className="header__right-alert">
+            <img src={AlertIcon} alt="alert" />
+          </button>
           <div
-            className="header__alert"
-            onClick={() => setShowAlertPanel(true)}
+            className="header__right-theme-toggle"
+            onClick={() => setIsDarkMode((prev) => !prev)}
           >
-            <img src={AlertIcon} alt="Alert Icon" />
-          </div>
-
-          {/* 라이트 / 다크 모드 */}
-          <div className="header__mode" onClick={handleModeToggle}>
-            <div
-              className={`header__light ${
-                !isDarkMode ? "header__mode--active" : ""
-              }`}
-            >
-              <img src={LightIcon} alt="Light Icon" />
-            </div>
-            <div
-              className={`header__dark ${
-                isDarkMode ? "header__mode--active" : ""
-              }`}
-            >
-              <img src={DarkIcon} alt="Dark Icon" />
-            </div>
-          </div>
-
-          {/* 사용자 */}
-          <div className="header__update">
-            <span className="header__date">
-              {formatDateTime(currentTime, "minuteOnly")}
-            </span>
-            <span className="header__text">최종 업데이트</span>
+            <img src={isDarkMode ? DarkIcon : LightIcon} alt="theme" />
           </div>
         </div>
-      </header>
 
-      {/* 알림 패널 */}
-      {showAlertPanel && (
-        <div
-          className="alert-panel__overlay"
-          onClick={() => setShowAlertPanel(false)}
-        >
-          <div className="alert-panel" onClick={(e) => e.stopPropagation()}>
-            <div className="alert-panel__header">
-              <h3>알림 목록</h3>
-              <button
-                className="alert-panel__close"
-                onClick={() => setShowAlertPanel(false)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="alert-panel__content">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <div key={i} className="alert-item">
-                  <div className="alert-item__icon">⚠️</div>
-                  <div className="alert-item__text">
-                    <strong>그래프 이름</strong> 에 에러 메시지 요약이
-                    발견되었습니다.
-                    <div className="alert-item__sub">N분 전 · DB명</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="header__update">
+          <div className="header__date">{formatFullDateTime(currentTime)}</div>
+          <div className="header__text">최종 업데이트</div>
         </div>
-      )}
-    </>
+      </div>
+    </header>
   );
 };
 
