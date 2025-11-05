@@ -1,73 +1,65 @@
 import BarChart from "@/components/Chart/BarChart";
-import GaugeChart from "@/components/Chart/GaugeChart";
 import LineChart from "@/components/Chart/LineChart";
 
 // Memory 탭 전용 차트 렌더러
 export const memoryChartRenderer = (title: string) => {
-  if (title.includes("PGA Utilization (%) - Current")) return <GaugeChart />;
-  if (title.includes("SGA Utilization (%) - Current")) return <GaugeChart />;
-  if (title.includes("PGA Utilization (%) - Trend"))
+  if (title.includes("PGA Execution Memory & Processes"))
+    return (
+      <>
+        <div>게이지 + 바 + 메트릭</div>
+      </>
+    );
+  if (title.includes("SGA Efficiency & Memory Pools"))
+    return (
+      <>
+        <div>게이지 + 바 + 메트릭</div>
+      </>
+    );
+  if (title.includes("PGA Utilization (%)"))
     return (
       <LineChart
-        legends={["PGA Used"]}
+        legends={["pga_used_pct"]}
         seriesData={[[40, 45, 48, 42, 44, 50, 55]]}
-        yaxisTitle="Utilization (%)"
       />
     );
 
-  if (title.includes("SGA Composition (%) - Trend"))
+  if (title.includes("Workarea Spill Rate (%)"))
     return (
       <LineChart
-        legends={["Buffer Cache", "Shared Pool"]}
+        legends={["Spill_Rate_Pct"]}
         seriesData={[
           [50, 52, 53, 55, 54, 56, 58],
           [30, 32, 31, 29, 30, 31, 30],
         ]}
-        yaxisTitle="SGA Ratio (%)"
       />
     );
-  if (title.includes("Workarea Spill Rate (%) - Trend"))
+  if (title.includes("Library Cache Reloads per Second"))
     return (
       <LineChart
-        legends={["Buffer Cache", "Shared Pool"]}
+        legends={["Libcache_Reload_per_s"]}
         seriesData={[
           [50, 52, 53, 55, 54, 56, 58],
           [30, 32, 31, 29, 30, 31, 30],
         ]}
-        yaxisTitle="SGA Ratio (%)"
       />
     );
-  if (title.includes("Library Cache Reloads per Second - Trend"))
+  if (title.includes("Buffer Cache Miss Rate (%) - Proxy "))
     return (
       <LineChart
-        legends={["Buffer Cache", "Shared Pool"]}
+        legends={["Buffer_Miss_Pct"]}
         seriesData={[
           [50, 52, 53, 55, 54, 56, 58],
           [30, 32, 31, 29, 30, 31, 30],
         ]}
-        yaxisTitle="SGA Ratio (%)"
-      />
-    );
-  if (title.includes("Buffer Cache Miss Rate (%) - Proxy - Trend"))
-    return (
-      <LineChart
-        legends={["Buffer Cache", "Shared Pool"]}
-        seriesData={[
-          [50, 52, 53, 55, 54, 56, 58],
-          [30, 32, 31, 29, 30, 31, 30],
-        ]}
-        yaxisTitle="SGA Ratio (%)"
       />
     );
 
-  /** Top SQL by Shared Pool Memory */
   if (title.includes("Top SQL by Shared Pool Memory"))
     return (
       <BarChart
         legends={["Sharable Memory (bytes)"]}
-        seriesData={[[520, 410, 340]]} // sharable_mem (bytes) 값만 시각화
+        seriesData={[[520, 410, 340]]}
         categories={["SQL_ID 240", "SQL_ID 180", "SQL_ID 130"]}
-        xaxisTitle="Sharable Memory (bytes)"
         horizontal={true}
         colors={["#0EA5E9"]}
       />

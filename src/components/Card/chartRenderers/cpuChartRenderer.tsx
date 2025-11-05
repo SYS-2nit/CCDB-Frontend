@@ -1,17 +1,14 @@
 import LineChart from "@/components/Chart/LineChart";
-import StackChart from "@/components/Chart/StackChart";
-
 import MetricCard from "@/components/Card/MetricCard";
 import BarChart from "@/components/Chart/BarChart";
 
 /** CPU 탭 전용 차트 렌더러 */
 export const cpuChartRenderer = (title: string) => {
-  /**CPU 활동 현황 타일 (CPU Activity Overview Tiles) */
   if (title.includes("CPU 활동 현황 타일"))
     return (
       <MetricCard
         metrics={[
-          { title: "Host CPU", value: "73.8%", subtitle: "5.9 / 8 cores" },
+          { title: "Host CPU(%)", value: "73.8", subtitle: "5.9 / 8 cores" },
           {
             title: "DB CPU Saturation(%)",
             value: "46.3",
@@ -23,19 +20,18 @@ export const cpuChartRenderer = (title: string) => {
             subtitle: "3.7 / 5.9 cores",
           },
           {
-            title: "Run Queue per Core",
+            title: "Run Queue per Core(process)",
             value: "1.3",
             subtitle: "runnables/core",
           },
           { title: "TPS", value: "284", subtitle: "txn/s" },
-          { title: "EXEC/S(K)", value: "1.4", subtitle: "exec/s" },
+          { title: "EXEC/S", value: "1.4", subtitle: "exec/s" },
           { title: "USER CALLS/S", value: "5.2", subtitle: "calls/s" },
         ]}
         columns={7}
       />
     );
 
-  /** Foreground vs Background CPU 추이 */
   if (title.includes("Foreground vs Background CPU 추이 (AAS)"))
     return (
       <LineChart
@@ -47,8 +43,7 @@ export const cpuChartRenderer = (title: string) => {
       />
     );
 
-  /** Host CPU Utilization (%) — Trend */
-  if (title.includes("Host CPU Utilization (%) - Trend"))
+  if (title.includes("Host CPU Utilization (%)"))
     return (
       <LineChart
         legends={["Host_CPU_Util_Pct "]}
@@ -57,7 +52,6 @@ export const cpuChartRenderer = (title: string) => {
       />
     );
 
-  /** DB CPU Saturation - AAS vs Core (Load) */
   if (title.includes("DB CPU Saturation - AAS vs Core (Load)"))
     return (
       <LineChart
@@ -70,8 +64,7 @@ export const cpuChartRenderer = (title: string) => {
       />
     );
 
-  /** DB CPU Share of Host (%) — Trend (Stack) */
-  if (title.includes("DB CPU Share of Host (%) - Trend"))
+  if (title.includes("DB CPU Share of Host (%)"))
     return (
       <LineChart
         legends={["DB_of_Host_Share_Pct", "Other processes"]}
@@ -83,7 +76,6 @@ export const cpuChartRenderer = (title: string) => {
       />
     );
 
-  /** CPU Cost per Commit/Execution (ms) */
   if (title.includes("CPU Cost per Commit/Execution (ms)"))
     return (
       <LineChart
@@ -96,7 +88,6 @@ export const cpuChartRenderer = (title: string) => {
       />
     );
 
-  /** Run Queue per Core (Scheduler Load) */
   if (title.includes("Run Queue per Core - Scheduler Load (%)"))
     return (
       <LineChart
@@ -116,7 +107,6 @@ export const cpuChartRenderer = (title: string) => {
       />
     );
 
-  /** Top SQL by CPU (Last 10 min) */
   if (title.includes("Top SQL by CPU (Last 10 min)"))
     return (
       <BarChart

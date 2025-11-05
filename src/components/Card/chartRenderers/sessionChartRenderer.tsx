@@ -1,116 +1,98 @@
 import BarChart from "@/components/Chart/BarChart";
 import LineChart from "@/components/Chart/LineChart";
-import StackChart from "@/components/Chart/StackChart";
 import MetricCard from "@/components/Card/MetricCard";
 
 // Session 탭 전용 차트 렌더러
 export const sessionChartRenderer = (title: string) => {
-  /** 세션 활동·자원 현황 */
-  if (
-    title.includes("Session Activity") ||
-    title.includes("세션 활동") ||
-    title.includes("자원 현황")
-  )
+  if (title.includes("Session Activity & Resource Summary"))
     return (
       <MetricCard
         metrics={[
-          { title: "Active / Total Users (/240)", value: "37" },
-          { title: "Sessions Limit Util (%)", value: "53.2" },
-          { title: "Processes Limit Util (%)", value: "59.3" },
-          { title: "Blockers (now)", value: 7 },
-          { title: "Blocked (now)", value: 12 },
-          { title: "User Calls/S(K)", value: "5.2", subtitle: "calls/s" },
+          { title: "Active / Total Users", value: "37", subtitle: "37/240" },
+          {
+            title: "Sessions Limit Util(%)",
+            value: "53.2",
+            subtitle: "532/1000",
+          },
+          {
+            title: "Processes Limit Util(%)",
+            value: "59.3",
+            subtitle: "712/1200",
+          },
+          {
+            title: "Blockers(session)",
+            value: 7,
+            subtitle: "세션 막는 블로커 수",
+          },
+          {
+            title: "Blocked(session)",
+            value: 12,
+            subtitle: "대기중인 세션 수",
+          },
         ]}
         columns={6}
       />
     );
 
-  /** Long-Idle Sessions ≥10/30/60m — Snapshot */
-  if (title.includes("Long-Idle Sessions"))
-    return (
-      <BarChart
-        barCount={3}
-        categories={["idle_10m", "idle_30m", "idle_60m"]}
-        data={[72, 41, 9]}
-        yaxisTitle="Sessions (count)"
-        xaxisTitle="Idle Duration"
-        colors={["#F1C40F", "#7FA4FA", "#75E093"]}
-      />
-    );
-
-  /** Blocking — Blocker vs Blocked Sessions — Trend */
-  if (title.includes("Blocking"))
-    return (
-      <LineChart
-        legends={["Blocker Sessions", "Blocked Sessions"]}
-        seriesData={[
-          [10, 15, 20, 18, 22, 25, 30],
-          [40, 45, 48, 42, 44, 50, 55],
-        ]}
-        categories={["00:00", "02:00", "04:00", "06:00", "08:00", "10:00"]}
-        yaxisTitle="Sessions"
-      />
-    );
-
-  /** Lock Wait Sessions — TX vs TM vs Total */
-  if (title.includes("Lock Wait Sessions"))
-    return (
-      <LineChart
-        legends={["TX Lock Waits", "TM Lock Waits", "Lock Wait Total"]}
-        seriesData={[
-          [5, 6, 5, 8, 7, 9, 6],
-          [3, 4, 3, 4, 5, 5, 4],
-          [8, 9, 8, 10, 9, 10, 8],
-        ]}
-        categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
-        yaxisTitle="Wait Sessions (count)"
-      />
-    );
-
-  /** Active vs Inactive Sessions — Trend */
   if (title.includes("Active vs Inactive Sessions"))
     return (
       <LineChart
-        legends={["Active Sessions", "Inactive Sessions"]}
+        legends={["active_sessions", "inactive_sessions"]}
         seriesData={[
           [40, 38, 35, 36, 37, 40, 41],
           [20, 19, 18, 19, 21, 20, 19],
         ]}
         categories={["00:00", "02:00", "04:00", "06:00", "08:00", "10:00"]}
-        yaxisTitle="Sessions (count)"
       />
     );
 
-  /** On-CPU vs Wait (AAS 분해) — Trend */
-  if (title.includes("On-CPU vs Wait"))
+  if (title.includes("Lock Wait Sessions — TX vs TM vs Total"))
     return (
-      <StackChart
-        legends={["On-CPU Sessions", "Wait Sessions"]}
+      <LineChart
+        legends={["lock_wait_tx", "lock_wait_tm", "lock_wait_total"]}
         seriesData={[
-          [2.5, 3.0, 3.2, 3.5, 3.0, 2.8],
-          [1.5, 2.0, 2.1, 1.8, 2.3, 2.0],
+          [40, 38, 35, 36, 37, 40, 41],
+          [20, 19, 18, 19, 21, 20, 19],
+          [10, 9, 48, 39, 62, 37, 72],
         ]}
-        categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
-        yaxisTitle="Average Active Sessions (AAS)"
+        categories={["00:00", "02:00", "04:00", "06:00", "08:00", "10:00"]}
       />
     );
 
-  /** Exec/s — Trend */
+  if (title.includes("TPS"))
+    return (
+      <LineChart
+        legends={["TPS_COMMIT_PER_SEC"]}
+        seriesData={[[40, 38, 35, 36, 37, 40, 41]]}
+        categories={["00:00", "02:00", "04:00", "06:00", "08:00", "10:00"]}
+      />
+    );
+
+  if (title.includes("On-CPU vs Wait (AAS 분해)"))
+    return (
+      <LineChart
+        legends={["AAS_ONCPU_SESSIONS", "AAS_WAIT_SESSIONS"]}
+        seriesData={[
+          [100, 150, 200, 250, 220, 270, 230],
+          [620, 120, 572, 477, 285, 825, 123],
+        ]}
+        categories={["10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]}
+      />
+    );
+
   if (title.includes("Exec/s"))
     return (
       <LineChart
-        legends={["Exec per Second"]}
-        seriesData={[[100, 150, 200, 250, 220, 270, 230]]}
-        categories={["10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]}
-        yaxisTitle="Executions per Second"
+        legends={["EXEC_PER_SEC"]}
+        seriesData={[[10, 20, 15, 25, 30, 22, 18]]}
+        categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
       />
     );
 
-  /** Logons/sec & Disconnects/sec — Trend */
-  if (title.includes("Logons/sec"))
+  if (title.includes("Logons/sec & Disconnects/sec"))
     return (
       <LineChart
-        legends={["Logons/sec", "Disconnects/sec"]}
+        legends={["LOGONS_PER_SEC", "DISCONNECTS_PER_SEC"]}
         seriesData={[
           [10, 20, 15, 25, 30, 22, 18],
           [5, 10, 8, 12, 15, 11, 9],
@@ -120,12 +102,11 @@ export const sessionChartRenderer = (title: string) => {
       />
     );
 
-  /** Top Blocker Sessions — Snapshot Top 5 */
-  if (title.includes("Top Blocker Sessions"))
+  if (title.includes("Top Blocker Sessions — Snapshot Top 5"))
     return (
       <BarChart
         legends={["Max Seconds in Wait (s)"]}
-        seriesData={[[11, 7, 6, 4, 3]]} // max_seconds_in_wait(s)
+        seriesData={[[11, 7, 6, 4, 3]]}
         categories={[
           "SID 3289 (APPUSER)",
           "SID 517 (APPUSER)",

@@ -9,7 +9,6 @@ import { getCssVar } from "@/styles/utils/getCssVar";
 
 // Main Custom 탭 전용 차트 렌더러
 export const mainChartRenderer = (title: string) => {
-  // PGA / SGA 압박률 — MetricCard
   if (title.includes("PGA / SGA 압박률")) {
     const metrics = [
       { title: "Spill Rate %", value: 23 },
@@ -20,7 +19,6 @@ export const mainChartRenderer = (title: string) => {
     return <MetricCard metrics={metrics} columns={2} />;
   }
 
-  // Wait Class 분포 — LineChart
   if (title.includes("Wait Class 분포 (Sessions)")) {
     return (
       <LineChart
@@ -49,10 +47,8 @@ export const mainChartRenderer = (title: string) => {
     );
   }
 
-  // Session 한도 상태 — GaugeChart
   if (title.includes("Session 한도 상태")) return <GaugeChart />;
 
-  // 핵심 테이블스페이스 여유율 — StackChart
   if (title.includes("핵심 테이블스페이스 여유율"))
     return (
       <div className="chart-add-info">
@@ -71,7 +67,6 @@ export const mainChartRenderer = (title: string) => {
             위험 (85%~)
           </div>
         </div>
-        {/* 차트 */}
         <StackChart
           colorRules={[
             { min: 0, max: 70, color: getCssVar("sematic-success") },
@@ -82,7 +77,6 @@ export const mainChartRenderer = (title: string) => {
       </div>
     );
 
-  // 백그라운드 프로세스 상태 — LineChart
   if (title.includes("백그라운드 프로세스 상태")) {
     const backMetrics = [
       {
@@ -99,7 +93,6 @@ export const mainChartRenderer = (title: string) => {
     return <MetricCard metrics={backMetrics} columns={3} />;
   }
 
-  // 제한 근접 파라미터 상태 — LineChart
   if (title.includes("제한 근접 파라미터 상태 (%)"))
     return (
       <LineChart
@@ -113,7 +106,6 @@ export const mainChartRenderer = (title: string) => {
       />
     );
 
-  // CPU 상태 — Line Chart
   if (title.includes("CPU 상태 (%)"))
     return (
       <LineChart
@@ -129,7 +121,6 @@ export const mainChartRenderer = (title: string) => {
       />
     );
 
-  // I/O 지연량 — LineChart
   if (title.includes("I/O 지연량 (ms)"))
     return (
       <LineChart
@@ -147,7 +138,6 @@ export const mainChartRenderer = (title: string) => {
       />
     );
 
-  // I/O 처리량 — LineChart
   if (title.includes("I/O 처리량 (MB/s)"))
     return (
       <LineChart
@@ -160,6 +150,6 @@ export const mainChartRenderer = (title: string) => {
       />
     );
 
-  // 디폴트 — LineChart
+  // 기본
   return <span>차트를 불러올 수 없습니다.</span>;
 };
