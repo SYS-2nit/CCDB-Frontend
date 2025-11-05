@@ -50,7 +50,7 @@ const LineChart: React.FC<LineChartProps> = ({
     grid: {
       borderColor: "rgba(0,0,0,0.08)",
       strokeDashArray: 3,
-      padding: { top: 10, right: 10, bottom: 0, left: 15 }, // ✅ y축 공간 확보
+      padding: { top: 10, right: 10, bottom: 0, left: 15 },
     },
     xaxis: {
       categories,

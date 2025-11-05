@@ -114,14 +114,13 @@
     color: $gray-300;
   }
 
-    &-time {
+  &-time {
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 6px;
 
-    &__live,
-    &__range {
+    &__info {
       display: flex;
       align-items: center;
       gap: 6px;
@@ -131,7 +130,8 @@
       width: 20px;
       height: 20px;
       cursor: pointer;
-      
+      filter: brightness(0) saturate(100%) invert(38%) sepia(85%)
+              saturate(2650%) hue-rotate(217deg) brightness(96%) contrast(95%);
     }
 
     &__text {
@@ -143,25 +143,38 @@
       @include text-styles("label02");
       padding: 2px 6px;
       border-radius: 6px;
-      color: white;
+      color: $gray-0;
       background-color: $main-500;
-
-      &--live {
-        background-color: $sematic-success;
-      }
     }
 
+    /* 게이지 (1분 반복) */
+    &__bar {
+      width: 100%;
+      height: 6px;
+      border-radius: 4px;
+      background: $main-0;
+      overflow: hidden;
+    }
+
+    &__progress {
+      height: 100%;
+      border-radius: 4px;
+      background: $main-500;
+      transition: width 0.1s linear;
+    }
+
+    /* 드롭다운 */
     &__dropdown {
       position: absolute;
-      top: 36px;
+      top: 40px;
       left: 0;
       background: $gray-0;
       border: 1px solid $gray-200;
       border-radius: 6px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
-      z-index: 20;
+      z-index: 10;
       min-width: 160px;
       overflow: hidden;
 
@@ -170,10 +183,9 @@
         cursor: pointer;
         @include text-styles("label02");
         color: $gray-700;
-        transition: background 0.2s ease;
 
         &:hover {
-          background: $gray-50;
+          background-color: $gray-50;
           color: $main-600;
         }
       }

@@ -82,9 +82,10 @@ $padding-page: 20px;
 $padding-section: 16px;
 $shadow-basic: 0px 2px 6px rgba(0, 0, 0, 0.05);
 
-/* ======================================================
-   CSS Variables Export (for JS/TS access via getCssVar)
-====================================================== */
+
+/* 
+* CSS Variables Export (for JS/TS access via getCssVar)
+*/
 :root {
   /* GrayScale */
   --gray-0: #{$gray-0};
