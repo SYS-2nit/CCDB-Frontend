@@ -1,0 +1,32 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.date-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  label {
+    font-size: 13px;
+    color: $gray-700;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  input {
+    border: 1px solid $gray-200;
+    border-radius: 3px;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: $gray-700;
+    background: $gray-0;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $main-500;
+    }
+  }
+}
