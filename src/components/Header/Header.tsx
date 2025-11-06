@@ -181,7 +181,7 @@ const Header: React.FC = () => {
 
         <Select
           placeholder="인스턴스 선택"
-          size="md"
+          size="sm"
           options={[
             { label: "인스턴스 1", value: "1" },
             { label: "인스턴스 2", value: "2" },

@@ -15,7 +15,7 @@ const GaugeChart: React.FC<GaugeChartProps> = ({
   label = "사용률",
   subLabel,
   color = "#60A5FA",
-  size = 160,
+  size = 180,
 }) => {
   const options: ApexOptions = {
     chart: {

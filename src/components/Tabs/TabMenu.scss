@@ -4,6 +4,11 @@
 @use '@styles/mixins' as *;
 
 .tab-menu {
+  background: $gray-0;
+  margin: 10px 0px;
+  border-radius: 5px;
+  border: 1px solid $gray-100;
+
   &__tab {
       background: none;
       border: none;
