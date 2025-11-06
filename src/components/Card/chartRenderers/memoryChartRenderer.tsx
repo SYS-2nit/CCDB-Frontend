@@ -1,5 +1,6 @@
-import BarChart from "@/components/Chart/BarChart";
 import LineChart from "@/components/Chart/LineChart";
+import StackChart from "@/components/Chart/StackChart";
+import { getCssVar } from "@/styles/utils/getCssVar";
 
 // Memory 탭 전용 차트 렌더러
 export const memoryChartRenderer = (title: string) => {
@@ -56,12 +57,22 @@ export const memoryChartRenderer = (title: string) => {
 
   if (title.includes("Top SQL by Shared Pool Memory"))
     return (
-      <BarChart
-        legends={["Sharable Memory (bytes)"]}
-        seriesData={[[520, 410, 340]]}
-        categories={["SQL_ID 240", "SQL_ID 180", "SQL_ID 130"]}
-        horizontal={true}
-        colors={["#0EA5E9"]}
+      <StackChart
+        labels={[
+          "SQL_ID 100",
+          "SQL_ID 200",
+          "SQL_ID 300",
+          "SQL_ID 400",
+          "SQL_ID 500",
+        ]}
+        usage={[4789, 367, 842, 2362, 1530]}
+        total={[5000, 4000, 4000, 3000, 2000]}
+        colorRules={[{ min: 0, max: 100, color: getCssVar("main-500") }]}
+        tooltipFormatter={({ used, total, percent }) =>
+          `Sharable Memory (bytes): ${used.toLocaleString()}ms / Total: ${total.toLocaleString()}ms (${percent.toFixed(
+            1
+          )}%)`
+        }
       />
     );
 

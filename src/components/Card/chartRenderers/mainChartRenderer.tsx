@@ -4,7 +4,6 @@ import StackChart from "@/components/Chart/StackChart";
 import MetricCard from "@/components/Card/MetricCard";
 import SuccessGreenIcon from "@/assets/general/succes-green.svg";
 import ErrorRedIcon from "@/assets/general/error-red.svg";
-import "./mainChartRenderer.scss";
 import { getCssVar } from "@/styles/utils/getCssVar";
 
 // Main Custom 탭 전용 차트 렌더러
@@ -56,24 +55,33 @@ export const mainChartRenderer = (title: string) => {
         <div className="chart-add-info-container">
           <div className="chart-add-info-container-text">
             <div className="chart-add-info-container-text-success" />
-            정상 (0~70%)
+            정상 (0~69%)
           </div>
           <div className="chart-add-info-container-text">
             <div className="chart-add-info-container-text-warning" />
-            주의 (70~85%)
+            주의 (70~45%)
           </div>
           <div className="chart-add-info-container-text">
             <div className="chart-add-info-container-text-error" />
-            위험 (85%~)
+            위험 (85%~100%)
           </div>
         </div>
         <StackChart
+          labels={["SYSTEM", "SYSAUX", "USERS", "UNDO", "TEMP"]}
+          usage={[367, 9739, 12022, 4289, 6762]}
+          total={[16500, 13800, 12100, 9800, 7500]}
           colorRules={[
-            { min: 0, max: 70, color: getCssVar("sematic-success") },
-            { min: 70, max: 85, color: getCssVar("sematic-warning") },
-            { min: 85, max: 100, color: getCssVar("red-400") },
+            { min: 0, max: 69, color: getCssVar("sematic-success") }, // 0~70% 초록
+            { min: 70, max: 84, color: getCssVar("sematic-warning") }, // 70~85% 노랑
+            { min: 85, max: 100, color: getCssVar("red-400") }, // 85~100% 빨강
           ]}
+          tooltipFormatter={({ used, total, percent }) =>
+            `사용: ${used.toLocaleString()}MB / 전체: ${total.toLocaleString()}MB (${percent.toFixed(
+              1
+            )}%)`
+          }
         />
+        `
       </div>
     );
 

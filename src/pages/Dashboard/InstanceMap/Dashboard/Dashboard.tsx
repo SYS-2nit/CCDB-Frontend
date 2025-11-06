@@ -121,7 +121,6 @@ const Dashboard: React.FC<DashboardProps> = ({
                 )}
 
                 {/* 메인 탭이 아닌 경우 1번째 인덱스 차트부터 시작 */}
-
                 {(activeTab === "main" ? charts : charts.slice(1)).map(
                   (title, index) => (
                     <Draggable

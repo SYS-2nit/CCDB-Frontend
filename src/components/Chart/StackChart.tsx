@@ -9,44 +9,57 @@ interface ColorRule {
   color: string;
 }
 
+interface TooltipFormatData {
+  used: number;
+  total: number;
+  percent: number;
+}
+
 interface StackChartProps {
   stackCount?: number;
-  legends?: string[];
-  seriesData?: number[][];
-  categories?: string[];
+  labels?: string[];
+  usage?: number[];
+  total?: number[];
+  tooltipFormatter?: (data: TooltipFormatData, index: number) => string;
   yaxisTitle?: string;
   colorRules?: ColorRule[];
+  height?: number;
 }
 
 const StackChart: React.FC<StackChartProps> = ({
-  stackCount = 5,
+  stackCount,
+  labels = [],
+  usage = [],
+  total = [],
+  tooltipFormatter,
   colorRules = [
-    { min: 0, max: 70, color: getCssVar("sematic-success") }, // 정상
-    { min: 71, max: 85, color: getCssVar("sematic-warning") }, // 주의
-    { min: 86, max: 100, color: getCssVar("sematic-error") }, // 위험
+    { min: 0, max: 70, color: getCssVar("sematic-success") },
+    { min: 71, max: 85, color: getCssVar("sematic-warning") },
+    { min: 86, max: 100, color: getCssVar("sematic-error") },
   ],
+  height = 170,
+  yaxisTitle,
 }) => {
-  const labels = ["SYSTEM", "SYSAUX", "USERS", "UNDO", "TEMP"].slice(
-    0,
-    stackCount
-  );
-  const usage = [90, 80, 70, 50, 30].slice(0, stackCount);
-  const total = [5120, 3072, 10240, 2048, 4096].slice(0, stackCount);
-  const used = usage.map((v, i) => ((v / 100) * total[i]).toFixed(0));
+  const _labels = labels.slice(0, stackCount);
+  const _usage = usage.slice(0, stackCount);
+  const _total = total.slice(0, stackCount);
 
-  // 색상 결정 함수 — colorRules 기반
+  // 사용률 계산
+  const percents = _usage.map((v, i) => (v / _total[i]) * 100);
+
   const getColor = (percent: number) => {
     const rule = colorRules.find((r) => percent >= r.min && percent < r.max);
-    return rule ? rule.color : getCssVar("$gray-300");
+    return rule ? rule.color : getCssVar("gray-300");
   };
 
+  // y값은 비율(percent)로 설정
   const series = [
     {
       name: "Usage",
-      data: usage.map((percent) => ({
-        x: "",
-        y: percent,
-        fillColor: getColor(percent),
+      data: percents.map((p, i) => ({
+        x: _labels[i],
+        y: p,
+        fillColor: getColor(p),
       })),
     },
   ];
@@ -60,25 +73,35 @@ const StackChart: React.FC<StackChartProps> = ({
     plotOptions: {
       bar: {
         horizontal: true,
-        barHeight: "90%",
+        barHeight: "80%",
       },
     },
     dataLabels: {
-      enabled: true,
-      formatter: (val) => `${(val as number).toFixed(0)}%`,
-      style: {
-        fontSize: "12px",
-        fontWeight: 700,
-        colors: ["#fff"],
-      },
+      enabled: false, // 수치 안 보여주기
     },
     xaxis: {
-      categories: labels,
+      categories: _labels,
       max: 100,
+      title: yaxisTitle
+        ? {
+            text: yaxisTitle,
+            style: {
+              color: "#555",
+              fontSize: "11px",
+              fontWeight: 600,
+            },
+          }
+        : {
+            text: undefined,
+            offsetX: 0,
+            offsetY: 0,
+            style: { fontSize: "0px" }, // 완전히 숨김
+          },
       labels: {
         style: { colors: "#888", fontSize: "10px" },
       },
     },
+
     yaxis: {
       labels: {
         style: { colors: "#555", fontSize: "10px", fontWeight: 500 },
@@ -91,12 +114,16 @@ const StackChart: React.FC<StackChartProps> = ({
     tooltip: {
       theme: "light",
       y: {
-        formatter: (_val, { dataPointIndex }) => {
+        formatter: (val, { dataPointIndex }) => {
           const idx = dataPointIndex;
-          const usedMB = Number(used[idx]).toLocaleString();
-          const totalMB = total[idx].toLocaleString();
-          const freeMB = (total[idx] - Number(used[idx])).toLocaleString();
-          return `Used: ${usedMB}MB / Free: ${freeMB}MB / Total: ${totalMB}MB`;
+          const used = _usage[idx];
+          const totalVal = _total[idx];
+          const percent = (used / totalVal) * 100;
+
+          if (tooltipFormatter) {
+            return tooltipFormatter({ used, total: totalVal, percent }, idx);
+          }
+          return `${used} / ${totalVal} (${percent.toFixed(1)}%)`;
         },
       },
     },
@@ -104,12 +131,12 @@ const StackChart: React.FC<StackChartProps> = ({
   };
 
   return (
-    <div id="stack-chart" style={{ width: "120%", height: "170px" }}>
+    <div id="stack-chart" style={{ width: "100%", height: `${height}px` }}>
       <ReactApexChart
         options={options}
         series={series}
         type="bar"
-        height={170}
+        height={height}
       />
     </div>
   );

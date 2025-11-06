@@ -1,6 +1,7 @@
 import LineChart from "@/components/Chart/LineChart";
 import MetricCard from "@/components/Card/MetricCard";
-import BarChart from "@/components/Chart/BarChart";
+import StackChart from "@/components/Chart/StackChart";
+import { getCssVar } from "@/styles/utils/getCssVar";
 
 /** CPU 탭 전용 차트 렌더러 */
 export const cpuChartRenderer = (title: string) => {
@@ -109,19 +110,22 @@ export const cpuChartRenderer = (title: string) => {
 
   if (title.includes("Top SQL by CPU (Last 10 min)"))
     return (
-      <BarChart
-        legends={["CPU Time (ms)"]}
-        seriesData={[[16500, 13800, 12100, 9800, 7500]]}
-        categories={[
-          "Batch Job (HR)",
-          "AppSvc (AP)",
-          "QueryApp (SALES)",
-          "Dashboard (BI)",
-          "FinRep (FIN)",
+      <StackChart
+        labels={[
+          "SQL_ID 100",
+          "SQL_ID 200",
+          "SQL_ID 300",
+          "SQL_ID 400",
+          "SQL_ID 500",
         ]}
-        xaxisTitle="CPU Time (ms)"
-        horizontal={true}
-        colors={["#4F46E5"]}
+        usage={[4789, 367, 842, 2362, 1530]}
+        total={[5000, 4000, 4000, 3000, 2000]}
+        colorRules={[{ min: 0, max: 100, color: getCssVar("main-500") }]}
+        tooltipFormatter={({ used, total, percent }) =>
+          `CPU Time (ms): ${used.toLocaleString()}ms / Total: ${total.toLocaleString()}ms (${percent.toFixed(
+            1
+          )}%)`
+        }
       />
     );
 

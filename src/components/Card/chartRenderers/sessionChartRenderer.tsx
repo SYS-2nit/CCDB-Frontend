@@ -1,6 +1,7 @@
-import BarChart from "@/components/Chart/BarChart";
 import LineChart from "@/components/Chart/LineChart";
 import MetricCard from "@/components/Card/MetricCard";
+import StackChart from "@/components/Chart/StackChart";
+import { getCssVar } from "@/styles/utils/getCssVar";
 
 // Session 탭 전용 차트 렌더러
 export const sessionChartRenderer = (title: string) => {
@@ -103,19 +104,22 @@ export const sessionChartRenderer = (title: string) => {
 
   if (title.includes("Top Blocker Sessions — Snapshot Top 5"))
     return (
-      <BarChart
-        legends={["Max Seconds in Wait (s)"]}
-        seriesData={[[11, 7, 6, 4, 3]]}
-        categories={[
+      <StackChart
+        labels={[
           "SID 3289 (APPUSER)",
           "SID 517 (APPUSER)",
           "SID 1407 (REPORT)",
           "SID 205 (ERP)",
           "SID 911 (BI)",
         ]}
-        xaxisTitle="victims"
-        horizontal={true}
-        colors={["#F59E0B"]}
+        usage={[2189, 1767, 742, 2362, 3530]}
+        total={[6200, 7000, 4000, 3000, 6000]}
+        colorRules={[{ min: 0, max: 100, color: getCssVar("main-500") }]}
+        tooltipFormatter={({ used, total, percent }) =>
+          `victims: ${used.toLocaleString()}ms / Total: ${total.toLocaleString()}ms (${percent.toFixed(
+            1
+          )}%)`
+        }
       />
     );
 

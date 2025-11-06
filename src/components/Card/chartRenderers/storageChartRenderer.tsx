@@ -2,6 +2,7 @@ import LineChart from "@/components/Chart/LineChart";
 import StackChart from "@/components/Chart/StackChart";
 import MetricCard from "@/components/Card/MetricCard";
 import BarChart from "@/components/Chart/BarChart";
+import { getCssVar } from "@/styles/utils/getCssVar";
 
 // Storage 탭 전용 차트 렌더러
 export const storageChartRenderer = (title: string) => {
@@ -111,19 +112,18 @@ export const storageChartRenderer = (title: string) => {
     );
   }
 
-  if (title.includes("대용량 세그먼트"))
+  if (title.includes("대용량 세그먼트 Top 5"))
     return (
       <StackChart
-        legends={["Size (GB)"]}
-        seriesData={[[120, 95, 85, 70, 65]]}
-        categories={[
-          "AP_DATA_01",
-          "SALES_IDX_01",
-          "TEMP_LOG",
-          "UNDO_TBL",
-          "SYSTEM_TS",
-        ]}
-        yaxisTitle="Size (GB)"
+        labels={["1_owner_seg", "2_owner_seg", "3_owner_seg", "4_owner_seg"]}
+        usage={[367, 9739, 12022, 4289]}
+        total={[16500, 13800, 12100, 9800]}
+        colorRules={[{ min: 0, max: 100, color: getCssVar("main-500") }]}
+        tooltipFormatter={({ used, total, percent }) =>
+          `사용: ${used.toLocaleString()}MB / 전체: ${total.toLocaleString()}MB (${percent.toFixed(
+            1
+          )}%)`
+        }
       />
     );
 

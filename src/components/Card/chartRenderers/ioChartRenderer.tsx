@@ -3,6 +3,7 @@ import StackChart from "@/components/Chart/StackChart";
 import MetricCard from "@/components/Card/MetricCard";
 import { getCssVar } from "@/styles/utils/getCssVar";
 import MixedChart from "@/components/Chart/MixedChart";
+import "./ChartRenderer.scss";
 
 // I/O 탭 전용 차트 렌더러
 export const ioChartRenderer = (title: string) => {
@@ -75,34 +76,44 @@ export const ioChartRenderer = (title: string) => {
 
   if (title.includes("데이터파일별 I/O 통계 (Top 5)"))
     return (
-      <StackChart
-        legends={[
-          "file_name",
-          "tablespace_name",
-          "physical_reads_per_min",
-          "physical_writes_per_min",
-          "avg_read_time_ms",
-          "io_share_pct",
-        ]}
-        seriesData={[
-          [500, 420, 380, 460, 520],
-          [300, 260, 240, 310, 330],
-          [8, 7, 6, 9, 8],
-        ]}
-        categories={[
-          "file_name",
-          "tablespace_name",
-          "physical_reads_per_min",
-          "physical_writes_per_min",
-          "avg_read_time_ms",
-          "io_share_pct",
-        ]}
-        colorRules={[
-          { min: 0, max: 70, color: getCssVar("sematic-success") },
-          { min: 70, max: 85, color: getCssVar("sematic-warning") },
-          { min: 85, max: 100, color: getCssVar("red-400") },
-        ]}
-      />
+      <div className="chart-add-info">
+        {/* 추가 정보 */}
+        <div className="chart-add-info-container">
+          <div className="chart-add-info-container-text">
+            <div className="chart-add-info-container-text-success" />
+            정상 (0~69%)
+          </div>
+          <div className="chart-add-info-container-text">
+            <div className="chart-add-info-container-text-warning" />
+            주의 (70~84%)
+          </div>
+          <div className="chart-add-info-container-text">
+            <div className="chart-add-info-container-text-error" />
+            위험 (85%~100%)
+          </div>
+        </div>
+        <StackChart
+          labels={[
+            "1_file_name",
+            "2_file_name",
+            "3_file_name",
+            "4_file_name",
+            "5_file_name",
+          ]}
+          usage={[490, 240, 20, 340, 510]}
+          total={[500, 420, 380, 460, 520]}
+          colorRules={[
+            { min: 0, max: 69, color: getCssVar("sematic-success") },
+            { min: 70, max: 84, color: getCssVar("sematic-warning") },
+            { min: 85, max: 100, color: getCssVar("red-400") },
+          ]}
+          tooltipFormatter={({ used, total, percent }) =>
+            `tablespace_name: ${used.toLocaleString()}MB / 전체: ${total.toLocaleString()}MB (${percent.toFixed(
+              1
+            )}%)`
+          }
+        />
+      </div>
     );
 
   if (title.includes("Direct Path I/O"))
