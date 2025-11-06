@@ -32,8 +32,8 @@ const BarChart: React.FC<BarChartProps> = ({
     plotOptions: {
       bar: {
         horizontal,
-        columnWidth: "55%",
-        borderRadius: 4,
+        columnWidth: "90%",
+        borderRadius: 2,
       },
     },
     dataLabels: { enabled: false },
@@ -75,12 +75,12 @@ const BarChart: React.FC<BarChartProps> = ({
         })) ?? [];
 
   return (
-    <div style={{ width: "100%", height: "160px" }}>
+    <div style={{ width: "100%", height: "100%" }}>
       <ReactApexChart
         options={options}
         series={series}
         type="bar"
-        height={160}
+        height={190}
       />
     </div>
   );

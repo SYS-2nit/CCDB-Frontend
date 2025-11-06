@@ -57,16 +57,19 @@
 }
 
 .temp-chart-container {
-  position: relative;
-  background: $gray-0;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 
-  &-content {
+  &-row {
+    gap: 20px;
+    width: 100%;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: row;
 
-    &-text {
-      font-size: 8px;
+    &-content {
+      @include text-styles("label02");
       color: $gray-300;
     }
   }

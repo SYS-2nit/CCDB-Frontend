@@ -98,7 +98,6 @@ export const sessionChartRenderer = (title: string) => {
           [5, 10, 8, 12, 15, 11, 9],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
-        yaxisTitle="Sessions per Second"
       />
     );
 
