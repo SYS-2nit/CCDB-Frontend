@@ -1,27 +1,51 @@
+import GaugeChart from "@/components/Chart/GaugeChart";
 import LineChart from "@/components/Chart/LineChart";
 import StackChart from "@/components/Chart/StackChart";
 import { getCssVar } from "@/styles/utils/getCssVar";
+import "./ChartRenderer.scss";
 
 // Memory 탭 전용 차트 렌더러
 export const memoryChartRenderer = (title: string) => {
-  if (title.includes("PGA Execution Memory & Processes"))
-    return (
-      <>
-        <div>게이지 + 바 + 메트릭</div>
-      </>
-    );
   if (title.includes("SGA Efficiency & Memory Pools"))
     return (
       <>
         <div>게이지 + 바 + 메트릭</div>
       </>
     );
-  if (title.includes("PGA Utilization (%)"))
+
+  if (title.includes("PGA Execution Memory & Processes"))
     return (
-      <LineChart
-        legends={["pga_used_pct"]}
-        seriesData={[[40, 45, 48, 42, 44, 50, 55]]}
-      />
+      <div className="chart-section">
+        {/* 게이지 2개 (위) */}
+        <div className="chart-grid">
+          <div className="chart-item">
+            <GaugeChart
+              value={45.37}
+              label="PGA Memory Usage"
+              subLabel="Total 544.00 MB / Used 246.81 MB"
+              size={160}
+            />
+          </div>
+
+          <div className="chart-item">
+            <GaugeChart
+              value={100}
+              label="Memory Sort"
+              subLabel="완료된 정렬 메모리 100%"
+              size={160}
+              color="#22C55E"
+            />
+          </div>
+        </div>
+        {/* 텍스트 ) */}
+        <div className="chart-metrics">
+          <span className="metric-value">Dedicated - 178</span>
+          <span className="metric-value">Parallel - 0</span>
+          <span className="metric-value">Shared - 1</span>
+          <span className="metric-value">Dispatcher - 1</span>
+          <span className="metric-value">Job - 3</span>
+        </div>
+      </div>
     );
 
   if (title.includes("Workarea Spill Rate (%)"))

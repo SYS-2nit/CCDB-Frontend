@@ -2,9 +2,21 @@ import type { ApexOptions } from "apexcharts";
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 
-const GaugeChart: React.FC = () => {
-  const value = 72;
+interface GaugeChartProps {
+  value?: number;
+  label?: string;
+  subLabel?: string;
+  color?: string;
+  size?: number;
+}
 
+const GaugeChart: React.FC<GaugeChartProps> = ({
+  value = 72,
+  label = "사용률",
+  subLabel,
+  color = "#60A5FA",
+  size = 160,
+}) => {
   const options: ApexOptions = {
     chart: {
       type: "radialBar",
@@ -28,21 +40,21 @@ const GaugeChart: React.FC = () => {
         track: {
           background: "#E5E7EB",
           strokeWidth: "100%",
-          margin: 0,
         },
         dataLabels: {
           name: {
             offsetY: 60,
             color: "#6B7280",
-            fontSize: "14px",
+            fontSize: "12px",
             fontWeight: 500,
+            show: !!label,
           },
           value: {
             offsetY: -10,
-            fontSize: "28px",
+            fontSize: "20px",
             fontWeight: 700,
             color: "#111827",
-            formatter: (val: number) => `${val.toFixed(0)}%`,
+            formatter: (val: number) => `${val.toFixed(2)}%`,
           },
         },
       },
@@ -52,17 +64,15 @@ const GaugeChart: React.FC = () => {
       gradient: {
         shade: "light",
         type: "horizontal",
-        gradientToColors: ["#6366F1"],
+        gradientToColors: [color],
         stops: [0, 100],
         opacityFrom: 0.95,
         opacityTo: 1,
       },
-      colors: ["#60A5FA"],
+      colors: [color],
     },
-    stroke: {
-      lineCap: "round",
-    },
-    labels: ["사용률"],
+    stroke: { lineCap: "round" },
+    labels: [label],
   };
 
   const series = [value];
@@ -70,19 +80,25 @@ const GaugeChart: React.FC = () => {
   return (
     <div
       style={{
-        width: "100%",
-        height: "100%",
+        width: size,
+        height: size,
         display: "flex",
-        justifyContent: "center",
+        flexDirection: "column",
         alignItems: "center",
+        justifyContent: "center",
       }}
     >
       <ReactApexChart
         options={options}
         series={series}
         type="radialBar"
-        height={200}
+        height={size}
       />
+      {subLabel && (
+        <p style={{ fontSize: 10, color: "#6B7280", marginTop: -8 }}>
+          {subLabel}
+        </p>
+      )}
     </div>
   );
 };

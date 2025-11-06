@@ -44,3 +44,29 @@
         }
     }
 }
+
+
+
+// memory 탭 관련
+.chart-section {
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+
+  .chart-grid {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .chart-metrics {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    color: $gray-300;
+    @include text-styles("label02");
+  }
+}
