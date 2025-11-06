@@ -5,7 +5,6 @@ import BarChart from "@/components/Chart/BarChart";
 
 // Storage 탭 전용 차트 렌더러
 export const storageChartRenderer = (title: string) => {
-  // Storage Health Dashboard — MetricCard
   if (title.includes("Storage Health Dashboard")) {
     const metrics = [
       { title: "FRA Usage(%)", value: "78.5" },
@@ -18,7 +17,6 @@ export const storageChartRenderer = (title: string) => {
     return <MetricCard metrics={metrics} columns={6} />;
   }
 
-  // FRA 사용률 추세 — LineChart
   if (title.includes("FRA 사용률 추세"))
     return (
       <LineChart
@@ -39,7 +37,6 @@ export const storageChartRenderer = (title: string) => {
       />
     );
 
-  // Undo 사용률 추세 — LineChart
   if (title.includes("Undo 사용률 추세"))
     return (
       <LineChart
@@ -53,7 +50,6 @@ export const storageChartRenderer = (title: string) => {
       />
     );
 
-  // Total Database Usage Trend — LineChart
   if (title.includes("Total Database Usage"))
     return (
       <LineChart
@@ -64,7 +60,6 @@ export const storageChartRenderer = (title: string) => {
       />
     );
 
-  // 테이블스페이스 사용률 추세 — LineChart
   if (title.includes("테이블스페이스 사용률 추세"))
     return (
       <LineChart
@@ -81,7 +76,6 @@ export const storageChartRenderer = (title: string) => {
       />
     );
 
-  // 테이블스페이스 증가 추세 — StackChart
   if (title.includes("테이블스페이스 증가 추세"))
     return (
       <BarChart
@@ -97,11 +91,9 @@ export const storageChartRenderer = (title: string) => {
       />
     );
 
-  // Temp Tablespace Active Usage (GB) — LineChart + text
   if (title.includes("Temp Tablespace Active Usage")) {
     return (
       <div className="temp-chart-container">
-        {/* 메인 라인 차트 */}
         <LineChart
           legends={["Active Usage (GB)"]}
           seriesData={[[2.8, 3.0, 3.2, 3.5, 3.3, 3.6, 3.4]]}
@@ -112,7 +104,6 @@ export const storageChartRenderer = (title: string) => {
     );
   }
 
-  // 대용량 세그먼트 Top 5 — StackChart
   if (title.includes("대용량 세그먼트"))
     return (
       <StackChart

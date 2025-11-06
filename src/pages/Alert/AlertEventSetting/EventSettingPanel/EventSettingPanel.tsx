@@ -263,7 +263,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                   {/* 두 번째 줄 */}
                   <div className="event-panel__row">
                     <Select
-                      label="누적 횟수"
+                      placeholder="누적 횟수"
                       size="lg"
                       value={event.frequency}
                       options={[
@@ -283,7 +283,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                       }
                     />
                     <Select
-                      label="이벤트"
                       size="lg"
                       placeholder="이벤트를 선택해주세요"
                       value={event.eventType}
@@ -304,7 +303,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                       }
                     />
                     <Select
-                      label="자원"
                       size="lg"
                       placeholder="자원을 선택해주세요"
                       value={event.resource}
