@@ -32,6 +32,7 @@ export const sessionChartRenderer = (title: string) => {
           },
         ]}
         columns={6}
+        height={110}
       />
     );
 
@@ -44,6 +45,7 @@ export const sessionChartRenderer = (title: string) => {
           [20, 19, 18, 19, 21, 20, 19],
         ]}
         categories={["00:00", "02:00", "04:00", "06:00", "08:00", "10:00"]}
+        height={140}
       />
     );
 
@@ -57,6 +59,7 @@ export const sessionChartRenderer = (title: string) => {
           [10, 9, 48, 39, 62, 37, 72],
         ]}
         categories={["00:00", "02:00", "04:00", "06:00", "08:00", "10:00"]}
+        height={140}
       />
     );
 
@@ -66,6 +69,7 @@ export const sessionChartRenderer = (title: string) => {
         legends={["TPS_COMMIT_PER_SEC"]}
         seriesData={[[40, 38, 35, 36, 37, 40, 41]]}
         categories={["00:00", "02:00", "04:00", "06:00", "08:00", "10:00"]}
+        height={140}
       />
     );
 
@@ -78,6 +82,7 @@ export const sessionChartRenderer = (title: string) => {
           [620, 120, 572, 477, 285, 825, 123],
         ]}
         categories={["10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]}
+        height={140}
       />
     );
 
@@ -87,6 +92,7 @@ export const sessionChartRenderer = (title: string) => {
         legends={["EXEC_PER_SEC"]}
         seriesData={[[10, 20, 15, 25, 30, 22, 18]]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+        height={140}
       />
     );
 
@@ -99,6 +105,7 @@ export const sessionChartRenderer = (title: string) => {
           [5, 10, 8, 12, 15, 11, 9],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+        height={140}
       />
     );
 
@@ -124,5 +131,5 @@ export const sessionChartRenderer = (title: string) => {
     );
 
   // 기본
-  return <LineChart />;
+  return <LineChart height={140} />;
 };

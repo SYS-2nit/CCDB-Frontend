@@ -15,7 +15,7 @@ export const storageChartRenderer = (title: string) => {
       { title: "Max TS Usage(%)", value: "68.4" },
       { title: "Total DB Usage(GB)", value: "52.3" },
     ];
-    return <MetricCard metrics={metrics} columns={6} />;
+    return <MetricCard metrics={metrics} columns={6} height={110} />;
   }
 
   if (title.includes("FRA 사용률 추세 (%)"))
@@ -24,6 +24,7 @@ export const storageChartRenderer = (title: string) => {
         legends={["usage_pct"]}
         seriesData={[[150, 160, 170, 175, 180, 190, 195]]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+        height={140}
       />
     );
 
@@ -33,6 +34,7 @@ export const storageChartRenderer = (title: string) => {
         legends={["undo_usage_percent"]}
         seriesData={[[40, 42, 44, 50, 55, 48, 45]]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+        height={140}
       />
     );
 
@@ -42,6 +44,7 @@ export const storageChartRenderer = (title: string) => {
         legends={["total_db_usage_pct"]}
         seriesData={[[60, 62, 65, 67, 70, 69, 68]]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+        height={140}
       />
     );
 
@@ -61,6 +64,7 @@ export const storageChartRenderer = (title: string) => {
           [60, 61, 63, 62, 64, 65, 65],
         ]}
         categories={["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"]}
+        height={140}
       />
     );
 
@@ -83,30 +87,23 @@ export const storageChartRenderer = (title: string) => {
         horizontal={false}
       />
     );
-
   if (title.includes("Temp Tablespace Active Usage (GB)")) {
     return (
-      <div className="temp-chart-container">
+      <div>
         <div className="temp-chart-container-row">
           <div className="temp-chart-container-row-content">
-            temp_current_size_gb : ???
+            Allocated(할당) : 120GB (6.9%)
           </div>
           <div className="temp-chart-container-row-content">
-            temp_max_size_gb : ???
+            MAX : 500FB (MAX 기준 1.7%)
           </div>
         </div>
-        <div className="temp-chart-container-row">
-          <div className="temp-chart-container-row-content">
-            temp_usage_pct(%) : ???
-          </div>
-          <div className="temp-chart-container-row-content">
-            temp_usage_pct_of_max(%) : ???
-          </div>
-        </div>
+
         <LineChart
           legends={["temp_active_usage_gb"]}
           seriesData={[[2.8, 3.0, 3.2, 3.5, 3.3, 3.6, 3.4]]}
           categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+          height={120}
         />
       </div>
     );
@@ -128,5 +125,5 @@ export const storageChartRenderer = (title: string) => {
     );
 
   // 기본값
-  return <LineChart />;
+  return <LineChart height={140} />;
 };

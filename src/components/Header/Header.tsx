@@ -8,7 +8,38 @@ import DarkIcon from "@/assets/header/dark.svg";
 import Select from "../Select/Select";
 
 const Header: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // ✅ 다크모드 상태 로드 및 초기화
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark");
+      return true;
+    } else if (savedTheme === "light") {
+      document.body.classList.remove("dark");
+      return false;
+    } else {
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      if (prefersDark) document.body.classList.add("dark");
+      return prefersDark;
+    }
+  });
+
+  // ✅ 알림 패널 상태
+  const [showAlertPanel, setShowAlertPanel] = useState(false);
+
+  // ✅ 테마 전환
+  const handleModeToggle = () => {
+    setIsDarkMode((prev) => {
+      const newMode = !prev;
+      document.body.classList.toggle("dark", newMode);
+      localStorage.setItem("theme", newMode ? "dark" : "light");
+      return newMode;
+    });
+  };
+
+  // ✅ 시간 관련 상태
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showDropdown, setShowDropdown] = useState(false);
   const [mode, setMode] = useState<"live" | "range">("live");
@@ -16,7 +47,7 @@ const Header: React.FC = () => {
   const [rangeStart, setRangeStart] = useState<Date | null>(null);
   const [progress, setProgress] = useState(0);
 
-  // 시간 + 게이지 업데이트
+  // ✅ 시간 + 게이지 업데이트
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
@@ -80,7 +111,6 @@ const Header: React.FC = () => {
               LIVE
             </span>
           </div>
-          {/* LIVE 게이지 */}
           <div className="header-time__bar">
             <div
               className="header-time__progress"
@@ -88,7 +118,6 @@ const Header: React.FC = () => {
             ></div>
           </div>
 
-          {/* 드롭다운 */}
           {showDropdown && (
             <div className="header-time__dropdown">
               <div
@@ -136,7 +165,6 @@ const Header: React.FC = () => {
             <span className="header-time__badge">{selectedRange}</span>
           </div>
 
-          {/* 드롭다운 */}
           {showDropdown && (
             <div className="header-time__dropdown">
               <div
@@ -171,46 +199,89 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="header">
-      {/* 왼쪽: DB + 인스턴스 + 시간 */}
-      <div className="header__left">
-        <div className="header__dbinfo">
-          <img src={BedgeSuccessIcon} alt="DB badge" />
-          <div className="header__dbname">DB Name</div>
+    <>
+      <header className="header">
+        {/* 왼쪽: DB + 인스턴스 + 시간 */}
+        <div className="header__left">
+          <div className="header__dbinfo">
+            <img src={BedgeSuccessIcon} alt="DB badge" />
+            <div className="header__dbname">DB Name</div>
+          </div>
+
+          <Select
+            placeholder="인스턴스 선택"
+            size="sm"
+            options={[
+              { label: "인스턴스 1", value: "1" },
+              { label: "인스턴스 2", value: "2" },
+            ]}
+          />
+
+          {renderTimeSection()}
         </div>
 
-        <Select
-          placeholder="인스턴스 선택"
-          size="sm"
-          options={[
-            { label: "인스턴스 1", value: "1" },
-            { label: "인스턴스 2", value: "2" },
-          ]}
-        />
+        {/* 오른쪽: 알림 + 테마 + 현재 시간 */}
+        <div className="header__right">
+          <div className="header__right-icons">
+            {/* ✅ 알림 버튼 */}
+            <button
+              className="header__right-alert"
+              onClick={() => setShowAlertPanel(true)}
+            >
+              <img src={AlertIcon} alt="alert" />
+            </button>
 
-        {renderTimeSection()}
-      </div>
+            {/* ✅ 테마 토글 */}
+            <div
+              className="header__right-theme-toggle"
+              onClick={handleModeToggle}
+            >
+              <img src={isDarkMode ? DarkIcon : LightIcon} alt="theme" />
+            </div>
+          </div>
 
-      {/* 오른쪽: 알림 + 테마 + 현재 시간 표시 */}
-      <div className="header__right">
-        <div className="header__right-icons">
-          <button className="header__right-alert">
-            <img src={AlertIcon} alt="alert" />
-          </button>
-          <div
-            className="header__right-theme-toggle"
-            onClick={() => setIsDarkMode((prev) => !prev)}
-          >
-            <img src={isDarkMode ? DarkIcon : LightIcon} alt="theme" />
+          {/* ✅ 업데이트 시각 */}
+          <div className="header__update">
+            <div className="header__date">
+              {formatFullDateTime(currentTime)}
+            </div>
+            <div className="header__text">최종 업데이트</div>
           </div>
         </div>
+      </header>
 
-        <div className="header__update">
-          <div className="header__date">{formatFullDateTime(currentTime)}</div>
-          <div className="header__text">최종 업데이트</div>
+      {/*  알림 패널 */}
+      {showAlertPanel && (
+        <div
+          className="alert-panel__overlay"
+          onClick={() => setShowAlertPanel(false)}
+        >
+          <div className="alert-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="alert-panel__header">
+              <h3>알림 목록</h3>
+              <button
+                className="alert-panel__close"
+                onClick={() => setShowAlertPanel(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="alert-panel__content">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div key={i} className="alert-item">
+                  <div className="alert-item__icon">⚠️</div>
+                  <div className="alert-item__text">
+                    <strong>그래프 이름</strong> 에 에러 메시지 요약이
+                    발견되었습니다.
+                    <div className="alert-item__sub">N분 전 · DB명</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    </header>
+      )}
+    </>
   );
 };
 

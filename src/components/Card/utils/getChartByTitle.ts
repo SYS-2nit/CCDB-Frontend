@@ -52,7 +52,7 @@ export const chartData: Record<TabType, string[]> = {
   io: [
     "I/O Performance Dashboard",
     "Physical Reads vs Logical Reads",
-    "Average I/O Wait Time",
+    "Average I/O Wait Time (ms)",
     "데이터파일별 I/O 통계 (Top 5)",
     "Direct Path I/O",
     "Redo Generation Rate",

@@ -23,7 +23,7 @@ interface StackChartProps {
   tooltipFormatter?: (data: TooltipFormatData, index: number) => string;
   yaxisTitle?: string;
   colorRules?: ColorRule[];
-  height?: number;
+  height?: number | string;
 }
 
 const StackChart: React.FC<StackChartProps> = ({
@@ -37,7 +37,7 @@ const StackChart: React.FC<StackChartProps> = ({
     { min: 71, max: 85, color: getCssVar("sematic-warning") },
     { min: 86, max: 100, color: getCssVar("sematic-error") },
   ],
-  height = 170,
+  height = 150,
   yaxisTitle,
 }) => {
   const _labels = labels.slice(0, stackCount);
@@ -52,7 +52,6 @@ const StackChart: React.FC<StackChartProps> = ({
     return rule ? rule.color : getCssVar("gray-300");
   };
 
-  // y값은 비율(percent)로 설정
   const series = [
     {
       name: "Usage",
@@ -76,9 +75,7 @@ const StackChart: React.FC<StackChartProps> = ({
         barHeight: "80%",
       },
     },
-    dataLabels: {
-      enabled: false, // 수치 안 보여주기
-    },
+    dataLabels: { enabled: false },
     xaxis: {
       categories: _labels,
       max: 100,
@@ -95,13 +92,12 @@ const StackChart: React.FC<StackChartProps> = ({
             text: undefined,
             offsetX: 0,
             offsetY: 0,
-            style: { fontSize: "0px" }, // 완전히 숨김
+            style: { fontSize: "0px" },
           },
       labels: {
         style: { colors: "#888", fontSize: "10px" },
       },
     },
-
     yaxis: {
       labels: {
         style: { colors: "#555", fontSize: "10px", fontWeight: 500 },
@@ -131,7 +127,13 @@ const StackChart: React.FC<StackChartProps> = ({
   };
 
   return (
-    <div id="stack-chart" style={{ width: "100%", height: `${height}px` }}>
+    <div
+      id="stack-chart"
+      style={{
+        width: "100%",
+        height: typeof height === "number" ? `${height}px` : height,
+      }}
+    >
       <ReactApexChart
         options={options}
         series={series}

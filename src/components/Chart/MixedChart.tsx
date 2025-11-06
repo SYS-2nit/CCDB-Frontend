@@ -8,6 +8,7 @@ interface MixedChartProps {
   lineData?: number[];
   yaxisLeftTitle?: string;
   yaxisRightTitle?: string;
+  height?: number | string;
 }
 
 const MixedChart: React.FC<MixedChartProps> = ({
@@ -16,6 +17,7 @@ const MixedChart: React.FC<MixedChartProps> = ({
   lineData = [23, 42, 35, 43, 22, 31],
   yaxisLeftTitle = "",
   yaxisRightTitle = "",
+  height = 150,
 }) => {
   const series = [
     {
@@ -87,15 +89,10 @@ const MixedChart: React.FC<MixedChartProps> = ({
           const name = w.config.series?.[seriesIndex]?.name || "";
           return `${name}: ${val?.toLocaleString?.() ?? ""}`;
         },
-        title: {
-          formatter: () => "",
-        },
+        title: { formatter: () => "" },
       },
     },
-
-    legend: {
-      show: false,
-    },
+    legend: { show: false },
     grid: {
       borderColor: "rgba(0,0,0,0.08)",
       strokeDashArray: 3,
@@ -103,11 +100,16 @@ const MixedChart: React.FC<MixedChartProps> = ({
   };
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <div
+      style={{
+        width: "100%",
+        height: typeof height === "number" ? `${height}px` : height, // ✅ 문자열/숫자 모두 지원
+      }}
+    >
       <ReactApexChart
         options={options}
         series={series}
-        height={320}
+        height={height}
         type="line"
       />
     </div>

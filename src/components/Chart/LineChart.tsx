@@ -8,6 +8,7 @@ interface LineChartProps {
   seriesData?: number[][];
   categories?: string[];
   yaxisTitle?: string;
+  height?: number | string;
 }
 
 const LineChart: React.FC<LineChartProps> = ({
@@ -18,6 +19,7 @@ const LineChart: React.FC<LineChartProps> = ({
   ],
   categories = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"],
   yaxisTitle = "",
+  height = 190,
 }) => {
   const colors = [
     "#3B82F6",
@@ -119,7 +121,7 @@ const LineChart: React.FC<LineChartProps> = ({
         options={options}
         series={series}
         type="line"
-        height={190}
+        height={height}
       />
     </div>
   );

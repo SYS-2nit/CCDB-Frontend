@@ -12,6 +12,7 @@ export interface BarChartProps {
   data?: number[];
   colors?: string[];
   horizontal?: boolean;
+  height?: number | string;
 }
 
 const BarChart: React.FC<BarChartProps> = ({
@@ -24,10 +25,16 @@ const BarChart: React.FC<BarChartProps> = ({
   data,
   colors = ["#6366F1", "#22C55E", "#F59E0B", "#E11D48", "#F97316"],
   horizontal = false,
+  height = 150,
 }) => {
   const selectedColors = barCount ? colors.slice(0, barCount) : colors;
+
   const options: ApexOptions = {
-    chart: { type: "bar", toolbar: { show: false }, background: "transparent" },
+    chart: {
+      type: "bar",
+      toolbar: { show: false },
+      background: "transparent",
+    },
     colors: selectedColors,
     plotOptions: {
       bar: {
@@ -75,12 +82,17 @@ const BarChart: React.FC<BarChartProps> = ({
         })) ?? [];
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <div
+      style={{
+        width: "100%",
+        height: typeof height === "number" ? `${height}px` : height,
+      }}
+    >
       <ReactApexChart
         options={options}
         series={series}
         type="bar"
-        height={190}
+        height={height}
       />
     </div>
   );

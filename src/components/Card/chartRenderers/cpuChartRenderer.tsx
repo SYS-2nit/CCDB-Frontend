@@ -30,6 +30,7 @@ export const cpuChartRenderer = (title: string) => {
           { title: "USER CALLS/S", value: "5.2", subtitle: "calls/s" },
         ]}
         columns={7}
+        height={110}
       />
     );
 
@@ -41,6 +42,7 @@ export const cpuChartRenderer = (title: string) => {
           [1.5, 1.6, 1.7, 1.8, 1.9, 2.1],
         ]}
         categories={["00:00", "02:00", "04:00", "06:00", "08:00", "10:00"]}
+        height={140}
       />
     );
 
@@ -50,6 +52,7 @@ export const cpuChartRenderer = (title: string) => {
         legends={["Host_CPU_Util_Pct "]}
         seriesData={[[40, 45, 48, 42, 44, 50, 55]]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+        height={140}
       />
     );
 
@@ -62,6 +65,7 @@ export const cpuChartRenderer = (title: string) => {
           [40, 45, 48, 42, 44, 50, 55],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+        height={140}
       />
     );
 
@@ -74,6 +78,7 @@ export const cpuChartRenderer = (title: string) => {
           [40, 45, 48, 42, 44, 50, 55],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+        height={140}
       />
     );
 
@@ -86,6 +91,7 @@ export const cpuChartRenderer = (title: string) => {
           [25, 28, 35, 42, 47],
         ]}
         categories={["1m", "2m", "3m", "4m", "5m"]}
+        height={140}
       />
     );
 
@@ -105,6 +111,7 @@ export const cpuChartRenderer = (title: string) => {
           [50, 55, 60, 65, 70],
         ]}
         categories={["1m", "2m", "3m", "4m", "5m"]}
+        height={140}
       />
     );
 
@@ -130,5 +137,5 @@ export const cpuChartRenderer = (title: string) => {
     );
 
   /** 기본 */
-  return <LineChart />;
+  return <LineChart height={140} />;
 };

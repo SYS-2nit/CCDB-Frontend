@@ -8,6 +8,7 @@ interface GaugeChartProps {
   subLabel?: string;
   color?: string;
   size?: number;
+  thickness?: number;
 }
 
 const GaugeChart: React.FC<GaugeChartProps> = ({
@@ -16,7 +17,12 @@ const GaugeChart: React.FC<GaugeChartProps> = ({
   subLabel,
   color = "#60A5FA",
   size = 180,
+  thickness = 60,
 }) => {
+  // 두께 비율 계산: 값이 클수록 두꺼움
+  const hollowSize = `${100 - thickness}%`;
+  const strokeWidth = `${thickness}%`;
+
   const options: ApexOptions = {
     chart: {
       type: "radialBar",
@@ -28,7 +34,7 @@ const GaugeChart: React.FC<GaugeChartProps> = ({
         startAngle: -140,
         endAngle: 140,
         hollow: {
-          size: "60%",
+          size: hollowSize,
           background: "#ffffff",
           dropShadow: {
             enabled: true,
@@ -39,15 +45,14 @@ const GaugeChart: React.FC<GaugeChartProps> = ({
         },
         track: {
           background: "#E5E7EB",
-          strokeWidth: "100%",
+          strokeWidth: strokeWidth,
         },
         dataLabels: {
           name: {
             offsetY: 60,
             color: "#6B7280",
-            fontSize: "12px",
+            fontSize: "0px",
             fontWeight: 500,
-            show: !!label,
           },
           value: {
             offsetY: -10,
@@ -95,7 +100,7 @@ const GaugeChart: React.FC<GaugeChartProps> = ({
         height={size}
       />
       {subLabel && (
-        <p style={{ fontSize: 10, color: "#6B7280", marginTop: -8 }}>
+        <p style={{ fontSize: 10, color: "#6B7280", marginTop: -12 }}>
           {subLabel}
         </p>
       )}

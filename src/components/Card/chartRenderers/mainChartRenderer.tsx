@@ -15,7 +15,7 @@ export const mainChartRenderer = (title: string) => {
       { title: "Hard Parses/s", value: 34 },
       { title: "Library Cache Reloads/s", value: 12 },
     ];
-    return <MetricCard metrics={metrics} columns={2} />;
+    return <MetricCard metrics={metrics} height={190} columns={2} />;
   }
 
   if (title.includes("Wait Class 분포 (Sessions)")) {
@@ -98,7 +98,7 @@ export const mainChartRenderer = (title: string) => {
       { title: "CKPT", subtitle: "PID: 1238", icon: SuccessGreenIcon },
       { title: "ARC0", subtitle: "PID: 1239", icon: ErrorRedIcon },
     ];
-    return <MetricCard metrics={backMetrics} columns={3} />;
+    return <MetricCard metrics={backMetrics} columns={3} height={190} />;
   }
 
   if (title.includes("제한 근접 파라미터 상태 (%)"))

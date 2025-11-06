@@ -40,7 +40,7 @@ export const ioChartRenderer = (title: string) => {
         subtitle: "업무시간 급증 경고",
       },
     ];
-    return <MetricCard metrics={metrics} columns={6} />;
+    return <MetricCard metrics={metrics} columns={6} height={110} />;
   }
 
   if (title.includes("Physical Reads vs Logical Reads"))
@@ -58,10 +58,11 @@ export const ioChartRenderer = (title: string) => {
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
         yaxisTitle="Reads/sec"
+        height={140}
       />
     );
 
-  if (title.includes("Average I/O Wait Time"))
+  if (title.includes("Average I/O Wait Time (ms)"))
     return (
       <LineChart
         legends={["avg_wait_time_ms", "95_wait_time_ms"]}
@@ -70,7 +71,7 @@ export const ioChartRenderer = (title: string) => {
           [15, 18, 22, 20, 16, 18, 15],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
-        yaxisTitle="ms"
+        height={140}
       />
     );
 
@@ -112,6 +113,7 @@ export const ioChartRenderer = (title: string) => {
               1
             )}%)`
           }
+          height={130}
         />
       </div>
     );
@@ -130,6 +132,7 @@ export const ioChartRenderer = (title: string) => {
           [1000, 1000, 1000, 1000, 1000, 1000],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+        height={140}
       />
     );
 
@@ -149,6 +152,7 @@ export const ioChartRenderer = (title: string) => {
           [1, 1, 2, 2, 1, 1, 1],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+        height={140}
       />
     );
 
@@ -172,9 +176,10 @@ export const ioChartRenderer = (title: string) => {
           [120, 140, 130, 150, 160, 170],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+        height={140}
       />
     );
 
   // 기본값
-  return <LineChart />;
+  return <LineChart height={140} />;
 };
