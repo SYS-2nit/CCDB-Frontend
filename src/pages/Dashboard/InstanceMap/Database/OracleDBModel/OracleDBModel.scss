@@ -1,0 +1,34 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.db-info-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 5px;
+    padding: 12px 16px;
+    width: 200px;
+    color: $gray-500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    @include text-styles("body01");
+
+  &__title {
+    text-align: center;
+    @include text-styles("heading02");
+  }
+
+  &__divider {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.15);
+    margin: 4px 0 8px 0;
+  }
+
+  p {
+    margin: 4px 0;
+  }
+
+  strong {
+    color: $gray-500;
+    @include text-styles("body01");
+  }
+}

@@ -2,24 +2,21 @@ import React from "react";
 import clsx from "clsx";
 import "./Input.scss";
 
-type InputSize = "sm" | "md" | "lg";
-type InputVariant = "default" | "outlined";
-
 interface InputProps {
   placeholder?: string;
   icon?: string;
-  size?: InputSize;
-  variant?: InputVariant;
+  size?: "sm" | "md" | "lg";
+  variant?: "default" | "outlined";
   disabled?: boolean;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void; // ✅ 키 입력 감지용 추가
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 const Input: React.FC<InputProps> = ({
   placeholder,
   icon,
-  size = "md",
+  size = "sm",
   variant = "default",
   disabled = false,
   value,

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./AlerEventLog.scss";
 import Modal from "@/components/Modal/Modal";
-import AlertTable from "./AlerEventLog/AlertTable";
+import AlertTable from "./AlertTable/AlertTable";
 import FilterIcon from "@/assets/general/filter.svg";
 import DownloadIcon from "@/assets/general/download.svg";
 import Button from "@/components/Button/Button";

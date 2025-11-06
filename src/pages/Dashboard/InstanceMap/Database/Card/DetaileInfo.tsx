@@ -4,7 +4,7 @@ import { OrbitControls, Environment } from "@react-three/drei";
 import { useNavigate } from "react-router-dom";
 import DBStatusCard from "./DBStatusCard";
 import "./DetaileInfo.scss";
-import OracleDBModel from "../3dDatabase";
+import OracleDBModel from "../OracleDBModel/OracleDBModel";
 
 interface InfoItem {
   label: string;
@@ -13,10 +13,10 @@ interface InfoItem {
 
 interface DBInfoPanelProps {
   onBack: () => void;
-  dbInfo?: InfoItem[]; // DB 기본 정보
-  metricsInfo?: InfoItem[]; // Metrics 정보
-  instanceInfo?: InfoItem[]; // Instance 정보
-  resourceInfo?: InfoItem[]; // Resource Map 정보
+  dbInfo?: InfoItem[];
+  metricsInfo?: InfoItem[];
+  instanceInfo?: InfoItem[];
+  resourceInfo?: InfoItem[];
 }
 
 const DBInfoRow: React.FC<InfoItem> = ({ label, value }) => (
@@ -85,10 +85,11 @@ const DBInfoPanel: React.FC<DBInfoPanelProps> = ({
           <ambientLight intensity={0.6} />
           <directionalLight position={[5, 5, 5]} intensity={1.2} />
           <Environment preset="city" />
+          {/* hover 이벤트 제거된 OracleDBModel */}
           <OracleDBModel
             onClick={() => {}}
-            onHover={() => {}}
-            isZoomed={false}
+            isZoomed={true}
+            showInfoCard={false}
           />
           <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.0} />
         </Canvas>
@@ -124,7 +125,7 @@ const DBInfoPanel: React.FC<DBInfoPanelProps> = ({
           </button>
           <button
             className="connect-btn"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/dashboard/instance-list")}
           >
             접속하기
           </button>

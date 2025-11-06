@@ -7,11 +7,7 @@ interface StatusCardProps {
   color?: "safe" | "warning" | "danger" | "critical";
 }
 
-const StatusCard: React.FC<StatusCardProps> = ({
-  label,
-  value,
-  color = "safe",
-}) => {
+const StatusCard: React.FC<StatusCardProps> = ({ label, value, color }) => {
   return (
     <div className={`status-card status-card--${color}`}>
       <div className="status-card__label">{label}</div>

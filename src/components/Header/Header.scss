@@ -1,204 +1,195 @@
-@use "sass:map";
-@use "@/styles/typography" as *;
 @use "@styles/variables" as *;
+@use "@/styles/_typography.scss" as *;
 @use "@styles/mixins" as *;
 
 .header {
   width: 100%;
-  height: 80px;
-  padding: 16px 20px;
+  height: 60px;
+  padding: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--color-bg);
+  background-color: $gray-0;
+  border-bottom: 1px solid $gray-100;
 
-  // 왼쪽, 오른쪽 영역 
-  &__left,
-  &__right,
-  &__status {
+  &__left {
     display: flex;
     align-items: center;
-    height: 80px;
-    color: var(--color-text);
+    gap: 24px;
   }
 
-  &__left,
-  &__right {
-    gap: 20px;
-  }
-
-  // DB 상태 
-  &__status {
+  &__dbinfo {
+    display: flex;
+    align-items: center;
     gap: 10px;
-  }
 
-  // DB 이름 
-  &__title {
-    @include text-styles("heading02");
-  }
-
-  // 시간
-  &__time {
-    &--wrapper {
-      gap: 10px;
-      display: flex;
-      position: relative;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 10px;
-      border-radius: 24px;
-      border: 1px solid $gray-0;
-      overflow: hidden; // 게이지 영역만 흰색 차도록
-    }
-
-    // 게이지 (흰색 부분)
-    &--progress {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      border-radius: 24px;
-      background-color: $gray-0;
-    }
-
-    // 아이콘 (게이지 안 왼쪽)
-    &--icon {
-      position: relative;
+    img {
       width: 24px;
       height: 24px;
     }
+  }
 
-    // 시간 텍스트
-    &--title {
-      position: relative;
-      @include text-styles("label02");
-      color: $gray-500;
+  &__dbtext {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__dbname {
+    @include text-styles("heading04");
+    color: $gray-900;
+  }
+
+  &__env {
+    @include text-styles("label02");
+    color: $gray-400;
+  }
+
+  &__clock {
+    display: flex;
+    align-items: center;
+    padding: 3px;
+    background: $gray-50;
+    @include text-styles("label02");
+    color: $gray-700;
+
+    img {
+      width: 16px;
+      height: 16px;
     }
   }
 
-  // 알림
-  &__alert {
+  &__right {
     display: flex;
     align-items: center;
-    padding: 10px;
-    border-radius: 24px;
-    background-color: $gray-0;
-  }
+    gap: 20px;
 
-  // 라이트 / 다크 모드 
-  &__mode {
-    gap: 5px;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 24px;
-    background-color: $gray-0;
-    cursor: pointer;
-
-    // 각 아이콘 컨테이너
-    & > div {
+    &-icons {
       display: flex;
-      border-radius: 50%;
-      background-color: transparent;
-      transition: background-color 0.2s ease;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
 
-    // 클릭된 상태
-    &--active {
-      background-color: $gray-900 !important;
+      &-alert,
+      &-theme-toggle {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 8px;
+        background: none;
+        cursor: pointer;
+        transition: background 0.2s ease;
 
-      img {
-        filter: brightness(0) invert(1);
-      }
+        img {
+          width: 28px;
+          height: 28px;
+        }
+
+        &:hover {
+          background: $gray-100;
+        }
     }
   }
 
-  // 업데이트 시간
+
   &__update {
     display: flex;
-    align-items: flex-start;
     flex-direction: column;
-    padding: 7px 20px;
-    border-radius: 24px;
-    background-color: $gray-0;
+    align-items: flex-end;
+  }
 
-    .header__date {
+  &__date {
+    @include text-styles("label02");
+    color: $gray-900;
+  }
+
+  &__text {
+    @include text-styles("label02");
+    color: $gray-300;
+  }
+
+  &-time {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    &__info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    &__icon {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      filter: brightness(0) saturate(100%) invert(38%) sepia(85%)
+              saturate(2650%) hue-rotate(217deg) brightness(96%) contrast(95%);
+    }
+
+    &__text {
       @include text-styles("label01");
       color: $gray-900;
     }
 
-    .header__text {
+    &__badge {
       @include text-styles("label02");
-      color: $gray-500;
-    }
-  }
-
-  // Database 전용 테마
-  &--database {
-    // 어두운 배경에 대비되는 흰색 계열 테마
-    background-color: transparent;
-
-    .header__status,
-    .header__title,
-    .header__time--title,
-    .header__update,
-    .header__mode {
+      padding: 2px 6px;
+      border-radius: 3px;
       color: $gray-0;
+      background-color: $main-500;
     }
 
-    .header__update,
-    .header__mode {
-      border: 1px solid $gray-500;
+    /* 게이지 (1분 반복) */
+    &__bar {
+      width: 100%;
+      height: 6px;
+      border-radius: 4px;
+      background: $main-0;
+      overflow: hidden;
     }
 
-    .header__alert {
-      color: $gray-0;
-      background-color: rgba(255, 255, 255, 0.1);
+    &__progress {
+      height: 100%;
+      border-radius: 4px;
+      background: $main-500;
+      transition: width 0.1s linear;
     }
 
-    .header__time--wrapper {
-      border: 1px solid rgba(255, 255, 255, 0.5);
-    }
+    /* 드롭다운 */
+    &__dropdown {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background: $gray-0;
+      border: 1px solid $gray-200;
+      border-radius: 6px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      min-width: 160px;
+      overflow: hidden;
 
-    .header__time--progress {
-      background-color: rgba(255, 255, 255, 0.8);
-    }
+      .header-time__option {
+        padding: 10px 14px;
+        cursor: pointer;
+        @include text-styles("label02");
+        color: $gray-700;
 
-    .header__time--title {
-      color: $gray-500;
-    }
-
-    .header__alert img,
-    .header__mode img {
-      filter: brightness(2);
-    }
-
-    .header__update {
-      background-color: rgba(255, 255, 255, 0.1);
-
-      .header__date {
-        color: $gray-0;
-      }
-
-      .header__text {
-        color: rgba(255, 255, 255, 0.7);
-      }
-    }
-
-    .header__mode {
-      background-color: rgba(255, 255, 255, 0.1);
-
-      &--active {
-        background-color: rgba(255, 255, 255, 0.3) !important;
+        &:hover {
+          background-color: $gray-50;
+          color: $main-600;
+        }
       }
     }
   }
 }
 
-/* 
-* 알림 패널
-*/
 
 .alert-panel__overlay {
   position: fixed;
@@ -222,7 +213,7 @@
 }
 
 .alert-panel {
-  width: 400px;
+  max-width: 480px;
   height: 100%;
   background: $gray-0;
   border-left: 1px solid $gray-200;
@@ -230,8 +221,98 @@
   display: flex;
   flex-direction: column;
   animation: slideInRight 0.3s ease forwards;
+  box-sizing: border-box;
 }
 
+/* 헤더 영역 */
+.alert-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid $gray-200;
+
+  h3 {
+    @include text-styles("heading04");
+    color: $gray-900;
+  }
+
+  .alert-panel__close {
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+    color: $gray-500;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $gray-700;
+    }
+  }
+}
+
+/* 알림 콘텐츠 스크롤 영역 */
+.alert-panel__content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  /* 스크롤바 디자인 */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $gray-200;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: $gray-300;
+  }
+}
+
+/* 개별 알림 아이템 */
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 5px;
+  border-bottom: 1px solid $gray-100;
+  padding: 16px 20px;
+  transition: background 0.2s ease, transform 0.1s ease;
+
+  &:hover {
+    background: $gray-100;
+    transform: translateX(-2px);
+  }
+
+  &__icon {
+    font-size: 16px;
+    margin-top: 2px;
+  }
+
+  &__text {
+    flex: 1;
+    @include text-styles("label02");
+    color: $gray-800;
+
+    strong {
+      color: $gray-900;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+  }
+
+  &__sub {
+    margin-top: 3px;
+    color: $gray-500;
+    font-size: 11px;
+  }
+}
+
+/* 애니메이션 */
 @keyframes slideInRight {
   from {
     transform: translateX(100%);
@@ -240,125 +321,3 @@
     transform: translateX(0);
   }
 }
-
-/* 헤더 영역 */
-.alert-panel__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid $gray-200;
-
-  h3 {
-    @include text-styles("heading03");
-    font-weight: 700;
-    color: $gray-900;
-  }
-
-  .alert-panel__close {
-    background: none;
-    border: none;
-    font-size: 22px;
-    color: $gray-500;
-    cursor: pointer;
-
-    &:hover {
-      color: $gray-900;
-    }
-  }
-}
-
-/* 본문 스크롤 영역 */
-.alert-panel__content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px 20px 20px;
-  scrollbar-width: thin;
-  scrollbar-color: $gray-200 transparent;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: $gray-300;
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
-}
-
-/* 개별 알림 아이템 */
-.alert-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid $gray-100;
-
-  &:hover {
-    background: $gray-50;
-  }
-
-  &__icon {
-    font-size: 20px;
-    line-height: 1;
-  }
-
-  &__text {
-    flex: 1;
-    color: $gray-800;
-    font-size: 14px;
-    line-height: 1.5;
-
-    strong {
-      color: $gray-900;
-      font-weight: 600;
-    }
-
-    .alert-item__sub {
-      margin-top: 4px;
-      font-size: 13px;
-      color: $gray-500;
-    }
-  }
-}
-
-/* 다크모드 지원 */
-.dark {
-  .alert-panel {
-    background: $default-bg;
-    border-left: 1px solid $gray-700;
-
-    .alert-panel__header {
-      border-bottom: 1px solid $gray-700;
-
-      h3 {
-        color: $gray-0;
-      }
-
-      .alert-panel__close {
-        color: $gray-400;
-      }
-    }
-
-    .alert-item {
-      border-bottom: 1px solid $gray-800;
-
-      &:hover {
-        background: $gray-800;
-      }
-
-      &__text {
-        color: $gray-100;
-
-        .alert-item__sub {
-          color: $gray-400;
-        }
-      }
-    }
-  }
-}
-

@@ -1,0 +1,98 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.dashboard {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  &__grid {
+    flex: 1;
+    overflow: hidden;
+
+    /* 메인 탭 (3x3 grid 고정) */
+    &--main {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 1fr;
+      gap: 10px;
+    }
+
+    /* 나머지 탭 (4행 구조) */
+    &--other {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+
+      .dashboard__row {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        height: 25%; /* 4행 균등 분배 */
+      }
+
+      .row-1 {
+        justify-content: space-between;
+        align-items: stretch;
+        .dashboard__status-wrap {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 8px;
+          flex: 1;
+        }
+      }
+
+      .row-2,
+      .row-3 {
+        justify-content: space-between;
+        .chart-card {
+          flex: 1;
+        }
+      }
+
+      .row-4 {
+        justify-content: space-between;
+        .chart-card {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  &--with-setting {
+    .dashboard__content {
+      flex-direction: row;
+    }
+
+    aside.chart-setting {
+      width: 360px;
+      height: 100%;
+      background-color: $gray-0;
+      border-radius: 10px;
+      border: 1px solid $gray-100;
+      overflow: hidden;
+    }
+  }
+}
+
+.status-cards,
+.dashboard__status-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}

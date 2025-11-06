@@ -1,0 +1,165 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+// 차트 추가 정보
+.chart-add-info {
+    width: 90%;
+
+    &-container {
+        gap: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        &-text {
+            gap: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $gray-400;
+            font-size: 10pt;
+
+            &-success {
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+                background: $sematic-success;
+            }
+
+            &-warning {
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+                background: $sematic-warning;
+            }
+            
+            &-error {
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+                background: $sematic-error;
+            }
+        }
+    }
+}
+
+
+
+// memory 탭 관련
+.chart-section {
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+
+  .chart-grid {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .chart-metrics {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    color: $gray-300;
+    @include text-styles("label02");
+  }
+}
+
+// sqa 타일
+.sga-section {
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+
+  .sga-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+
+    .sga-left {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+    }
+
+    .sga-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: center;
+
+      .sga-metric-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        color: #374151;
+        padding: 4px 0;
+        border-bottom: 1px solid #f3f4f6;
+
+        .sga-metric-value {
+          font-weight: 600;
+          color: #111827;
+        }
+
+        .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #22c55e;
+          margin-right: 6px;
+        }
+      }
+    }
+
+    .sga-metric-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        font-size: 13px;
+      
+
+      .sga-metric-title {
+        display: flex;
+       flex-direction: column;
+        align-items: center;
+        color: #374151;
+        font-weight: 600;
+
+        .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #22c55e;
+          margin-right: 6px;
+        }
+
+        .sga-metric-value {
+          color: #111827;
+          font-weight: 600;
+        }
+      }
+
+      .sga-metric-sub {
+        margin-top: 4px;
+        font-size: 12px;
+        color: #6b7280;
+      }
+    }
+  }
+}
+

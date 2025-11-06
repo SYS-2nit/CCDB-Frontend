@@ -20,12 +20,12 @@ const DBStatusCard: React.FC<StatusCardProps> = ({
   const trendSymbol = trend === "up" ? "↑" : trend === "down" ? "↓" : "";
 
   return (
-    <div className="status-card">
-      <span className="status-card__title">{title}</span>
-      <div className="status-card__right">
-        <span className="status-card__value">{value}</span>
+    <div className="database-status-card">
+      <span className="database-status-card__title">{title}</span>
+      <div className="database-status-card__right">
+        <span className="database-status-card__value">{value}</span>
         {subValue && (
-          <span className={`status-card__sub ${trendClass}`}>
+          <span className={`database-status-card__sub ${trendClass}`}>
             {trendSymbol} {subValue}
           </span>
         )}

@@ -27,6 +27,8 @@ export interface FieldItem {
   showRegister?: boolean;
   maxBytes?: number;
   helperText?: string;
+  value?: string | string[] | boolean;
+  onChange?: (label: string, value: string) => void;
 }
 
 interface ModalProps {
@@ -41,6 +43,8 @@ interface ModalProps {
   resetTrigger?: number;
   children?: React.ReactNode;
   size?: "sm" | "md" | "lg";
+  value?: "0";
+  onChange?: (label: string, value: string) => void;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -55,6 +59,7 @@ const Modal: React.FC<ModalProps> = ({
   resetTrigger,
   children,
   size = "md",
+  onChange,
 }) => {
   const [inputs, setInputs] = useState<{
     [key: string]: string | string[] | boolean;
@@ -67,13 +72,15 @@ const Modal: React.FC<ModalProps> = ({
     };
   }, []);
 
-  // resetTrigger 변경 시 모든 입력값 초기화
   useEffect(() => {
     setInputs({});
   }, [resetTrigger]);
 
   const handleChange = (label: string, value: string | string[] | boolean) => {
     setInputs((prev) => ({ ...prev, [label]: value }));
+    if (onChange && typeof value === "string") {
+      onChange(label, value);
+    }
   };
 
   const handleRegister = (label: string) => {
@@ -92,13 +99,13 @@ const Modal: React.FC<ModalProps> = ({
             ✕
           </button>
         </div>
+
         {/* 바디 */}
         <div className="modal__body">
           {fields.map((field, i) => (
             <div className="modal__row" key={i}>
               <div className="modal__row-header">{field.label}</div>
 
-              {/* 테이블 타입 */}
               {field.type === "table" && field.tableHeaders ? (
                 <div className="modal__table-wrapper">
                   <table className="modal__table">
@@ -129,7 +136,7 @@ const Modal: React.FC<ModalProps> = ({
                     </p>
                   )}
 
-                  {/* 입력 유형별 처리 */}
+                  {/* 입력폼 렌더링 */}
                   {(() => {
                     switch (field.type) {
                       case "textarea":
@@ -137,10 +144,18 @@ const Modal: React.FC<ModalProps> = ({
                           <textarea
                             placeholder={field.placeholder}
                             maxLength={field.maxBytes}
-                            value={(inputs[field.label] as string) || ""}
-                            onChange={(e) =>
-                              handleChange(field.label, e.target.value)
+                            value={
+                              (field.value as string) ??
+                              (inputs[field.label] as string) ??
+                              ""
                             }
+                            onChange={(e) => {
+                              if (field.onChange) {
+                                field.onChange(field.label, e.target.value);
+                              } else {
+                                handleChange(field.label, e.target.value);
+                              }
+                            }}
                           />
                         );
                       case "select":
@@ -189,9 +204,7 @@ const Modal: React.FC<ModalProps> = ({
                                   checked={
                                     Array.isArray(inputs[field.label])
                                       ? (
-                                          inputs[
-                                            field.label
-                                          ] as unknown as string[]
+                                          inputs[field.label] as string[]
                                         ).includes(opt)
                                       : false
                                   }
@@ -303,22 +316,9 @@ const Modal: React.FC<ModalProps> = ({
               )}
             </div>
           ))}
-        </div>
 
-        {children ? (
-          <div className="modal__custom-content">
-            {children}
-            <div className="modal__body">
-              {fields.map((field, i) => (
-                <div className="modal__row" key={i}>
-                  <div className="modal__row-header">{field.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <></>
-        )}
+          {children && <div className="modal__custom-content">{children}</div>}
+        </div>
 
         {/* 푸터 */}
         <div className="modal__footer">

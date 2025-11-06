@@ -1,102 +1,98 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
-import { baseChartOptions } from "./baseChartOptions";
 
-interface BarChartProps {
-  barCount?: number; // 막대 개수 (기본 3)
-  categories?: string[]; // X축 항목
-  data?: number[]; // 값 배열
-  xaxisTitle?: string; // X축 제목
-  yaxisTitle?: string; // Y축 제목
-  colors?: string[]; // 막대 색상
+export interface BarChartProps {
+  barCount?: number;
+  legends?: string[];
+  seriesData?: number[][];
+  categories?: string[];
+  yaxisTitle?: string;
+  xaxisTitle?: string;
+  data?: number[];
+  colors?: string[];
+  horizontal?: boolean;
+  height?: number | string;
 }
 
 const BarChart: React.FC<BarChartProps> = ({
-  barCount = 3,
-  categories = ["Idle ≥10m", "Idle ≥30m", "Idle ≥60m"],
-  data = [72, 41, 9],
+  barCount,
+  legends,
+  seriesData,
+  categories,
+  yaxisTitle,
   xaxisTitle,
-  yaxisTitle = "Sessions (count)",
-  colors = ["#E59819"],
+  data,
+  colors = ["#6366F1", "#22C55E", "#F59E0B", "#E11D48", "#F97316"],
+  horizontal = false,
+  height = 150,
 }) => {
-  // 데이터 개수 조정
-  const slicedCategories = categories.slice(0, barCount);
-  const slicedData = data.slice(0, barCount);
-
-  const series = [
-    {
-      name: "Count",
-      data: slicedData,
-    },
-  ];
+  const selectedColors = barCount ? colors.slice(0, barCount) : colors;
 
   const options: ApexOptions = {
-    ...baseChartOptions,
     chart: {
-      ...baseChartOptions.chart,
       type: "bar",
       toolbar: { show: false },
-      animations: { enabled: false },
+      background: "transparent",
     },
-    colors,
+    colors: selectedColors,
     plotOptions: {
       bar: {
-        borderRadius: 3,
-        columnWidth: "40%",
-        distributed: true,
-        dataLabels: { position: "top" },
+        horizontal,
+        columnWidth: "90%",
+        borderRadius: 2,
       },
     },
-    dataLabels: {
-      enabled: true,
-      formatter: (val: number) => val.toString(),
-      style: {
-        fontSize: "12px",
-        colors: ["#333"],
-      },
-    },
+    dataLabels: { enabled: false },
+    stroke: { show: true, width: 2, colors: ["transparent"] },
     xaxis: {
-      categories: slicedCategories,
-      title: xaxisTitle
-        ? {
-            text: xaxisTitle,
-            style: { fontSize: "11px", color: "#555" },
-          }
-        : undefined,
-      labels: {
-        style: { fontSize: "10px", colors: "#666" },
-      },
-      axisBorder: { show: false },
-      axisTicks: { show: false },
+      categories,
+      title: { text: xaxisTitle, style: { fontSize: "11px", color: "#666" } },
+      labels: { style: { fontSize: "11px", colors: "#666" } },
     },
     yaxis: {
-      title: {
-        text: yaxisTitle,
-        style: { fontSize: "11px", color: "#555" },
-      },
-      labels: {
-        style: { fontSize: "10px", colors: "#777" },
-      },
+      title: { text: yaxisTitle, style: { fontSize: "11px", color: "#666" } },
+      labels: { style: { fontSize: "11px", colors: "#777" } },
+    },
+    fill: { opacity: 1 },
+    legend: {
+      position: "bottom",
+      fontSize: "11px",
+      horizontalAlign: "center",
     },
     grid: {
-      borderColor: "#eee",
-      strokeDashArray: 4,
+      borderColor: "rgba(0,0,0,0.1)",
+      strokeDashArray: 3,
+      padding: { top: 5, bottom: 0, right: 10, left: 5 },
     },
     tooltip: {
+      theme: "light",
       y: {
-        formatter: (val: number) => `${val} sessions`,
+        formatter: (val: number) => `${val.toLocaleString()}`,
       },
     },
   };
 
+  const series =
+    data && data.length > 0
+      ? [{ name: "Value", data }]
+      : legends?.map((name, idx) => ({
+          name,
+          data: seriesData ? seriesData[idx] : [],
+        })) ?? [];
+
   return (
-    <div style={{ width: "100%", height: "135px" }}>
+    <div
+      style={{
+        width: "100%",
+        height: typeof height === "number" ? `${height}px` : height,
+      }}
+    >
       <ReactApexChart
         options={options}
         series={series}
         type="bar"
-        height={135}
+        height={height}
       />
     </div>
   );

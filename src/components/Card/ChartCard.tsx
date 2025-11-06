@@ -1,7 +1,7 @@
 import React from "react";
 import "./ChartCard.scss";
 import WarningIcon from "@/assets/general/warning.svg";
-import SuccessIcon from "@/assets/general/success.svg";
+import SuccessGreenIcon from "@/assets/general/succes-green.svg";
 import SettingIcon from "@/assets/general/setting.svg";
 import InfoIcon from "@/assets/general/info.svg";
 import DragIcon from "@/assets/general/drag.svg";
@@ -22,7 +22,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
   showSettingIcon = true,
   showDragIcon = true,
 }) => {
-  const StatusIcon = status === "warning" ? WarningIcon : SuccessIcon;
+  const StatusIcon = status === "warning" ? WarningIcon : SuccessGreenIcon;
 
   return (
     <div className={`chart-card ${status}`}>

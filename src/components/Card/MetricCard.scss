@@ -5,9 +5,8 @@
 
 .metric-grid {
   display: grid;
-  gap: 10px;
   width: 100%;
-  margin-top: 5px;
+  height: 100%;
 }
 
 .metric-card {
@@ -16,18 +15,25 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  border-radius: 10px;
-  border: 1px solid $gray-100;
-  padding: 5px;
+  position: relative;
+  transition: all 0.2s ease;
+  padding: 10px;
+  cursor: pointer;
+
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-3px);
+    
+    .metric-card__subtitle {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
   }
 
   &__title {
-    font-size: 10px;
-    color: $gray-500;
+    color: $gray-400;
+    font-size: 8pt;
   }
 
   &__value {
@@ -35,8 +41,25 @@
     @include text-styles("heading01");
   }
 
+  &__icon {
+    width: 40px; 
+    height: 40px;
+    margin: 2px 0;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
   &__subtitle {
     font-size: 10px;
-    color: $gray-200;
+    color: $gray-400;
+    position: absolute;
+    bottom: 0px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(5px);
+    transition: all 0.2s ease;
   }
 }

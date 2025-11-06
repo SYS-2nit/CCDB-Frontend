@@ -1,36 +1,64 @@
+import { getCssVar } from "@/styles/utils/getCssVar";
 import type { ApexOptions } from "apexcharts";
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 
-interface StackChartProps {
-  stackCount?: number; // 막대 개수 (기본 5)
+interface ColorRule {
+  min: number;
+  max: number;
+  color: string;
 }
 
-const StackChart: React.FC<StackChartProps> = ({ stackCount = 5 }) => {
-  // 예시 데이터
-  const labels = ["SYSTEM", "SYSAUX", "USERS", "UNDO", "TEMP"].slice(
-    0,
-    stackCount
-  );
+interface TooltipFormatData {
+  used: number;
+  total: number;
+  percent: number;
+}
 
-  const usage = [90, 80, 70, 50, 30].slice(0, stackCount); // 사용률(%)
-  const total = [5120, 3072, 10240, 2048, 4096].slice(0, stackCount);
-  const used = usage.map((v, i) => ((v / 100) * total[i]).toFixed(0));
+interface StackChartProps {
+  stackCount?: number;
+  labels?: string[];
+  usage?: number[];
+  total?: number[];
+  tooltipFormatter?: (data: TooltipFormatData, index: number) => string;
+  yaxisTitle?: string;
+  colorRules?: ColorRule[];
+  height?: number | string;
+}
 
-  // 상태별 색상 설정
+const StackChart: React.FC<StackChartProps> = ({
+  stackCount,
+  labels = [],
+  usage = [],
+  total = [],
+  tooltipFormatter,
+  colorRules = [
+    { min: 0, max: 70, color: getCssVar("sematic-success") },
+    { min: 71, max: 85, color: getCssVar("sematic-warning") },
+    { min: 86, max: 100, color: getCssVar("sematic-error") },
+  ],
+  height = 150,
+  yaxisTitle,
+}) => {
+  const _labels = labels.slice(0, stackCount);
+  const _usage = usage.slice(0, stackCount);
+  const _total = total.slice(0, stackCount);
+
+  // 사용률 계산
+  const percents = _usage.map((v, i) => (v / _total[i]) * 100);
+
   const getColor = (percent: number) => {
-    if (percent >= 85) return "#E74C3C"; // 위험
-    if (percent >= 70) return "#F1C40F"; // 주의
-    return "#2ECC71"; // 정상
+    const rule = colorRules.find((r) => percent >= r.min && percent < r.max);
+    return rule ? rule.color : getCssVar("gray-300");
   };
 
   const series = [
     {
       name: "Usage",
-      data: usage.map((percent) => ({
-        x: "",
-        y: percent,
-        fillColor: getColor(percent),
+      data: percents.map((p, i) => ({
+        x: _labels[i],
+        y: p,
+        fillColor: getColor(p),
       })),
     },
   ];
@@ -38,63 +66,79 @@ const StackChart: React.FC<StackChartProps> = ({ stackCount = 5 }) => {
   const options: ApexOptions = {
     chart: {
       type: "bar",
-      stacked: true,
       toolbar: { show: false },
+      background: "transparent",
     },
     plotOptions: {
       bar: {
         horizontal: true,
-        barHeight: "100%",
-        distributed: true,
-        borderRadius: 4,
+        barHeight: "80%",
       },
     },
-    dataLabels: {
-      enabled: true,
-      formatter: (val: number) => `${val.toFixed(0)}%`,
-      style: {
-        fontSize: "13px",
-        fontWeight: 600,
-        colors: ["#fff"],
-      },
-    },
+    dataLabels: { enabled: false },
     xaxis: {
-      categories: labels,
+      categories: _labels,
       max: 100,
+      title: yaxisTitle
+        ? {
+            text: yaxisTitle,
+            style: {
+              color: "#555",
+              fontSize: "11px",
+              fontWeight: 600,
+            },
+          }
+        : {
+            text: undefined,
+            offsetX: 0,
+            offsetY: 0,
+            style: { fontSize: "0px" },
+          },
       labels: {
-        style: { colors: "#999", fontSize: "12px" },
+        style: { colors: "#888", fontSize: "10px" },
       },
     },
     yaxis: {
       labels: {
-        style: { colors: "#333", fontWeight: 600 },
+        style: { colors: "#555", fontSize: "10px", fontWeight: 500 },
       },
     },
+    grid: {
+      borderColor: "rgba(0,0,0,0.05)",
+      strokeDashArray: 3,
+    },
     tooltip: {
+      theme: "light",
       y: {
-        formatter: (
-          _val: number,
-          { dataPointIndex }: { dataPointIndex: number }
-        ) => {
+        formatter: (_, { dataPointIndex }) => {
           const idx = dataPointIndex;
-          const usedMB = Number(used[idx]).toLocaleString();
-          const totalMB = total[idx].toLocaleString();
-          const freeMB = (total[idx] - Number(used[idx])).toLocaleString();
-          return `사용: ${usedMB}MB / 여유: ${freeMB}MB / 총 ${totalMB}MB`;
+          const used = _usage[idx];
+          const totalVal = _total[idx];
+          const percent = (used / totalVal) * 100;
+
+          if (tooltipFormatter) {
+            return tooltipFormatter({ used, total: totalVal, percent }, idx);
+          }
+          return `${used} / ${totalVal} (${percent.toFixed(1)}%)`;
         },
       },
     },
     legend: { show: false },
-    grid: { show: false },
   };
 
   return (
-    <div id="stack-chart" style={{ width: "100%", height: "150px" }}>
+    <div
+      id="stack-chart"
+      style={{
+        width: "100%",
+        height: typeof height === "number" ? `${height}px` : height,
+      }}
+    >
       <ReactApexChart
         options={options}
         series={series}
         type="bar"
-        height={150}
+        height={height}
       />
     </div>
   );
