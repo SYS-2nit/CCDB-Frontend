@@ -114,7 +114,7 @@ const StackChart: React.FC<StackChartProps> = ({
     tooltip: {
       theme: "light",
       y: {
-        formatter: (val, { dataPointIndex }) => {
+        formatter: (_, { dataPointIndex }) => {
           const idx = dataPointIndex;
           const used = _usage[idx];
           const totalVal = _total[idx];
