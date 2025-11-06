@@ -9,6 +9,7 @@ import TrashIcon from "@/assets/general/trash.svg";
 import Input from "@/components/Input/Input";
 import TabMenu from "@/components/Tabs/TabMenu";
 import { useNavigate } from "react-router-dom";
+import SearchIcon from "@/assets/general/search.svg";
 
 interface DBItem {
   status: string;
@@ -287,123 +288,127 @@ const InstanceList: React.FC = () => {
 
   return (
     <div className="instance-list">
-      {/* 헤더 */}
-      <div className="instance-list__header">
-        <TabMenu
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={(tab) => setActiveTab(tab as StatusTab)}
-        />
+      <TabMenu
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(tab) => setActiveTab(tab as StatusTab)}
+      />
 
-        <div className="instance-list__header-right">
+      {/* 검색란 + 생성 버튼 + 테이블 */}
+      <div className="table-chart">
+        {/* 테이블 위 검색란 + 생성 버튼 */}
+        <div className="table-chart__header">
           <Input
             size="sm"
             variant="default"
             placeholder="SID를 입력해주세요."
+            icon={SearchIcon}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Button
-            text="+ 인스턴스 생성"
+            text="+ 생성"
             size="sm"
             variant="primary"
             onClick={() => setIsModalOpen("add")}
           />
         </div>
-      </div>
 
-      {/* 테이블 차트 */}
-      <TableChart
-        size="lg"
-        columns={columns}
-        rows={rows}
-        onClick={() => navigate("/dashboard")}
-      />
-
-      {/* 페이지네이션 */}
-      <Pagination
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
-
-      {/* 수정 모달 */}
-      {isModalOpen === "edit" && (
-        <Modal
-          title="DB 수정"
-          cancelText="테스트"
-          confirmText="저장"
-          onClose={() => {
-            setIsModalOpen(null);
-          }}
-          onConfirm={handleConfirm}
-          onReset={handleTest}
-          fields={[
-            {
-              label: "DB NAME ",
-              placeholder: "DB 이름을 입력해주세요.",
-              type: "textarea",
-              value: inputs.name,
-              onChange: (_, val) =>
-                setInputs((prev) => ({ ...prev, name: val })),
-            },
-            {
-              label: "DB IP ",
-              placeholder: "DB IP를 입력해주세요.",
-              type: "textarea",
-              value: inputs.ip,
-              onChange: (_, val) => setInputs((prev) => ({ ...prev, ip: val })),
-            },
-            {
-              label: "DB PORT ",
-              placeholder: "DB 포트를 입력해주세요.",
-              type: "textarea",
-              value: inputs.port,
-              onChange: (_, val) =>
-                setInputs((prev) => ({ ...prev, port: val })),
-            },
-            {
-              label: "SID ",
-              placeholder: "SID를 입력해주세요.",
-              type: "textarea",
-              value: inputs.sid,
-              onChange: (_, val) =>
-                setInputs((prev) => ({ ...prev, sid: val })),
-            },
-          ]}
-        >
-          {/* 테스트 결과 */}
-          {testResult && (
-            <div className="modal__test-result">
-              {testResult === "success" ? (
-                <div className="success">✅ 테스트 성공</div>
-              ) : (
-                <div className="fail">❌ 테스트 실패: 연결 오류</div>
-              )}
-            </div>
-          )}
-        </Modal>
-      )}
-
-      {/* 인스턴스 생성 모달 */}
-      {isModalOpen === "add" && (
-        <Modal
-          title="인스턴스 생성"
-          cancelText="취소"
-          confirmText="확인"
-          onClose={() => setIsModalOpen(null)}
-          onConfirm={handleAdd}
-          fields={[
-            {
-              label: "SID ",
-              placeholder: "SID를 입력해주세요.",
-              type: "textarea",
-              value: newDB.sid,
-              onChange: (val) => setNewDB({ ...newDB, sid: val as string }),
-            },
-          ]}
+        {/* 테이블 차트 */}
+        <TableChart
+          size="lg"
+          columns={columns}
+          rows={rows}
+          onClick={() => navigate("/dashboard")}
         />
-      )}
+
+        {/* 페이지네이션 */}
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+
+        {/* 수정 모달 */}
+        {isModalOpen === "edit" && (
+          <Modal
+            title="DB 수정"
+            cancelText="테스트"
+            confirmText="저장"
+            onClose={() => {
+              setIsModalOpen(null);
+            }}
+            onConfirm={handleConfirm}
+            onReset={handleTest}
+            fields={[
+              {
+                label: "DB NAME ",
+                placeholder: "DB 이름을 입력해주세요.",
+                type: "textarea",
+                value: inputs.name,
+                onChange: (_, val) =>
+                  setNewDB({ ...newDB, sid: val as string }),
+              },
+              {
+                label: "DB IP ",
+                placeholder: "DB IP를 입력해주세요.",
+                type: "textarea",
+                value: inputs.ip,
+                onChange: (_, val) =>
+                  setInputs((prev) => ({ ...prev, ip: val })),
+              },
+              {
+                label: "DB PORT ",
+                placeholder: "DB 포트를 입력해주세요.",
+                type: "textarea",
+                value: inputs.port,
+                onChange: (_, val) =>
+                  setInputs((prev) => ({ ...prev, port: val })),
+              },
+              {
+                label: "SID ",
+                placeholder: "SID를 입력해주세요.",
+                type: "textarea",
+                value: inputs.sid,
+                onChange: (_, val) =>
+                  setInputs((prev) => ({ ...prev, sid: val })),
+              },
+            ]}
+          >
+            {/* 테스트 결과 */}
+            {testResult && (
+              <div className="modal__test-result">
+                {testResult === "success" ? (
+                  <div className="success">✅ 테스트 성공</div>
+                ) : (
+                  <div className="fail">❌ 테스트 실패: 연결 오류</div>
+                )}
+              </div>
+            )}
+          </Modal>
+        )}
+
+        {/* 인스턴스 생성 모달 */}
+        {isModalOpen === "add" && (
+          <Modal
+            title="인스턴스 생성"
+            cancelText="취소"
+            confirmText="확인"
+            onClose={() => setIsModalOpen(null)}
+            onConfirm={handleAdd}
+            fields={[
+              {
+                label: "SID ",
+                placeholder: "SID를 입력해주세요.",
+                type: "textarea",
+                value: newDB.sid,
+                onChange: (_, val) =>
+                  setNewDB({ ...newDB, sid: val as string }),
+              },
+            ]}
+          />
+        )}
+      </div>
     </div>
   );
 };
