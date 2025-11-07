@@ -2,10 +2,13 @@ import React from "react";
 import "./TableChart.scss";
 
 interface TableChartProps {
-  columns: string[];
+  columns: { key: string; label: string }[];
   rows: React.ReactNode[][];
   size?: "sm" | "md" | "lg";
   onClick?: () => void;
+  sortable?: boolean;
+  sortConfig?: { key: string; direction: "asc" | "desc" } | null;
+  onSort?: (key: string) => void;
 }
 
 const TableChart: React.FC<TableChartProps> = ({
@@ -13,14 +16,38 @@ const TableChart: React.FC<TableChartProps> = ({
   rows,
   size = "sm",
   onClick,
+  sortable = false,
+  sortConfig = null,
+  onSort,
 }) => {
   return (
     <div className={`table-chart__wrapper table-chart__wrapper--${size}`}>
       <table className={`table-chart table-chart--${size}`}>
         <thead>
           <tr>
-            {columns.map((col, idx) => (
-              <th key={idx}>{col}</th>
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                onClick={() => sortable && onSort && onSort(col.key)}
+                className={sortable ? "sortable" : ""}
+              >
+                <div className="table-chart__th-content">
+                  <span>{col.label}</span>
+                  {sortable && (
+                    <span className="table-chart__sort-icon">
+                      {sortConfig?.key === col.key ? (
+                        sortConfig.direction === "asc" ? (
+                          <span>▲</span>
+                        ) : (
+                          <span>▼</span>
+                        )
+                      ) : (
+                        <span className="table-chart__sort-placeholder">▲</span>
+                      )}
+                    </span>
+                  )}
+                </div>
+              </th>
             ))}
           </tr>
         </thead>

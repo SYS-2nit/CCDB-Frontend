@@ -4,15 +4,26 @@
 @use "@styles/mixins" as *;
 
 .status-card-group {
-    gap: 10px;
-    display: flex;
-    align-items: center;
+  gap: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  background-image: 
+  linear-gradient(#2D4054, #17263B), 
+  linear-gradient(90deg, #7F9CB6, #3B5775);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  border-radius: 5px;
 }
 
 .database-status-card {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
+  width: 100%;
   padding: 20px;
   border-radius: 5px;
 

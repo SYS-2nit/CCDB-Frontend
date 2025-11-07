@@ -1,0 +1,158 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.sql-top {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  gap: 10px;
+
+
+  /* 상단 필터 영역 */
+  &__filters {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 24px;
+    background: $gray-0;
+    border-radius: 5px;
+    padding: 10px;
+  }
+
+  &__date-group,
+  &__compare,
+  &__search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: $gray-800;
+      white-space: nowrap;
+    }
+
+    input[type="date"],
+    .input {
+      min-width: 180px;
+      height: 36px;
+      border: 1px solid $gray-200;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: $gray-700;
+      background-color: $gray-0;
+      outline: none;
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        border-color: $main-500;
+      }
+    }
+  }
+
+  /* 상단 요약 차트 */
+  &__summary {
+    .sql-top__chart {
+      width: 100%;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  /* 좌우 테이블 영역 */
+  &__tables {
+    display: flex;
+    justify-content: space-between;
+    overflow: hidden;
+    background: white;
+    border-radius: 5px;
+
+    .sql-top__table-block {
+      flex: 1;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      flex-direction: column;
+
+      h4 {
+        font-size: 14px;
+        font-weight: 700;
+        color: $gray-700;
+        margin-bottom: 10px;
+        text-align: left;
+      }
+
+      .table-chart__wrapper {
+        flex: 1;
+        overflow: hidden;
+      }
+
+      /* rank changed 색상 구분 */
+      td {
+        font-size: 13px;
+
+        /* 상승 */
+        &:has(span:contains("▲")) {
+          color: #ef4444; 
+          font-weight: 600;
+        }
+
+        /* 하락 */
+        &:has(span:contains("▼")) {
+          color: #3b82f6; 
+          font-weight: 600;
+        }
+
+        /* 신규 */
+        &:has(span:contains("new")) {
+          color: #16a34a;
+          font-weight: 600;
+        }
+
+        &:has(span:contains("-")) {
+          color: $gray-500;
+        }
+      }
+
+      /* BarGauge 시각적 정렬 */
+      .bar-gauge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        &__value {
+          min-width: 40px;
+          text-align: right;
+          font-size: 12px;
+          color: $gray-700;
+        }
+
+        &__bar {
+          flex: 1;
+          height: 8px;
+          background: $gray-100;
+          border-radius: 4px;
+          overflow: hidden;
+
+          .bar-gauge__fill {
+            height: 100%;
+            border-radius: 4px;
+          }
+        }
+      }
+    }
+  }
+
+  /* 페이지네이션 */
+  .pagination {
+    margin-top: 16px;
+    align-self: center;
+  }
+}

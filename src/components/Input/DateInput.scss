@@ -5,24 +5,22 @@
 
 .date-input {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex-direction: column;
   gap: 6px;
 
   label {
-    font-size: 13px;
     color: $gray-700;
-    font-weight: 500;
-    white-space: nowrap;
+    @include text-styles("body02");
   }
 
   input {
     border: 1px solid $gray-200;
     border-radius: 3px;
     padding: 6px 10px;
-    font-size: 13px;
     color: $gray-700;
+    @include text-styles("label02");
     background: $gray-0;
-    outline: none;
     transition: border-color 0.2s ease;
 
     &:focus {

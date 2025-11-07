@@ -6,12 +6,12 @@
 .table-chart__wrapper {
   width: 100%;
   overflow-x: auto;
-  overflow-y: auto; 
+  overflow-y: auto;
   background-color: $gray-0;
 
   &--sm {
     max-width: 400px;
-    max-height: 160px; 
+    max-height: 160px;
   }
 
   &--md {
@@ -36,6 +36,27 @@
     font-weight: 600;
     padding: 4px;
     border-bottom: 1px solid $gray-200;
+    user-select: none;
+
+    &.sortable {
+      cursor: pointer;
+
+      &:hover {
+        background-color: $gray-100;
+      }
+    }
+
+    .table-chart__th-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .table-chart__sort-icon {
+      font-size: 10px;
+      color: $gray-500;
+    }
   }
 
   td {
