@@ -9,6 +9,7 @@ import AlertIcon from "@/assets/sidebar/alert.svg";
 import AnalysisIcon from "@/assets/sidebar/analysis.svg";
 import ImprovementIcon from "@/assets/sidebar/improvement.svg";
 import SettingIcon from "@/assets/sidebar/setting.svg";
+import HistoryIcon from "@/assets/sidebar/history.svg";
 import ProfileIcon from "@/assets/sidebar/profile.svg";
 import BottomArrowIcon from "@/assets/general/bottom-arrow.svg";
 import ClickedTopArrowIcon from "@/assets/general/clicked-top-arrow.svg";
@@ -162,6 +163,23 @@ const Sidebar: React.FC = () => {
             onClick={() => setIsCollapsed(false)}
           />
           {!isCollapsed && <span className="sidebar__item--title">개선</span>}
+        </NavLink>
+
+        {/* 히스토리 */}
+        <NavLink
+          to="/history"
+          className={({ isActive }) =>
+            `sidebar__item ${isActive ? "active" : ""}`
+          }
+        >
+          <img
+            src={HistoryIcon}
+            alt="history"
+            onClick={() => setIsCollapsed(false)}
+          />
+          {!isCollapsed && (
+            <span className="sidebar__item--title">히스토리</span>
+          )}
         </NavLink>
       </nav>
 

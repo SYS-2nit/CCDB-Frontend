@@ -5,6 +5,7 @@ import Layout from "./layouts/Layout";
 import Dashboard from "./pages/Dashboard/InstanceMap/Dashboard/Dashboard";
 import Analysis from "./pages/Analysis/Analysis";
 import Improvement from "./pages/Improvement/Improvement";
+import History from "./pages/History/History";
 import Setting from "./pages/Setting/Setting";
 import AlertEventSetting from "./pages/Alert/AlertEventSetting/AlertEventSetting";
 import AlerEventLog from "./pages/Alert/AlerEventLog/AlerEventLog";
@@ -31,6 +32,7 @@ const App: React.FC = () => {
           <Route path="alert/event-log" element={<AlerEventLog />} />
           <Route path="analysis" element={<Analysis />} />
           <Route path="improvement" element={<Improvement />} />
+          <Route path="history" element={<History />} />
           <Route path="setting" element={<Setting />} />
         </Routes>
       </Layout>
