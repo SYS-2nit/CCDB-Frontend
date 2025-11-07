@@ -6,6 +6,7 @@ import Button from "@/components/Button/Button";
 import SearchIcon from "@/assets/general/search.svg";
 import TableChart from "@/components/Chart/TableChart";
 import BarGauge from "@/components/Chart/BarGauge";
+import Pagination from "@/components/Pagination/Pagination";
 
 interface TableData {
   sql: string;
@@ -23,6 +24,8 @@ interface TableData {
 const SqlStat: React.FC = () => {
   const [date, setDate] = useState("");
   const [queryCount, setQueryCount] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = 5;
   const [sortConfig, setSortConfig] = useState<{
     key: keyof TableData;
     direction: "asc" | "desc";
@@ -182,6 +185,13 @@ const SqlStat: React.FC = () => {
           size="lg"
         />
       </div>
+
+      {/* 페이지네이션 */}
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };

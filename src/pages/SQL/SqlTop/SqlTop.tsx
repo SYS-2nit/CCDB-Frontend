@@ -9,6 +9,7 @@ import SearchIcon from "@/assets/general/search.svg";
 import LineChart from "@/components/Chart/LineChart";
 import DateInput from "@/components/Input/DateInput";
 import BarGauge from "@/components/Chart/BarGauge";
+import SqlDetailDrawer from "./Modal/SqlDetailDrawer";
 
 interface RankData {
   rank: number;
@@ -27,7 +28,16 @@ const SqlTop: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 5;
 
-  // 각각 테이블별 정렬 상태 관리
+  // 상세 모달 상태
+  const [selectedRow, setSelectedRow] = useState<RankData | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const handleRowClick = (row: RankData) => {
+    setSelectedRow(row);
+    setIsDrawerOpen(true);
+  };
+
+  // 각각 테이블별 정렬 상태
   const [sortConfigLeft, setSortConfigLeft] = useState<{
     key: keyof RankData;
     direction: "asc" | "desc";
@@ -37,7 +47,7 @@ const SqlTop: React.FC = () => {
     direction: "asc" | "desc";
   } | null>(null);
 
-  // 데이터 (좌측)
+  // 좌측 데이터
   const leftData: RankData[] = [
     {
       rank: 1,
@@ -121,7 +131,7 @@ const SqlTop: React.FC = () => {
     },
   ];
 
-  // 데이터 (우측)
+  // 우측 데이터
   const rightData: RankData[] = [
     {
       rank: 1,
@@ -205,7 +215,6 @@ const SqlTop: React.FC = () => {
     },
   ];
 
-  // 정렬
   const sortData = (
     data: RankData[],
     sortConfig: { key: keyof RankData; direction: "asc" | "desc" } | null
@@ -220,7 +229,6 @@ const SqlTop: React.FC = () => {
     });
   };
 
-  // useMemo로 정렬된 데이터 계산
   const sortedLeftData = useMemo(
     () => sortData(leftData, sortConfigLeft),
     [leftData, sortConfigLeft]
@@ -230,7 +238,6 @@ const SqlTop: React.FC = () => {
     [rightData, sortConfigRight]
   );
 
-  // 컬럼 정의
   const columns = [
     { key: "rank", label: "rank" },
     { key: "rankChanged", label: "rank changed" },
@@ -240,7 +247,6 @@ const SqlTop: React.FC = () => {
     { key: "query", label: "query" },
   ];
 
-  // 행 구성
   const toRows = (data: RankData[]) =>
     data.map((row) => [
       row.rank,
@@ -248,7 +254,9 @@ const SqlTop: React.FC = () => {
       <BarGauge value={row.ratio} max={40} />,
       row.exec,
       row.hash,
-      row.query,
+      <span className="sql-top__query-link" onClick={() => handleRowClick(row)}>
+        {row.query}
+      </span>,
     ]);
 
   return (
@@ -267,13 +275,11 @@ const SqlTop: React.FC = () => {
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
-
           <DateInput
             label="비교"
             value={compareDate}
             onChange={(e) => setCompareDate(e.target.value)}
           />
-
           <Input
             size="sm"
             variant="default"
@@ -381,6 +387,14 @@ const SqlTop: React.FC = () => {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
       />
+
+      {/* 상세 모달 */}
+      {isDrawerOpen && selectedRow && (
+        <SqlDetailDrawer
+          data={selectedRow}
+          onClose={() => setIsDrawerOpen(false)}
+        />
+      )}
     </div>
   );
 };
