@@ -5,18 +5,8 @@
 
 .table-chart__wrapper {
   width: 100%;
-  overflow-x: auto;
-  overflow-y: auto;
   background-color: $gray-0;
-
-  &--sm {
-    max-width: 400px;
-    max-height: 160px;
-  }
-
-  &--md {
-    max-width: 900px;
-  }
+  overflow: hidden; 
 
   &--lg {
     max-width: 100%;
@@ -27,15 +17,20 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
-  text-align: center;
   border: 1px solid $gray-100;
+  text-align: left;
+  table-layout: fixed; 
 
-  th {
+  thead {
     background-color: $gray-50;
-    color: $gray-600;
-    font-weight: 600;
-    padding: 4px;
     border-bottom: 1px solid $gray-200;
+  }
+
+  &__th {
+    font-weight: 600;
+    color: $gray-700;
+    text-align: center;
+    padding: 8px 10px;
     user-select: none;
 
     &.sortable {
@@ -46,27 +41,46 @@
       }
     }
 
-    .table-chart__th-content {
+    &-content {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 6px;
     }
+  }
 
-    .table-chart__sort-icon {
-      font-size: 10px;
-      color: $gray-500;
+  &__row {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: $gray-50;
     }
   }
 
   td {
-    padding: 3px;
+    padding: 8px 10px;
     border-bottom: 1px solid $gray-100;
     color: $gray-800;
-    cursor: pointer;
-  }
+    font-size: 12px;
+    text-align: center;
 
-  tr:last-child td {
-    border-bottom: none;
+    &.numeric {
+      text-align: right;
+    }
+  }
+}
+
+// rank change 색상 정의
+.rank-change {
+  font-weight: 600;
+
+  &.up {
+    color: #dc2626; // red
+  }
+  &.down {
+    color: #2563eb; // blue
+  }
+  &.neutral {
+    color: $gray-500;
   }
 }

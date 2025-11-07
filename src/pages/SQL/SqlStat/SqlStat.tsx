@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useMemo } from "react";
 import "./SqlStat.scss";
 import DateInput from "@/components/Input/DateInput";
@@ -30,6 +29,7 @@ const SqlStat: React.FC = () => {
   } | null>(null);
 
   // 원본 데이터
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const data: TableData[] = [
     {
       sql: "update sys.user$",

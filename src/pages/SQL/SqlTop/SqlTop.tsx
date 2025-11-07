@@ -256,47 +256,38 @@ const SqlTop: React.FC = () => {
       {/* 필터 영역 */}
       <div className="sql-top__header">
         <div className="sql-top__filters">
-          <div className="sql-top__date-group">
-            <label>기간</label>
-            <DateInput
-              label=""
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-            <span>~</span>
-            <DateInput
-              label=""
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-          </div>
+          <DateInput
+            label="기준시간"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+          <span>~</span>
+          <DateInput
+            label=""
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
 
-          <div className="sql-top__compare">
-            <label>비교</label>
-            <DateInput
-              label=""
-              value={compareDate}
-              onChange={(e) => setCompareDate(e.target.value)}
-            />
-          </div>
+          <DateInput
+            label="비교"
+            value={compareDate}
+            onChange={(e) => setCompareDate(e.target.value)}
+          />
 
-          <div className="sql-top__search">
-            <label>조회 건수</label>
-            <Input
-              size="sm"
-              variant="default"
-              placeholder="조회 건수를 입력하세요"
-              icon={SearchIcon}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Button
-              text="검색"
-              size="sm"
-              variant="primary"
-              onClick={() => console.log("검색:", searchTerm)}
-            />
-          </div>
+          <Input
+            size="sm"
+            variant="default"
+            placeholder="조회 건수를 입력하세요"
+            icon={SearchIcon}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Button
+            text="검색"
+            size="sm"
+            variant="primary"
+            onClick={() => console.log("검색:", searchTerm)}
+          />
         </div>
       </div>
 

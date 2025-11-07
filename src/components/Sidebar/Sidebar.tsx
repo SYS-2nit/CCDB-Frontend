@@ -96,14 +96,11 @@ const Sidebar: React.FC = () => {
 
         {openMenu === "sql" && (
           <div className="sidebar__submenu">
-            <NavLink to="/sql/analysis" className="sidebar__subitem">
-              SQL 분석
+            <NavLink to="/sql/stat" className="sidebar__subitem">
+              SQL 통계
             </NavLink>
             <NavLink to="/sql/top" className="sidebar__subitem">
               Top SQL 비교
-            </NavLink>
-            <NavLink to="/sql/stat" className="sidebar__subitem">
-              SQL 통계
             </NavLink>
           </div>
         )}

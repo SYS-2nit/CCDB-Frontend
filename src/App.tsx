@@ -12,7 +12,6 @@ import InstanceList from "./pages/Dashboard/InstanceList/InstanceList";
 import Database from "./pages/Dashboard/InstanceMap/Database/Database";
 import SqlStat from "./pages/SQL/SqlStat/SqlStat";
 import SqlTop from "./pages/SQL/SqlTop/SqlTop";
-import SqlAnalysis from "./pages/SQL/SqlAnalysis/SqlAnalysis";
 
 const App: React.FC = () => {
   return (
@@ -26,7 +25,6 @@ const App: React.FC = () => {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="dashboard/instance-list" element={<InstanceList />} />
           <Route path="dashboard/instance-map" element={<Database />} />
-          <Route path="sql/analysis" element={<SqlAnalysis />} />
           <Route path="sql/top" element={<SqlTop />} />
           <Route path="sql/stat" element={<SqlStat />} />
           <Route path="alert/event-setting" element={<AlertEventSetting />} />
