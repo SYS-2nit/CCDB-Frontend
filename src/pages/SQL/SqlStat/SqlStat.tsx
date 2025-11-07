@@ -184,7 +184,7 @@ const SqlStat: React.FC = () => {
 
       {/* 테이블 영역 */}
       <div className="sql-stat__table">
-        <h3>조회 결과</h3>
+        <div className="sql-stat__table-title">조회 결과</div>
         <TableChart
           columns={columns}
           rows={rows}

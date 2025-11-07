@@ -24,11 +24,10 @@
     border-radius: 5px;
     padding: 10px;
     background-color:  $gray-0;;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
     h3 {
-      font-size: 16px;
-      font-weight: 700;
+      @include text-styles("label02");
+      color: $gray-700;
       margin-bottom: 12px;
     }
 
@@ -36,7 +35,8 @@
       width: 100%;
       border-collapse: collapse;
       text-align: center;
-      font-size: 14px;
+      @include text-styles("label02");
+      color: $gray-700
 
       th,
       td {
@@ -48,7 +48,13 @@
       // 첫번째 행
       th {
         background-color: $gray-50;
-        font-weight: 600;
+        @include text-styles("label02");
+        color: $gray-700
+      }
+
+      &-title {
+        @include text-styles("body02");
+        color: $gray-700
       }
     }
   }
