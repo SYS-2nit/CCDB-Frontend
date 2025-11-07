@@ -60,19 +60,19 @@ const InstanceList: React.FC = () => {
   ]);
 
   const columns = [
-    "상태",
-    "서버명",
-    "IP",
-    "포트",
-    "데이터베이스",
-    "SID",
-    "CPU 사용률",
-    "Session",
-    "Active Session",
-    "Lock Wait",
-    "PGA",
-    "SGA",
-    "작업",
+    { key: "status", label: "상태" },
+    { key: "serverName", label: "서버명" },
+    { key: "ip", label: "IP" },
+    { key: "port", label: "포트" },
+    { key: "database", label: "데이터베이스" },
+    { key: "sid", label: "SID" },
+    { key: "cpuUsage", label: "CPU 사용률" },
+    { key: "session", label: "Session" },
+    { key: "activeSession", label: "Active Session" },
+    { key: "lockWait", label: "Lock Wait" },
+    { key: "pga", label: "PGA" },
+    { key: "sga", label: "SGA" },
+    { key: "task", label: "작업" },
   ];
 
   type StatusTab = "all" | "normal" | "warn" | "danger" | "error";
