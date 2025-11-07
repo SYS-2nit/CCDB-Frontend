@@ -83,8 +83,8 @@
 
   /* Variant */
   &--default {
-    background-color: $gray-0;
-    border: 1px solid $gray-300;
+    background-color: $gray-50;
+    border: 1px solid $gray-100;
 
     &:focus-within {
       border-color: $main-500;

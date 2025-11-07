@@ -1,0 +1,77 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+// 전체 틀
+.sql-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  // 검색 영역
+  &__search {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    padding: 10px;
+    background: $gray-0;
+    border-radius: 5px;
+  }
+
+  // 테이블 영역
+  &__table {
+    border-radius: 5px;
+    padding: 10px;
+    background-color:  $gray-0;;
+
+    h3 {
+      @include text-styles("label02");
+      color: $gray-700;
+      margin-bottom: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      @include text-styles("label02");
+      color: $gray-700
+
+      th,
+      td {
+        border-bottom: 1px solid $gray-100;
+        padding: 10px;
+        
+      }
+
+      // 첫번째 행
+      th {
+        background-color: $gray-50;
+        @include text-styles("label02");
+        color: $gray-700
+      }
+
+      &-title {
+        @include text-styles("body02");
+        color: $gray-700
+      }
+    }
+  }
+
+  // 차트 영역
+  &__chart {
+    padding: 10px;
+  }
+}
+
+.sql-stat__sql-clickable {
+  cursor: pointer;
+  color: $main-600;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+

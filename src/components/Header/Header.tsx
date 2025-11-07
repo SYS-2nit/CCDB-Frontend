@@ -8,7 +8,7 @@ import DarkIcon from "@/assets/header/dark.svg";
 import Select from "../Select/Select";
 
 const Header: React.FC = () => {
-  // ✅ 다크모드 상태 로드 및 초기화
+  // 다크모드 상태 로드 및 초기화
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
@@ -26,10 +26,10 @@ const Header: React.FC = () => {
     }
   });
 
-  // ✅ 알림 패널 상태
+  // 알림 패널 상태
   const [showAlertPanel, setShowAlertPanel] = useState(false);
 
-  // ✅ 테마 전환
+  // 테마 전환
   const handleModeToggle = () => {
     setIsDarkMode((prev) => {
       const newMode = !prev;
@@ -39,7 +39,7 @@ const Header: React.FC = () => {
     });
   };
 
-  // ✅ 시간 관련 상태
+  // 시간 관련 상태
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showDropdown, setShowDropdown] = useState(false);
   const [mode, setMode] = useState<"live" | "range">("live");
@@ -47,7 +47,7 @@ const Header: React.FC = () => {
   const [rangeStart, setRangeStart] = useState<Date | null>(null);
   const [progress, setProgress] = useState(0);
 
-  // ✅ 시간 + 게이지 업데이트
+  // 시간 + 게이지 업데이트
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
@@ -223,7 +223,7 @@ const Header: React.FC = () => {
         {/* 오른쪽: 알림 + 테마 + 현재 시간 */}
         <div className="header__right">
           <div className="header__right-icons">
-            {/* ✅ 알림 버튼 */}
+            {/* 알림 버튼 */}
             <button
               className="header__right-alert"
               onClick={() => setShowAlertPanel(true)}
@@ -231,7 +231,7 @@ const Header: React.FC = () => {
               <img src={AlertIcon} alt="alert" />
             </button>
 
-            {/* ✅ 테마 토글 */}
+            {/* 테마 토글 */}
             <div
               className="header__right-theme-toggle"
               onClick={handleModeToggle}
@@ -240,7 +240,7 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* ✅ 업데이트 시각 */}
+          {/* 업데이트 시각 */}
           <div className="header__update">
             <div className="header__date">
               {formatFullDateTime(currentTime)}
@@ -250,7 +250,7 @@ const Header: React.FC = () => {
         </div>
       </header>
 
-      {/*  알림 패널 */}
+      {/* 알림 패널 */}
       {showAlertPanel && (
         <div
           className="alert-panel__overlay"

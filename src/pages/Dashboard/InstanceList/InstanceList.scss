@@ -6,23 +6,6 @@
 .instance-list {
   width: 100%;
   height: 100%;
-  background: $gray-0;
-  padding: 20px;
-
-  /* 헤더 */
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    /* 상태 필터 그룹 */
-    &-right {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
-  }
 
   /* 상태 점 */
   .status {
@@ -30,7 +13,6 @@
     height: 10px;
     border-radius: 50%;
     display: inline-block;
-    margin-right: 4px;
 
     &--normal {
       background-color: $sematic-success;
@@ -76,7 +58,6 @@
     th {
       background: $gray-50;
       color: $gray-600;
-      font-weight: 600;
       padding: 12px 8px;
       border-bottom: 1px solid $gray-100;
     }
@@ -90,5 +71,21 @@
     tr:hover td {
       background: $main-0;
     }
+  }
+}
+
+
+.table-chart {
+  background: $gray-0;
+  padding: 16px;
+  border-radius: 0px 0px 5px 5px;
+
+  /* 헤더 */
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: $gray-0;
+    margin-bottom: 10px;
   }
 }

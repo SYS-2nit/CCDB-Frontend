@@ -103,7 +103,7 @@ const MixedChart: React.FC<MixedChartProps> = ({
     <div
       style={{
         width: "100%",
-        height: typeof height === "number" ? `${height}px` : height, // ✅ 문자열/숫자 모두 지원
+        height: typeof height === "number" ? `${height}px` : height,
       }}
     >
       <ReactApexChart
