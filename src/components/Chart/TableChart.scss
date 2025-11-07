@@ -6,7 +6,8 @@
 .table-chart__wrapper {
   width: 100%;
   background-color: $gray-0;
-  overflow: hidden; 
+  overflow-x: auto; 
+  overflow-y: hidden;
 
   &--lg {
     max-width: 100%;
@@ -32,6 +33,9 @@
     text-align: center;
     padding: 8px 10px;
     user-select: none;
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
     &.sortable {
       cursor: pointer;
@@ -63,6 +67,9 @@
     color: $gray-800;
     font-size: 12px;
     text-align: center;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
 
     &.numeric {
       text-align: right;
@@ -70,15 +77,15 @@
   }
 }
 
-// rank change 색상 정의
+/* rank change 색상 정의 */
 .rank-change {
   font-weight: 600;
 
   &.up {
-    color: #dc2626; // red
+    color: $sematic-error; 
   }
   &.down {
-    color: #2563eb; // blue
+    color: $main-500;
   }
   &.neutral {
     color: $gray-500;

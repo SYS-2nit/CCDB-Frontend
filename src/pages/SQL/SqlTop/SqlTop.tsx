@@ -26,7 +26,7 @@ const SqlTop: React.FC = () => {
   const [compareDate, setCompareDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 5;
+  const totalPages = 1;
 
   // 상세 모달 상태
   const [selectedRow, setSelectedRow] = useState<RankData | null>(null);
@@ -264,36 +264,40 @@ const SqlTop: React.FC = () => {
       {/* 필터 영역 */}
       <div className="sql-top__header">
         <div className="sql-top__filters">
-          <DateInput
-            label="기준시간"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-          <span>~</span>
-          <DateInput
-            label=""
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
-          <DateInput
-            label="비교"
-            value={compareDate}
-            onChange={(e) => setCompareDate(e.target.value)}
-          />
-          <Input
-            size="sm"
-            variant="default"
-            placeholder="조회 건수를 입력하세요"
-            icon={SearchIcon}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <Button
-            text="검색"
-            size="sm"
-            variant="primary"
-            onClick={() => console.log("검색:", searchTerm)}
-          />
+          <div className="sql-top__filters-left">
+            <DateInput
+              label="기준시간"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <span>~</span>
+            <DateInput
+              label=""
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+            <DateInput
+              label="비교"
+              value={compareDate}
+              onChange={(e) => setCompareDate(e.target.value)}
+            />
+          </div>
+          <div className="sql-top__filters-right">
+            <Input
+              size="sm"
+              variant="default"
+              placeholder="조회 건수를 입력하세요"
+              icon={SearchIcon}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Button
+              text="검색"
+              size="sm"
+              variant="primary"
+              onClick={() => console.log("검색:", searchTerm)}
+            />
+          </div>
         </div>
       </div>
 
@@ -345,7 +349,9 @@ const SqlTop: React.FC = () => {
       {/* 테이블 비교 */}
       <div className="sql-top__tables">
         <div className="sql-top__table-block">
-          <h4>2024/05/16 00:00 ~ 2024/05/16 23:59</h4>
+          <div className="sql-top__table-block-title">
+            2024/05/16 00:00 ~ 2024/05/16 23:59
+          </div>
           <TableChart
             columns={columns}
             rows={toRows(sortedLeftData)}
@@ -358,12 +364,13 @@ const SqlTop: React.FC = () => {
                   : { key: key as keyof RankData, direction: "asc" }
               )
             }
-            size="lg"
           />
         </div>
 
         <div className="sql-top__table-block">
-          <h4>2024/05/09 00:00 ~ 2024/05/09 23:59</h4>
+          <div className="sql-top__table-block-title">
+            2024/05/09 00:00 ~ 2024/05/09 23:59
+          </div>
           <TableChart
             columns={columns}
             rows={toRows(sortedRightData)}
