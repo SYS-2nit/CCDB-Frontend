@@ -9,7 +9,7 @@ import SearchIcon from "@/assets/general/search.svg";
 import LineChart from "@/components/Chart/LineChart";
 import DateInput from "@/components/Input/DateInput";
 import BarGauge from "@/components/Chart/BarGauge";
-import SqlDetailDrawer from "./Modal/SqlDetailDrawer";
+import SqlDetailDrawer from "../Modal/SqlDetailDrawer";
 
 interface RankData {
   rank: number;

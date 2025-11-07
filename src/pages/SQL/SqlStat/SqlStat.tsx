@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useMemo } from "react";
 import "./SqlStat.scss";
 import DateInput from "@/components/Input/DateInput";
@@ -7,6 +8,7 @@ import SearchIcon from "@/assets/general/search.svg";
 import TableChart from "@/components/Chart/TableChart";
 import BarGauge from "@/components/Chart/BarGauge";
 import Pagination from "@/components/Pagination/Pagination";
+import SqlDetailDrawer from "../Modal/SqlDetailDrawer";
 
 interface TableData {
   sql: string;
@@ -25,14 +27,17 @@ const SqlStat: React.FC = () => {
   const [date, setDate] = useState("");
   const [queryCount, setQueryCount] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 5;
+  const totalPages = 1;
   const [sortConfig, setSortConfig] = useState<{
     key: keyof TableData;
     direction: "asc" | "desc";
   } | null>(null);
 
+  // Drawer 상태
+  const [selectedRow, setSelectedRow] = useState<TableData | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   // 원본 데이터
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const data: TableData[] = [
     {
       sql: "update sys.user$",
@@ -131,9 +136,17 @@ const SqlStat: React.FC = () => {
     { key: "parse", label: "Hard Parses" },
   ];
 
-  // 행 구성
+  // 행 구성 + 클릭 이벤트 추가
   const rows = sortedData.map((row) => [
-    <span className="sql-stat__sql-text">{row.sql}</span>,
+    <span
+      className="sql-stat__sql-text sql-stat__sql-clickable"
+      onClick={() => {
+        setSelectedRow(row);
+        setIsDrawerOpen(true);
+      }}
+    >
+      {row.sql}
+    </span>,
     <BarGauge value={row.elapsed} max={2} />,
     <BarGauge value={row.wait} max={2} />,
     <BarGauge value={row.avg} max={2} />,
@@ -192,6 +205,19 @@ const SqlStat: React.FC = () => {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
       />
+
+      {/* SQL 상세 모달 */}
+      {isDrawerOpen && selectedRow && (
+        <SqlDetailDrawer
+          data={{
+            query: selectedRow.sql,
+            rank: 1,
+            ratio: selectedRow.avg,
+            exec: selectedRow.exec,
+          }}
+          onClose={() => setIsDrawerOpen(false)}
+        />
+      )}
     </div>
   );
 };

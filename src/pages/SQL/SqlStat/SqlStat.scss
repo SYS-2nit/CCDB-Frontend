@@ -7,21 +7,22 @@
 .sql-stat {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 
   // 검색 영역
   &__search {
     display: flex;
     align-items: flex-end;
     gap: 20px;
-    padding: 20px;
+    padding: 10px;
     background: $gray-0;
+    border-radius: 5px;
   }
 
   // 테이블 영역
   &__table {
     border-radius: 5px;
-    padding: 20px;
+    padding: 10px;
     background-color:  $gray-0;;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
@@ -41,6 +42,7 @@
       td {
         border-bottom: 1px solid $gray-100;
         padding: 10px;
+        
       }
 
       // 첫번째 행
@@ -56,3 +58,14 @@
     padding: 10px;
   }
 }
+
+.sql-stat__sql-clickable {
+  cursor: pointer;
+  color: $main-600;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
