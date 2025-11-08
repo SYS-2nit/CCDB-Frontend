@@ -19,7 +19,7 @@ const AlerEventLog: React.FC = () => {
           <Input
             size="sm"
             variant="default"
-            placeholder="키워드를 입력해주세요. (예: FRA, Deadlock)"
+            placeholder="키워드를 입력해주세요."
           />
           <Button text="검색" size="sm" variant="primary" />
         </div>

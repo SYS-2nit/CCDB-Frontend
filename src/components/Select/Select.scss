@@ -5,114 +5,112 @@
 
 .custom-select {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  transition: all 0.2s ease;
-  
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
 
-  select {
+  &__label {
+    color: $gray-700;
+    @include text-styles("body02");
+  }
+
+  &__wrapper {
+    position: relative;
     width: 100%;
-    border: none;
-    outline: none;
-    appearance: none;
-    background-color: transparent;
-    cursor: pointer;
-
-    &::placeholder {
-      color: $gray-300;
-    }
-  }
-
-  &__icon {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-  }
-
-  /* 공통 스타일 */
-  &::after {
-    content: "";
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 6px solid $gray-500;
-  }
-
-  /* 크기 */
-  &--sm {
-    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    background-color: $gray-50;
+    border: 1px solid $gray-100;
     border-radius: 3px;
-    @include text-styles("label02");
-  }
-
-  &--md {
-    padding: 12px 16px;
-    border-radius: 5px;
-    @include text-styles("body02");
-  }
-
-  &--md {
-    padding: 12px 16px;
-    border-radius: 5px;
-    @include text-styles("body02");
+    transition: border-color 0.2s ease;
 
     select {
-      padding-right: 20px; // label과 icon 사이 너비
-      color: $gray-500; 
+      width: 100%;
+      padding: 0px 40px 0px 10px; 
+      border: none;
+      outline: none;
+      background: transparent;
+      color: $gray-700;
+      appearance: none;
+      cursor: pointer;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    /* Size */
+    &--sm {
+      padding: 10px 0px;
+      border-radius: 3px;
+    }
+
+    &--md {
+      padding: 12px 16px;
+      border-radius: 5px;
+    }
+
+    &--lg {
+      padding: 16px 20px;
+      border-radius: 8px;
+    }
+
+    &--default {
+      background-color: $gray-50;
+      border: 1px solid $gray-100;
+
+      &:focus-within {
+        border-color: $main-500;
+      }
+    }
+
+    &--outlined {
+      background-color: $gray-0;
+      border: 1px solid $gray-700;
+
+      &:focus-within {
+        border-color: $main-500;
+      }
+    }
+
+    /* 사이즈 */
+    &--sm {
+      border-radius: 3px;
+      @include text-styles("label02");
+    }
+
+    &--md {
+      border-radius: 5px;
       @include text-styles("body02");
     }
-  }
 
-  &--lg {
-    padding: 12px 16px;
-    width: 100%;
-    border-radius: 5px;
-    @include text-styles("heading04");
-
-    select {
+    &--lg {
+      border-radius: 8px;
       @include text-styles("heading04");
     }
-  }
 
-  /* Variant */
-  &--default {
-    background-color: $gray-50;
-    border: 1px solid $gray-100;
-
-    &:focus-within {
-      border-color: $main-500;
+    /* 화살표 */
+    .custom-select__arrow {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid $gray-500;
     }
-  }
 
-  &--outlined {
-    background-color: $gray-0;
-    border: 1px solid $gray-700;
-  }
-
-  /* 비활성화 */
-  &.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-
-    select {
+    /* 비활성화 */
+    &.disabled {
+      opacity: 0.6;
       cursor: not-allowed;
+
+      select {
+        cursor: not-allowed;
+      }
     }
-  }
-
-  &--bg-default {
-    background-color: $gray-0;
-    border: 1px solid $gray-100;
-  }
-
-    &--bg-alt {
-    background-color: $gray-50;
-    border: 1px solid $card-bg;
   }
 }

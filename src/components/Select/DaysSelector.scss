@@ -4,19 +4,16 @@
 
 .days-selector {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 5px;
 
   button {
-    flex: 1;
-    border: 1px solid $gray-300;
-    border-radius: 6px;
-    padding: 10px 0;
+    display: flex;
+    border: 1px solid $gray-100;
+    border-radius: 3px;
+    padding: 12px 16px;
     cursor: pointer;
-    background: $gray-0;
-    color: $gray-700;
-    font-weight: 500;
-    transition: all 0.15s ease;
+    background: $gray-50;
+    color: $gray-500;
 
     &:hover {
       border-color: $main-400;

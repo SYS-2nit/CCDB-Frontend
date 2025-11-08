@@ -1,7 +1,6 @@
 import TabMenu from "@/components/Tabs/TabMenu";
 import React, { useState, useEffect } from "react";
 import "./AlertEventSetting.scss";
-import ReceiveIcon from "@/assets/general/receive.svg";
 import Modal, { type FieldItem } from "@/components/Modal/Modal";
 import Button from "@/components/Button/Button";
 import Switch from "@/components/Toggle/Switch";
@@ -170,16 +169,8 @@ const AlertEventSetting: React.FC = () => {
   return (
     <div className="alert-setting">
       {/* 상단 탭 */}
-      <div className="alert-setting__header">
-        <TabMenu tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
-        <Button
-          text="수신설정"
-          size="sm"
-          variant="white"
-          icon={ReceiveIcon}
-          onClick={() => setIsReceiveModal(true)}
-        />
-      </div>
+
+      <TabMenu tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* 기본 탭 */}
       {activeTab === "1" && (
