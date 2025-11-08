@@ -42,15 +42,24 @@ const History: React.FC = () => {
     const end =
       type === "end" ? value : filters.find((f) => f.key === "end")?.value;
 
-    if (start && end && duration) {
+    if (start && end) {
       const startDate = new Date(start);
       const endDate = new Date(end);
-      const diffDays =
-        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
 
-      if (["1분", "10분", "1시간"].includes(duration) && diffDays >= 1) {
-        alert("1분, 10분, 1시간 단위는 하루치 안에서만 조회가 가능합니다.");
-        return; // 변경 취소
+      // 종료일이 시작일보다 빠르거나 같을 경우
+      if (endDate.getTime() < startDate.getTime()) {
+        alert("종료일은 시작일보다 이후 날짜여야 합니다.");
+        return;
+      }
+
+      // 1분, 10분, 1시간 단위는 하루치 안에서만 가능
+      if (duration) {
+        const diffDays =
+          (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+        if (["1분", "10분", "1시간"].includes(duration) && diffDays >= 1) {
+          alert("1분, 10분, 1시간 단위는 하루치 안에서만 조회가 가능합니다.");
+          return;
+        }
       }
     }
 
