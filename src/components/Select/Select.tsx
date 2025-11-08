@@ -3,6 +3,7 @@ import clsx from "clsx";
 import "./Select.scss";
 
 interface SelectProps {
+  placeholder?: string;
   label?: string;
   icon?: string;
   size?: "sm" | "md" | "lg";
@@ -15,6 +16,7 @@ interface SelectProps {
 }
 
 const Select: React.FC<SelectProps> = ({
+  placeholder,
   label,
   icon,
   size = "sm",
@@ -39,13 +41,26 @@ const Select: React.FC<SelectProps> = ({
         )}
       >
         {icon && <img src={icon} alt="icon" className="custom-select__icon" />}
-        <select value={value} onChange={onChange} disabled={disabled}>
+
+        <select
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          className="custom-select__element"
+        >
+          {placeholder && (
+            <option value="" disabled hidden>
+              {placeholder}
+            </option>
+          )}
+
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
           ))}
         </select>
+
         <span className="custom-select__arrow" />
       </div>
     </div>

@@ -84,10 +84,10 @@ const History: React.FC = () => {
         <div className="history__filter-row">
           <Select
             label="기간"
+            placeholder="선택해주세요."
             value={filters.find((f) => f.key === "duration")?.value || ""}
             onChange={(e) => handleDurationChange(e.target.value)}
             options={[
-              { label: "선택해주세요.", value: "" },
               { label: "1분", value: "1분" },
               { label: "10분", value: "10분" },
               { label: "1시간", value: "1시간" },
@@ -108,12 +108,12 @@ const History: React.FC = () => {
 
           <Select
             label="카테고리"
+            placeholder="선택해주세요."
             value={filters.find((f) => f.key === "category")?.value || ""}
             onChange={(e) =>
               updateFilter("category", "카테고리", e.target.value)
             }
             options={[
-              { label: "선택해주세요.", value: "" },
               { label: "CPU", value: "CPU" },
               { label: "Memory", value: "Memory" },
               { label: "Session", value: "Session" },
@@ -123,10 +123,10 @@ const History: React.FC = () => {
 
           <Select
             label="그래프"
+            placeholder="선택해주세요."
             value={filters.find((f) => f.key === "graph")?.value || ""}
             onChange={(e) => updateFilter("graph", "그래프", e.target.value)}
             options={[
-              { label: "선택해주세요.", value: "" },
               { label: "Elapsed", value: "Elapsed" },
               { label: "Wait", value: "Wait" },
               { label: "Usage", value: "Usage" },
