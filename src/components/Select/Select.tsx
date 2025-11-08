@@ -3,7 +3,7 @@ import clsx from "clsx";
 import "./Select.scss";
 
 interface SelectProps {
-  placeholder?: string;
+  label?: string;
   icon?: string;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "outlined";
@@ -15,9 +15,9 @@ interface SelectProps {
 }
 
 const Select: React.FC<SelectProps> = ({
-  placeholder,
+  label,
   icon,
-  size = "md",
+  size = "sm",
   variant = "default",
   disabled = false,
   value,
@@ -26,28 +26,28 @@ const Select: React.FC<SelectProps> = ({
   onChange,
 }) => {
   return (
-    <div
-      className={clsx(
-        "custom-select",
-        `custom-select--${size}`,
-        `custom-select--${variant}`,
-        `custom-select--bg-${bgColor}`,
-        { disabled }
-      )}
-    >
-      {icon && <img src={icon} alt="icon" className="custom-select__icon" />}
-      <select value={value} onChange={onChange} disabled={disabled}>
-        {placeholder && (
-          <option value="" disabled hidden>
-            {placeholder}
-          </option>
+    <div className="custom-select">
+      {label && <label className="custom-select__label">{label}</label>}
+
+      <div
+        className={clsx(
+          "custom-select__wrapper",
+          `custom-select__wrapper--${size}`,
+          `custom-select__wrapper--${variant}`,
+          `custom-select__wrapper--bg-${bgColor}`,
+          { disabled }
         )}
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      >
+        {icon && <img src={icon} alt="icon" className="custom-select__icon" />}
+        <select value={value} onChange={onChange} disabled={disabled}>
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <span className="custom-select__arrow" />
+      </div>
     </div>
   );
 };

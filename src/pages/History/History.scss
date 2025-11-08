@@ -1,0 +1,64 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  /* 필터 영역 */
+  &__filters {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    align-items: end;
+    background-color: $gray-0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid $gray-100;
+  }
+
+  /* 조건 버튼 */
+  &__conditions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* 차트 카드 영역 */
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  /* 개별 카드 */
+  &__card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid $gray-100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    &-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      color: $gray-800;
+    }
+  }
+}

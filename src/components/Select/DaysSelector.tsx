@@ -6,6 +6,7 @@ interface DaysSelectorProps {
   onToggle: (day: string) => void;
 }
 
+// 요일 선택
 const DaysSelector: React.FC<DaysSelectorProps> = ({
   selectedDays,
   onToggle,

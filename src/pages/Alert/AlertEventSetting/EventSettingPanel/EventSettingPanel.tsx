@@ -9,6 +9,7 @@ import TimeInput from "@/components/Input/TimeInput";
 import RangeSliderGroup from "@/components/Slider/RangeSliderGroup";
 import type { TabType } from "@/pages/Dashboard/InstanceMap/Dashboard/Dashboard";
 import Dashboard from "@/pages/Dashboard/InstanceMap/Dashboard/Dashboard";
+import ReceiveIcon from "@/assets/general/receive.svg";
 
 interface EventSettingPanelProps {
   title: string;
@@ -79,8 +80,8 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [targetIndex, setTargetIndex] = useState<number | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
-  const [selectedResourceTab, setSelectedResourceTab] =
-    useState<TabType>("main");
+  const [selectedResourceTab] = useState<TabType>("main");
+  const [isReceiveModal, setIsReceiveModal] = useState(false);
 
   const handleAdd = () => {
     const currentForm = inputForms[0];
@@ -165,13 +166,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     );
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSave();
-    }
-  };
-
   const handleConfirmDelete = () => {
     if (targetIndex !== null) {
       setCreatedCards((prev) => prev.filter((_, i) => i !== targetIndex));
@@ -195,33 +189,22 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     );
   };
 
-  // 자원 값 → TabType 매핑 함수
-  const mapResourceToTab = (value: string): TabType => {
-    switch (value) {
-      case "cpu":
-        return "cpu";
-      case "memory":
-        return "memory";
-      case "session":
-        return "session";
-      case "io":
-        return "io";
-      case "storage":
-        return "storage";
-      default:
-        return "main";
-    }
-  };
-
   return (
     <div className="event-panel">
-      <div className="event-panel-header">
-        <label>정책 설정</label>
+      {/* 정책 설정 헤더 + 수신 설정 버튼 한 줄 */}
+      <div className="event-panel-header-row">
+        <label className="event-panel-header__title">정책 설정</label>
+        <Button
+          text="수신 설정"
+          size="sm"
+          variant="white"
+          icon={ReceiveIcon}
+          onClick={() => setIsReceiveModal(true)}
+        />
       </div>
 
       {isOpen && (
         <div className="event-panel__content">
-          {/* 기본 정책 설정 화면 */}
           {mode === "default" && (
             <>
               {!isInitial && (
@@ -247,24 +230,16 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                 <div key={event.id} className="event-card">
                   {/* 정책 이름 */}
                   <div className="event-panel__row">
-                    <div className="field">
-                      <label>정책 이름</label>
-                      <Input
-                        placeholder="정책 이름을 입력하세요"
-                        size="lg"
-                        variant="default"
-                        value={policyName}
-                        onChange={(e) => setPolicyName(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                      />
-                    </div>
-                  </div>
-
-                  {/* 두 번째 줄 */}
-                  <div className="event-panel__row">
+                    <Input
+                      label="정책 이름"
+                      placeholder="정책 이름을 입력해주세요."
+                      size="sm"
+                      variant="default"
+                      value={policyName}
+                      onChange={(e) => setPolicyName(e.target.value)}
+                    />
                     <Select
-                      placeholder="누적 횟수"
-                      size="lg"
+                      size="sm"
                       value={event.frequency}
                       options={[
                         { label: "매번", value: "매번" },
@@ -282,48 +257,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                         )
                       }
                     />
-                    <Select
-                      size="lg"
-                      placeholder="이벤트를 선택해주세요"
-                      value={event.eventType}
-                      options={[
-                        { label: "선택하세요", value: "0" },
-                        { label: "이벤트 1", value: "1" },
-                        { label: "이벤트 2", value: "2" },
-                        { label: "이벤트 3", value: "3" },
-                      ]}
-                      onChange={(e) =>
-                        setInputForms((prev) =>
-                          prev.map((ev, i) =>
-                            i === index
-                              ? { ...ev, eventType: e.target.value }
-                              : ev
-                          )
-                        )
-                      }
-                    />
-                    <Select
-                      size="lg"
-                      placeholder="자원을 선택해주세요"
-                      value={event.resource}
-                      options={[
-                        { label: "선택하세요", value: "0" },
-                        { label: "CPU", value: "cpu" },
-                        { label: "Memory", value: "memory" },
-                        { label: "Session", value: "session" },
-                        { label: "I/O", value: "io" },
-                        { label: "Storage", value: "storage" },
-                      ]}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setInputForms((prev) =>
-                          prev.map((ev, i) =>
-                            i === index ? { ...ev, resource: value } : ev
-                          )
-                        );
-                        setSelectedResourceTab(mapResourceToTab(value));
-                      }}
-                    />
                   </div>
 
                   {/* 요일 + 시간 */}
@@ -335,7 +268,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                         onToggle={(day) => toggleDay(index, day)}
                       />
                     </div>
-
                     <TimeInput
                       label="시작 시간"
                       value={event.startTime}
@@ -364,7 +296,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                     />
                   </div>
 
-                  {/* 슬라이더 */}
                   <div className="event-panel__row slider-row">
                     <RangeSliderGroup
                       levels={event.levels}
@@ -409,6 +340,42 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                     "이벤트를 삭제하면 더 이상 해당 알림을 받을 수 없습니다.\n정말 삭제하시겠습니까?",
                 },
               ]}
+            />
+          )}
+
+          {/* 수신 설정 모달 */}
+          {isReceiveModal && (
+            <Modal
+              title="수신 설정"
+              cancelText="테스트"
+              confirmText="저장"
+              onClose={() => setIsReceiveModal(false)}
+              onConfirm={() => setIsReceiveModal(false)}
+              fields={[
+                {
+                  label: "Slack",
+                  type: "textarea",
+                  placeholder: "https://hooks.slack.com/services/...",
+                },
+                {
+                  label: "Email",
+                  type: "textarea",
+                  placeholder: "example@company.com",
+                },
+                {
+                  label: "Critical",
+                  type: "select",
+                  placeholder: "주요 알림 채널을 선택해주세요.",
+                  options: ["Slack", "Email"],
+                },
+                {
+                  label: "Warning",
+                  type: "select",
+                  placeholder: "주요 알림 채널을 선택해주세요.",
+                  options: ["Slack", "Email"],
+                },
+              ]}
+              theme="light"
             />
           )}
 

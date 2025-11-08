@@ -10,6 +10,7 @@ import LineChart from "@/components/Chart/LineChart";
 import DateInput from "@/components/Input/DateInput";
 import BarGauge from "@/components/Chart/BarGauge";
 import SqlDetailDrawer from "../Modal/SqlDetailDrawer";
+import Select from "@/components/Select/Select";
 
 interface RankData {
   rank: number;
@@ -22,7 +23,6 @@ interface RankData {
 
 const SqlTop: React.FC = () => {
   const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [compareDate, setCompareDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -264,29 +264,37 @@ const SqlTop: React.FC = () => {
       {/* 필터 영역 */}
       <div className="sql-top__header">
         <div className="sql-top__filters">
+          {/* 왼쪽 (기준 닐짜 + 비교 날짜 + ) */}
           <div className="sql-top__filters-left">
             <DateInput
-              label="기준시간"
+              label="기준 날짜"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
-            <span>~</span>
             <DateInput
-              label=""
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-            <DateInput
-              label="비교"
+              label="비교 날짜"
               value={compareDate}
               onChange={(e) => setCompareDate(e.target.value)}
+            />
+            <Select
+              label="필터"
+              options={[
+                { label: "선택해주세요", value: "0" },
+                { label: "Elapsed Time", value: "1" },
+                { label: "Wait Time", value: "2" },
+                { label: "Avg Elapsed Time", value: "3" },
+                { label: "Execute Count", value: "4" },
+                { label: "Logical Reads", value: "5" },
+                { label: "Physical Reads", value: "6" },
+                { label: "Block Changes", value: "7" },
+              ]}
             />
           </div>
           <div className="sql-top__filters-right">
             <Input
               size="sm"
               variant="default"
-              placeholder="조회 건수를 입력하세요"
+              placeholder="조회 건수를 입력해주세요."
               icon={SearchIcon}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -295,7 +303,7 @@ const SqlTop: React.FC = () => {
               text="검색"
               size="sm"
               variant="primary"
-              onClick={() => console.log("검색:", searchTerm)}
+              onClick={() => alert("검색 버튼을 클릭하였습니다.")}
             />
           </div>
         </div>

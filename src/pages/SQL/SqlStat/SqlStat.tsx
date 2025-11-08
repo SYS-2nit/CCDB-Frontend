@@ -9,6 +9,8 @@ import TableChart from "@/components/Chart/TableChart";
 import BarGauge from "@/components/Chart/BarGauge";
 import Pagination from "@/components/Pagination/Pagination";
 import SqlDetailDrawer from "../Modal/SqlDetailDrawer";
+import LineChart from "@/components/Chart/LineChart";
+import Select from "@/components/Select/Select";
 
 interface TableData {
   sql: string;
@@ -162,24 +164,84 @@ const SqlStat: React.FC = () => {
     <div className="sql-stat">
       {/* 검색 영역 */}
       <div className="sql-stat__search">
-        <DateInput
-          label="기간"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-        <Input
-          label="조회 검색"
-          icon={SearchIcon}
-          placeholder="조회 건수를 입력해주세요."
-          value={queryCount}
-          onChange={(e) => setQueryCount(e.target.value)}
-        />
-        <Button
-          text="검색"
-          size="sm"
-          variant="primary"
-          onClick={() => console.log("검색")}
-        />
+        {/* 왼쪽 (기간 + 필터) */}
+        <div className="sql-stat__search-left">
+          <DateInput
+            label="기준 날짜"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+          <Select
+            label="필터"
+            options={[
+              { label: "선택해주세요", value: "0" },
+              { label: "Elapsed Time", value: "1" },
+              { label: "Wait Time", value: "2" },
+              { label: "Avg Elapsed Time", value: "3" },
+              { label: "Execute Count", value: "4" },
+              { label: "Logical Reads", value: "5" },
+              { label: "Physical Reads", value: "6" },
+              { label: "Block Changes", value: "7" },
+            ]}
+          />
+        </div>
+
+        {/* 오른쪽 (검색 + 버튼) */}
+        <div className="sql-stat__search-right">
+          <Input
+            icon={SearchIcon}
+            placeholder="조회 건수를 입력해주세요."
+            value={queryCount}
+            onChange={(e) => setQueryCount(e.target.value)}
+          />
+          <Button
+            text="검색"
+            size="sm"
+            variant="primary"
+            onClick={() => console.log("검색")}
+          />
+        </div>
+      </div>
+
+      {/* Summary Chart */}
+      <div className="sql-top__summary">
+        <div className="sql-top__chart">
+          <LineChart
+            legends={["기준 날짜"]}
+            seriesData={[
+              [
+                8, 10, 12, 11, 9, 10, 8, 9, 11, 13, 12, 10, 9, 10, 11, 12, 13,
+                12, 11, 9, 8, 10, 9, 11,
+              ],
+            ]}
+            categories={[
+              "00:00",
+              "01:00",
+              "02:00",
+              "03:00",
+              "04:00",
+              "05:00",
+              "06:00",
+              "07:00",
+              "08:00",
+              "09:00",
+              "10:00",
+              "11:00",
+              "12:00",
+              "13:00",
+              "14:00",
+              "15:00",
+              "16:00",
+              "17:00",
+              "18:00",
+              "19:00",
+              "20:00",
+              "21:00",
+              "22:00",
+              "23:00",
+            ]}
+          />
+        </div>
       </div>
 
       {/* 테이블 영역 */}
@@ -199,13 +261,6 @@ const SqlStat: React.FC = () => {
         />
       </div>
 
-      {/* 페이지네이션 */}
-      <Pagination
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
-
       {/* SQL 상세 모달 */}
       {isDrawerOpen && selectedRow && (
         <SqlDetailDrawer
@@ -218,6 +273,13 @@ const SqlStat: React.FC = () => {
           onClose={() => setIsDrawerOpen(false)}
         />
       )}
+
+      {/* 페이지네이션 */}
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };

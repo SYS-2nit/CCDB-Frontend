@@ -13,16 +13,30 @@
   &__search {
     display: flex;
     align-items: flex-end;
-    gap: 20px;
-    padding: 10px;
+    justify-content: space-between;
+    padding: 20px;
     background: $gray-0;
     border-radius: 5px;
+
+    &-left {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    &-right {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 10px;
+    }
   }
 
   // 테이블 영역
   &__table {
     border-radius: 5px;
-    padding: 10px;
+    padding: 20px;
     background-color:  $gray-0;;
 
     h3 {
@@ -58,17 +72,11 @@
       }
     }
   }
-
-  // 차트 영역
-  &__chart {
-    padding: 10px;
-  }
 }
 
 .sql-stat__sql-clickable {
   cursor: pointer;
   color: $main-600;
-  font-weight: 600;
 
   &:hover {
     text-decoration: underline;
