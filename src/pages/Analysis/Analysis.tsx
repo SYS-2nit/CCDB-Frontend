@@ -71,15 +71,21 @@ const Analysis: React.FC = () => {
   const start = async () => {
     const chosen = scenarios.filter((s) => selected[s.id]).map((s) => s.id);
     if (chosen.length === 0) {
-      toast.show("진단을 1개 이상 선택하세요.", "error");
+      alert("진단을 1개 이상 선택하세요.");
       return;
     }
+
+    if (chosen.length > 1) {
+      alert("진단은 한 번에 1개만 선택할 수 있습니다.");
+      return;
+    }
+
     setBusy(true);
     try {
       await scenarioApi.run({ scenarioIds: chosen, durationSec: duration });
-      toast.show("진단을 시작했습니다.", "success");
+      alert("진단을 시작합니다");
     } catch (e) {
-      toast.show(`진단 시작 실패: ${e}`, "error");
+      alert(`진단을 시작하는 데 실패하였습니다.: ${e}`);
     } finally {
       setBusy(false);
     }
@@ -99,23 +105,7 @@ const Analysis: React.FC = () => {
 
   return (
     <div className="scenario-page">
-      <div className="scenario-page__header">
-        <h2>진단</h2>
-      </div>
-
-      <div className="scenario-page__list">
-        {scenarios.map((s) => (
-          <ScenarioListItem
-            key={s.id}
-            meta={s}
-            checked={!!selected[s.id]}
-            onToggle={() => toggle(s.id)}
-            onOpenDetail={() => setDetail(s)}
-            running={running && status.current === s.id}
-          />
-        ))}
-      </div>
-
+      {/* 필터 (추가 설정 select + 진행 button) */}
       <ScenarioControls
         durations={DURATIONS}
         value={duration}
@@ -127,7 +117,23 @@ const Analysis: React.FC = () => {
         busy={busy}
       />
 
+      {/* 결과 */}
       <ScenarioDetailDrawer meta={detail} onClose={() => setDetail(null)} />
+
+      {/* 진단 목록 */}
+      <div className="scenario-page__list">
+        {scenarios.map((s) => (
+          <ScenarioListItem
+            key={s.id}
+            meta={s}
+            checked={!!selected[s.id]}
+            onToggle={() => toggle(s.id)}
+            onOpenDetail={() => setDetail(s)}
+            running={running && status.current === s.id}
+            status={status.current === s.id ? status : undefined}
+          />
+        ))}
+      </div>
     </div>
   );
 };

@@ -1,26 +1,49 @@
-import React from 'react';
-import type { ScenarioMeta } from './types';
+import React from "react";
+import type { ScenarioId, ScenarioMeta } from "./types";
+import Checkbox from "../Checkbox/Checkbox";
 
 interface Props {
   meta: ScenarioMeta;
   checked: boolean;
   running: boolean;
+  status?: { current?: ScenarioId; remain?: number; loop?: number };
   onToggle: () => void;
   onOpenDetail: () => void;
 }
 
-const ScenarioListItem: React.FC<Props> = ({ meta, checked, running, onToggle, onOpenDetail }) => {
+const ScenarioListItem: React.FC<Props> = ({
+  meta,
+  checked,
+  running,
+  status,
+  onToggle,
+  onOpenDetail,
+}) => {
   return (
     <div className="scenario-item" onClick={onOpenDetail}>
       <div className="scenario-item__left">
-        <button className="scenario-item__pill" type="button">
-          진단
-        </button>
+        <div className="scenario-item__left-row">
+          {running && <span className="scenario-item__badge">진행중</span>}
+        </div>
         <div className="scenario-item__title">{meta.title}</div>
-        {running && <span className="scenario-item__badge">진행중</span>}
+        <div className="scenario-item__left-row">
+          {running && (
+            <>
+              <span className="scenario-item__status">
+                잔여: {status?.remain}s
+              </span>
+              <span className="scenario-item__status">
+                루프: {status?.loop ?? 0}
+              </span>
+            </>
+          )}
+        </div>
       </div>
-      <div className="scenario-item__right" onClick={(e) => e.stopPropagation()}>
-        <input type="checkbox" checked={checked} onChange={onToggle} />
+      <div
+        className="scenario-item__right"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Checkbox checked={checked} onChange={onToggle} />
       </div>
     </div>
   );

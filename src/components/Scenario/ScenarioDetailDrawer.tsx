@@ -1,7 +1,10 @@
-import React from 'react';
-import type { ScenarioMeta } from './types';
+import React from "react";
+import type { ScenarioMeta } from "./types";
 
-const ScenarioDetailDrawer: React.FC<{ meta: ScenarioMeta | null; onClose: () => void }> = ({ meta, onClose }) => {
+const ScenarioDetailDrawer: React.FC<{
+  meta: ScenarioMeta | null;
+  onClose: () => void;
+}> = ({ meta, onClose }) => {
   if (!meta) return null;
   return (
     <div className="scenario-detail__backdrop" onClick={onClose}>
@@ -11,15 +14,19 @@ const ScenarioDetailDrawer: React.FC<{ meta: ScenarioMeta | null; onClose: () =>
           <button onClick={onClose}>✕</button>
         </div>
         <div className="scenario-detail__section">
-          <h4>개요</h4>
-          <p>{meta.summary}</p>
+          <div className="scenario-detail__title">개요</div>
+          <div className="scenario-detail__content">{meta.summary}</div>
         </div>
         <div className="scenario-detail__section">
-          <h4>영향 탭</h4>
-          <ul>{meta.affectedDashboards.map((d) => <li key={d}>{d}</li>)}</ul>
+          <div className="scenario-detail__title">영향 탭</div>
+          <ul>
+            {meta.affectedDashboards.map((d) => (
+              <li key={d}>{d}</li>
+            ))}
+          </ul>
         </div>
         <div className="scenario-detail__section">
-          <h4>재현 방법</h4>
+          <div className="scenario-detail__title">재현 방법</div>
           <pre>{meta.reproduction}</pre>
         </div>
       </div>
