@@ -16,7 +16,7 @@ interface SelectProps {
 }
 
 const Select: React.FC<SelectProps> = ({
-  placeholder,
+  placeholder = "선택해주세요",
   label,
   icon,
   size = "sm",
@@ -27,6 +27,9 @@ const Select: React.FC<SelectProps> = ({
   options,
   onChange,
 }) => {
+  const effectiveValue =
+    value === undefined || value === "" || value === "0" ? "" : value;
+
   return (
     <div className="custom-select">
       {label && <label className="custom-select__label">{label}</label>}
@@ -43,16 +46,14 @@ const Select: React.FC<SelectProps> = ({
         {icon && <img src={icon} alt="icon" className="custom-select__icon" />}
 
         <select
-          value={value}
+          value={effectiveValue}
           onChange={onChange}
           disabled={disabled}
           className="custom-select__element"
         >
-          {placeholder && (
-            <option value="" disabled hidden>
-              {placeholder}
-            </option>
-          )}
+          <option value="" disabled hidden>
+            {placeholder}
+          </option>
 
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>

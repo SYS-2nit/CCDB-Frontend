@@ -89,7 +89,7 @@
         .value-label {
           position: absolute;
           transform: translateX(-50%);
-          font-size: 12px;
+          @include text-styles("label02");
           color: $gray-700;
           background: $gray-0;
           border: 1px solid $gray-200;

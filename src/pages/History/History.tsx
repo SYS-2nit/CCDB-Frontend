@@ -93,14 +93,14 @@ const History: React.FC = () => {
         <div className="history__filter-row">
           <Select
             label="기간"
-            placeholder="선택해주세요."
             value={filters.find((f) => f.key === "duration")?.value || ""}
             onChange={(e) => handleDurationChange(e.target.value)}
             options={[
-              { label: "1분", value: "1분" },
-              { label: "10분", value: "10분" },
-              { label: "1시간", value: "1시간" },
-              { label: "하루", value: "하루" },
+              { label: "선택해주세요", value: "0" },
+              { label: "1분", value: "1" },
+              { label: "10분", value: "2" },
+              { label: "1시간", value: "3" },
+              { label: "하루", value: "4" },
             ]}
           />
 

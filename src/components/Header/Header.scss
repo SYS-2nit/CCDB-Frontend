@@ -241,7 +241,7 @@
   .alert-panel__close {
     border: none;
     background: transparent;
-    font-size: 20px;
+    @include text-styles("heading04");
     cursor: pointer;
     color: $gray-500;
     transition: color 0.2s ease;
@@ -289,7 +289,7 @@
   }
 
   &__icon {
-    font-size: 16px;
+    @include text-styles("heading04");
     margin-top: 2px;
   }
 
@@ -300,7 +300,6 @@
 
     strong {
       color: $gray-900;
-      font-weight: 600;
       margin-right: 4px;
     }
   }

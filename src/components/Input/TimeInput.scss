@@ -21,7 +21,7 @@
     padding: 12px 16px;
     color: $gray-800;
     background-color: $gray-50;
-    font-size: 14px;
+    @include text-styles("body02");
     cursor: pointer;
 
     &:focus {

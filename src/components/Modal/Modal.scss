@@ -47,7 +47,6 @@
 
     h2 {
       @include text-styles("heading01");
-      font-weight: 700;
       color: $gray-900;
     }
 
@@ -55,7 +54,7 @@
       border: none;
       background: none;
       color: $gray-500;
-      font-size: 20px;
+      @include text-styles("heading03");
       cursor: pointer;
 
       &:hover {
@@ -156,7 +155,6 @@
 
       .icon {
         font-style: normal;
-        font-weight: bold;
         color: $gray-400;
       }
     }
@@ -210,7 +208,6 @@
     th {
       background: $gray-50;
       padding: 10px;
-      font-weight: 600;
       border-bottom: 1px solid $gray-200;
       @include text-styles("label02");
     }
@@ -237,7 +234,7 @@
     button {
       padding: 10px 16px;
       border-radius: 6px;
-      font-size: 15px;
+      @include text-styles("heading04");
       cursor: pointer;
       transition: 0.2s;
     }

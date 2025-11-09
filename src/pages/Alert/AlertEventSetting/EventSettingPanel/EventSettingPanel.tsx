@@ -30,7 +30,8 @@ export interface EventCard {
   name: string;
   frequency: string;
   eventType: string;
-  resource: string;
+  resources: string;
+  eventName: string;
   days: string[];
   startTime: string;
   endTime: string;
@@ -50,7 +51,8 @@ function createEmptyEvent(index: number): EventCard {
     name: `이벤트 ${index + 1}`,
     frequency: "",
     eventType: "",
-    resource: "",
+    resources: "",
+    eventName: "",
     days: [],
     startTime: "",
     endTime: "",
@@ -92,8 +94,10 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     }
 
     const isInvalid =
-      currentForm.eventType === "0" ||
-      currentForm.resource === "0" ||
+      !currentForm.eventType.trim() ||
+      !currentForm.resources.trim() ||
+      !currentForm.name.trim() ||
+      !currentForm.frequency.trim() ||
       currentForm.days.length === 0 ||
       !currentForm.startTime.trim() ||
       !currentForm.endTime.trim();
@@ -122,8 +126,10 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
 
     const hasEmptyField = createdCards.some((event) => {
       return (
-        event.eventType === "0" ||
-        event.resource === "0" ||
+        !event.eventType.trim() ||
+        !event.resources.trim() ||
+        !event.name.trim() ||
+        !event.frequency.trim() ||
         event.days.length === 0 ||
         !event.startTime.trim() ||
         !event.endTime.trim()
@@ -238,7 +244,53 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                       value={policyName}
                       onChange={(e) => setPolicyName(e.target.value)}
                     />
+                  </div>
+                  <div className="event-panel__row">
                     <Select
+                      label="자원"
+                      placeholder="선택해주세요"
+                      size="sm"
+                      value={event.resources}
+                      options={[
+                        { label: "CPU", value: "CPU" },
+                        { label: "Memory", value: "Memory" },
+                        { label: "Session", value: "Session" },
+                        { label: "I/O", value: "I/O" },
+                        { label: "Storage", value: "Storage" },
+                      ]}
+                      onChange={(e) =>
+                        setInputForms((prev) =>
+                          prev.map((ev, i) =>
+                            i === index
+                              ? { ...ev, resources: e.target.value }
+                              : ev
+                          )
+                        )
+                      }
+                    />
+                    <Select
+                      label="이벤트"
+                      placeholder="선택해주세요"
+                      size="sm"
+                      value={event.eventName}
+                      options={[
+                        { label: "이벤트 1", value: "이벤트 1" },
+                        { label: "이벤트 2", value: "이벤트 2" },
+                        { label: "이벤트 3", value: "이벤트 3" },
+                        { label: "이벤트 4", value: "이벤트 4" },
+                        { label: "이벤트 5", value: "이벤트 5" },
+                      ]}
+                      onChange={(e) =>
+                        setInputForms((prev) =>
+                          prev.map((ev, i) =>
+                            i === index ? { ...ev, name: e.target.value } : ev
+                          )
+                        )
+                      }
+                    />
+                    <Select
+                      label="누적 횟수"
+                      placeholder="매번"
                       size="sm"
                       value={event.frequency}
                       options={[
