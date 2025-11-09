@@ -84,7 +84,7 @@ const InstanceList: React.FC = () => {
     { id: "all", label: `전체(${data.length})` },
     {
       id: "normal",
-      label: `무해(${data.filter((d) => d.status === "무해").length})`,
+      label: `정상(${data.filter((d) => d.status === "정상").length})`,
     },
     {
       id: "warn",
@@ -96,7 +96,7 @@ const InstanceList: React.FC = () => {
     },
     {
       id: "error",
-      label: `장애(${data.filter((d) => d.status === "장애").length})`,
+      label: `에러(${data.filter((d) => d.status === "에러").length})`,
     },
   ] as const;
 
@@ -322,13 +322,6 @@ const InstanceList: React.FC = () => {
           onClick={() => navigate("/dashboard")}
         />
 
-        {/* 페이지네이션 */}
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
-
         {/* 수정 모달 */}
         {isModalOpen === "edit" && (
           <Modal
@@ -391,7 +384,7 @@ const InstanceList: React.FC = () => {
         {/* 인스턴스 생성 모달 */}
         {isModalOpen === "add" && (
           <Modal
-            title="인스턴스 생성"
+            title="인스턴스 추가"
             cancelText="취소"
             confirmText="확인"
             onClose={() => setIsModalOpen(null)}
@@ -409,6 +402,12 @@ const InstanceList: React.FC = () => {
           />
         )}
       </div>
+      {/* 페이지네이션 */}
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };
