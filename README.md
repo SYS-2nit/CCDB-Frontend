@@ -25,20 +25,20 @@ src/
 │   ├── Tabs/
 │   └── Toggle/
 │
-├── layouts/                      # 공통 페이지 레이아웃 구성
+├── layouts/                      # 공통 레이아웃 구성
 │   ├── Layout.tsx
 │   └── Layout.scss
 │
-├── pages/                        # 주요 페이지 단위 컴포넌트
-│   ├── Alert/                    # 알림 페이지
-│   ├── Analysis/                 # 진단 페이지
-│   ├── Dashboard/                # 대시보드 페이지
-│   ├── History/                  # 히스토리 페이지
-│   ├── Improvement/              # 개선 페이지
-│   ├── Setting/                  # 설정 페이지
-│   └── SQL/                      # SQL 분석 페이지
+├── pages/                        # 주요 페이지 
+│   ├── Alert/                    # 알림 
+│   ├── Analysis/                 # 진단 
+│   ├── Dashboard/                # 대시보드 
+│   ├── History/                  # 히스토리 
+│   ├── Improvement/              # 개선 
+│   ├── Setting/                  # 설정 
+│   └── SQL/                      # SQL 분석 
 │
-├── styles/                       # 전역 스타일 및 SCSS
+├── styles/                     
 │   ├── _variables.scss
 │   ├── _mixins.scss
 │   ├── _themes.scss
