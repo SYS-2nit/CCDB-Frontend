@@ -124,7 +124,7 @@ const AlertEventSetting: React.FC = () => {
         {
           label: "자원",
           type: "text",
-          placeholder: selectedEvent.resource,
+          placeholder: selectedEvent.eventName,
         },
         {
           label: "요일",
