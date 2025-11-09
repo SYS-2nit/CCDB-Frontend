@@ -8,12 +8,12 @@ import { getCssVar } from "@/styles/utils/getCssVar";
 export const storageChartRenderer = (title: string) => {
   if (title.includes("Storage Health Dashboard")) {
     const metrics = [
-      { title: "FRA Usage(%)", value: "78.5" },
-      { title: "Undo Usage(%)", value: "52.3" },
-      { title: "Temp Usage(%)", value: "14.0" },
-      { title: "USERS(%)", value: "76.3" },
-      { title: "Max TS Usage(%)", value: "68.4" },
-      { title: "Total DB Usage(GB)", value: "52.3" },
+      { title: "FRA Usage(%)", value: "78.5", subtitle: "" },
+      { title: "Undo Usage(%)", value: "52.3", subtitle: "" },
+      { title: "Temp Usage(%)", value: "14.0", subtitle: "" },
+      { title: "USERS(%)", value: "76.3", subtitle: "" },
+      { title: "Max TS Usage(%)", value: "68.4", subtitle: "" },
+      { title: "Total DB Usage(GB)", value: "52.3", subtitle: "" },
     ];
     return <MetricCard metrics={metrics} columns={6} height={110} />;
   }

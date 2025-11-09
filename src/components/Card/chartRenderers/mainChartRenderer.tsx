@@ -10,10 +10,14 @@ import { getCssVar } from "@/styles/utils/getCssVar";
 export const mainChartRenderer = (title: string) => {
   if (title.includes("PGA / SGA 압박률")) {
     const metrics = [
-      { title: "Spill Rate %", value: 23 },
-      { title: "Spill MB/min", value: 310 },
-      { title: "Hard Parses/s", value: 34 },
-      { title: "Library Cache Reloads/s", value: 12 },
+      { title: "Spill Rate %", value: 23, subtitle: "window: last 60s" },
+      { title: "Spill MB/min", value: 31, subtitle: "window: last 60s" },
+      { title: "Hard Parses/s", value: 34, subtitle: "window: last 60s" },
+      {
+        title: "Library Cache Reloads/s",
+        value: 12,
+        subtitle: "window: last 60s",
+      },
     ];
     return <MetricCard metrics={metrics} height={190} columns={2} />;
   }

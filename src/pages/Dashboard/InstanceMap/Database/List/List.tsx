@@ -153,7 +153,7 @@ const List: React.FC<ListProps> = ({
     <div className="db-list">
       {/* 헤더 */}
       <div className="db-list-header">
-        목록 ({filteredDatabases.length})
+        DB 목록 ({filteredDatabases.length})
         <img
           src={isCollapsed ? ArrowFillBottomIcon : ArrowFillTopIcon}
           alt="toggle"
@@ -167,9 +167,9 @@ const List: React.FC<ListProps> = ({
         <>
           <div className="db-list-body">
             <Input
-              size="lg"
+              size="sm"
               icon={SearchIcon}
-              placeholder="데이터베이스 이름을 입력해주세요."
+              placeholder="이름을 입력해주세요."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

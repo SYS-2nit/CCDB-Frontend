@@ -307,7 +307,7 @@ const InstanceList: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Button
-            text="+ 생성"
+            text="인스턴스 추가"
             size="sm"
             variant="primary"
             onClick={() => setIsModalOpen("add")}

@@ -4,9 +4,12 @@ import { ioChartRenderer } from "../chartRenderers/ioChartRenderer";
 import { storageChartRenderer } from "../chartRenderers/storageChartRenderer";
 import { memoryChartRenderer } from "../chartRenderers/memoryChartRenderer";
 import { sessionChartRenderer } from "../chartRenderers/sessionChartRenderer";
+import type { JSX } from "react";
 
+/** 탭 타입 정의 */
 export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 
+/** 각 탭별 차트 목록 */
 export const chartData: Record<TabType, string[]> = {
   main: [
     "PGA / SGA 압박률",
@@ -71,14 +74,25 @@ export const chartData: Record<TabType, string[]> = {
   ],
 };
 
-// title을 기반으로 적절한 렌더러를 자동 반환
-export const getChartByTitle = (title: string) => {
-  if (chartData.main.includes(title)) return mainChartRenderer(title);
-  if (chartData.cpu.includes(title)) return cpuChartRenderer(title);
-  if (chartData.memory.includes(title)) return memoryChartRenderer(title);
-  if (chartData.session.includes(title)) return sessionChartRenderer(title);
-  if (chartData.io.includes(title)) return ioChartRenderer(title);
-  if (chartData.storage.includes(title)) return storageChartRenderer(title);
+/** 각 탭에 대응하는 렌더러 */
+const chartRenderers: Record<TabType, (title: string) => JSX.Element | null> = {
+  main: mainChartRenderer,
+  cpu: cpuChartRenderer,
+  memory: memoryChartRenderer,
+  session: sessionChartRenderer,
+  io: ioChartRenderer,
+  storage: storageChartRenderer,
+};
 
+/** title을 기반으로 적절한 렌더러 자동 반환 */
+export const getChartByTitle = (title: string): JSX.Element | null => {
+  for (const [tab, charts] of Object.entries(chartData) as [
+    TabType,
+    string[]
+  ][]) {
+    if (charts.includes(title)) {
+      return chartRenderers[tab](title);
+    }
+  }
   return null;
 };
