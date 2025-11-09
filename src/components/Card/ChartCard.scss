@@ -4,9 +4,11 @@
 @use "@styles/mixins" as *;
 
 .chart-card {
-  display: flex;
   flex-direction: column;
+<<<<<<< HEAD
   justify-content: flex-start;
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   color: $gray-900;
   background-color: $gray-0;
   padding: 10px;
@@ -15,8 +17,11 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   width: 100%;
   height: 100%;
+<<<<<<< HEAD
   min-height: 0; // grid 내부에서 overflow 처리
   overflow: hidden; // 내용이 넘치지 않도록
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 
   &.warning {
     border: 1.5px solid $sematic-error;
@@ -30,8 +35,11 @@
   &__header {
     display: flex;
     justify-content: space-between;
+<<<<<<< HEAD
     flex-shrink: 0;
     min-height: 40px; // 헤더 최소 높이
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   }
 
   &__title {
@@ -47,7 +55,10 @@
   }
 
   &__body {
+<<<<<<< HEAD
     flex: 1;
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     display: flex;
     align-items: center;
     justify-content: center;
@@ -62,14 +73,20 @@
 }
 
 .temp-chart-container {
+<<<<<<< HEAD
   margin-top: 10px;
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 
   &-row {
     gap: 20px;
+<<<<<<< HEAD
     width: 100%;
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     display: flex;
     flex-direction: row;
 
@@ -78,5 +95,9 @@
       color: $gray-300;
     }
   }
+<<<<<<< HEAD
 }
 
+=======
+}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b

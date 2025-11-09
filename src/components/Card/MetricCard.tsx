@@ -12,6 +12,7 @@ export interface MetricData {
 interface MetricGridProps {
   metrics: MetricData[];
   columns?: number;
+  height?: number | string;
 }
 
 const MetricCard: React.FC<MetricData> = ({
@@ -36,12 +37,17 @@ const MetricCard: React.FC<MetricData> = ({
   );
 };
 
-const MetricGrid: React.FC<MetricGridProps> = ({ metrics, columns = 4 }) => {
+const MetricGrid: React.FC<MetricGridProps> = ({
+  metrics,
+  columns = 4,
+  height = 0,
+}) => {
   return (
     <div
       className="metric-grid"
       style={{
         gridTemplateColumns: `repeat(${columns}, 1fr)`,
+        height: typeof height === "number" ? `${height}px` : height,
       }}
     >
       {metrics.map((metric, index) => (

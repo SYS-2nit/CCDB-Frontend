@@ -1,6 +1,11 @@
 import LineChart from "@/components/Chart/LineChart";
 import MetricCard from "@/components/Card/MetricCard";
+<<<<<<< HEAD
 import BarChart from "@/components/Chart/BarChart";
+=======
+import StackChart from "@/components/Chart/StackChart";
+import { getCssVar } from "@/styles/utils/getCssVar";
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 
 /** CPU 탭 전용 차트 렌더러 */
 export const cpuChartRenderer = (title: string) => {
@@ -29,6 +34,10 @@ export const cpuChartRenderer = (title: string) => {
           { title: "USER CALLS/S", value: "5.2", subtitle: "calls/s" },
         ]}
         columns={7}
+<<<<<<< HEAD
+=======
+        height={110}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -40,6 +49,10 @@ export const cpuChartRenderer = (title: string) => {
           [1.5, 1.6, 1.7, 1.8, 1.9, 2.1],
         ]}
         categories={["00:00", "02:00", "04:00", "06:00", "08:00", "10:00"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -49,6 +62,10 @@ export const cpuChartRenderer = (title: string) => {
         legends={["Host_CPU_Util_Pct "]}
         seriesData={[[40, 45, 48, 42, 44, 50, 55]]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -61,6 +78,10 @@ export const cpuChartRenderer = (title: string) => {
           [40, 45, 48, 42, 44, 50, 55],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -73,6 +94,10 @@ export const cpuChartRenderer = (title: string) => {
           [40, 45, 48, 42, 44, 50, 55],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -85,6 +110,10 @@ export const cpuChartRenderer = (title: string) => {
           [25, 28, 35, 42, 47],
         ]}
         categories={["1m", "2m", "3m", "4m", "5m"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -104,11 +133,16 @@ export const cpuChartRenderer = (title: string) => {
           [50, 55, 60, 65, 70],
         ]}
         categories={["1m", "2m", "3m", "4m", "5m"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
   if (title.includes("Top SQL by CPU (Last 10 min)"))
     return (
+<<<<<<< HEAD
       <BarChart
         legends={["CPU Time (ms)"]}
         seriesData={[[16500, 13800, 12100, 9800, 7500]]}
@@ -122,9 +156,31 @@ export const cpuChartRenderer = (title: string) => {
         xaxisTitle="CPU Time (ms)"
         horizontal={true}
         colors={["#4F46E5"]}
+=======
+      <StackChart
+        labels={[
+          "SQL_ID 100",
+          "SQL_ID 200",
+          "SQL_ID 300",
+          "SQL_ID 400",
+          "SQL_ID 500",
+        ]}
+        usage={[4789, 367, 842, 2362, 1530]}
+        total={[5000, 4000, 4000, 3000, 2000]}
+        colorRules={[{ min: 0, max: 100, color: getCssVar("main-500") }]}
+        tooltipFormatter={({ used, total, percent }) =>
+          `CPU Time (ms): ${used.toLocaleString()}ms / Total: ${total.toLocaleString()}ms (${percent.toFixed(
+            1
+          )}%)`
+        }
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
   /** 기본 */
+<<<<<<< HEAD
   return <LineChart />;
+=======
+  return <LineChart height={140} />;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 };

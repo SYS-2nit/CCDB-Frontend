@@ -9,6 +9,7 @@ interface ColorRule {
   color: string;
 }
 
+<<<<<<< HEAD
 interface StackChartProps {
   stackCount?: number;
   legends?: string[];
@@ -38,15 +39,58 @@ const StackChart: React.FC<StackChartProps> = ({
   const getColor = (percent: number) => {
     const rule = colorRules.find((r) => percent >= r.min && percent < r.max);
     return rule ? rule.color : getCssVar("$gray-300");
+=======
+interface TooltipFormatData {
+  used: number;
+  total: number;
+  percent: number;
+}
+
+interface StackChartProps {
+  stackCount?: number;
+  labels?: string[];
+  usage?: number[];
+  total?: number[];
+  tooltipFormatter?: (data: TooltipFormatData, index: number) => string;
+  yaxisTitle?: string;
+  colorRules?: ColorRule[];
+  height?: number | string;
+}
+
+const StackChart: React.FC<StackChartProps> = ({
+  stackCount,
+  labels = [],
+  usage = [],
+  total = [],
+  tooltipFormatter,
+  colorRules = [
+    { min: 0, max: 70, color: getCssVar("sematic-success") },
+    { min: 71, max: 85, color: getCssVar("sematic-warning") },
+    { min: 86, max: 100, color: getCssVar("sematic-error") },
+  ],
+  height = 150,
+  yaxisTitle,
+}) => {
+  const _labels = labels.slice(0, stackCount);
+  const _usage = usage.slice(0, stackCount);
+  const _total = total.slice(0, stackCount);
+
+  // 사용률 계산
+  const percents = _usage.map((v, i) => (v / _total[i]) * 100);
+
+  const getColor = (percent: number) => {
+    const rule = colorRules.find((r) => percent >= r.min && percent < r.max);
+    return rule ? rule.color : getCssVar("gray-300");
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   };
 
   const series = [
     {
       name: "Usage",
-      data: usage.map((percent) => ({
-        x: "",
-        y: percent,
-        fillColor: getColor(percent),
+      data: percents.map((p, i) => ({
+        x: _labels[i],
+        y: p,
+        fillColor: getColor(p),
       })),
     },
   ];
@@ -60,6 +104,7 @@ const StackChart: React.FC<StackChartProps> = ({
     plotOptions: {
       bar: {
         horizontal: true,
+<<<<<<< HEAD
         barHeight: "90%",
       },
     },
@@ -70,11 +115,30 @@ const StackChart: React.FC<StackChartProps> = ({
         fontSize: "12px",
         fontWeight: 700,
         colors: ["#fff"],
+=======
+        barHeight: "80%",
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       },
     },
+    dataLabels: { enabled: false },
     xaxis: {
-      categories: labels,
+      categories: _labels,
       max: 100,
+      title: yaxisTitle
+        ? {
+            text: yaxisTitle,
+            style: {
+              color: "#555",
+              fontSize: "11px",
+              fontWeight: 600,
+            },
+          }
+        : {
+            text: undefined,
+            offsetX: 0,
+            offsetY: 0,
+            style: { fontSize: "0px" },
+          },
       labels: {
         style: { colors: "#888", fontSize: "10px" },
       },
@@ -91,12 +155,25 @@ const StackChart: React.FC<StackChartProps> = ({
     tooltip: {
       theme: "light",
       y: {
+<<<<<<< HEAD
         formatter: (_val, { dataPointIndex }) => {
           const idx = dataPointIndex;
           const usedMB = Number(used[idx]).toLocaleString();
           const totalMB = total[idx].toLocaleString();
           const freeMB = (total[idx] - Number(used[idx])).toLocaleString();
           return `Used: ${usedMB}MB / Free: ${freeMB}MB / Total: ${totalMB}MB`;
+=======
+        formatter: (_, { dataPointIndex }) => {
+          const idx = dataPointIndex;
+          const used = _usage[idx];
+          const totalVal = _total[idx];
+          const percent = (used / totalVal) * 100;
+
+          if (tooltipFormatter) {
+            return tooltipFormatter({ used, total: totalVal, percent }, idx);
+          }
+          return `${used} / ${totalVal} (${percent.toFixed(1)}%)`;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
         },
       },
     },
@@ -104,12 +181,26 @@ const StackChart: React.FC<StackChartProps> = ({
   };
 
   return (
+<<<<<<< HEAD
     <div id="stack-chart" style={{ width: "120%", height: "170px" }}>
+=======
+    <div
+      id="stack-chart"
+      style={{
+        width: "100%",
+        height: typeof height === "number" ? `${height}px` : height,
+      }}
+    >
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       <ReactApexChart
         options={options}
         series={series}
         type="bar"
+<<<<<<< HEAD
         height={170}
+=======
+        height={height}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     </div>
   );

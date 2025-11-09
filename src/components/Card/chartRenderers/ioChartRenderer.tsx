@@ -3,6 +3,10 @@ import StackChart from "@/components/Chart/StackChart";
 import MetricCard from "@/components/Card/MetricCard";
 import { getCssVar } from "@/styles/utils/getCssVar";
 import MixedChart from "@/components/Chart/MixedChart";
+<<<<<<< HEAD
+=======
+import "./ChartRenderer.scss";
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 
 // I/O 탭 전용 차트 렌더러
 export const ioChartRenderer = (title: string) => {
@@ -39,7 +43,11 @@ export const ioChartRenderer = (title: string) => {
         subtitle: "업무시간 급증 경고",
       },
     ];
+<<<<<<< HEAD
     return <MetricCard metrics={metrics} columns={6} />;
+=======
+    return <MetricCard metrics={metrics} columns={6} height={110} />;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   }
 
   if (title.includes("Physical Reads vs Logical Reads"))
@@ -57,10 +65,18 @@ export const ioChartRenderer = (title: string) => {
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
         yaxisTitle="Reads/sec"
+<<<<<<< HEAD
       />
     );
 
   if (title.includes("Average I/O Wait Time"))
+=======
+        height={140}
+      />
+    );
+
+  if (title.includes("Average I/O Wait Time (ms)"))
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     return (
       <LineChart
         legends={["avg_wait_time_ms", "95_wait_time_ms"]}
@@ -69,12 +85,17 @@ export const ioChartRenderer = (title: string) => {
           [15, 18, 22, 20, 16, 18, 15],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+<<<<<<< HEAD
         yaxisTitle="ms"
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
   if (title.includes("데이터파일별 I/O 통계 (Top 5)"))
     return (
+<<<<<<< HEAD
       <StackChart
         legends={[
           "file_name",
@@ -103,6 +124,47 @@ export const ioChartRenderer = (title: string) => {
           { min: 85, max: 100, color: getCssVar("red-400") },
         ]}
       />
+=======
+      <div className="chart-add-info">
+        {/* 추가 정보 */}
+        <div className="chart-add-info-container">
+          <div className="chart-add-info-container-text">
+            <div className="chart-add-info-container-text-success" />
+            정상 (0~69%)
+          </div>
+          <div className="chart-add-info-container-text">
+            <div className="chart-add-info-container-text-warning" />
+            주의 (70~84%)
+          </div>
+          <div className="chart-add-info-container-text">
+            <div className="chart-add-info-container-text-error" />
+            위험 (85%~100%)
+          </div>
+        </div>
+        <StackChart
+          labels={[
+            "1_file_name",
+            "2_file_name",
+            "3_file_name",
+            "4_file_name",
+            "5_file_name",
+          ]}
+          usage={[490, 240, 20, 340, 510]}
+          total={[500, 420, 380, 460, 520]}
+          colorRules={[
+            { min: 0, max: 69, color: getCssVar("sematic-success") },
+            { min: 70, max: 84, color: getCssVar("sematic-warning") },
+            { min: 85, max: 100, color: getCssVar("red-400") },
+          ]}
+          tooltipFormatter={({ used, total, percent }) =>
+            `tablespace_name: ${used.toLocaleString()}MB / 전체: ${total.toLocaleString()}MB (${percent.toFixed(
+              1
+            )}%)`
+          }
+          height={130}
+        />
+      </div>
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     );
 
   if (title.includes("Direct Path I/O"))
@@ -119,6 +181,10 @@ export const ioChartRenderer = (title: string) => {
           [1000, 1000, 1000, 1000, 1000, 1000],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -138,6 +204,10 @@ export const ioChartRenderer = (title: string) => {
           [1, 1, 2, 2, 1, 1, 1],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -161,9 +231,13 @@ export const ioChartRenderer = (title: string) => {
           [120, 140, 130, 150, 160, 170],
         ]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
   // 기본값
-  return <LineChart />;
+  return <LineChart height={140} />;
 };

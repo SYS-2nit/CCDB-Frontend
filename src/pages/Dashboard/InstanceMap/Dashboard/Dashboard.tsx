@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, useEffect, useCallback } from "react";
+=======
+import React, { useState, useEffect } from "react";
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
 import ChartSetting from "@/components/Card/ChartSetting";
@@ -12,6 +16,7 @@ import {
 } from "@hello-pangea/dnd";
 import { cloneDeep } from "lodash";
 import TabMenu from "@/components/Tabs/TabMenu";
+<<<<<<< HEAD
 import {
   getDashboardData,
   getMemberWidgets,
@@ -19,18 +24,24 @@ import {
   type GraphDataResponse,
   type WidgetConfig,
 } from "@/api";
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 
 export type TabType = keyof typeof chartData;
 
 interface DashboardProps {
   initialTab?: TabType;
   singleTabMode?: boolean;
+<<<<<<< HEAD
   instanceId?: number; // 인스턴스 ID (선택적)
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
   initialTab = "main",
   singleTabMode = false,
+<<<<<<< HEAD
   instanceId = 1, // 기본값: 1 (임시)
 }) => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
@@ -145,6 +156,17 @@ const Dashboard: React.FC<DashboardProps> = ({
     }
   }, [fetchDashboardData, activeTab]);
 
+=======
+}) => {
+  const [isSettingOpen, setIsSettingOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
+  const [charts, setCharts] = useState<string[]>(() =>
+    cloneDeep(chartData[initialTab])
+  );
+
+  const handleSettingToggle = () => setIsSettingOpen((prev) => !prev);
+
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   const tabs = [
     { id: "main", label: "Main Custom" },
     { id: "cpu", label: "CPU" },
@@ -156,6 +178,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   useEffect(() => {
     setActiveTab(initialTab);
+<<<<<<< HEAD
     // main 탭이 아닌 경우에만 하드코딩된 차트 데이터 사용
     if (initialTab !== "main") {
       setCharts(cloneDeep(chartData[initialTab]));
@@ -207,22 +230,39 @@ const Dashboard: React.FC<DashboardProps> = ({
     if (!destination || activeTab !== "main") return;
 
     // 드래그는 로컬 상태 변경
+=======
+    setCharts(cloneDeep(chartData[initialTab]));
+  }, [initialTab]);
+
+  useEffect(() => {
+    setCharts(cloneDeep(chartData[activeTab]));
+  }, [activeTab]);
+
+  const handleDragEnd = ({ source, destination }: DropResult) => {
+    if (!destination) return;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     setCharts((prev) => {
       const reordered = [...prev];
       const [moved] = reordered.splice(source.index, 1);
       reordered.splice(destination.index, 0, moved);
+<<<<<<< HEAD
       
       // 위젯 설정 저장 (비동기)
       saveWidgetConfig(reordered).catch((error) => {
         console.error("위젯 설정 저장 중 오류:", error);
       });
       
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       return reordered;
     });
   };
 
+<<<<<<< HEAD
   // 그래프 타입 변경 시 API 재요청은 ChartSetting에서 처리
 
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   const visibleTabs = singleTabMode
     ? tabs.filter((tab) => tab.id === initialTab)
     : tabs;
@@ -231,7 +271,10 @@ const Dashboard: React.FC<DashboardProps> = ({
     <div
       className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}
     >
+<<<<<<< HEAD
       {/* 탭 메뉴 */}
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       {!singleTabMode && (
         <TabMenu
           tabs={visibleTabs}
@@ -253,6 +296,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
+<<<<<<< HEAD
                 {activeTab !== "main" && (
                   <div className="dashboard__header-row">
                     {/* 상태 카드 */}
@@ -270,6 +314,47 @@ const Dashboard: React.FC<DashboardProps> = ({
                     {/* 첫 번째 MetricCard가 있을 경우만 오른쪽에 표시 */}
                     {charts[1] && (
                       <div className="dashboard__metric-wrapper">
+=======
+                {/* 메인 탭일 때는 기존 유지 */}
+                {activeTab === "main" &&
+                  charts.map((title, index) => (
+                    <Draggable
+                      key={title}
+                      draggableId={title}
+                      index={index}
+                      isDragDisabled={false}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          <ChartCard
+                            title={title}
+                            status="normal"
+                            onSettingClick={handleSettingToggle}
+                            showDragIcon
+                            showSettingIcon
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+
+                {/* 메인 제외 탭 (4행 구조) */}
+                {activeTab !== "main" && (
+                  <>
+                    {/* 1행: StatusCard + Metric */}
+                    <div className="dashboard__row row-1">
+                      <div className="dashboard__status-wrap">
+                        <StatusCard label="정상" value={2} color="safe" />
+                        <StatusCard label="주의" value={5} color="warning" />
+                        <StatusCard label="위험" value={8} color="danger" />
+                        <StatusCard label="에러" value={1} color="critical" />
+                      </div>
+                      {charts[0] && (
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
                         <ChartCard
                           title={charts[0]}
                           status="normal"
@@ -277,6 +362,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                           showDragIcon={false}
                           showSettingIcon={false}
                         />
+<<<<<<< HEAD
                       </div>
                     )}
                   </div>
@@ -327,6 +413,55 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </Draggable>
                   )
                 )}
+=======
+                      )}
+                    </div>
+
+                    {/* 2행: 2개의 차트 */}
+                    <div className="dashboard__row row-2">
+                      {charts.slice(1, 3).map((title) => (
+                        <ChartCard
+                          key={title}
+                          title={title}
+                          status="normal"
+                          onSettingClick={handleSettingToggle}
+                          showDragIcon={false}
+                          showSettingIcon={false}
+                        />
+                      ))}
+                    </div>
+
+                    {/* 3행: 2개의 차트 */}
+                    <div className="dashboard__row row-3">
+                      {charts.slice(3, 5).map((title) => (
+                        <ChartCard
+                          key={title}
+                          title={title}
+                          status="normal"
+                          onSettingClick={handleSettingToggle}
+                          showDragIcon={false}
+                          showSettingIcon={false}
+                        />
+                      ))}
+                    </div>
+
+                    {/* 4행: 3개의 차트 */}
+                    <div className="dashboard__row row-4">
+                      {charts.slice(5, 8).map((title) => (
+                        <ChartCard
+                          key={title}
+                          title={title}
+                          status="normal"
+                          onSettingClick={handleSettingToggle}
+                          showDragIcon={false}
+                          showSettingIcon={false}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
                 {provided.placeholder}
               </div>
             )}

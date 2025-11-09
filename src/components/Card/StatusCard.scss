@@ -6,6 +6,7 @@
 .status-card {
   display: flex;
   align-items: center;
+<<<<<<< HEAD
   justify-content: center;
   gap: 20px;
   border-radius: 5px;
@@ -18,29 +19,67 @@
 
   &__value {
     @include text-styles("heading01");
+=======
+  justify-content: space-between;
+  gap: 12px;
+  height: 100%;
+  border-radius: 5px;
+  padding: 12px 16px;
+  cursor: pointer;
+  white-space: nowrap; 
+  flex-wrap: nowrap;  
+
+  &__label {
+    @include text-styles("label02");
+    color: $gray-700;
   }
 
+  &__value {
+    @include text-styles("heading02");
+    font-weight: 600;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
+  }
+
+  /* 색상 테마 */
   &--safe {
     color: $green-500;
+<<<<<<< HEAD
     border: 1px solid $green-500;
     background: $green-100;
+=======
+    border: 1px solid $green-400;
+    background: $green-0;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   }
 
   &--warning {
     color: $yellow-500;
+<<<<<<< HEAD
     border: 1px solid $sematic-warning;
     background: $yellow-100;
+=======
+    border: 1px solid $yellow-500;
+    background: $yellow-0;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   }
 
   &--danger {
     color: $sematic-error;
     border: 1px solid $sematic-error;
+<<<<<<< HEAD
     background: $red-100;
+=======
+    background: $red-0;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   }
 
   &--critical {
     color: $gray-800;
+<<<<<<< HEAD
     border: 1px solid $gray-800;
+=======
+    border: 1px solid $gray-500;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     background: $gray-100;
   }
 }

@@ -4,6 +4,7 @@ export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 // 탭별 차트 데이터
 export const chartData: Record<TabType, string[]> = {
   main: [
+<<<<<<< HEAD
     "세션 한도/급증",
     "PGA / SGA 압박률",
     "백그라운드 프로세스 상태",
@@ -12,6 +13,16 @@ export const chartData: Record<TabType, string[]> = {
     "I/O 지연량",
     "I/O 처리량",
     "제한 근접 파라미터 감시",
+=======
+    "Session 한도 상태",
+    "PGA / SGA 압박률",
+    "백그라운드 프로세스 상태",
+    "CPU 상태 (%)",
+    "Wait Class 분포 (Sessions)",
+    "I/O 지연량 (ms)",
+    "I/O 처리량 (MB/s)",
+    "제한 근접 파라미터 상태 (%)",
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     "핵심 테이블스페이스 여유율",
   ],
   cpu: [
@@ -47,7 +58,11 @@ export const chartData: Record<TabType, string[]> = {
   io: [
     "I/O Performance Dashboard",
     "Physical Reads vs Logical Reads",
+<<<<<<< HEAD
     "Average I/O Wait Time",
+=======
+    "Average I/O Wait Time (ms)",
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     "데이터파일별 I/O 통계 (Top 5)",
     "Direct Path I/O",
     "Redo Generation Rate",

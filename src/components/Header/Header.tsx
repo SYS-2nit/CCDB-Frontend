@@ -8,7 +8,42 @@ import DarkIcon from "@/assets/header/dark.svg";
 import Select from "../Select/Select";
 
 const Header: React.FC = () => {
+<<<<<<< HEAD
   const [isDarkMode, setIsDarkMode] = useState(false);
+=======
+  // 다크모드 상태 로드 및 초기화
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark");
+      return true;
+    } else if (savedTheme === "light") {
+      document.body.classList.remove("dark");
+      return false;
+    } else {
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      if (prefersDark) document.body.classList.add("dark");
+      return prefersDark;
+    }
+  });
+
+  // 알림 패널 상태
+  const [showAlertPanel, setShowAlertPanel] = useState(false);
+
+  // 테마 전환
+  const handleModeToggle = () => {
+    setIsDarkMode((prev) => {
+      const newMode = !prev;
+      document.body.classList.toggle("dark", newMode);
+      localStorage.setItem("theme", newMode ? "dark" : "light");
+      return newMode;
+    });
+  };
+
+  // 시간 관련 상태
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showDropdown, setShowDropdown] = useState(false);
   const [mode, setMode] = useState<"live" | "range">("live");
@@ -80,7 +115,10 @@ const Header: React.FC = () => {
               LIVE
             </span>
           </div>
+<<<<<<< HEAD
           {/* LIVE 게이지 */}
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
           <div className="header-time__bar">
             <div
               className="header-time__progress"
@@ -88,7 +126,10 @@ const Header: React.FC = () => {
             ></div>
           </div>
 
+<<<<<<< HEAD
           {/* 드롭다운 */}
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
           {showDropdown && (
             <div className="header-time__dropdown">
               <div
@@ -134,6 +175,92 @@ const Header: React.FC = () => {
               {formatFullDateTime(currentTime)}
             </span>
             <span className="header-time__badge">{selectedRange}</span>
+<<<<<<< HEAD
+=======
+          </div>
+
+          {showDropdown && (
+            <div className="header-time__dropdown">
+              <div
+                className="header-time__option"
+                onClick={() => handleSelect("LIVE")}
+              >
+                실시간 (LIVE)
+              </div>
+              <div
+                className="header-time__option"
+                onClick={() => handleSelect("10분", 10)}
+              >
+                실시간 10분
+              </div>
+              <div
+                className="header-time__option"
+                onClick={() => handleSelect("1시간", 60)}
+              >
+                실시간 1시간
+              </div>
+              <div
+                className="header-time__option"
+                onClick={() => handleSelect("1일", 1440)}
+              >
+                실시간 1일
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+  };
+
+  return (
+    <>
+      <header className="header">
+        {/* 왼쪽: DB + 인스턴스 + 시간 */}
+        <div className="header__left">
+          <div className="header__dbinfo">
+            <img src={BedgeSuccessIcon} alt="DB badge" />
+            <div className="header__dbname">DB Name</div>
+          </div>
+
+          <Select
+            placeholder="인스턴스 선택"
+            size="sm"
+            options={[
+              { label: "인스턴스 1", value: "1" },
+              { label: "인스턴스 2", value: "2" },
+            ]}
+          />
+
+          {renderTimeSection()}
+        </div>
+
+        {/* 오른쪽: 알림 + 테마 + 현재 시간 */}
+        <div className="header__right">
+          <div className="header__right-icons">
+            {/* 알림 버튼 */}
+            <button
+              className="header__right-alert"
+              onClick={() => setShowAlertPanel(true)}
+            >
+              <img src={AlertIcon} alt="alert" />
+            </button>
+
+            {/* 테마 토글 */}
+            <div
+              className="header__right-theme-toggle"
+              onClick={handleModeToggle}
+            >
+              <img src={isDarkMode ? DarkIcon : LightIcon} alt="theme" />
+            </div>
+          </div>
+
+          {/* 업데이트 시각 */}
+          <div className="header__update">
+            <div className="header__date">
+              {formatFullDateTime(currentTime)}
+            </div>
+            <div className="header__text">최종 업데이트</div>
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
           </div>
 
           {/* 드롭다운 */}

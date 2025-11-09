@@ -2,6 +2,10 @@ import LineChart from "@/components/Chart/LineChart";
 import StackChart from "@/components/Chart/StackChart";
 import MetricCard from "@/components/Card/MetricCard";
 import BarChart from "@/components/Chart/BarChart";
+<<<<<<< HEAD
+=======
+import { getCssVar } from "@/styles/utils/getCssVar";
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 
 // Storage 탭 전용 차트 렌더러
 export const storageChartRenderer = (title: string) => {
@@ -14,7 +18,11 @@ export const storageChartRenderer = (title: string) => {
       { title: "Max TS Usage(%)", value: "68.4" },
       { title: "Total DB Usage(GB)", value: "52.3" },
     ];
+<<<<<<< HEAD
     return <MetricCard metrics={metrics} columns={6} />;
+=======
+    return <MetricCard metrics={metrics} columns={6} height={110} />;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   }
 
   if (title.includes("FRA 사용률 추세 (%)"))
@@ -23,6 +31,10 @@ export const storageChartRenderer = (title: string) => {
         legends={["usage_pct"]}
         seriesData={[[150, 160, 170, 175, 180, 190, 195]]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -32,6 +44,10 @@ export const storageChartRenderer = (title: string) => {
         legends={["undo_usage_percent"]}
         seriesData={[[40, 42, 44, 50, 55, 48, 45]]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -41,6 +57,10 @@ export const storageChartRenderer = (title: string) => {
         legends={["total_db_usage_pct"]}
         seriesData={[[60, 62, 65, 67, 70, 69, 68]]}
         categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -60,6 +80,10 @@ export const storageChartRenderer = (title: string) => {
           [60, 61, 63, 62, 64, 65, 65],
         ]}
         categories={["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"]}
+<<<<<<< HEAD
+=======
+        height={140}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
@@ -82,6 +106,7 @@ export const storageChartRenderer = (title: string) => {
         horizontal={false}
       />
     );
+<<<<<<< HEAD
 
   if (title.includes("Temp Tablespace Active Usage (GB)")) {
     return (
@@ -102,15 +127,34 @@ export const storageChartRenderer = (title: string) => {
             temp_usage_pct_of_max(%) : ???
           </div>
         </div>
+=======
+  if (title.includes("Temp Tablespace Active Usage (GB)")) {
+    return (
+      <div>
+        <div className="temp-chart-container-row">
+          <div className="temp-chart-container-row-content">
+            Allocated(할당) : 120GB (6.9%)
+          </div>
+          <div className="temp-chart-container-row-content">
+            MAX : 500FB (MAX 기준 1.7%)
+          </div>
+        </div>
+
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
         <LineChart
           legends={["temp_active_usage_gb"]}
           seriesData={[[2.8, 3.0, 3.2, 3.5, 3.3, 3.6, 3.4]]}
           categories={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+<<<<<<< HEAD
+=======
+          height={120}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
         />
       </div>
     );
   }
 
+<<<<<<< HEAD
   if (title.includes("대용량 세그먼트"))
     return (
       <StackChart
@@ -124,9 +168,23 @@ export const storageChartRenderer = (title: string) => {
           "SYSTEM_TS",
         ]}
         yaxisTitle="Size (GB)"
+=======
+  if (title.includes("대용량 세그먼트 Top 5"))
+    return (
+      <StackChart
+        labels={["1_owner_seg", "2_owner_seg", "3_owner_seg", "4_owner_seg"]}
+        usage={[367, 9739, 12022, 4289]}
+        total={[16500, 13800, 12100, 9800]}
+        colorRules={[{ min: 0, max: 100, color: getCssVar("main-500") }]}
+        tooltipFormatter={({ used, total, percent }) =>
+          `사용: ${used.toLocaleString()}MB / 전체: ${total.toLocaleString()}MB (${percent.toFixed(
+            1
+          )}%)`
+        }
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
       />
     );
 
   // 기본값
-  return <LineChart />;
+  return <LineChart height={140} />;
 };

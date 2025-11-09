@@ -4,7 +4,10 @@ import { ioChartRenderer } from "../chartRenderers/ioChartRenderer";
 import { storageChartRenderer } from "../chartRenderers/storageChartRenderer";
 import { memoryChartRenderer } from "../chartRenderers/memoryChartRenderer";
 import { sessionChartRenderer } from "../chartRenderers/sessionChartRenderer";
+<<<<<<< HEAD
 import type { GraphDataResponse } from "@/api";
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 
 export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 
@@ -12,6 +15,7 @@ export const chartData: Record<TabType, string[]> = {
   main: [
     "세션 한도/급증",
     "PGA / SGA 압박률",
+<<<<<<< HEAD
     "백그라운드 프로세스 상태",
     "CPU 사용(호스트 vs DB CPU)",
     "Wait Class 분포",
@@ -19,6 +23,16 @@ export const chartData: Record<TabType, string[]> = {
     "I/O 처리량",
     "제한 근접 파라미터 감시",
     "핵심 테이블스페이스 여유율",
+=======
+    "Wait Class 분포 (Sessions)",
+    "Session 한도 상태",
+    "핵심 테이블스페이스 여유율",
+    "백그라운드 프로세스 상태",
+    "제한 근접 파라미터 상태 (%)",
+    "CPU 상태 (%)",
+    "I/O 지연량 (ms)",
+    "I/O 처리량 (MB/s)",
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   ],
   cpu: [
     "CPU 활동 현황 타일",
@@ -31,21 +45,34 @@ export const chartData: Record<TabType, string[]> = {
     "Top SQL by CPU (Last 10 min)",
   ],
   memory: [
+<<<<<<< HEAD
     "PGA Utilization (%) - Current",
     "SGA Utilization (%) - Current",
     "Workarea Spill Rate (%)",
     "PGA Utilization (%)",
     "SGA Composition (%)",
+=======
+    "SGA Efficiency & Memory Pools",
+    "PGA Execution Memory & Processes",
+    "SGA Utilization (%)",
+    "PGA Utilization (%)",
+    "Workarea Spill Rate (%)",
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     "Library Cache Reloads per Second",
     "Buffer Cache Miss Rate (%) - Proxy",
     "Top SQL by Shared Pool Memory",
   ],
   session: [
     "Session Activity & Resource Summary",
+<<<<<<< HEAD
     "Long-Idle Sessions ≥10/30/60m — Snapshot",
     "Blocking — Blocker vs Blocked Sessions",
     "Lock Wait Sessions — TX vs TM vs Total",
     "Active vs Inactive Sessions",
+=======
+    "Active vs Inactive Sessions",
+    "Lock Wait Sessions — TX vs TM vs Total",
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     "TPS",
     "On-CPU vs Wait (AAS 분해)",
     "Exec/s",
@@ -55,7 +82,11 @@ export const chartData: Record<TabType, string[]> = {
   io: [
     "I/O Performance Dashboard",
     "Physical Reads vs Logical Reads",
+<<<<<<< HEAD
     "Average I/O Wait Time",
+=======
+    "Average I/O Wait Time (ms)",
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     "데이터파일별 I/O 통계 (Top 5)",
     "Direct Path I/O",
     "Redo Generation Rate",
@@ -75,12 +106,17 @@ export const chartData: Record<TabType, string[]> = {
 };
 
 // title을 기반으로 적절한 렌더러를 자동 반환
+<<<<<<< HEAD
 export const getChartByTitle = (
   title: string,
   graphData?: GraphDataResponse | null
 ) => {
   if (chartData.main.includes(title))
     return mainChartRenderer(title, graphData);
+=======
+export const getChartByTitle = (title: string) => {
+  if (chartData.main.includes(title)) return mainChartRenderer(title);
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   if (chartData.cpu.includes(title)) return cpuChartRenderer(title);
   if (chartData.memory.includes(title)) return memoryChartRenderer(title);
   if (chartData.session.includes(title)) return sessionChartRenderer(title);

@@ -1,0 +1,80 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.sql-top {
+  overflow: hidden; // 화면 스크롤 방지
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__filters {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    background: $gray-0;
+    border-radius: 5px;
+    padding: 20px;
+
+    &-left {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      gap: 20px;
+    }
+
+    &-right {
+      gap: 10px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+    }
+  }
+
+  &__summary {
+    .sql-top__chart {
+      width: 100%;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  &__tables {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .sql-top__table-block {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: $gray-0;
+    border-radius: 5px;
+    padding: 20px;
+    gap: 10px;
+    
+    &-title {
+      @include text-styles("body02");
+      color: $gray-700;
+    }
+
+    .table-chart__wrapper {
+      flex: 1;
+      overflow: auto; // 테이블 내부 스크롤
+      max-height: calc(100vh - 320px);
+    }
+
+    .sql-top__query-link {
+      color: $main-600;
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

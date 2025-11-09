@@ -8,6 +8,10 @@ interface MixedChartProps {
   lineData?: number[];
   yaxisLeftTitle?: string;
   yaxisRightTitle?: string;
+<<<<<<< HEAD
+=======
+  height?: number | string;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 }
 
 const MixedChart: React.FC<MixedChartProps> = ({
@@ -16,6 +20,10 @@ const MixedChart: React.FC<MixedChartProps> = ({
   lineData = [23, 42, 35, 43, 22, 31],
   yaxisLeftTitle = "",
   yaxisRightTitle = "",
+<<<<<<< HEAD
+=======
+  height = 150,
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 }) => {
   const series = [
     {
@@ -87,6 +95,7 @@ const MixedChart: React.FC<MixedChartProps> = ({
           const name = w.config.series?.[seriesIndex]?.name || "";
           return `${name}: ${val?.toLocaleString?.() ?? ""}`;
         },
+<<<<<<< HEAD
         title: {
           formatter: () => "",
         },
@@ -96,6 +105,12 @@ const MixedChart: React.FC<MixedChartProps> = ({
     legend: {
       show: false,
     },
+=======
+        title: { formatter: () => "" },
+      },
+    },
+    legend: { show: false },
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     grid: {
       borderColor: "rgba(0,0,0,0.08)",
       strokeDashArray: 3,
@@ -103,11 +118,24 @@ const MixedChart: React.FC<MixedChartProps> = ({
   };
 
   return (
+<<<<<<< HEAD
     <div style={{ width: "100%", height: "100%" }}>
       <ReactApexChart
         options={options}
         series={series}
         height={320}
+=======
+    <div
+      style={{
+        width: "100%",
+        height: typeof height === "number" ? `${height}px` : height,
+      }}
+    >
+      <ReactApexChart
+        options={options}
+        series={series}
+        height={height}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
         type="line"
       />
     </div>

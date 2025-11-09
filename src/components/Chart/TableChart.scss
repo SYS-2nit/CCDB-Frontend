@@ -5,6 +5,7 @@
 
 .table-chart__wrapper {
   width: 100%;
+<<<<<<< HEAD
   overflow-x: auto;
   overflow-y: auto; 
   background-color: $gray-0;
@@ -17,6 +18,11 @@
   &--md {
     max-width: 900px;
   }
+=======
+  background-color: $gray-0;
+  overflow-x: auto; 
+  overflow-y: hidden;
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 
   &--lg {
     max-width: 100%;
@@ -27,24 +33,81 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
+<<<<<<< HEAD
   text-align: center;
   border: 1px solid $gray-100;
+=======
+  border: 1px solid $gray-100;
+  text-align: left;
+  table-layout: fixed; 
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 
-  th {
+  thead {
     background-color: $gray-50;
-    color: $gray-600;
-    font-weight: 600;
-    padding: 4px;
     border-bottom: 1px solid $gray-200;
   }
 
-  td {
-    padding: 3px;
-    border-bottom: 1px solid $gray-100;
-    color: $gray-800;
+  &__th {
+    font-weight: 600;
+    color: $gray-700;
+    text-align: center;
+    padding: 8px 10px;
+    user-select: none;
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &.sortable {
+      cursor: pointer;
+
+      &:hover {
+        background-color: $gray-100;
+      }
+    }
+
+    &-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
   }
 
-  tr:last-child td {
-    border-bottom: none;
+  &__row {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: $gray-50;
+    }
+  }
+
+  td {
+    padding: 8px 10px;
+    border-bottom: 1px solid $gray-100;
+    color: $gray-800;
+    font-size: 12px;
+    text-align: center;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+
+    &.numeric {
+      text-align: right;
+    }
+  }
+}
+
+/* rank change 색상 정의 */
+.rank-change {
+  font-weight: 600;
+
+  &.up {
+    color: $sematic-error; 
+  }
+  &.down {
+    color: $main-500;
+  }
+  &.neutral {
+    color: $gray-500;
   }
 }

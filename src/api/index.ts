@@ -9,6 +9,7 @@ const api = axios.create({
 console.log("API Base URL:", import.meta.env.VITE_API_BASE_URL);
 
 export default api;
+<<<<<<< HEAD
 
 // 대시보드 API 타입
 export interface DashboardDataRequest {
@@ -85,3 +86,5 @@ export const saveMemberWidgets = async (
 ): Promise<void> => {
   await api.post<ApiResponse<string>>("/api/dashboards/widgets", request);
 };
+=======
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b

@@ -1,0 +1,182 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.sql-drawer__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  z-index: 5;
+}
+
+// 메인 Drawer 컨테이너
+.sql-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 80%;
+  height: 100vh;
+  background: $gray-0;
+  z-index: 5;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease forwards;
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  // 상단 Header
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid $gray-200;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+
+    h3 {
+      @include text-styles("heading01");
+      color: $gray-700;
+    }
+
+    .close-btn {
+      border: none;
+      background: none;
+      @include text-styles("heading04");
+      color: $gray-600;
+      cursor: pointer;
+    }
+  }
+
+  // 본문 2단 구조 (쿼리 | 트렌드)
+  &__body {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+  }
+
+  // 왼쪽 : Query 영역
+  &__query-section {
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+
+    .sql-drawer__query-title {
+      @include text-styles("heading04");
+      color: $gray-900;
+    }
+
+    .sql-drawer__query-box {
+      border-radius: 5px;
+      padding: 10px;
+      @include text-styles("body02");
+      color: $gray-500;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-y: auto;
+      background:  $gray-50;
+      border: 1px solid $gray-100;
+    }
+  }
+
+  // 오른쪽 : Trend / Chart / Table
+  &__trend {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: $gray-50;
+    border: 1px solid $gray-100;
+    border-radius: 5px;
+    padding: 16px;
+
+    h4,
+    h5 {
+      @include text-styles("heading04");
+      color: $gray-700;
+      margin-bottom: 5px;
+    }
+
+    // 개별 차트 박스
+    .chart-block {
+      background: $gray-0;
+      border: 1px solid $gray-100;
+      border-radius: 6px;
+      padding: 12px 14px;
+
+      h5 {
+        @include text-styles("heading04");
+        color: $gray-700;
+      }
+    }
+
+    // Elapsed Time 게이지 
+  .sql-drawer__gauge {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 36px; 
+    border-radius: 3px;
+    overflow: hidden;
+    text-align: center;
+    @include text-styles("body02");
+    color: $gray-0;
+
+    &-cpu {
+      flex-basis: 60%;
+      background-color: $main-400;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &-scheduler {
+      flex-basis: 25%;
+      background-color: $green-300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &-idle {
+      flex-basis: 15%;
+      background-color: $purple-200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    div {
+      height: 100%;
+    }
+
+      // 하단 테이블 3개
+      &__tables {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        .sql-drawer__table {
+          background: $gray-0;
+
+          h5 {
+            @include text-styles("heading04");
+            color: $gray-300;
+            margin-bottom: 5px;
+          }
+        }
+      }
+    }
+  }
+}

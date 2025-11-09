@@ -9,6 +9,10 @@ import AlertIcon from "@/assets/sidebar/alert.svg";
 import AnalysisIcon from "@/assets/sidebar/analysis.svg";
 import ImprovementIcon from "@/assets/sidebar/improvement.svg";
 import SettingIcon from "@/assets/sidebar/setting.svg";
+<<<<<<< HEAD
+=======
+import HistoryIcon from "@/assets/sidebar/history.svg";
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 import ProfileIcon from "@/assets/sidebar/profile.svg";
 import BottomArrowIcon from "@/assets/general/bottom-arrow.svg";
 import ClickedTopArrowIcon from "@/assets/general/clicked-top-arrow.svg";
@@ -96,14 +100,11 @@ const Sidebar: React.FC = () => {
 
         {openMenu === "sql" && (
           <div className="sidebar__submenu">
-            <NavLink to="/sql/analysis" className="sidebar__subitem">
-              SQL 분석
+            <NavLink to="/sql/stat" className="sidebar__subitem">
+              SQL 통계
             </NavLink>
             <NavLink to="/sql/top" className="sidebar__subitem">
               Top SQL 비교
-            </NavLink>
-            <NavLink to="/sql/stat" className="sidebar__subitem">
-              SQL 통계
             </NavLink>
           </div>
         )}
@@ -165,6 +166,26 @@ const Sidebar: React.FC = () => {
             onClick={() => setIsCollapsed(false)}
           />
           {!isCollapsed && <span className="sidebar__item--title">개선</span>}
+<<<<<<< HEAD
+=======
+        </NavLink>
+
+        {/* 히스토리 */}
+        <NavLink
+          to="/history"
+          className={({ isActive }) =>
+            `sidebar__item ${isActive ? "active" : ""}`
+          }
+        >
+          <img
+            src={HistoryIcon}
+            alt="history"
+            onClick={() => setIsCollapsed(false)}
+          />
+          {!isCollapsed && (
+            <span className="sidebar__item--title">히스토리</span>
+          )}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
         </NavLink>
       </nav>
 

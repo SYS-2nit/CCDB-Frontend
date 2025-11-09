@@ -9,6 +9,10 @@ import TrashIcon from "@/assets/general/trash.svg";
 import Input from "@/components/Input/Input";
 import TabMenu from "@/components/Tabs/TabMenu";
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
+=======
+import SearchIcon from "@/assets/general/search.svg";
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
 
 interface DBItem {
   status: string;
@@ -59,6 +63,7 @@ const InstanceList: React.FC = () => {
   ]);
 
   const columns = [
+<<<<<<< HEAD
     "상태",
     "서버명",
     "IP",
@@ -72,6 +77,21 @@ const InstanceList: React.FC = () => {
     "PGA",
     "SGA",
     "작업",
+=======
+    { key: "status", label: "상태" },
+    { key: "serverName", label: "서버명" },
+    { key: "ip", label: "IP" },
+    { key: "port", label: "포트" },
+    { key: "database", label: "데이터베이스" },
+    { key: "sid", label: "SID" },
+    { key: "cpuUsage", label: "CPU 사용률" },
+    { key: "session", label: "Session" },
+    { key: "activeSession", label: "Active Session" },
+    { key: "lockWait", label: "Lock Wait" },
+    { key: "pga", label: "PGA" },
+    { key: "sga", label: "SGA" },
+    { key: "task", label: "작업" },
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
   ];
 
   type StatusTab = "all" | "normal" | "warn" | "danger" | "error";
@@ -287,6 +307,7 @@ const InstanceList: React.FC = () => {
 
   return (
     <div className="instance-list">
+<<<<<<< HEAD
       {/* 헤더 */}
       <div className="instance-list__header">
         <TabMenu
@@ -296,20 +317,41 @@ const InstanceList: React.FC = () => {
         />
 
         <div className="instance-list__header-right">
+=======
+      <TabMenu
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(tab) => setActiveTab(tab as StatusTab)}
+      />
+
+      {/* 검색란 + 생성 버튼 + 테이블 */}
+      <div className="table-chart">
+        {/* 테이블 위 검색란 + 생성 버튼 */}
+        <div className="table-chart__header">
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
           <Input
             size="sm"
             variant="default"
             placeholder="SID를 입력해주세요."
+<<<<<<< HEAD
+=======
+            icon={SearchIcon}
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Button
+<<<<<<< HEAD
             text="+ 인스턴스 생성"
+=======
+            text="+ 생성"
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
             size="sm"
             variant="primary"
             onClick={() => setIsModalOpen("add")}
           />
         </div>
+<<<<<<< HEAD
       </div>
 
       {/* 테이블 차트 */}
@@ -404,6 +446,104 @@ const InstanceList: React.FC = () => {
           ]}
         />
       )}
+=======
+
+        {/* 테이블 차트 */}
+        <TableChart
+          size="lg"
+          columns={columns}
+          rows={rows}
+          onClick={() => navigate("/dashboard")}
+        />
+
+        {/* 페이지네이션 */}
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+
+        {/* 수정 모달 */}
+        {isModalOpen === "edit" && (
+          <Modal
+            title="DB 수정"
+            cancelText="테스트"
+            confirmText="저장"
+            onClose={() => {
+              setIsModalOpen(null);
+            }}
+            onConfirm={handleConfirm}
+            onReset={handleTest}
+            fields={[
+              {
+                label: "DB NAME ",
+                placeholder: "DB 이름을 입력해주세요.",
+                type: "textarea",
+                value: inputs.name,
+                onChange: (_, val) =>
+                  setNewDB({ ...newDB, sid: val as string }),
+              },
+              {
+                label: "DB IP ",
+                placeholder: "DB IP를 입력해주세요.",
+                type: "textarea",
+                value: inputs.ip,
+                onChange: (_, val) =>
+                  setInputs((prev) => ({ ...prev, ip: val })),
+              },
+              {
+                label: "DB PORT ",
+                placeholder: "DB 포트를 입력해주세요.",
+                type: "textarea",
+                value: inputs.port,
+                onChange: (_, val) =>
+                  setInputs((prev) => ({ ...prev, port: val })),
+              },
+              {
+                label: "SID ",
+                placeholder: "SID를 입력해주세요.",
+                type: "textarea",
+                value: inputs.sid,
+                onChange: (_, val) =>
+                  setInputs((prev) => ({ ...prev, sid: val })),
+              },
+            ]}
+          >
+            {/* 테스트 결과 */}
+            {testResult && (
+              <div className="modal__test-result">
+                {testResult === "success" ? (
+                  <div className="success">✅ 테스트 성공</div>
+                ) : (
+                  <div className="fail">❌ 테스트 실패: 연결 오류</div>
+                )}
+              </div>
+            )}
+          </Modal>
+        )}
+
+        {/* 인스턴스 생성 모달 */}
+        {isModalOpen === "add" && (
+          <Modal
+            title="인스턴스 생성"
+            cancelText="취소"
+            confirmText="확인"
+            onClose={() => setIsModalOpen(null)}
+            onConfirm={handleAdd}
+            fields={[
+              {
+                label: "SID ",
+                placeholder: "SID를 입력해주세요.",
+                type: "textarea",
+                value: newDB.sid,
+                onChange: (_, val) =>
+                  setNewDB({ ...newDB, sid: val as string }),
+              },
+            ]}
+          />
+        )}
+      </div>
+>>>>>>> db11cb046b5755231bd985ce52bf91082ac2342b
     </div>
   );
 };
