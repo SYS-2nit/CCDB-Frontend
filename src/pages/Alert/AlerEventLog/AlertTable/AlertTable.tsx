@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import "./AlertTable.scss";
 import Button from "@/components/Button/Button";
 import Modal from "@/components/Modal/Modal";
-import Dashboard, {
-  type TabType,
-} from "@/pages/Dashboard/InstanceMap/Dashboard/Dashboard";
-import { createRoot } from "react-dom/client";
-import SeverityDot from "../SeverityDot";
+import TableChart from "@/components/Chart/TableChart";
 
 const AlertTable: React.FC = () => {
   const [isListOpen, setIsListOpen] = useState(false);
+  const SeverityDot: React.FC<{ color: "yellow" | "red" | "black" }> = ({
+    color,
+  }) => {
+    return <span className={`severity-dot severity-dot--${color}`} />;
+  }; // 위험도
 
   const data = [
     {
@@ -54,95 +55,40 @@ const AlertTable: React.FC = () => {
     },
   ];
 
-  // 카테고리 → 탭 타입 매핑
-  const mapCategoryToTab = (category: string): TabType => {
-    switch (category.toLowerCase()) {
-      case "cpu":
-        return "cpu";
-      case "memory":
-        return "memory";
-      case "session":
-        return "session";
-      case "i/o":
-      case "io":
-        return "io";
-      case "storage":
-        return "storage";
-      default:
-        return "main";
-    }
-  };
+  // 컬럼 정의
+  const columns = [
+    { key: "status", label: "처리 내역" },
+    { key: "severity", label: "심각도" },
+    { key: "category", label: "카테고리" },
+    { key: "policy", label: "정책" },
+    { key: "event", label: "이벤트" },
+    { key: "time", label: "발생시간" },
+  ];
 
-  // 새창으로 대시보드 열기
-  const openDashboardWindow = (category: string) => {
-    const tabType = mapCategoryToTab(category);
-    const newWindow = window.open(
-      "",
-      "_blank",
-      "width=1280,height=900,scrollbars=yes,resizable=yes"
-    );
+  // 행 데이터 구성
+  const rows = data.map((row) => [
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <Button
+        size="sm"
+        variant="white"
+        text="처리내역"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsListOpen(true);
+        }}
+      />
+    </div>,
 
-    if (newWindow) {
-      newWindow.document.title = `이벤트 스냅샷 - ${category}`;
-      const style = document.createElement("style");
-      style.textContent = `
-        body {
-          margin: 0;
-          font-family: 'Pretendard;
-          background: #fafafa;
-        }
-      `;
-      newWindow.document.head.appendChild(style);
-
-      const container = newWindow.document.createElement("div");
-      newWindow.document.body.appendChild(container);
-
-      // Dashboard 렌더링
-      const root = createRoot(container);
-      root.render(<Dashboard initialTab={tabType} singleTabMode={true} />);
-    }
-  };
+    <SeverityDot color={row.severity as "yellow" | "red" | "black"} />,
+    row.category,
+    row.policy,
+    row.event,
+    row.time,
+  ]);
 
   return (
     <div className="alert-table__wrapper">
-      <table className="alert-table">
-        <thead>
-          <tr>
-            <th>처리 내역</th>
-            <th>심각도</th>
-            <th>카테고리</th>
-            <th>정책</th>
-            <th>이벤트</th>
-            <th>발생시간</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, idx) => (
-            <tr key={idx} onClick={() => openDashboardWindow(row.category)}>
-              <td>
-                <Button
-                  size="sm"
-                  variant="white"
-                  text="처리내역"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsListOpen(true);
-                  }}
-                />
-              </td>
-              <td>
-                <SeverityDot
-                  color={row.severity as "yellow" | "red" | "black"}
-                />
-              </td>
-              <td>{row.category}</td>
-              <td>{row.policy}</td>
-              <td>{row.event}</td>
-              <td>{row.time}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <TableChart columns={columns} rows={rows} size="md" />
 
       {/* 처리내역 모달 */}
       {isListOpen && (
