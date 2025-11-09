@@ -2,36 +2,53 @@
 
 ```
 src/
-├── assets/ # 로고, 아이콘 등 정적 리소스
-│ ├── general/
-│ ├── header/
-│ └── sidebar/
+├── api/                          # API 요청 관련 모듈
 │
-├── components/ # 공통 UI 컴포넌트
-│ ├── Header/
-│ └── Sidebar/
+├── assets/                       # 이미지, 아이콘 등 정적 리소스
+│   ├── general/                  # 공용 아이콘 및 이미지
+│   ├── header/                   # 헤더 관련 아이콘
+│   └── sidebar/                  # 사이드바 관련 아이콘
 │
-├── layouts/ # 페이지 공통 레이아웃
-│ ├── Layout.tsx
-│ └── Layout.scss
+├── components/                   # 재사용 가능한 공통 UI 컴포넌트
+│   ├── Button/
+│   ├── Card/
+│   ├── Chart/
+│   ├── Checkbox/
+│   ├── Header/
+│   ├── Input/
+│   ├── Modal/
+│   ├── Pagination/
+│   ├── Scenario/
+│   ├── Select/
+│   ├── Sidebar/
+│   ├── Slider/
+│   ├── Tabs/
+│   └── Toggle/
 │
-├── pages/ # 주요 페이지 단위 컴포넌트
-│ ├── Alert/
-│ ├── Analysis/
-│ ├── Dashboard/
-│ ├── Database/
-│ ├── Improvement/
-│ ├── Setting/
-│ └── SQL/
+├── layouts/                      # 공통 페이지 레이아웃 구성
+│   ├── Layout.tsx
+│   └── Layout.scss
 │
-├── styles/ # 전역 스타일 및 디자인 토큰
-│ ├── _variables.scss
-│ ├── _mixins.scss
-│ ├── _themes.scss
-│ ├── _typography.scss
-│ └── _global.scss
+├── pages/                        # 주요 페이지 단위 컴포넌트
+│   ├── Alert/                    # 알림 페이지
+│   ├── Analysis/                 # 진단 페이지
+│   ├── Dashboard/                # 대시보드 페이지
+│   ├── History/                  # 히스토리 페이지
+│   ├── Improvement/              # 개선 페이지
+│   ├── Setting/                  # 설정 페이지
+│   └── SQL/                      # SQL 분석 페이지
 │
-├── App.tsx # 루트 컴포넌트
-├── main.tsx # 엔트리 포인트
-└── index.html # HTML 템플릿
+├── styles/                       # 전역 스타일 및 SCSS
+│   ├── _variables.scss
+│   ├── _mixins.scss
+│   ├── _themes.scss
+│   ├── _typography.scss
+│   └── _global.scss
+│
+├── App.tsx                       # 루트 컴포넌트
+├── App.css                       # 루트 스타일
+├── index.css                     # 기본 스타일
+├── main.tsx                      # 엔트리 포인트
+└── index.html                    # HTML 템플릿
+
 ```
