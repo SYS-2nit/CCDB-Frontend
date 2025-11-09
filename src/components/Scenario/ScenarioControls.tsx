@@ -21,7 +21,6 @@ const ScenarioControls: React.FC<Props> = ({
   running,
   onStart,
   onStop,
-  status,
   busy,
 }) => {
   const options = durations.map((d) => ({
@@ -45,16 +44,8 @@ const ScenarioControls: React.FC<Props> = ({
           options={options}
           size="sm"
         />
-
-        {/* 진단 시작 후 메시지 */}
-        {running && (
-          <div className="scenario-controls__status">
-            <span>진행중: {status.current}</span>
-            <span>잔여: {status.remain}s</span>
-            <span>루프: {status.loop ?? 0}</span>
-          </div>
-        )}
       </div>
+
       <div className="scenario-controls__right">
         {!running ? (
           <Button
