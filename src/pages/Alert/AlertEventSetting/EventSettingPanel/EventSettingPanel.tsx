@@ -7,8 +7,6 @@ import Select from "@/components/Select/Select";
 import DaysSelector from "@/components/Select/DaysSelector";
 import TimeInput from "@/components/Input/TimeInput";
 import RangeSliderGroup from "@/components/Slider/RangeSliderGroup";
-import type { TabType } from "@/pages/Dashboard/InstanceMap/Dashboard/Dashboard";
-import Dashboard from "@/pages/Dashboard/InstanceMap/Dashboard/Dashboard";
 import ReceiveIcon from "@/assets/general/receive.svg";
 
 interface EventSettingPanelProps {
@@ -81,8 +79,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   const [isInitial, setIsInitial] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [targetIndex, setTargetIndex] = useState<number | null>(null);
-  const [showDashboard, setShowDashboard] = useState(false);
-  const [selectedResourceTab] = useState<TabType>("main");
   const [isReceiveModal, setIsReceiveModal] = useState(false);
 
   const handleAdd = () => {
@@ -429,21 +425,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
               ]}
               theme="light"
             />
-          )}
-
-          {/* Dashboard 모달 */}
-          {showDashboard && (
-            <Modal
-              title="자원 대시보드 미리보기"
-              onClose={() => setShowDashboard(false)}
-              confirmText="닫기"
-              size="lg"
-              theme="light"
-            >
-              <div className="dashboard-modal-content">
-                <Dashboard initialTab={selectedResourceTab} />
-              </div>
-            </Modal>
           )}
         </div>
       )}

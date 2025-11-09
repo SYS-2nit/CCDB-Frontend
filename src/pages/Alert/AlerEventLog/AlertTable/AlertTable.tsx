@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./AlertTable.scss";
 import Button from "@/components/Button/Button";
 import Modal from "@/components/Modal/Modal";
 import TableChart from "@/components/Chart/TableChart";
