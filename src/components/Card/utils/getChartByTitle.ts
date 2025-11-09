@@ -4,20 +4,21 @@ import { ioChartRenderer } from "../chartRenderers/ioChartRenderer";
 import { storageChartRenderer } from "../chartRenderers/storageChartRenderer";
 import { memoryChartRenderer } from "../chartRenderers/memoryChartRenderer";
 import { sessionChartRenderer } from "../chartRenderers/sessionChartRenderer";
+import type { GraphDataResponse } from "@/api";
 
 export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 
 export const chartData: Record<TabType, string[]> = {
   main: [
+    "세션 한도/급증",
     "PGA / SGA 압박률",
-    "Wait Class 분포 (Sessions)",
-    "Session 한도 상태",
-    "핵심 테이블스페이스 여유율",
     "백그라운드 프로세스 상태",
-    "제한 근접 파라미터 상태 (%)",
-    "CPU 상태 (%)",
-    "I/O 지연량 (ms)",
-    "I/O 처리량 (MB/s)",
+    "CPU 사용(호스트 vs DB CPU)",
+    "Wait Class 분포",
+    "I/O 지연량",
+    "I/O 처리량",
+    "제한 근접 파라미터 감시",
+    "핵심 테이블스페이스 여유율",
   ],
   cpu: [
     "CPU 활동 현황 타일",
@@ -74,8 +75,12 @@ export const chartData: Record<TabType, string[]> = {
 };
 
 // title을 기반으로 적절한 렌더러를 자동 반환
-export const getChartByTitle = (title: string) => {
-  if (chartData.main.includes(title)) return mainChartRenderer(title);
+export const getChartByTitle = (
+  title: string,
+  graphData?: GraphDataResponse | null
+) => {
+  if (chartData.main.includes(title))
+    return mainChartRenderer(title, graphData);
   if (chartData.cpu.includes(title)) return cpuChartRenderer(title);
   if (chartData.memory.includes(title)) return memoryChartRenderer(title);
   if (chartData.session.includes(title)) return sessionChartRenderer(title);

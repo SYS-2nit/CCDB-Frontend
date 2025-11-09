@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
 import ChartSetting from "@/components/Card/ChartSetting";
@@ -12,25 +12,138 @@ import {
 } from "@hello-pangea/dnd";
 import { cloneDeep } from "lodash";
 import TabMenu from "@/components/Tabs/TabMenu";
+import {
+  getDashboardData,
+  getMemberWidgets,
+  saveMemberWidgets,
+  type GraphDataResponse,
+  type WidgetConfig,
+} from "@/api";
 
 export type TabType = keyof typeof chartData;
 
 interface DashboardProps {
   initialTab?: TabType;
   singleTabMode?: boolean;
+  instanceId?: number; // 인스턴스 ID (선택적)
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
   initialTab = "main",
   singleTabMode = false,
+  instanceId = 1, // 기본값: 1 (임시)
 }) => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
-  const [charts, setCharts] = useState<string[]>(() =>
-    cloneDeep(chartData[initialTab])
-  );
+  // main 탭은 백엔드에서 받은 그래프 목록 사용, 다른 탭은 하드코딩된 데이터 사용
+  const [charts, setCharts] = useState<string[]>(() => {
+    if (initialTab === "main") {
+      return []; // main 탭은 API 응답 후 업데이트
+    }
+    return cloneDeep(chartData[initialTab]);
+  });
+  const [graphDataMap, setGraphDataMap] = useState<
+    Map<string, GraphDataResponse>
+  >(new Map());
+  const [timeUnit] = useState<"1m" | "10m" | "1h" | "1d">("1m");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSettingToggle = () => setIsSettingOpen((prev) => !prev);
+
+  // API 호출 함수
+  const fetchDashboardData = useCallback(async () => {
+    // custom (main) 카테고리만 API 호출
+    if (activeTab !== "main") {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      console.log("대시보드 데이터 조회 시작:", { instanceId, timeUnit, category: "CUSTOM" });
+      
+      const response = await getDashboardData({
+        instanceId,
+        timeUnit,
+        category: "CUSTOM",
+      });
+
+      console.log("대시보드 데이터 조회 성공:", {
+        graphsCount: response.graphs.length,
+        graphs: response.graphs.map(g => ({
+          id: g.id,
+          name: g.name,
+          type: g.type,
+          dataCount: g.data?.length || 0,
+          hasData: g.data && g.data.length > 0
+        }))
+      });
+
+      // 그래프 데이터를 맵으로 변환 (이름을 키로 사용)
+      const newMap = new Map<string, GraphDataResponse>();
+      response.graphs.forEach((graph) => {
+        newMap.set(graph.name, graph);
+        // 각 그래프의 데이터 확인
+        if (!graph.data || graph.data.length === 0) {
+          console.warn(`그래프 '${graph.name}' (ID: ${graph.id})에 데이터가 없습니다.`);
+        } else {
+          console.log(`그래프 '${graph.name}' (ID: ${graph.id}) 데이터:`, {
+            dataCount: graph.data.length,
+            firstDataPoint: graph.data[0],
+            lastDataPoint: graph.data[graph.data.length - 1]
+          });
+        }
+      });
+      setGraphDataMap(newMap);
+
+      // 백엔드에서 받은 그래프 이름 목록으로 차트 목록 업데이트
+      // (위젯 설정이 있으면 백엔드에서 이미 순서대로 정렬되어 옴)
+      const graphNames = response.graphs.map((graph) => graph.name);
+      if (graphNames.length > 0) {
+        setCharts(graphNames);
+      }
+    } catch (error) {
+      console.error("대시보드 데이터 조회 실패:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [activeTab, instanceId, timeUnit]);
+
+  // 초기 로드 및 매 분 00초에 데이터 갱신
+  useEffect(() => {
+    if (activeTab === "main") {
+      // 초기 로드
+      fetchDashboardData();
+
+      let timeoutId: ReturnType<typeof setTimeout>;
+      let intervalId: ReturnType<typeof setInterval>;
+
+      // 00초에 정확히 호출하기 위한 스케줄링
+      const scheduleNextUpdate = () => {
+        const now = new Date();
+        const seconds = now.getSeconds();
+        const milliseconds = now.getMilliseconds();
+        
+        // 다음 00초까지 남은 시간 계산
+        const msUntilNextMinute = (60 - seconds) * 1000 - milliseconds;
+        
+        timeoutId = setTimeout(() => {
+          fetchDashboardData();
+          // 이후 1분마다 호출
+          intervalId = setInterval(() => {
+            fetchDashboardData();
+          }, 60000); // 1분 = 60000ms
+        }, msUntilNextMinute);
+      };
+
+      scheduleNextUpdate();
+
+      // cleanup
+      return () => {
+        if (timeoutId) clearTimeout(timeoutId);
+        if (intervalId) clearInterval(intervalId);
+      };
+    }
+  }, [fetchDashboardData, activeTab]);
 
   const tabs = [
     { id: "main", label: "Main Custom" },
@@ -43,23 +156,72 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   useEffect(() => {
     setActiveTab(initialTab);
-    setCharts(cloneDeep(chartData[initialTab]));
+    // main 탭이 아닌 경우에만 하드코딩된 차트 데이터 사용
+    if (initialTab !== "main") {
+      setCharts(cloneDeep(chartData[initialTab]));
+    }
   }, [initialTab]);
 
   useEffect(() => {
-    setCharts(cloneDeep(chartData[activeTab]));
+    // main 탭이 아닌 경우에만 하드코딩된 차트 데이터 사용
+    // main 탭은 백엔드에서 받은 그래프 목록 사용
+    if (activeTab !== "main") {
+      setCharts(cloneDeep(chartData[activeTab]));
+    }
   }, [activeTab]);
 
-  const handleDragEnd = ({ source, destination }: DropResult) => {
-    if (!destination) return;
+  // 위젯 설정 저장 함수
+  const saveWidgetConfig = useCallback(
+    async (chartNames: string[]) => {
+      if (activeTab !== "main") {
+        return;
+      }
 
+      try {
+        // 그래프 이름을 graphId로 변환
+        const widgets: WidgetConfig[] = chartNames
+          .map((name, index) => {
+            const graphData = graphDataMap.get(name);
+            if (!graphData) {
+              return null;
+            }
+            return {
+              graphId: graphData.id,
+              position: index + 1, // 1부터 시작
+            };
+          })
+          .filter((widget): widget is WidgetConfig => widget !== null);
+
+        if (widgets.length > 0) {
+          await saveMemberWidgets({ widgets });
+          console.log("위젯 설정 저장 완료");
+        }
+      } catch (error) {
+        console.error("위젯 설정 저장 실패:", error);
+      }
+    },
+    [activeTab, graphDataMap]
+  );
+
+  const handleDragEnd = ({ source, destination }: DropResult) => {
+    if (!destination || activeTab !== "main") return;
+
+    // 드래그는 로컬 상태 변경
     setCharts((prev) => {
       const reordered = [...prev];
       const [moved] = reordered.splice(source.index, 1);
       reordered.splice(destination.index, 0, moved);
+      
+      // 위젯 설정 저장 (비동기)
+      saveWidgetConfig(reordered).catch((error) => {
+        console.error("위젯 설정 저장 중 오류:", error);
+      });
+      
       return reordered;
     });
   };
+
+  // 그래프 타입 변경 시 API 재요청은 ChartSetting에서 처리
 
   const visibleTabs = singleTabMode
     ? tabs.filter((tab) => tab.id === initialTab)
@@ -153,6 +315,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                             showSettingIcon={
                               !singleTabMode && activeTab === "main"
                             }
+                            graphData={
+                              activeTab === "main"
+                                ? graphDataMap.get(title) || null
+                                : null
+                            }
+                            isLoading={isLoading && activeTab === "main"}
                           />
                         </div>
                       )}

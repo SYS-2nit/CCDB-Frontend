@@ -6,6 +6,7 @@ import SettingIcon from "@/assets/general/setting.svg";
 import InfoIcon from "@/assets/general/info.svg";
 import DragIcon from "@/assets/general/drag.svg";
 import { getChartByTitle } from "./utils/getChartByTitle";
+import type { GraphDataResponse } from "@/api";
 
 interface ChartCardProps {
   title: string;
@@ -13,6 +14,8 @@ interface ChartCardProps {
   onSettingClick?: () => void;
   showSettingIcon?: boolean;
   showDragIcon?: boolean;
+  graphData?: GraphDataResponse | null;
+  isLoading?: boolean;
 }
 
 const ChartCard: React.FC<ChartCardProps> = ({
@@ -21,6 +24,8 @@ const ChartCard: React.FC<ChartCardProps> = ({
   onSettingClick,
   showSettingIcon = true,
   showDragIcon = true,
+  graphData,
+  isLoading = false,
 }) => {
   const StatusIcon = status === "warning" ? WarningIcon : SuccessGreenIcon;
 
@@ -44,7 +49,13 @@ const ChartCard: React.FC<ChartCardProps> = ({
           )}
         </div>
       </div>
-      <div className="chart-card__body">{getChartByTitle(title)}</div>
+      <div className="chart-card__body">
+        {isLoading ? (
+          <div>로딩 중...</div>
+        ) : (
+          getChartByTitle(title, graphData) || null
+        )}
+      </div>
     </div>
   );
 };

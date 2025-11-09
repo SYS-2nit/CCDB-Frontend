@@ -8,18 +8,29 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  min-height: 0; // flex 자식이 overflow를 올바르게 처리하도록
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
 
   &__grid {
     flex: 1;
     overflow: hidden;
     padding: 10px 0px;
+    min-height: 0; // flex 자식이 overflow를 올바르게 처리하도록
 
     /* 메인 커스텀 탭 — 고정 3x3 grid */
     &--main {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      grid-auto-rows: 1fr;
+      grid-template-rows: repeat(3, minmax(0, 1fr)); // 3행 고정, 각 행이 화면에 맞게 조절
       gap: 10px;
+      height: 100%; // 부모 높이에 맞춤
     }
 
     /* 다른 탭 (CPU, Memory 등) — 첫 차트 전체, 나머지 2~3개씩 */
