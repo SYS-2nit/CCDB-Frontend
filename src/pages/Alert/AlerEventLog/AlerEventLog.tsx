@@ -17,7 +17,7 @@ const AlerEventLog: React.FC = () => {
       <div className="alert-log__top">
         <div className="alert-log__top-left">
           <Input
-            size="sm"
+            size="lg"
             variant="default"
             placeholder="키워드를 입력해주세요."
           />

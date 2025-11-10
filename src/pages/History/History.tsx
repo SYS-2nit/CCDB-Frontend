@@ -78,7 +78,7 @@ const History: React.FC = () => {
         // 예: 시작이 01:02면 종료는 01:12, 01:22 등 '분의 일의 자리'가 같아야 함
         if (startMin % 10 !== endMin % 10) {
           alert(
-            "10분 단위는 시작 시간의 분 단위 끝자리가 동일해야 합니다. (예: 01:02 → 02, 12, 22...)"
+            "10분 단위는 시작 시간의 일 단위와 동일해야 합니다. \n(예: 1:00 -> 1:10)"
           );
           return;
         }
@@ -91,7 +91,7 @@ const History: React.FC = () => {
 
         if (startMin !== endMin) {
           alert(
-            "1시간 단위는 시작 시각의 분이 동일해야 합니다. (예: 01:15 → 02:15, 03:15)"
+            "1시간 단위는 시작 시각의 분 단위와 동일해야 합니다. \n(예: 01:00 → 02:00)"
           );
           return;
         }
@@ -101,8 +101,9 @@ const History: React.FC = () => {
     updateFilter(type, type === "start" ? "시작일" : "종료일", value);
   };
 
-  /** 기간 선택 시 */
+  // 기간 변경 시 종료일 초기화
   const handleDurationChange = (value: string) => {
+    setFilters((prev) => prev.filter((f) => f.key !== "end"));
     updateFilter("duration", "기간", value);
   };
 
@@ -229,7 +230,7 @@ const History: React.FC = () => {
           <div key={idx} className="history__card">
             <div className="history__card-header">
               <h4 className="history__card-title">
-                Title{" "}
+                Title
                 {idx % 2 === 0 ? (
                   <AlertTriangle size={16} color="#ef4444" />
                 ) : (

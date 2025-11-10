@@ -146,6 +146,7 @@ const SqlStat: React.FC = () => {
 
         <Input
           label="조회 건수"
+          size="sm"
           type="number"
           placeholder="0"
           value={queryCount}

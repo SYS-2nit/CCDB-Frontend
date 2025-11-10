@@ -26,19 +26,21 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   ];
 
   const rows1 = [
-    ["CPU Time", "2.8s"],
-    ["Elapsed Time", "4.2s"],
-    ["Execute Count", "146"],
-    ["Logical Reads", "58,240"],
-    ["Physical Reads", "4,312"],
+    ["CPU Time", "28ms"],
+    ["Elapsed Time", "42ms"],
+    ["Execute Count", "146ms"],
+    ["Avg Elapsed Time", "62ms"],
+    ["Wait TIme ", "17ms"],
+    ["Logical Reads", "58,02개"],
+    ["Physical Reads", "4,312개"],
   ];
 
   const rows2 = [
-    ["User I/O", "32.8%"],
-    ["Concurrency", "17.8%"],
-    ["Commit", "10.9%"],
-    ["System I/O", "9.7%"],
-    ["Idle", "8.3%"],
+    ["User I/O", "32ms"],
+    ["Concurrency", "17ms"],
+    ["Application", "10ms"],
+    ["Cluster", "9ms"],
+    ["Other", "8ms"],
   ];
 
   return (
@@ -83,11 +85,10 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
             <div className="chart-block">
               <h5>Elapsed Time Trend</h5>
               <LineChart
-                legends={["CPU 시간", "Elapsed Time Avg", "Execute Count"]}
+                legends={["CPU Time", "Other"]}
                 seriesData={[
                   [5, 6, 4, 7, 8, 6, 9],
                   [3, 4, 3, 5, 6, 4, 5],
-                  [8, 10, 12, 11, 9, 10, 8],
                 ]}
                 categories={[
                   "Text",

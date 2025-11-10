@@ -54,12 +54,12 @@
 
     /* 크기 */
     &--sm {
-      width: 50%;
+      width: 20%;
       @include text-styles("label02");
     }
 
     &--md {
-      width: 70%;
+      width: 60%;
       @include text-styles("body02");
     }
 
