@@ -77,15 +77,16 @@
 
 .table-chart {
   background: $gray-0;
-  padding: 16px;
+  padding: 20px;
   border-radius: 0px 0px 5px 5px;
 
   /* 헤더 */
   &__header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     background: $gray-0;
     margin-bottom: 10px;
+    gap: 20px;
   }
 }

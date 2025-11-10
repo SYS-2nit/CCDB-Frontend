@@ -17,7 +17,7 @@ const AlerEventLog: React.FC = () => {
       <div className="alert-log__top">
         <div className="alert-log__top-left">
           <Input
-            size="sm"
+            size="lg"
             variant="default"
             placeholder="키워드를 입력해주세요."
           />
@@ -64,7 +64,7 @@ const AlerEventLog: React.FC = () => {
             {
               label: "위험도",
               type: "button-group",
-              options: ["주의", "위험", "치명"],
+              options: ["주의", "위험", "에러"],
             },
             {
               label: "상태",

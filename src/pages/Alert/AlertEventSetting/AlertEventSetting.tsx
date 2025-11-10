@@ -114,17 +114,17 @@ const AlertEventSetting: React.FC = () => {
         {
           label: "이벤트 이름",
           type: "text",
-          placeholder: selectedEvent.name,
+          placeholder: selectedEvent.eventName,
         },
         {
           label: "누적 횟수",
           type: "text",
-          placeholder: selectedEvent.eventType,
+          placeholder: selectedEvent.frequency,
         },
         {
           label: "자원",
           type: "text",
-          placeholder: selectedEvent.resource,
+          placeholder: selectedEvent.resources,
         },
         {
           label: "요일",

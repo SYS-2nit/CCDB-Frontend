@@ -15,22 +15,9 @@
     align-items: flex-end;
     justify-content: space-between;
     background: $gray-0;
+    gap: 20px;
     border-radius: 5px;
     padding: 20px;
-
-    &-left {
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-start;
-      gap: 20px;
-    }
-
-    &-right {
-      gap: 10px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-start;
-    }
   }
 
   &__summary {

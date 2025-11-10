@@ -19,7 +19,7 @@ const MetricCard: React.FC<MetricData> = ({
   title,
   value,
   icon,
-  subtitle = "window: last 60s",
+  subtitle,
   color,
 }) => {
   return (

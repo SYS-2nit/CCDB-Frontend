@@ -1,8 +1,18 @@
 // 탭 타입 정의
-export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
+export type TabType =
+  | "performance"
+  | "prevention"
+  | "main"
+  | "cpu"
+  | "memory"
+  | "session"
+  | "io"
+  | "storage";
 
 // 탭별 차트 데이터
 export const chartData: Record<TabType, string[]> = {
+  performance: ["DB CPU 효율 추세", "SGA Hit Ratio 변화"],
+  prevention: ["장애 발생률 예측", "Redo Log I/O Delay Trend"],
   main: [
     "Session 한도 상태",
     "PGA / SGA 압박률",

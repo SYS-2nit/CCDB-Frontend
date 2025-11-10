@@ -6,35 +6,31 @@
 .chart-setting {
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
-  width: 30%;
-  max-width: 380px;
+  box-sizing: border-box; 
   height: 100%;
-  border-radius: 10px;
   background-color: $gray-0;
   color: $gray-900;
+  transition: width 0.25s ease;
+  overflow: hidden;
 
-  /* 헤더 */
+
   &__header {
     padding: 20px;
     border-bottom: 1px solid $gray-100;
 
     &--title {
       @include text-styles("title03");
-      font-weight: 600;
     }
   }
 
-  /* 본문 */
   &__body {
     flex: 1;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     padding: 20px;
     gap: 20px;
+    overflow: hidden;
 
-    /* 검색창 */
     &--search {
       position: relative;
       width: 100%;
@@ -52,7 +48,7 @@
         width: 100%;
         padding: 12px 14px 12px 40px;
         border: 1px solid $gray-300;
-        border-radius: 6px;
+        border-radius: 5px;
         @include text-styles("body02");
         color: $gray-900;
         background-color: $gray-0;
@@ -63,43 +59,97 @@
       }
     }
 
-    /* 미리보기 박스 */
+    /* 미리보기 영역 고정 */
     &--preview {
+      flex-shrink: 0;
+      height: 200px;
+      border-radius: 5px;
+      border: 1px solid $gray-300;
+      color: $gray-400;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
-      height: 300px;
-      border-radius: 5px;
-      color: $gray-300;
-      border: 1px solid $gray-300;
       @include text-styles("body02");
-    }
+      overflow: hidden;
 
-    /* 탭 */
-    .chart-setting__tabs {
-        gap: 20px;
+      .chart-preview-container {
+        width: 100%;
+        height: 100%;
+        padding: 8px;
+        box-sizing: border-box;
         display: flex;
-        justify-content: flex-start;
-        @include text-styles("heading04");
+        align-items: center;
+        justify-content: center;
 
-        .chart-setting__tab {
-            background: none;
-            text-align: center;
-            cursor: pointer;
-            color: $gray-300;
-            padding-bottom: 6px;
-            border-radius: 0; 
-
-            &.active {
-            color: $main-600;
-            border-bottom: 1px solid $main-600;
-            }
+        > div {
+          width: 100% !important;
+          height: 100% !important;
         }
+
+        canvas,
+        svg {
+          width: 100% !important;
+          height: 100% !important;
+        }
+      }
     }
 
-    /* 체크박스 옵션 */
+    /* 탭 영역 */
+    .chart-setting__tabs {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .chart-setting__tab-group {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 10px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+
+        &::-webkit-scrollbar {
+          display: none;
+        }
+      }
+
+      .chart-setting__tab {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: $gray-400;
+        @include text-styles("body02");
+        white-space: nowrap;
+        border-radius: 0;
+
+        &.active {
+          color: $main-500;
+          border-bottom: 1.5px solid $main-500;
+        }
+      }
+
+      .chart-setting__switch-btn {
+        color: $main-600;
+        background: $main-0;
+        border: 1px solid $main-100;
+        padding: 8px 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        @include text-styles("label02");
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: $main-100;
+        }
+      }
+    }
+
+    /* 체크박스 목록 스크롤 */
     &--options {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 8px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 10px 16px;
@@ -116,7 +166,6 @@
           width: 16px;
           height: 16px;
           accent-color: $gray-300;
-          cursor: pointer;
         }
 
         &.active {
@@ -129,12 +178,11 @@
     }
 
     &--no-result {
-        color: $gray-300;
-        @include text-styles("body02");
+      color: $gray-300;
+      @include text-styles("body02");
     }
   }
 
-  /* 푸터 */
   &__footer {
     display: flex;
     justify-content: flex-end;
@@ -143,10 +191,10 @@
     border-top: 1px solid $gray-100;
 
     button {
-        padding: 12px 16px;
-        border-radius: 5px;
-        cursor: pointer;
-        @include text-styles("body02");
+      padding: 12px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      @include text-styles("body02");
     }
 
     .cancel {
@@ -160,9 +208,9 @@
     }
 
     .confirm {
-        color: $gray-0;
-        background-color: $main-600;
-        border: 1px solid $gray-600;
+      color: $gray-0;
+      background-color: $main-600;
+      border: 1px solid $main-600;
 
       &:hover {
         background-color: $main-700;

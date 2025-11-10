@@ -8,26 +8,17 @@
   flex-direction: column;
   gap: 20px;
   background-color: $gray-50;
-
-  /* 스크롤 최소화 및 자연스러운 처리 */
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin; 
   scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
 
-  /* Chrome, Edge, Safari 전용: 스크롤바 얇게 + 자동 숨김 */
+  /* 스크롤 눈에는 안 보이게 */
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+  
   &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, 0.25);
+    display: none; 
   }
 
   /* 필터 영역 */

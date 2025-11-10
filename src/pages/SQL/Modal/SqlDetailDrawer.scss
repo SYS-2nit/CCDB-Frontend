@@ -142,16 +142,8 @@
     }
 
     &-scheduler {
-      flex-basis: 25%;
+      flex-basis: 40%;
       background-color: $green-300;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    &-idle {
-      flex-basis: 15%;
-      background-color: $purple-200;
       display: flex;
       align-items: center;
       justify-content: center;

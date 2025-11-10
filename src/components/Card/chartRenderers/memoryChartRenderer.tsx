@@ -9,19 +9,19 @@ import MetricCard from "../MetricCard";
 export const memoryChartRenderer = (title: string) => {
   if (title.includes("SGA Efficiency & Memory Pools"))
     return (
-      <div className="sga-section">
+      <>
         {/* 오른쪽: 메트릭 */}
         <MetricCard
           metrics={[
             {
               title: "SGA Usage",
               value: "65%",
-              subtitle: "Total 1.55 GB / Used 1.01 GB",
+              subtitle: "Total 1.55 / Used 1.01 GB",
             },
             {
               title: "Shared Pool",
               value: "65%",
-              subtitle: "Total 1.55 GB / Used 1.01 GB",
+              subtitle: "Total 1.55 / Used 1.01 GB",
             },
             { title: "Lib.Cache", value: "0.00 Byte", subtitle: "" },
             { title: "Dic.Cache", value: "7.23 MB", subtitle: "" },
@@ -31,8 +31,9 @@ export const memoryChartRenderer = (title: string) => {
             { title: "Buffer Cache", value: "352.00 MB", subtitle: "" },
           ]}
           columns={8}
+          height={110}
         />
-      </div>
+      </>
     );
 
   if (title.includes("PGA Execution Memory & Processes"))
@@ -45,7 +46,7 @@ export const memoryChartRenderer = (title: string) => {
               value={45.37}
               label="PGA Memory Usage"
               subLabel="Total 544 MB / Used 246 MB"
-              size={140}
+              size={135}
             />
           </div>
 
@@ -54,7 +55,7 @@ export const memoryChartRenderer = (title: string) => {
               value={100}
               label="Memory Sort"
               subLabel="완료된 정렬 메모리 100%"
-              size={140}
+              size={135}
               color="#22C55E"
             />
           </div>

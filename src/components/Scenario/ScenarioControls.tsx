@@ -1,5 +1,7 @@
-import React from 'react';
-import type { ScenarioId } from './types';
+import React from "react";
+import type { ScenarioId } from "./types";
+import Button from "../Button/Button";
+import Select from "../Select/Select";
 
 interface Props {
   durations: number[];
@@ -12,36 +14,58 @@ interface Props {
   busy?: boolean;
 }
 
-const ScenarioControls: React.FC<Props> = ({ durations, value, onChange, running, onStart, onStop, status, busy }) => {
+const ScenarioControls: React.FC<Props> = ({
+  durations,
+  value,
+  onChange,
+  running,
+  onStart,
+  onStop,
+  busy,
+}) => {
+  const options = durations.map((d) => ({
+    value: String(d),
+    label: `${Math.floor(d / 60)}분${d % 60 === 0 ? "" : ` ${d % 60}초`}`,
+  }));
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onChange(Number(e.target.value));
+  };
+
   return (
     <div className="scenario-controls">
       <div className="scenario-controls__left">
-        <span>주기 설정:</span>
-        <select value={value} onChange={(e) => onChange(Number(e.target.value))} disabled={busy || running}>
-          {durations.map((d) => (
-            <option key={d} value={d}>
-              {Math.floor(d / 60)}분 {d % 60 === 0 ? '' : `${d % 60}초`}
-            </option>
-          ))}
-        </select>
-        {running && (
-          <div className="scenario-controls__status">
-            <span>진행중: {status.current}</span>
-            <span>잔여: {status.remain ?? '-'}s</span>
-            <span>루프: {status.loop ?? 0}</span>
-          </div>
-        )}
+        {/* 주기 선택 */}
+        <Select
+          label="주기 설정"
+          value={String(value)}
+          onChange={handleChange}
+          disabled={busy || running}
+          options={options}
+          size="sm"
+        />
       </div>
+
       <div className="scenario-controls__right">
         {!running ? (
-          <button className="btn-primary" onClick={onStart} disabled={busy}>
-            {busy ? <span className="spinner" /> : '진단'}
-          </button>
+          <Button
+            text={busy ? "" : "시작"}
+            size="sm"
+            variant="primary"
+            onClick={onStart}
+            disabled={busy}
+          />
         ) : (
-          <button className="btn-danger" onClick={onStop} disabled={busy}>
-            {busy ? <span className="spinner" /> : '멈추기'}
-          </button>
+          <Button
+            text={busy ? "" : "중지"}
+            size="sm"
+            variant="error"
+            onClick={onStop}
+            disabled={busy}
+          />
         )}
+
+        {busy && <span className="spinner" />}
       </div>
     </div>
   );

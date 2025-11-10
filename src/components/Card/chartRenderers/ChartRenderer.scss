@@ -104,13 +104,12 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 13px;
+        @include text-styles("label02");
         color: #374151;
         padding: 4px 0;
         border-bottom: 1px solid #f3f4f6;
 
         .sga-metric-value {
-          font-weight: 600;
           color: #111827;
         }
 
@@ -130,7 +129,7 @@
         align-items: center;
         justify-content: center;
         border-radius: 4px;
-        font-size: 13px;
+        @include text-styles("label02");
       
 
       .sga-metric-title {
@@ -138,7 +137,6 @@
        flex-direction: column;
         align-items: center;
         color: #374151;
-        font-weight: 600;
 
         .dot {
           width: 8px;
@@ -150,13 +148,12 @@
 
         .sga-metric-value {
           color: #111827;
-          font-weight: 600;
         }
       }
 
       .sga-metric-sub {
         margin-top: 4px;
-        font-size: 12px;
+        @include text-styles("label02");
         color: #6b7280;
       }
     }

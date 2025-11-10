@@ -22,7 +22,7 @@ const RangeSliderGroup: React.FC<RangeSliderGroupProps> = ({
   const groups = [
     { label: "주의", key: "warning", color: "#2952E1" },
     { label: "위험", key: "danger", color: "#2952E1" },
-    { label: "치명", key: "critical", color: "#2952E1" },
+    { label: "에러", key: "critical", color: "#2952E1" },
   ] as const;
 
   return (

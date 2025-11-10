@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
-import ChartSetting from "@/components/Card/ChartSetting";
+import ChartSetting from "@/pages/Dashboard/InstanceMap/Dashboard/Card/ChartSetting";
 import { chartData } from "./data/chartData";
 import StatusCard from "@/components/Card/StatusCard";
 import {
@@ -29,8 +29,23 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [charts, setCharts] = useState<string[]>(() =>
     cloneDeep(chartData[initialTab])
   );
+  const [targetIndex, setTargetIndex] = useState<number | null>(null);
 
+  const handleSettingOpen = (index: number) => {
+    setTargetIndex(index);
+    setIsSettingOpen(true);
+  };
   const handleSettingToggle = () => setIsSettingOpen((prev) => !prev);
+
+  // 선택한 그래프 저장 (메인 탭만)
+  const handleSaveChart = (newChartTitle: string) => {
+    if (targetIndex === null) return;
+    setCharts((prev) =>
+      prev.map((c, i) => (i === targetIndex ? newChartTitle : c))
+    );
+    setIsSettingOpen(false);
+    setTargetIndex(null);
+  };
 
   const tabs = [
     { id: "main", label: "Main Custom" },
@@ -89,12 +104,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {/* 메인 탭일 때는 기존 유지 */}
+                {/* 메인 탭일 경우 */}
                 {activeTab === "main" &&
                   charts.map((title, index) => (
                     <Draggable
-                      key={title}
-                      draggableId={title}
+                      key={`${title}-${index}`}
+                      draggableId={`${title}-${index}`}
                       index={index}
                       isDragDisabled={false}
                     >
@@ -107,7 +122,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                           <ChartCard
                             title={title}
                             status="normal"
-                            onSettingClick={handleSettingToggle}
+                            onSettingClick={() => handleSettingOpen(index)}
                             showDragIcon
                             showSettingIcon
                           />
@@ -116,10 +131,9 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </Draggable>
                   ))}
 
-                {/* 메인 제외 탭 (4행 구조) */}
+                {/* 메인 제외 탭 */}
                 {activeTab !== "main" && (
                   <>
-                    {/* 1행: StatusCard + Metric */}
                     <div className="dashboard__row row-1">
                       <div className="dashboard__status-wrap">
                         <StatusCard label="정상" value={2} color="safe" />
@@ -138,7 +152,6 @@ const Dashboard: React.FC<DashboardProps> = ({
                       )}
                     </div>
 
-                    {/* 2행: 2개의 차트 */}
                     <div className="dashboard__row row-2">
                       {charts.slice(1, 3).map((title) => (
                         <ChartCard
@@ -152,7 +165,6 @@ const Dashboard: React.FC<DashboardProps> = ({
                       ))}
                     </div>
 
-                    {/* 3행: 2개의 차트 */}
                     <div className="dashboard__row row-3">
                       {charts.slice(3, 5).map((title) => (
                         <ChartCard
@@ -166,7 +178,6 @@ const Dashboard: React.FC<DashboardProps> = ({
                       ))}
                     </div>
 
-                    {/* 4행: 3개의 차트 */}
                     <div className="dashboard__row row-4">
                       {charts.slice(5, 8).map((title) => (
                         <ChartCard
@@ -188,7 +199,13 @@ const Dashboard: React.FC<DashboardProps> = ({
           </Droppable>
         </DragDropContext>
 
-        {isSettingOpen && <ChartSetting onClose={handleSettingToggle} />}
+        {/* 메인 탭에서만 ChartSetting 활성 */}
+        {isSettingOpen && activeTab === "main" && (
+          <ChartSetting
+            onClose={handleSettingToggle}
+            onSave={handleSaveChart}
+          />
+        )}
       </div>
     </div>
   );

@@ -4,13 +4,13 @@
 @use "@styles/mixins" as *;
 
 .event-panel {
-
-  // 헤더 
+  // 헤더
   &-header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: $gray-0;
+    gap: 20px;
     border-bottom: 1px solid $gray-100;
     padding: 10px 20px;
 
@@ -35,8 +35,15 @@
     flex-wrap: wrap;
     margin-bottom: 20px;
 
+    .custom-select,
+    .custom-input,
+    .time-input,
     .field {
       flex: 1;
+      min-width: 0; 
+    }
+
+    .field {
       display: flex;
       flex-direction: column;
 
@@ -60,7 +67,6 @@
           cursor: pointer;
           background: $gray-0;
           color: $gray-700;
-          font-weight: 500;
           transition: all 0.15s ease;
 
           &:hover {
@@ -78,7 +84,7 @@
     }
   }
 
-  /* 주의/위험/치명 슬라이더 */
+  /* 주의 / 위험 / 에러 슬라이더 */
   &__sliders {
     display: flex;
     gap: 20px;
@@ -112,7 +118,7 @@
           position: absolute;
           width: 100%;
           background: transparent;
-          z-index: 1; 
+          z-index: 1;
         }
 
         // 선택하지 않은 범위
@@ -137,11 +143,11 @@
           border-radius: 4px;
           background: $main-600;
           transform: translateY(-50%);
-          left: calc(var(--min) * 1%);   
+          left: calc(var(--min) * 1%);
           width: calc((var(--max) - var(--min)) * 1%);
         }
 
-        // 원
+        // 슬라이더 thumb
         input[type="range"]::-webkit-slider-thumb {
           appearance: none;
           width: 24px;
@@ -152,21 +158,21 @@
           cursor: pointer;
         }
 
-        // 원에 마우스 가져대댔을 때 
+        // hover 시 thumb 확대
         input[type="range"]::-webkit-slider-thumb:hover {
           transform: scale(1.2);
         }
       }
     }
 
-    // 최댓값, 최솟값 표시 
+    // 최댓값 / 최솟값 라벨
     .slider-labels {
       display: flex;
       justify-content: space-between;
     }
   }
 
-  // 저장 / 수정 / 삭제 버튼 
+  // 하단 버튼
   &__actions {
     gap: 10px;
     padding-top: 20px;
@@ -176,7 +182,7 @@
   }
 }
 
-
+/* 로그 모드 (이벤트 리스트) */
 .event-log__list {
   display: flex;
   flex-direction: column;
@@ -199,7 +205,6 @@
   align-items: center;
   justify-content: space-between;
   color: $gray-900;
-  font-weight: 600;
   @include text-styles("body01");
 
   .event-log__policy-name {
@@ -229,7 +234,6 @@
     @include text-styles("body02");
   }
 
-  /* 삭제 버튼 */
   .custom-btn {
     flex-shrink: 0;
   }
@@ -240,4 +244,20 @@
   padding: 20px;
   color: $gray-500;
   @include text-styles("body02");
+}
+
+
+// 저장 후 결과 목록
+.event-card__header-list {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  border-radius: 3px;
+
+  &-title {
+    margin-bottom: 20px;
+    margin: 10px;
+    
+  }
 }
