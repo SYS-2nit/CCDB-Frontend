@@ -34,9 +34,16 @@ const History: React.FC = () => {
     setFilters((prev) => prev.filter((f) => f.key !== key));
   };
 
-  /** 시작일·종료일 변경 시 유효성 검사 */
+  /** 날짜 및 시간 유효성 검사 */
   const handleDateChange = (type: "start" | "end", value: string) => {
     const duration = filters.find((f) => f.key === "duration")?.value;
+
+    // 기간 미선택 시
+    if (!duration || duration === "0") {
+      alert("먼저 기간을 선택해주세요.");
+      return;
+    }
+
     const start =
       type === "start" ? value : filters.find((f) => f.key === "start")?.value;
     const end =
@@ -46,18 +53,46 @@ const History: React.FC = () => {
       const startDate = new Date(start);
       const endDate = new Date(end);
 
-      // 종료일이 시작일보다 빠르거나 같을 경우
+      // 종료일이 시작일보다 빠를 경우
       if (endDate.getTime() < startDate.getTime()) {
-        alert("종료일은 시작일보다 이후 날짜여야 합니다.");
+        alert("종료일은 시작일보다 이후여야 합니다.");
         return;
       }
 
-      // 1분, 10분, 1시간 단위는 하루치 안에서만 가능
-      if (duration) {
-        const diffDays =
-          (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-        if (["1분", "10분", "1시간"].includes(duration) && diffDays >= 1) {
-          alert("1분, 10분, 1시간 단위는 하루치 안에서만 조회가 가능합니다.");
+      // 같은 날 검증
+      const sameDay =
+        startDate.getFullYear() === endDate.getFullYear() &&
+        startDate.getMonth() === endDate.getMonth() &&
+        startDate.getDate() === endDate.getDate();
+
+      if (["1분", "10분", "1시간"].includes(duration) && !sameDay) {
+        alert("1분, 10분, 1시간 단위는 같은 날 내에서만 선택 가능합니다.");
+        return;
+      }
+
+      // 10분 단위 정렬 검증
+      if (duration === "10분") {
+        const startMin = startDate.getMinutes();
+        const endMin = endDate.getMinutes();
+
+        // 예: 시작이 01:02면 종료는 01:12, 01:22 등 '분의 일의 자리'가 같아야 함
+        if (startMin % 10 !== endMin % 10) {
+          alert(
+            "10분 단위는 시작 시간의 분 단위 끝자리가 동일해야 합니다. (예: 01:02 → 02, 12, 22...)"
+          );
+          return;
+        }
+      }
+
+      // 1시간 단위 정렬 검증
+      if (duration === "1시간") {
+        const startMin = startDate.getMinutes();
+        const endMin = endDate.getMinutes();
+
+        if (startMin !== endMin) {
+          alert(
+            "1시간 단위는 시작 시각의 분이 동일해야 합니다. (예: 01:15 → 02:15, 03:15)"
+          );
           return;
         }
       }
@@ -66,25 +101,12 @@ const History: React.FC = () => {
     updateFilter(type, type === "start" ? "시작일" : "종료일", value);
   };
 
-  /** 기간 선택 시 유효성 검사 */
+  /** 기간 선택 시 */
   const handleDurationChange = (value: string) => {
-    const start = filters.find((f) => f.key === "start")?.value;
-    const end = filters.find((f) => f.key === "end")?.value;
-
-    if (start && end && ["1분", "10분", "1시간"].includes(value)) {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-      const diffDays =
-        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-
-      if (diffDays >= 1) {
-        alert("1분, 10분, 1시간 단위는 하루치 안에서만 조회가 가능합니다.");
-        return; // 변경 취소
-      }
-    }
-
     updateFilter("duration", "기간", value);
   };
+
+  const duration = filters.find((f) => f.key === "duration")?.value || "";
 
   return (
     <div className="history">
@@ -93,27 +115,53 @@ const History: React.FC = () => {
         <div className="history__filter-row">
           <Select
             label="기간"
-            value={filters.find((f) => f.key === "duration")?.value || ""}
+            value={duration}
             onChange={(e) => handleDurationChange(e.target.value)}
             options={[
               { label: "선택해주세요", value: "0" },
-              { label: "1분", value: "1" },
-              { label: "10분", value: "2" },
-              { label: "1시간", value: "3" },
-              { label: "하루", value: "4" },
+              { label: "1분", value: "1분" },
+              { label: "10분", value: "10분" },
+              { label: "1시간", value: "1시간" },
+              { label: "하루", value: "하루" },
             ]}
           />
 
-          <DateInput
-            label="시작일"
-            value={filters.find((f) => f.key === "start")?.value || ""}
-            onChange={(e) => handleDateChange("start", e.target.value)}
-          />
-          <DateInput
-            label="종료일"
-            value={filters.find((f) => f.key === "end")?.value || ""}
-            onChange={(e) => handleDateChange("end", e.target.value)}
-          />
+          {/* 시간 단위일 경우 datetime-local */}
+          {["1분", "10분", "1시간"].includes(duration) ? (
+            <>
+              <div className="date-input">
+                <label className="date-input__label">시작일</label>
+                <input
+                  type="datetime-local"
+                  value={filters.find((f) => f.key === "start")?.value || ""}
+                  onChange={(e) => handleDateChange("start", e.target.value)}
+                  className="date-input__field date-input__field--sm date-input__field--default"
+                />
+              </div>
+              <div className="date-input">
+                <label className="date-input__label">종료일</label>
+                <input
+                  type="datetime-local"
+                  value={filters.find((f) => f.key === "end")?.value || ""}
+                  onChange={(e) => handleDateChange("end", e.target.value)}
+                  className="date-input__field date-input__field--sm date-input__field--default"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <DateInput
+                label="시작일"
+                value={filters.find((f) => f.key === "start")?.value || ""}
+                onChange={(e) => handleDateChange("start", e.target.value)}
+              />
+              <DateInput
+                label="종료일"
+                value={filters.find((f) => f.key === "end")?.value || ""}
+                onChange={(e) => handleDateChange("end", e.target.value)}
+              />
+            </>
+          )}
 
           <Select
             label="카테고리"
@@ -145,6 +193,7 @@ const History: React.FC = () => {
 
           <Input
             label="키워드"
+            size="lg"
             placeholder="검색어를 입력해주세요."
             value={filters.find((f) => f.key === "keyword")?.value || ""}
             onChange={(e) => updateFilter("keyword", "키워드", e.target.value)}
@@ -153,7 +202,7 @@ const History: React.FC = () => {
           <Button text="검색" size="sm" variant="primary" />
         </div>
 
-        {/* 2행: 실시간 조건 표시 */}
+        {/* 2행: 조건 표시 */}
         {filters.length > 0 && (
           <div className="history__conditions">
             <div className="history__conditions-title">검색 조건:</div>
