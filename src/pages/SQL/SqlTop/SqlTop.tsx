@@ -289,6 +289,7 @@ const SqlTop: React.FC = () => {
           />
 
           <Input
+            label="조회 건수"
             type="number"
             size="sm"
             variant="default"
