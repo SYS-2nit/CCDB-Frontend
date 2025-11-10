@@ -3,7 +3,6 @@ import "./SqlStat.scss";
 import DateInput from "@/components/Input/DateInput";
 import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
-import SearchIcon from "@/assets/general/search.svg";
 import TableChart from "@/components/Chart/TableChart";
 import BarGauge from "@/components/Chart/BarGauge";
 import Pagination from "@/components/Pagination/Pagination";
@@ -126,41 +125,38 @@ const SqlStat: React.FC = () => {
     <div className="sql-stat">
       {/* 검색 영역 */}
       <div className="sql-stat__search">
-        <div className="sql-stat__search-left">
-          <DateInput
-            label="기준 날짜"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-          <Select
-            label="필터"
-            options={[
-              { label: "선택해주세요", value: "0" },
-              { label: "Elapsed Time", value: "1" },
-              { label: "Wait Time", value: "2" },
-              { label: "Avg Elapsed Time", value: "3" },
-              { label: "Execute Count", value: "4" },
-              { label: "Logical Reads", value: "5" },
-              { label: "Physical Reads", value: "6" },
-              { label: "cpu Time", value: "7" },
-            ]}
-          />
-        </div>
+        <DateInput
+          label="기준 날짜"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+        <Select
+          label="필터"
+          options={[
+            { label: "선택해주세요", value: "0" },
+            { label: "Elapsed Time", value: "1" },
+            { label: "Wait Time", value: "2" },
+            { label: "Avg Elapsed Time", value: "3" },
+            { label: "Execute Count", value: "4" },
+            { label: "Logical Reads", value: "5" },
+            { label: "Physical Reads", value: "6" },
+            { label: "cpu Time", value: "7" },
+          ]}
+        />
 
-        <div className="sql-stat__search-right">
-          <Input
-            icon={SearchIcon}
-            placeholder="조회 건수를 입력해주세요."
-            value={queryCount}
-            onChange={(e) => setQueryCount(e.target.value)}
-          />
-          <Button
-            text="검색"
-            size="sm"
-            variant="primary"
-            onClick={() => console.log("검색")}
-          />
-        </div>
+        <Input
+          label="조회 건수"
+          type="number"
+          placeholder="0"
+          value={queryCount}
+          onChange={(e) => setQueryCount(e.target.value)}
+        />
+        <Button
+          text="검색"
+          size="sm"
+          variant="primary"
+          onClick={() => console.log("검색")}
+        />
       </div>
 
       {/* Summary Chart */}

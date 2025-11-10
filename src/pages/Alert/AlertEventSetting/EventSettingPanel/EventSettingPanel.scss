@@ -10,6 +10,7 @@
     align-items: center;
     justify-content: space-between;
     background: $gray-0;
+    gap: 20px;
     border-bottom: 1px solid $gray-100;
     padding: 10px 20px;
 
@@ -243,4 +244,20 @@
   padding: 20px;
   color: $gray-500;
   @include text-styles("body02");
+}
+
+
+// 저장 후 결과 목록
+.event-card__header-list {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  border-radius: 3px;
+
+  &-title {
+    margin-bottom: 20px;
+    margin: 10px;
+    
+  }
 }

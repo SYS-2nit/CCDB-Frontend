@@ -96,10 +96,12 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
       return;
     }
 
-    const newEvent = createEmptyEvent(createdCards.length);
-    setInputForms([newEvent]);
+    // 새 이벤트 추가
     setCreatedCards((prev) => [...prev, currentForm]);
     setIsInitial(false);
+
+    // 입력폼 초기화 (새 빈 이벤트로)
+    setInputForms([createEmptyEvent(createdCards.length + 1)]);
   };
 
   const handleSave = () => {
@@ -185,7 +187,14 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     <div className="event-panel">
       {/* 정책 설정 헤더 + 수신 설정 버튼 한 줄 */}
       <div className="event-panel-header-row">
-        <label className="event-panel-header__title">정책 설정</label>
+        <Input
+          placeholder="정책 이름을 입력해주세요."
+          size="lg"
+          variant="default"
+          value={policyName}
+          onChange={(e) => setPolicyName(e.target.value)}
+        />
+
         <Button
           text="수신 설정"
           size="sm"
@@ -199,38 +208,9 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
         <div className="event-panel__content">
           {mode === "default" && (
             <>
-              {!isInitial && (
-                <div className="event-card__header-list">
-                  {createdCards.map((card, index) => (
-                    <div key={card.id} className="event-card__header">
-                      <span>{card.name}</span>
-                      <Button
-                        text="삭제"
-                        size="sm"
-                        variant="error"
-                        onClick={() => {
-                          setTargetIndex(index);
-                          setIsModalOpen(true);
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-
+              {/* 입력폼 */}
               {inputForms.map((event, index) => (
                 <div key={event.id} className="event-card">
-                  {/* 정책 이름 */}
-                  <div className="event-panel__row">
-                    <Input
-                      label="정책 이름"
-                      placeholder="정책 이름을 입력해주세요."
-                      size="sm"
-                      variant="default"
-                      value={policyName}
-                      onChange={(e) => setPolicyName(e.target.value)}
-                    />
-                  </div>
                   <div className="event-panel__row">
                     <Select
                       label="자원"
@@ -254,6 +234,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                         )
                       }
                     />
+
                     <Select
                       label="이벤트"
                       placeholder="선택해주세요"
@@ -276,6 +257,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                         )
                       }
                     />
+
                     <Select
                       label="누적 횟수"
                       placeholder="매번"
@@ -299,7 +281,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                     />
                   </div>
 
-                  {/* 요일 + 시간 */}
                   <div className="event-panel__row">
                     <div className="field">
                       <label>요일</label>
@@ -308,6 +289,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                         onToggle={(day) => toggleDay(index, day)}
                       />
                     </div>
+
                     <TimeInput
                       label="시작 시간"
                       value={event.startTime}
@@ -321,6 +303,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                         )
                       }
                     />
+
                     <TimeInput
                       label="종료 시간"
                       value={event.endTime}
@@ -344,10 +327,44 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                   </div>
                 </div>
               ))}
+
+              {/* 이벤트 목록 타이틀 및 리스트 */}
+              {!isInitial && createdCards.length > 0 && (
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <div className="event-card__header-list-title">
+                      추가된 이벤트 ({createdCards.length})
+                    </div>
+                  </div>
+
+                  {createdCards.map((card, index) => (
+                    <div className="event-card__header-list" key={card.id}>
+                      <div className="event-card__header-list-title">
+                        {card.name}
+                      </div>
+                      <Button
+                        text="삭제"
+                        size="sm"
+                        variant="error"
+                        onClick={() => {
+                          setTargetIndex(index);
+                          setIsModalOpen(true);
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
 
-          {/* 하단 버튼 */}
           {mode === "default" && (
             <div className="event-panel__actions">
               <Button
@@ -366,7 +383,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
             </div>
           )}
 
-          {/* 삭제 모달 */}
           {isModalOpen && (
             <Modal
               title="이벤트 삭제"
@@ -383,7 +399,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
             />
           )}
 
-          {/* 수신 설정 모달 */}
           {isReceiveModal && (
             <Modal
               title="수신 설정"
