@@ -5,7 +5,6 @@ import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
 import TableChart from "@/components/Chart/TableChart";
 import Pagination from "@/components/Pagination/Pagination";
-import SearchIcon from "@/assets/general/search.svg";
 import LineChart from "@/components/Chart/LineChart";
 import DateInput from "@/components/Input/DateInput";
 import BarGauge from "@/components/Chart/BarGauge";
@@ -265,47 +264,44 @@ const SqlTop: React.FC = () => {
       <div className="sql-top__header">
         <div className="sql-top__filters">
           {/* 왼쪽 (기준 닐짜 + 비교 날짜 + ) */}
-          <div className="sql-top__filters-left">
-            <DateInput
-              label="기준 날짜"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-            <DateInput
-              label="비교 날짜"
-              value={compareDate}
-              onChange={(e) => setCompareDate(e.target.value)}
-            />
-            <Select
-              label="필터"
-              options={[
-                { label: "선택해주세요", value: "0" },
-                { label: "Elapsed Time", value: "1" },
-                { label: "Wait Time", value: "2" },
-                { label: "Avg Elapsed Time", value: "3" },
-                { label: "Execute Count", value: "4" },
-                { label: "Logical Reads", value: "5" },
-                { label: "Physical Reads", value: "6" },
-                { label: "Block Changes", value: "7" },
-              ]}
-            />
-          </div>
-          <div className="sql-top__filters-right">
-            <Input
-              size="lg"
-              variant="default"
-              placeholder="조회 건수를 입력해주세요."
-              icon={SearchIcon}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Button
-              text="검색"
-              size="sm"
-              variant="primary"
-              onClick={() => alert("검색 버튼을 클릭하였습니다.")}
-            />
-          </div>
+          <DateInput
+            label="기준 날짜"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+          <DateInput
+            label="비교 날짜"
+            value={compareDate}
+            onChange={(e) => setCompareDate(e.target.value)}
+          />
+          <Select
+            label="필터"
+            options={[
+              { label: "선택해주세요", value: "0" },
+              { label: "Elapsed Time", value: "1" },
+              { label: "Wait Time", value: "2" },
+              { label: "Avg Elapsed Time", value: "3" },
+              { label: "Execute Count", value: "4" },
+              { label: "Logical Reads", value: "5" },
+              { label: "Physical Reads", value: "6" },
+              { label: "Block Changes", value: "7" },
+            ]}
+          />
+
+          <Input
+            type="number"
+            size="sm"
+            variant="default"
+            placeholder="0"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Button
+            text="검색"
+            size="sm"
+            variant="primary"
+            onClick={() => alert("검색 버튼을 클릭하였습니다.")}
+          />
         </div>
       </div>
 
