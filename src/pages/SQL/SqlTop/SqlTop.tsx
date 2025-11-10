@@ -292,7 +292,7 @@ const SqlTop: React.FC = () => {
           </div>
           <div className="sql-top__filters-right">
             <Input
-              size="sm"
+              size="lg"
               variant="default"
               placeholder="조회 건수를 입력해주세요."
               icon={SearchIcon}
