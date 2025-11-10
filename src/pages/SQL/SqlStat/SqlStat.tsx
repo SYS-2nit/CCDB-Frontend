@@ -17,12 +17,10 @@ interface TableData {
   elapsed: number;
   wait: number;
   avg: number;
-  max: number;
   exec: number;
   logical: number;
   physical: number;
-  block: number;
-  parse: number;
+  cpu: number;
 }
 
 const SqlStat: React.FC = () => {
@@ -58,8 +56,7 @@ const SqlStat: React.FC = () => {
           exec: Math.floor(Math.random() * 10),
           logical: Math.floor(Math.random() * 60000),
           physical: Math.floor(Math.random() * 1000),
-          block: Math.floor(Math.random() * 30000),
-          parse: Math.floor(Math.random() * 10),
+          cpu: Math.floor(Math.random() * 30000),
         }));
 
         setTableData(mapped);
@@ -98,12 +95,10 @@ const SqlStat: React.FC = () => {
     { key: "elapsed", label: "Elapsed Time" },
     { key: "wait", label: "Wait Time" },
     { key: "avg", label: "Avg Elapsed Time" },
-    { key: "max", label: "Max Elapsed Time" },
     { key: "exec", label: "Execute Count" },
     { key: "logical", label: "Logical Reads" },
     { key: "physical", label: "Physical Reads" },
-    { key: "CPU", label: "CPU Time" },
-    { key: "parse", label: "Hard Parses" },
+    { key: "cpu", label: "CPU Time" },
   ];
 
   const rows = sortedData.map((row) => [
@@ -119,12 +114,10 @@ const SqlStat: React.FC = () => {
     <BarGauge value={row.elapsed} max={5} />,
     <BarGauge value={row.wait} max={5} />,
     <BarGauge value={row.avg} max={5} />,
-    <BarGauge value={row.max} max={5} />,
     <BarGauge value={row.exec} max={30} />,
     <BarGauge value={row.logical} max={60000} />,
     <BarGauge value={row.physical} max={1000} />,
-    <BarGauge value={row.block} max={30000} />,
-    <BarGauge value={row.parse} max={10} />,
+    <BarGauge value={row.cpu} max={30000} />,
   ]);
 
   if (isLoading) return <div className="sql-stat__loading">로딩 중...</div>;
@@ -149,7 +142,7 @@ const SqlStat: React.FC = () => {
               { label: "Execute Count", value: "4" },
               { label: "Logical Reads", value: "5" },
               { label: "Physical Reads", value: "6" },
-              { label: "Block Changes", value: "7" },
+              { label: "cpu Time", value: "7" },
             ]}
           />
         </div>

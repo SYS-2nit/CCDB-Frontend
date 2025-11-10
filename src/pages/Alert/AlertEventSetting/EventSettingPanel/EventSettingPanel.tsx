@@ -27,7 +27,6 @@ export interface EventCard {
   id: number;
   name: string;
   frequency: string;
-  eventType: string;
   resources: string;
   eventName: string;
   days: string[];
@@ -48,7 +47,6 @@ function createEmptyEvent(index: number): EventCard {
     id: index,
     name: `이벤트 ${index + 1}`,
     frequency: "",
-    eventType: "",
     resources: "",
     eventName: "",
     days: [],
@@ -84,15 +82,10 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   const handleAdd = () => {
     const currentForm = inputForms[0];
 
-    if (!policyName.trim()) {
-      alert("정책 이름을 입력하세요.");
-      return;
-    }
-
     const isInvalid =
-      !currentForm.eventType.trim() ||
+      !policyName.trim() ||
       !currentForm.resources.trim() ||
-      !currentForm.name.trim() ||
+      !currentForm.eventName.trim() ||
       !currentForm.frequency.trim() ||
       currentForm.days.length === 0 ||
       !currentForm.startTime.trim() ||
@@ -115,16 +108,11 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
       return;
     }
 
-    if (!policyName.trim()) {
-      alert("정책 이름을 입력하세요.");
-      return;
-    }
-
     const hasEmptyField = createdCards.some((event) => {
       return (
-        !event.eventType.trim() ||
+        !policyName.trim() ||
         !event.resources.trim() ||
-        !event.name.trim() ||
+        !event.eventName.trim() ||
         !event.frequency.trim() ||
         event.days.length === 0 ||
         !event.startTime.trim() ||
@@ -150,7 +138,9 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     setInputForms([createEmptyEvent(0)]);
 
     if (onPoliciesChange) onPoliciesChange(updated);
-    alert("정책이 성공적으로 저장되었습니다!");
+    alert(
+      "정책이 성공적으로 저장되었습니다. \n설정 기록 탭에서 확인할 수 있습니다."
+    );
   };
 
   const toggleDay = (eventIndex: number, day: string) => {
