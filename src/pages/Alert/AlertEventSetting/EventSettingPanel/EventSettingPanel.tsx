@@ -279,7 +279,9 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                       onChange={(e) =>
                         setInputForms((prev) =>
                           prev.map((ev, i) =>
-                            i === index ? { ...ev, name: e.target.value } : ev
+                            i === index
+                              ? { ...ev, eventName: e.target.value }
+                              : ev
                           )
                         )
                       }

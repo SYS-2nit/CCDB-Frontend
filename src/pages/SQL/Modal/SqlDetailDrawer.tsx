@@ -24,10 +24,6 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
     { key: "metric", label: "Metric" },
     { key: "value", label: "Value" },
   ];
-  const columns3 = [
-    { key: "event", label: "Event Name" },
-    { key: "time", label: "Wait Time" },
-  ];
 
   const rows1 = [
     ["CPU Time", "2.8s"],
@@ -43,14 +39,6 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
     ["Commit", "10.9%"],
     ["System I/O", "9.7%"],
     ["Idle", "8.3%"],
-  ];
-
-  const rows3 = [
-    ["db file sequential read", "32.8%"],
-    ["log file sync", "19.2%"],
-    ["direct path read", "12.8%"],
-    ["control file parallel write", "9.7%"],
-    ["db file scattered read", "8.3%"],
   ];
 
   return (
@@ -89,7 +77,6 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
               <div className="sql-drawer__gauge">
                 <div className="sql-drawer__gauge-cpu">cpu_time (N Sec)</div>
                 <div className="sql-drawer__gauge-scheduler">Scheduler</div>
-                <div className="sql-drawer__gauge-idle">Idle (N Sec)</div>
               </div>
             </div>
 
@@ -154,11 +141,6 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                 <div className="sql-drawer__table">
                   <h5>Total Wait Classes</h5>
                   <TableChart columns={columns2} rows={rows2} size="sm" />
-                </div>
-
-                <div className="sql-drawer__table">
-                  <h5>Top Wait Events</h5>
-                  <TableChart columns={columns3} rows={rows3} size="sm" />
                 </div>
               </div>
             </div>
