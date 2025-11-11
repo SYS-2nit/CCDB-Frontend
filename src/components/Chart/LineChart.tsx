@@ -1,6 +1,7 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import { formatNumberWithUnit, formatTooltipNumber } from "@/utils/numberFormatter";
 
 interface LineChartProps {
   legends?: string[];
@@ -9,6 +10,8 @@ interface LineChartProps {
   categories?: string[];
   yaxisTitle?: string;
   height?: number | string;
+  yMin?: number;
+  yMax?: number;
 }
 
 const LineChart: React.FC<LineChartProps> = ({
@@ -20,6 +23,8 @@ const LineChart: React.FC<LineChartProps> = ({
   categories = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"],
   yaxisTitle = "",
   height = 190,
+  yMin,
+  yMax,
 }) => {
   const colors = [
     "#3B82F6",
@@ -81,6 +86,7 @@ const LineChart: React.FC<LineChartProps> = ({
       },
       labels: {
         show: true,
+        formatter: (val) => formatNumberWithUnit(Number(val)),
         style: {
           fontSize: "11px",
           colors: "#777",
@@ -93,6 +99,8 @@ const LineChart: React.FC<LineChartProps> = ({
       axisTicks: {
         show: false,
       },
+      min: yMin !== undefined ? yMin : undefined,
+      max: yMax !== undefined ? yMax : undefined,
     },
     dataLabels: { enabled: false },
     legend: {
@@ -111,6 +119,9 @@ const LineChart: React.FC<LineChartProps> = ({
       theme: "light",
       style: {
         fontSize: "12px",
+      },
+      y: {
+        formatter: (val) => formatTooltipNumber(Number(val)),
       },
     },
   };
