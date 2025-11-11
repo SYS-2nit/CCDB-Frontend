@@ -80,7 +80,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
           )}
         </div>
       </div>
-      <div className="chart-card__body">{chartContent}</div>
+      <div className="chart-card__body">{bodyContent}</div>
     </div>
   );
 };
