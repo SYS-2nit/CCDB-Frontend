@@ -1,5 +1,5 @@
 import type { ScenarioMeta, RunRequest, RunStatus } from "./types";
-import type { ApiResponse } from "@/api/types";
+import type { ApiResponse } from "../../api/types";
 
 const BASE = "/api/diagnosis";
 

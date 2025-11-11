@@ -1,6 +1,3 @@
-// src/components/Scenario/types.ts
-// ... 기존 코드 ...
-
 export type ScenarioId = number;
 
 export interface ScenarioMeta {

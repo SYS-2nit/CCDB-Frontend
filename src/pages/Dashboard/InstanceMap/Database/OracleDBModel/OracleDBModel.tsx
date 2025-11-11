@@ -50,7 +50,7 @@ const OracleDBModel: React.FC<OracleDBModelProps> = ({
       )}
 
       {layers.map((layer, i) => (
-        <mesh key={i} position={[0, layer.y, 0]} className="db-model-layer">
+        <mesh key={i} position={[0, layer.y, 0]}>
           <cylinderGeometry args={[0.9, 0.9, 0.4, 64]} />
           <meshPhysicalMaterial
             color={layer.color}

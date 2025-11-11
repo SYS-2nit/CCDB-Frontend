@@ -1,5 +1,5 @@
 import "./Database.scss";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
 import { isAxiosError } from "axios";
@@ -102,31 +102,6 @@ const getErrorMessage = (error: unknown) => {
   return "알 수 없는 오류가 발생했습니다.";
 };
 
-const handleDatabaseSelectStorage = (database: DatabaseListItem | null) => {
-  if (database) {
-    try {
-      sessionStorage.setItem(
-        SELECTED_DB_STORAGE_KEY,
-        JSON.stringify({ id: database.id, name: database.name }),
-      );
-    } catch (error) {
-      console.warn("[Database] 선택한 DB 저장 실패", error);
-    }
-    window.dispatchEvent(
-      new CustomEvent("dashboard:selected-db", {
-        detail: { id: database.id, name: database.name },
-      }),
-    );
-  } else {
-    sessionStorage.removeItem(SELECTED_DB_STORAGE_KEY);
-    window.dispatchEvent(
-      new CustomEvent("dashboard:selected-db", {
-        detail: { id: null, name: null },
-      }),
-    );
-  }
-};
-
 const Database: React.FC = () => {
   const [showInfo, setShowInfo] = useState(false);
   const [dbList, setDbList] = useState<DatabaseListItem[]>([]);
@@ -149,6 +124,31 @@ const Database: React.FC = () => {
     }
   });
 
+  const handleDatabaseSelectStorage = useCallback((database: DatabaseListItem | null) => {
+    if (database) {
+      try {
+        sessionStorage.setItem(
+          SELECTED_DB_STORAGE_KEY,
+          JSON.stringify({ id: database.id, name: database.name }),
+        );
+      } catch (error) {
+        console.warn("[Database] 선택한 DB 저장 실패", error);
+      }
+      window.dispatchEvent(
+        new CustomEvent("dashboard:selected-db", {
+          detail: { id: database.id, name: database.name },
+        }),
+      );
+    } else {
+      sessionStorage.removeItem(SELECTED_DB_STORAGE_KEY);
+      window.dispatchEvent(
+        new CustomEvent("dashboard:selected-db", {
+          detail: { id: null, name: null },
+        }),
+      );
+    }
+  }, []);
+
   const handleDatabaseSelect = useCallback((database: DatabaseListItem | null) => {
     if (database) {
       setSelectedDatabaseId(database.id);
@@ -156,7 +156,7 @@ const Database: React.FC = () => {
       setSelectedDatabaseId(null);
     }
     handleDatabaseSelectStorage(database);
-  }, []);
+  }, [handleDatabaseSelectStorage]);
 
   const loadDatabases = useCallback(async () => {
     setIsFetching(true);

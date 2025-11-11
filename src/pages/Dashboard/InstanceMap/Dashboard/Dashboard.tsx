@@ -16,7 +16,7 @@ import {
   useDashboardContext,
   type DashboardMode,
 } from "@/state/DashboardContext";
-import { fetchDashboardData, type GraphDefinition, type GraphDataResponse } from "@/api/dashboard";
+import { fetchDashboardData, fetchAllGraphs, type GraphDefinition, type GraphDataResponse } from "@/api/dashboard";
 import { isAxiosError } from "axios";
 import { useSearchParams } from "react-router-dom";
 
@@ -114,6 +114,8 @@ const Dashboard: React.FC<DashboardProps> = ({
       session: "SESSION",
       io: "IO",
       storage: "STORAGE",
+      performance: "PERFORMANCE",
+      prevention: "PREVENTION",
     };
     return categoryMap[tab] ?? "CUSTOM";
   };
@@ -673,9 +675,36 @@ const Dashboard: React.FC<DashboardProps> = ({
         {isSettingOpen && settingTargetIndex !== null && (
           <ChartSetting
             onClose={handleCloseSetting}
-            position={settingTargetIndex}
-            currentGraph={graphList[settingTargetIndex] ?? null}
-            onConfirm={handleGraphSwap}
+            onSave={async (newChartTitle: string) => {
+              if (settingTargetIndex !== null) {
+                // 그래프 이름으로 GraphDefinition 찾기
+                try {
+                  const allGraphs = await fetchAllGraphs();
+                  const foundGraph = allGraphs.find((g) => g.name === newChartTitle);
+                  if (foundGraph) {
+                    await handleGraphSwap(foundGraph);
+                  } else {
+                    // 그래프를 찾지 못한 경우 이름만으로 처리
+                    await handleGraphSwap({ 
+                      id: 0, 
+                      name: newChartTitle,
+                      category: "CUSTOM",
+                      type: 1,
+                      info: null
+                    } as GraphDefinition);
+                  }
+                } catch (error) {
+                  console.error("그래프 정보 조회 실패:", error);
+                  await handleGraphSwap({ 
+                    id: 0, 
+                    name: newChartTitle,
+                    category: "CUSTOM",
+                    type: 1,
+                    info: null
+                  } as GraphDefinition);
+                }
+              }
+            }}
           />
         )}
       </div>

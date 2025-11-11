@@ -35,21 +35,21 @@ type InstanceRow = DatabaseInstanceListItem;
 
 type StatusCounts = Record<Exclude<StatusTab, "all">, number>;
 
-  const columns = [
+  const columns: { key: string; label: string }[] = [
     { key: "status", label: "상태" },
     { key: "serverName", label: "서버명" },
     { key: "ip", label: "IP" },
     { key: "port", label: "포트" },
-  { key: "databaseName", label: "데이터베이스" },
+    { key: "databaseName", label: "데이터베이스" },
     { key: "sid", label: "SID" },
     { key: "cpuUsage", label: "CPU 사용률" },
-  { key: "sessionCount", label: "Session" },
-  { key: "activeSessionCount", label: "Active Session" },
+    { key: "sessionCount", label: "Session" },
+    { key: "activeSessionCount", label: "Active Session" },
     { key: "lockWait", label: "Lock Wait" },
     { key: "pga", label: "PGA" },
     { key: "sga", label: "SGA" },
-  { key: "actions", label: "작업" },
-] as const;
+    { key: "actions", label: "작업" },
+  ];
 
 const loadSelectedDatabase = (): SelectedDatabaseInfo | null => {
   const stored = sessionStorage.getItem(SELECTED_DB_STORAGE_KEY);

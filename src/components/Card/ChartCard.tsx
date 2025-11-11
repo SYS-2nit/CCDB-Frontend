@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react";
+import React, { memo } from "react";
 import "./ChartCard.scss";
 import WarningIcon from "@/assets/general/warning.svg";
 import SuccessGreenIcon from "@/assets/general/succes-green.svg";
@@ -56,9 +56,6 @@ const ChartCard: React.FC<ChartCardProps> = ({
   } else {
     bodyContent = getChartByTitle(title, graphData, mode);
   }
-
-  // 차트 재생성 방지
-  const chartContent = useMemo(() => getChartByTitle(title), [title]);
 
   return (
     <div className={`chart-card ${status}`}>
