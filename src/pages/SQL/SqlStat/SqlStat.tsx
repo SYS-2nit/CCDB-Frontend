@@ -1,28 +1,25 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import "./SqlStat.scss";
 import DateInput from "@/components/Input/DateInput";
 import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
-import SearchIcon from "@/assets/general/search.svg";
 import TableChart from "@/components/Chart/TableChart";
 import BarGauge from "@/components/Chart/BarGauge";
 import Pagination from "@/components/Pagination/Pagination";
 import SqlDetailDrawer from "../Modal/SqlDetailDrawer";
 import LineChart from "@/components/Chart/LineChart";
 import Select from "@/components/Select/Select";
+import { getSqlList, type SqlResponse } from "@/api/Sql/sql";
 
 interface TableData {
   sql: string;
   elapsed: number;
   wait: number;
   avg: number;
-  max: number;
   exec: number;
   logical: number;
   physical: number;
-  block: number;
-  parse: number;
+  cpu: number;
 }
 
 const SqlStat: React.FC = () => {
@@ -30,80 +27,49 @@ const SqlStat: React.FC = () => {
   const [queryCount, setQueryCount] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 1;
+
   const [sortConfig, setSortConfig] = useState<{
     key: keyof TableData;
     direction: "asc" | "desc";
   } | null>(null);
 
-  // Drawer 상태
+  const [tableData, setTableData] = useState<TableData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [selectedRow, setSelectedRow] = useState<TableData | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // 원본 데이터
-  const data: TableData[] = [
-    {
-      sql: "update sys.user$",
-      elapsed: 1,
-      wait: 0,
-      avg: 1,
-      max: 1,
-      exec: 1,
-      logical: 0,
-      physical: 0,
-      block: 0,
-      parse: 0,
-    },
-    {
-      sql: "select /*+ conn */",
-      elapsed: 0,
-      wait: 0,
-      avg: 0,
-      max: 0,
-      exec: 1,
-      logical: 0,
-      physical: 0,
-      block: 0,
-      parse: 0,
-    },
-    {
-      sql: "SELECT SEQ_CURRVAL",
-      elapsed: 0,
-      wait: 0,
-      avg: 0,
-      max: 0,
-      exec: 1,
-      logical: 21,
-      physical: 0,
-      block: 4,
-      parse: 0,
-    },
-    {
-      sql: "SELECT CONFIG",
-      elapsed: 0,
-      wait: 0,
-      avg: 0,
-      max: 0,
-      exec: 26,
-      logical: 59883,
-      physical: 0,
-      block: 28023,
-      parse: 0,
-    },
-    {
-      sql: "INSERT INTO CUSTOMERS",
-      elapsed: 0,
-      wait: 0,
-      avg: 0,
-      max: 0,
-      exec: 2,
-      logical: 0,
-      physical: 0,
-      block: 0,
-      parse: 0,
-    },
-  ];
+  // 백엔드 데이터 fetch
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const sqlList: SqlResponse[] = await getSqlList();
 
-  // 정렬 핸들러
+        // TableData 형태로 매핑
+        const mapped: TableData[] = sqlList.map((item) => ({
+          sql: item.field3,
+          elapsed: Math.floor(Math.random() * 5),
+          wait: Math.floor(Math.random() * 5),
+          avg: Math.floor(Math.random() * 3),
+          max: Math.floor(Math.random() * 3),
+          exec: Math.floor(Math.random() * 10),
+          logical: Math.floor(Math.random() * 60000),
+          physical: Math.floor(Math.random() * 1000),
+          cpu: Math.floor(Math.random() * 30000),
+        }));
+
+        setTableData(mapped);
+      } catch (err) {
+        console.error("❌ SQL 리스트 로드 실패:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // 정렬
   const handleSort = (key: keyof TableData) => {
     let direction: "asc" | "desc" = "asc";
     if (sortConfig?.key === key && sortConfig.direction === "asc") {
@@ -112,33 +78,28 @@ const SqlStat: React.FC = () => {
     setSortConfig({ key, direction });
   };
 
-  // 정렬된 데이터 계산
   const sortedData = useMemo(() => {
-    if (!sortConfig) return data;
-    return [...data].sort((a, b) => {
+    if (!sortConfig) return tableData;
+    return [...tableData].sort((a, b) => {
       const aVal = a[sortConfig.key];
       const bVal = b[sortConfig.key];
       if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
       if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
       return 0;
     });
-  }, [data, sortConfig]);
+  }, [tableData, sortConfig]);
 
-  // 컬럼 정의
   const columns = [
     { key: "sql", label: "SQL Text" },
     { key: "elapsed", label: "Elapsed Time" },
     { key: "wait", label: "Wait Time" },
     { key: "avg", label: "Avg Elapsed Time" },
-    { key: "max", label: "Max Elapsed Time" },
     { key: "exec", label: "Execute Count" },
     { key: "logical", label: "Logical Reads" },
     { key: "physical", label: "Physical Reads" },
-    { key: "block", label: "Block Changes" },
-    { key: "parse", label: "Hard Parses" },
+    { key: "cpu", label: "CPU Time" },
   ];
 
-  // 행 구성 + 클릭 이벤트 추가
   const rows = sortedData.map((row) => [
     <span
       className="sql-stat__sql-text sql-stat__sql-clickable"
@@ -149,58 +110,54 @@ const SqlStat: React.FC = () => {
     >
       {row.sql}
     </span>,
-    <BarGauge value={row.elapsed} max={2} />,
-    <BarGauge value={row.wait} max={2} />,
-    <BarGauge value={row.avg} max={2} />,
-    <BarGauge value={row.max} max={2} />,
+    <BarGauge value={row.elapsed} max={5} />,
+    <BarGauge value={row.wait} max={5} />,
+    <BarGauge value={row.avg} max={5} />,
     <BarGauge value={row.exec} max={30} />,
     <BarGauge value={row.logical} max={60000} />,
-    <BarGauge value={row.physical} max={10} />,
-    <BarGauge value={row.block} max={30000} />,
-    <BarGauge value={row.parse} max={5} />,
+    <BarGauge value={row.physical} max={1000} />,
+    <BarGauge value={row.cpu} max={30000} />,
   ]);
+
+  if (isLoading) return <div className="sql-stat__loading">로딩 중...</div>;
 
   return (
     <div className="sql-stat">
       {/* 검색 영역 */}
       <div className="sql-stat__search">
-        {/* 왼쪽 (기간 + 필터) */}
-        <div className="sql-stat__search-left">
-          <DateInput
-            label="기준 날짜"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-          <Select
-            label="필터"
-            options={[
-              { label: "선택해주세요", value: "0" },
-              { label: "Elapsed Time", value: "1" },
-              { label: "Wait Time", value: "2" },
-              { label: "Avg Elapsed Time", value: "3" },
-              { label: "Execute Count", value: "4" },
-              { label: "Logical Reads", value: "5" },
-              { label: "Physical Reads", value: "6" },
-              { label: "Block Changes", value: "7" },
-            ]}
-          />
-        </div>
+        <DateInput
+          label="기준 날짜"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+        <Select
+          label="필터"
+          options={[
+            { label: "선택해주세요", value: "0" },
+            { label: "Elapsed Time", value: "1" },
+            { label: "Wait Time", value: "2" },
+            { label: "Avg Elapsed Time", value: "3" },
+            { label: "Execute Count", value: "4" },
+            { label: "Logical Reads", value: "5" },
+            { label: "Physical Reads", value: "6" },
+            { label: "cpu Time", value: "7" },
+          ]}
+        />
 
-        {/* 오른쪽 (검색 + 버튼) */}
-        <div className="sql-stat__search-right">
-          <Input
-            icon={SearchIcon}
-            placeholder="조회 건수를 입력해주세요."
-            value={queryCount}
-            onChange={(e) => setQueryCount(e.target.value)}
-          />
-          <Button
-            text="검색"
-            size="sm"
-            variant="primary"
-            onClick={() => console.log("검색")}
-          />
-        </div>
+        <Input
+          label="조회 건수"
+          size="sm"
+          type="number"
+          placeholder="0"
+          value={queryCount}
+          onChange={(e) => setQueryCount(e.target.value)}
+        />
+        <Button
+          text="검색"
+          size="sm"
+          variant="primary"
+          onClick={() => console.log("검색")}
+        />
       </div>
 
       {/* Summary Chart */}
@@ -244,7 +201,7 @@ const SqlStat: React.FC = () => {
         </div>
       </div>
 
-      {/* 테이블 영역 */}
+      {/* 테이블 */}
       <div className="sql-stat__table">
         <div className="sql-stat__table-title">조회 결과</div>
         <TableChart
@@ -261,7 +218,7 @@ const SqlStat: React.FC = () => {
         />
       </div>
 
-      {/* SQL 상세 모달 */}
+      {/* SQL 상세 Drawer */}
       {isDrawerOpen && selectedRow && (
         <SqlDetailDrawer
           data={{

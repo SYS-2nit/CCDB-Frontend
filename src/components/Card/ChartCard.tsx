@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import "./ChartCard.scss";
 import WarningIcon from "@/assets/general/warning.svg";
 import SuccessGreenIcon from "@/assets/general/succes-green.svg";
@@ -57,6 +57,9 @@ const ChartCard: React.FC<ChartCardProps> = ({
     bodyContent = getChartByTitle(title, graphData, mode);
   }
 
+  // 차트 재생성 방지
+  const chartContent = useMemo(() => getChartByTitle(title), [title]);
+
   return (
     <div className={`chart-card ${status}`}>
       <div className="chart-card__header">
@@ -77,9 +80,17 @@ const ChartCard: React.FC<ChartCardProps> = ({
           )}
         </div>
       </div>
-      <div className="chart-card__body">{bodyContent}</div>
+      <div className="chart-card__body">{chartContent}</div>
     </div>
   );
 };
 
-export default ChartCard;
+// props가 동일하면 리렌더링 방지 (불필요한 깜빡임 제거)
+export default memo(
+  ChartCard,
+  (prev, next) =>
+    prev.title === next.title &&
+    prev.status === next.status &&
+    prev.showDragIcon === next.showDragIcon &&
+    prev.showSettingIcon === next.showSettingIcon
+);

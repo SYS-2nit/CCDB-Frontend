@@ -1,0 +1,71 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.custom-checkbox {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: 8px;
+
+  input {
+    display: none;
+  }
+
+  &__box {
+    width: 24px;
+    height: 24px;
+    border: 1.5px solid $gray-300;
+    border-radius: 3px;
+    background: $gray-0;
+    position: relative;
+    transition: all 0.2s ease;
+
+    /* 체크 표시 */
+    &::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 7px;
+      width: 6px;
+      height: 8px;
+      border: solid $main-500;
+      border-width: 0 1.5px 1.5px 0;
+      transform: rotate(45deg);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+  }
+
+  /* 체크된 상태 */
+  input:checked + &__box {
+    border-color: $main-400;
+    background: $main-100;
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  &__label {
+    @include text-styles("body02");
+    color: $gray-700;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--sm {
+    .custom-checkbox__box {
+      width: 14px;
+      height: 14px;
+    }
+    .custom-checkbox__label {
+      @include text-styles("body02");
+    }
+  }
+}

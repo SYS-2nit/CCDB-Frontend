@@ -129,7 +129,7 @@ const InstanceList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState<StatusTab>("all");
+  const [activeTab, setActiveTab] = useState<StatusTab>("all");        
   const [currentPage, setCurrentPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createSid, setCreateSid] = useState("");
@@ -561,6 +561,7 @@ const InstanceList: React.FC = () => {
       )}
 
       {isCreateModalOpen && (
+
           <Modal
           title="인스턴스 생성"
           cancelText={isCreateTesting ? "테스트 중" : "테스트"}
@@ -599,6 +600,7 @@ const InstanceList: React.FC = () => {
 
       {isEditModalOpen && editTarget && (
           <Modal
+
           title="DB 수정"
           cancelText={isEditTesting ? "테스트 중" : "테스트"}
           confirmText={isEditSaving ? "저장 중" : "저장"}

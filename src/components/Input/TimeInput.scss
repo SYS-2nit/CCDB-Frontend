@@ -21,12 +21,11 @@
     padding: 12px 16px;
     color: $gray-800;
     background-color: $gray-50;
-    font-size: 14px;
+    @include text-styles("body02");
     cursor: pointer;
 
     &:focus {
       border-color: $main-500;
-      box-shadow: 0 0 0 3px rgba($main-500, 0.15);
       outline: none;
     }
   }

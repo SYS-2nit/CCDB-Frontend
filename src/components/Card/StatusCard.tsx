@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import "./StatusCard.scss";
 
 interface StatusCardProps {
@@ -7,13 +7,20 @@ interface StatusCardProps {
   color?: "safe" | "warning" | "danger" | "critical";
 }
 
-const StatusCard: React.FC<StatusCardProps> = ({ label, value, color }) => {
-  return (
-    <div className={`status-card status-card--${color}`}>
-      <div className="status-card__label">{label}</div>
-      <div className="status-card__value">{value}</div>
-    </div>
-  );
-};
+// 불필요한 리렌더링 방지
+const StatusCard: React.FC<StatusCardProps> = memo(
+  ({ label, value, color = "safe" }) => {
+    return (
+      <div className={`status-card status-card--${color}`}>
+        <div className="status-card__label">{label}</div>
+        <div className="status-card__value">{value}</div>
+      </div>
+    );
+  },
+  (prev, next) =>
+    prev.label === next.label &&
+    prev.value === next.value &&
+    prev.color === next.color
+);
 
 export default StatusCard;

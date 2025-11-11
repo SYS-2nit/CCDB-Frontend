@@ -100,7 +100,7 @@ const DBInfoPanel: React.FC<DBInfoPanelProps> = ({
         <div className="status-card-group">
           <DBStatusCard title="주의" value="N" subValue="N" trend="down" />
           <DBStatusCard title="위험" value="N" subValue="N" trend="up" />
-          <DBStatusCard title="치명" value="N" subValue="N" trend="up" />
+          <DBStatusCard title="에러" value="N" subValue="N" trend="up" />
         </div>
 
         <div className="db-card">

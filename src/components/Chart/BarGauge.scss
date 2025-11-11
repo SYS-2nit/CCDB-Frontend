@@ -1,3 +1,8 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
 .bar-gauge {
   display: flex;
   align-items: center;
@@ -7,7 +12,7 @@
   &__value {
     min-width: 40px;
     text-align: right;
-    font-size: 13px;
+    @include text-styles("label02");
     color: #333;
   }
 

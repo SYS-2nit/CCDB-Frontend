@@ -14,23 +14,10 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
+    gap: 20px;
     padding: 20px;
     background: $gray-0;
     border-radius: 5px;
-
-    &-left {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    &-right {
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      gap: 10px;
-    }
   }
 
   // 테이블 영역

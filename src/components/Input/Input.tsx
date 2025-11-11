@@ -8,6 +8,7 @@ interface InputProps {
   icon?: string;
   size?: "sm" | "md" | "lg";
   variant?: "default";
+  type?: "text" | "number";
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
@@ -19,6 +20,7 @@ const Input: React.FC<InputProps> = ({
   icon,
   size = "sm",
   variant = "default",
+  type = "text",
   value,
   onChange,
   onKeyDown,
@@ -38,7 +40,7 @@ const Input: React.FC<InputProps> = ({
       >
         {icon && <img src={icon} alt="icon" className="custom-input__icon" />}
         <input
-          type="text"
+          type={type}
           placeholder={placeholder}
           value={value}
           onChange={onChange}

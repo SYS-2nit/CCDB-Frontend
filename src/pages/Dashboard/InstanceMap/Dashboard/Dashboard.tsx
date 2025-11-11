@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
-import ChartSetting from "@/components/Card/ChartSetting";
+import ChartSetting from "@/pages/Dashboard/InstanceMap/Dashboard/Card/ChartSetting";
 import { chartData } from "./data/chartData";
 import StatusCard from "@/components/Card/StatusCard";
 import {
@@ -62,6 +62,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [charts, setCharts] = useState<string[]>(() =>
     cloneDeep(chartData[initialTab])
   );
+
   const [settingTargetIndex, setSettingTargetIndex] = useState<number | null>(null);
   const [categoryGraphs, setCategoryGraphs] = useState<Map<TabType, GraphDataResponse[]>>(new Map());
   const {
