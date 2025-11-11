@@ -6,6 +6,9 @@ import SettingIcon from "@/assets/general/setting.svg";
 import InfoIcon from "@/assets/general/info.svg";
 import DragIcon from "@/assets/general/drag.svg";
 import { getChartByTitle } from "./utils/getChartByTitle";
+import { useDashboardContext } from "@/state/DashboardContext";
+import { renderDynamicChart } from "./utils/renderDynamicChart";
+import type { GraphDataResponse } from "@/api/dashboard";
 
 interface ChartCardProps {
   title: string;
@@ -13,6 +16,7 @@ interface ChartCardProps {
   onSettingClick?: () => void;
   showSettingIcon?: boolean;
   showDragIcon?: boolean;
+  graphData?: GraphDataResponse | null;
 }
 
 const ChartCard: React.FC<ChartCardProps> = ({
@@ -21,8 +25,37 @@ const ChartCard: React.FC<ChartCardProps> = ({
   onSettingClick,
   showSettingIcon = true,
   showDragIcon = true,
+  graphData: propGraphData,
 }) => {
   const StatusIcon = status === "warning" ? WarningIcon : SuccessGreenIcon;
+  const {
+    graphsByName,
+    isFetching,
+    error,
+    selectedInstanceId,
+    mode,
+  } = useDashboardContext();
+
+  const graphData = propGraphData ?? graphsByName[title];
+
+  let bodyContent: React.ReactNode;
+
+  if (!selectedInstanceId) {
+    bodyContent = (
+      <div className="chart-placeholder">인스턴스를 선택해주세요.</div>
+    );
+  } else if (!graphData && isFetching) {
+    bodyContent = (
+      <div className="chart-placeholder">데이터를 불러오는 중입니다...</div>
+    );
+  } else if (!graphData && error) {
+    bodyContent = <div className="chart-placeholder">{error}</div>;
+  } else if (graphData) {
+    const rendered = renderDynamicChart(title, graphData, mode);
+    bodyContent = rendered ?? getChartByTitle(title, graphData, mode);
+  } else {
+    bodyContent = getChartByTitle(title, graphData, mode);
+  }
 
   return (
     <div className={`chart-card ${status}`}>
@@ -44,7 +77,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
           )}
         </div>
       </div>
-      <div className="chart-card__body">{getChartByTitle(title)}</div>
+      <div className="chart-card__body">{bodyContent}</div>
     </div>
   );
 };
