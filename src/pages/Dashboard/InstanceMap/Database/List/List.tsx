@@ -22,7 +22,7 @@ type DatabaseListItem = {
   port: string;
   account: string;
   sid: string;
-  isActive?: boolean;
+  isActive: boolean;
   createdAt?: string | null;
   updatedAt?: string | null;
 };
