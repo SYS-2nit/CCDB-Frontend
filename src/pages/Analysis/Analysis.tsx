@@ -6,6 +6,7 @@ import ScenarioControls from "@/components/Scenario/ScenarioControls";
 import ScenarioDetailDrawer from "@/components/Scenario/ScenarioDetailDrawer";
 import ScenarioListItem from "@/components/Scenario/ScenarioListItem";
 import { scenarioApi } from "@/components/Scenario/scenarioApi";
+import { useDashboardContext } from "@/state/DashboardContext";
 
 const DURATIONS = [30, 60, 90, 120, 150, 180];
 
@@ -24,6 +25,7 @@ const Analysis: React.FC = () => {
   }>({});
   const [detail, setDetail] = React.useState<ScenarioMeta | null>(null);
   const toast = useToast();
+  const { selectedInstanceId } = useDashboardContext();
 
   React.useEffect(() => {
     scenarioApi
@@ -74,9 +76,17 @@ const Analysis: React.FC = () => {
       toast.show("진단을 1개 이상 선택하세요.", "error");
       return;
     }
+    if (!selectedInstanceId) {
+      toast.show("인스턴스를 선택해주세요.", "error");
+      return;
+    }
     setBusy(true);
     try {
-      await scenarioApi.run({ scenarioIds: chosen, durationSec: duration });
+      await scenarioApi.run({ 
+        scenarioIds: chosen, 
+        durationSec: duration,
+        instanceId: selectedInstanceId
+      });
       toast.show("진단을 시작했습니다.", "success");
     } catch (e) {
       toast.show(`진단 시작 실패: ${e}`, "error");
