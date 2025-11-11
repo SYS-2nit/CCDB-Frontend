@@ -18,6 +18,7 @@ import {
 } from "@/state/DashboardContext";
 import { fetchDashboardData, type GraphDefinition, type GraphDataResponse } from "@/api/dashboard";
 import { isAxiosError } from "axios";
+import { useSearchParams } from "react-router-dom";
 
 export type TabType = keyof typeof chartData;
 
@@ -55,6 +56,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   initialTab = "main",
   singleTabMode = false,
 }) => {
+  const [searchParams] = useSearchParams();
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [charts, setCharts] = useState<string[]>(() =>
@@ -63,7 +65,9 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [settingTargetIndex, setSettingTargetIndex] = useState<number | null>(null);
   const [categoryGraphs, setCategoryGraphs] = useState<Map<TabType, GraphDataResponse[]>>(new Map());
   const {
-    selectedInstanceId,
+    selectedInstanceId: contextInstanceId,
+    selectInstance,
+    instances,
     mode,
     refreshToken,
     graphList,
@@ -77,6 +81,29 @@ const Dashboard: React.FC<DashboardProps> = ({
     setError,
     triggerRefresh,
   } = useDashboardContext();
+
+  // URL 쿼리 파라미터에서 instanceId 읽기
+  const urlInstanceId = useMemo(() => {
+    const instanceIdParam = searchParams.get("instanceId");
+    return instanceIdParam ? Number(instanceIdParam) : null;
+  }, [searchParams]);
+
+  // URL 쿼리 파라미터의 instanceId를 우선 사용, 없으면 context의 instanceId 사용
+  const selectedInstanceId = urlInstanceId ?? contextInstanceId;
+
+  // URL에서 instanceId를 읽어서 context에 설정
+  useEffect(() => {
+    if (urlInstanceId !== null) {
+      // instances에서 해당 instanceId를 찾아서 설정
+      const instance = instances.find((inst) => inst.id === urlInstanceId);
+      if (instance) {
+        selectInstance(instance);
+      } else if (instances.length > 0) {
+        // instances가 로드되지 않았거나 찾을 수 없는 경우, 나중에 다시 시도
+        // instances가 로드되면 자동으로 설정됨
+      }
+    }
+  }, [urlInstanceId, instances, selectInstance]);
 
   const getCategoryByTab = (tab: TabType): string => {
     const categoryMap: Record<TabType, string> = {
