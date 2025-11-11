@@ -6,6 +6,7 @@ export interface SqlStatsItem {
   sqlId: string;
   sqlText: string;
   elapsedUsDelta: number;
+  avgElapsed: number;
   waitTimeUsDelta: number;
   executionsDelta: number;
   bufferGetsDelta: number;

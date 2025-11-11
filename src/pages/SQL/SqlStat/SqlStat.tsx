@@ -13,6 +13,7 @@ import SqlDetailDrawer from "@/pages/SQL/Modal/SqlDetailDrawer";
 interface TableData {
   sql: string;
   elapsed: number;
+  avg: number;
   wait: number;
   execution: number;
   cpu: number;
@@ -42,6 +43,7 @@ const SqlStat: React.FC = () => {
   // 게이지바 max
   const [maxValues, setMaxValues] = useState({
     elapsed: 1,
+    avg: 1,
     wait: 1,
     execution: 1,
     buffer: 1,
@@ -90,6 +92,7 @@ const SqlStat: React.FC = () => {
       const mapped = data.content.map((item) => ({
         sql: item.sqlText,
         elapsed: item.elapsedUsDelta,
+        avg: item.avgElapsed,
         wait: item.waitTimeUsDelta,
         execution: item.executionsDelta,
         buffer: item.bufferGetsDelta,
@@ -101,6 +104,7 @@ const SqlStat: React.FC = () => {
       const totals = mapped.reduce(
         (acc, cur) => {
           acc.elapsed += cur.elapsed;
+          acc.avg += cur.avg;
           acc.wait += cur.wait;
           acc.execution += cur.execution;
           acc.buffer += cur.buffer;
@@ -108,7 +112,15 @@ const SqlStat: React.FC = () => {
           acc.cpu += cur.cpu;
           return acc;
         },
-        { elapsed: 0, wait: 0, execution: 0, buffer: 0, disk: 0, cpu: 0 }
+        {
+          elapsed: 0,
+          avg: 0,
+          wait: 0,
+          execution: 0,
+          buffer: 0,
+          disk: 0,
+          cpu: 0,
+        }
       );
 
       setMaxValues(totals);
@@ -152,6 +164,7 @@ const SqlStat: React.FC = () => {
   const columns = [
     { key: "sql", label: "SQL Text" },
     { key: "elapsed", label: "Elapsed Time" },
+    { key: "avg", label: "Avg Elapsed" },
     { key: "wait", label: "Wait Time" },
     { key: "exec", label: "Executions" },
     { key: "buffer", label: "Logical Reads" },
@@ -170,6 +183,7 @@ const SqlStat: React.FC = () => {
       {row.sql}
     </span>,
     <BarGauge value={row.elapsed} max={maxValues.elapsed || 1} />,
+    <BarGauge value={row.avg} max={maxValues.avg || 1} />,
     <BarGauge value={row.wait} max={maxValues.wait || 1} />,
     <BarGauge value={row.execution} max={maxValues.execution || 1} />,
     <BarGauge value={row.buffer} max={maxValues.buffer || 1} />,
@@ -208,6 +222,7 @@ const SqlStat: React.FC = () => {
           onChange={(e) => setFilter(e.target.value)}
           options={[
             { label: "Elapsed Time", value: "elapsed" },
+            { label: "Avg Elapsed", value: "avg" },
             { label: "Wait Time", value: "wait" },
             { label: "Executions", value: "execution" },
             { label: "Logical Read", value: "buffer" },
