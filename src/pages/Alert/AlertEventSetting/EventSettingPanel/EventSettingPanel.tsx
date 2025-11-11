@@ -260,14 +260,14 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
 
                     <Select
                       label="누적 횟수"
-                      placeholder="매번"
+                      placeholder="1분 후"
                       size="sm"
                       value={event.frequency}
                       options={[
-                        { label: "매번", value: "매번" },
-                        { label: "10분 후", value: "10분 후" },
+                        { label: "1분 후", value: "1분 후" },
+                        { label: "5분 후", value: "5분 후" },
+                        { label: "10분후", value: "10분후" },
                         { label: "1시간 후", value: "1시간 후" },
-                        { label: "1일 후", value: "1일 후" },
                       ]}
                       onChange={(e) =>
                         setInputForms((prev) =>

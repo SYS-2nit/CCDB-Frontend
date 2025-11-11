@@ -108,7 +108,7 @@ const AlertTable: React.FC = () => {
               maxBytes: 255,
             },
             {
-              label: "처리내역 상세",
+              label: "처리내역 목록",
               type: "table",
               tableHeaders: ["작성시간", "작성자", "처리내역"],
               tableData: [
