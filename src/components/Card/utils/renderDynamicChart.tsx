@@ -79,27 +79,20 @@ const formatTime = (timestamp: string, mode: DashboardMode = "LIVE") => {
   // 모드에 따라 시간 포맷 변경
   switch (mode) {
     case "LIVE":
-      // 1분 단위: 시:분:초 형식 (오후/오전 표시)
-      return date.toLocaleTimeString("ko-KR", {
-        timeZone,
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
+      // 24시간 형식으로 포맷팅 (HH:mm)
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      return `${hours}:${minutes}`;
     case "10분":
-      // 10분 단위: 시:분 형식
-      return date.toLocaleTimeString("ko-KR", {
-        timeZone,
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      // 10분 단위: 24시간 형식 (HH:mm)
+      const hours10 = String(date.getHours()).padStart(2, "0");
+      const minutes10 = String(date.getMinutes()).padStart(2, "0");
+      return `${hours10}:${minutes10}`;
     case "1시간":
-      // 1시간 단위: 시:분 형식
-      return date.toLocaleTimeString("ko-KR", {
-        timeZone,
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      // 1시간 단위: 24시간 형식 (HH:mm)
+      const hours1h = String(date.getHours()).padStart(2, "0");
+      const minutes1h = String(date.getMinutes()).padStart(2, "0");
+      return `${hours1h}:${minutes1h}`;
     case "1일":
       // 1일 단위: 월/일 시:분 형식
       return date.toLocaleString("ko-KR", {
@@ -110,20 +103,28 @@ const formatTime = (timestamp: string, mode: DashboardMode = "LIVE") => {
         minute: "2-digit",
       });
     default:
-      return date.toLocaleTimeString("ko-KR", {
-        timeZone,
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      // 24시간 형식으로 포맷팅 (HH:mm)
+      const defaultHours = String(date.getHours()).padStart(2, "0");
+      const defaultMinutes = String(date.getMinutes()).padStart(2, "0");
+      return `${defaultHours}:${defaultMinutes}`;
   }
 };
 
 const clampPercentage = (value: number) => Math.max(0, Math.min(100, value));
 
 const renderGauge = (graph: GraphDataResponse, valueKey: string) => {
-  const sorted = sortPoints(graph);
+  // 타임스탬프 기준으로 내림차순 정렬 (가장 최근 데이터가 첫 번째)
+  const points = graph.data ?? [];
+  const sorted = [...points].sort((a, b) => {
+    const timeA = new Date(a.timestamp ?? 0).getTime();
+    const timeB = new Date(b.timestamp ?? 0).getTime();
+    return timeB - timeA; // 내림차순 정렬 (최신이 먼저)
+  });
+  
   if (sorted.length === 0) return null;
-  const latest = sorted[sorted.length - 1];
+  
+  // 가장 최근 데이터 (정렬 후 첫 번째)
+  const latest = sorted[0];
   const value = ensureNumber(latest.values?.[valueKey]);
   if (value === null) return null;
   return <GaugeChart value={clampPercentage(value)} />;
@@ -138,8 +139,33 @@ const renderMetricTiles = (
   if (sorted.length === 0) return null;
   const latest = sorted[sorted.length - 1];
 
+  // 서버에서 받은 실제 키 목록 (대소문자 포함)
+  const availableKeys = Object.keys(latest.values ?? {});
+  
+  // 하드코딩된 키를 서버의 실제 키로 매칭 (대소문자 무시)
+  const findMatchingKey = (requestedKey: string): string | null => {
+    const lowerRequested = requestedKey.toLowerCase();
+    // 정확히 일치하는 경우
+    if (availableKeys.includes(requestedKey)) {
+      return requestedKey;
+    }
+    // 대소문자 무시 매칭
+    const matched = availableKeys.find(k => k.toLowerCase() === lowerRequested);
+    return matched ?? null;
+  };
+
   const metrics: MetricData[] = mappings.map(({ key, label, suffix }) => {
-    const numeric = ensureNumber(latest.values?.[key]);
+    const matchedKey = findMatchingKey(key);
+    if (!matchedKey) {
+      console.warn(`컬럼 '${key}'를 찾을 수 없습니다. 사용 가능한 키:`, availableKeys);
+      return {
+        title: label,
+        value: "-",
+        subtitle: "",
+      };
+    }
+
+    const numeric = ensureNumber(latest.values?.[matchedKey]);
     let display: string | number = "-";
     if (numeric !== null) {
       if (suffix === "%") {
@@ -147,8 +173,8 @@ const renderMetricTiles = (
       } else {
         display = numeric.toLocaleString();
       }
-    } else if (typeof latest.values?.[key] === "string") {
-      display = String(latest.values?.[key]);
+    } else if (typeof latest.values?.[matchedKey] === "string") {
+      display = String(latest.values?.[matchedKey]);
     }
 
     return {
@@ -194,26 +220,76 @@ const renderLine = (
   mode: DashboardMode = "LIVE",
 ) => {
   const sorted = sortPoints(graph);
-  if (sorted.length === 0) return null;
+  if (sorted.length === 0) {
+    // 데이터가 없어도 빈 차트를 표시하여 그래프가 사라지지 않도록 함
+    return (
+      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af" }}>
+        데이터가 없습니다.
+      </div>
+    );
+  }
+
+  // 서버에서 받은 실제 키 목록 (대소문자 포함)
+  const availableKeys = sorted.length > 0 ? Object.keys(sorted[0].values ?? {}) : [];
+  
+  // 하드코딩된 키를 서버의 실제 키로 매칭 (대소문자 무시)
+  const findMatchingKey = (requestedKey: string): string | null => {
+    const lowerRequested = requestedKey.toLowerCase();
+    // 정확히 일치하는 경우
+    if (availableKeys.includes(requestedKey)) {
+      return requestedKey;
+    }
+    // 대소문자 무시 매칭
+    const matched = availableKeys.find(k => k.toLowerCase() === lowerRequested);
+    return matched ?? null;
+  };
 
   const categories = sorted.map((point) => formatTime(point.timestamp, mode));
-  const seriesData = config.keys.map((key) =>
-    sorted.map((point) => ensureNumber(point.values?.[key]) ?? 0),
-  );
+  const matchedKeys: string[] = [];
+  const seriesData = config.keys.map((key) => {
+    const matchedKey = findMatchingKey(key);
+    if (!matchedKey) {
+      console.warn(`컬럼 '${key}'를 찾을 수 없습니다. 사용 가능한 키:`, availableKeys);
+      return null; // 매칭 실패 시 null 반환
+    }
+    matchedKeys.push(matchedKey);
+    return sorted.map((point) => ensureNumber(point.values?.[matchedKey]) ?? 0);
+  });
 
-  // y축 범위를 데이터에 맞게 자동 조정
-  const allValues = seriesData.flat();
+  // 모든 키가 매칭되지 않으면 빈 차트 표시
+  if (matchedKeys.length === 0) {
+    console.warn(`그래프 '${graph.name || 'Unknown'}'의 모든 컬럼을 찾을 수 없습니다. 사용 가능한 키:`, availableKeys);
+    return (
+      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af" }}>
+        컬럼을 찾을 수 없습니다.
+      </div>
+    );
+  }
+
+  // null이 아닌 시리즈만 필터링
+  const validSeriesData = seriesData.filter((data): data is number[] => data !== null);
+  const validLegends = config.legends.filter((_, index) => seriesData[index] !== null);
+
+  // y축 범위를 데이터에 맞게 자동 조정 (최소값은 0으로 고정)
+  const allValues = validSeriesData.flat();
+  if (allValues.length === 0) {
+    return (
+      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af" }}>
+        데이터가 없습니다.
+      </div>
+    );
+  }
   const minValue = Math.min(...allValues.filter(v => Number.isFinite(v)));
   const maxValue = Math.max(...allValues.filter(v => Number.isFinite(v)));
   const padding = (maxValue - minValue) * 0.1 || 1;
 
   return (
     <LineChart
-      legends={config.legends}
+      legends={validLegends}
       categories={categories}
-      seriesData={seriesData}
-      showLegend={config.legends.length > 1}
-      yMin={minValue - padding}
+      seriesData={validSeriesData}
+      showLegend={validLegends.length > 1}
+      yMin={0}
       yMax={maxValue + padding}
     />
   );
@@ -297,8 +373,10 @@ export const renderDynamicChart = (
 ): React.ReactNode => {
   if (!graph) return null;
 
-  if (title.includes("Session 한도")) {
-    return renderGauge(graph, "sessions_limit_util_pct");
+  // Graph ID 8: 세션 한도/급증
+  // GraphRegistry: session_usage_pct
+  if (graph.id === 8 || title.includes("Session 한도") || title.includes("세션 한도")) {
+    return renderGauge(graph, "session_usage_pct");
   }
 
   if (title.includes("PGA / SGA")) {
@@ -314,23 +392,30 @@ export const renderDynamicChart = (
     return renderBackgroundMetrics(graph);
   }
 
-  if (title.includes("Wait Class")) {
+  // Graph ID 3: Wait Class 분포
+  // GraphRegistry: WAIT_CLASS_AAS_USER_IO, WAIT_CLASS_AAS_COMMIT, WAIT_CLASS_AAS_CONCURRENCY,
+  //                WAIT_CLASS_AAS_SYSTEM_IO, WAIT_CLASS_AAS_NETWORK, WAIT_CLASS_AAS_CLUSTER, WAIT_CLASS_AAS_OTHER, AAS_TOTAL
+  if (graph.id === 3 || title.includes("Wait Class")) {
     return renderLine(graph, {
       keys: [
         "wait_class_aas_user_io",
         "wait_class_aas_commit",
         "wait_class_aas_concurrency",
+        "wait_class_aas_system_io",
         "wait_class_aas_network",
+        "wait_class_aas_cluster",
         "wait_class_aas_other",
       ],
-      legends: ["User I/O", "Commit", "Concurrency", "Network", "Other"],
+      legends: ["User I/O", "Commit", "Concurrency", "System I/O", "Network", "Cluster", "Other"],
     }, mode);
   }
 
-  if (title.includes("CPU 상태") || title.includes("CPU 사용")) {
+  // Graph ID 4: CPU 사용(호스트 vs DB CPU)
+  // GraphRegistry: HOST_CPU_UTIL_PCT, CPU_SATURATION_PCT
+  if (graph.id === 4 || (title.includes("CPU 사용") && title.includes("호스트"))) {
     return renderLine(graph, {
-      keys: ["host_cpu_util_pct", "db_of_host_share_pct"],
-      legends: ["Host CPU Util (%)", "DB CPU Share (%)"],
+      keys: ["host_cpu_util_pct", "cpu_saturation_pct"],
+      legends: ["Host CPU Util (%)", "CPU Saturation (%)"],
     }, mode);
   }
 
@@ -367,10 +452,13 @@ export const renderDynamicChart = (
     }, mode);
   }
 
-  if (title.includes("SGA 압박")) {
+  // Graph ID 7: SGA 압박(FreeMB/Reloads)
+  // GraphRegistry: LIBRARY_CACHE_HIT_PCT, DICTIONARY_CACHE_HIT_PCT, HARD_PARSE_RATIO_PCT
+  if (graph.id === 7 || title.includes("SGA 압박")) {
     return renderMetricTiles(graph, [
-      { key: "shared_pool_free_bytes", label: "Shared Pool Free Bytes" },
-      { key: "library_cache_reloads_per_sec", label: "Library Cache Reloads/s" },
+      { key: "library_cache_hit_pct", label: "Library Cache Hit (%)", suffix: "%" },
+      { key: "dictionary_cache_hit_pct", label: "Dictionary Cache Hit (%)", suffix: "%" },
+      { key: "hard_parse_ratio_pct", label: "Hard Parse Ratio (%)", suffix: "%" },
     ]);
   }
 
@@ -378,10 +466,12 @@ export const renderDynamicChart = (
     return renderGauge(graph, "fra_usage_pct");
   }
 
-  if (title.includes("AAS")) {
+  // Graph ID 2: AAS
+  // GraphRegistry: AAS_TOTAL, AAS_ONCPU_SESSIONS, CORE_BASELINE_SESSIONS
+  if (graph.id === 2 || title.includes("AAS")) {
     return renderLine(graph, {
-      keys: ["aas_total"],
-      legends: ["AAS Total"],
+      keys: ["aas_total", "aas_oncpu_sessions", "core_baseline_sessions"],
+      legends: ["AAS Total", "AAS On-CPU Sessions", "Core Baseline Sessions"],
     }, mode);
   }
 
@@ -401,12 +491,14 @@ export const renderDynamicChart = (
 
   // === CPU 카테고리 (그래프 ID 기반 매칭) ===
   // Graph ID 13: CPU 활동 현황 타일
+  // GraphRegistry: HOST_BUSY_CORES, HOST_TOTAL_CORES, HOST_CPU_UTIL_PCT, AAS_ONCPU_SESSIONS, CORE_BASELINE_SESSIONS,
+  //                CPU_SATURATION_PCT, DB_OF_HOST_SHARE_PCT, RunQ_per_Core_LOAD_PROXY, TPS_PER_SEC, EXECS_PER_SEC
   if (graph.id === 13 || title.includes("CPU Activity Overview Tiles") || title.includes("CPU 활동 현황 타일")) {
     return renderMetricTiles(graph, [
       { key: "host_cpu_util_pct", label: "Host CPU(%)", suffix: "%" },
       { key: "cpu_saturation_pct", label: "DB CPU Saturation(%)", suffix: "%" },
       { key: "db_of_host_share_pct", label: "DB Share of Host(%)", suffix: "%" },
-      { key: "run_q_per_core_load_proxy", label: "Run Queue per Core(process)" },
+      { key: "runq_per_core_load_proxy", label: "Run Queue per Core(process)" },
       { key: "tps_per_sec", label: "TPS" },
       { key: "execs_per_sec", label: "EXEC/S" },
       { key: "user_calls_per_sec", label: "USER CALLS/S" },
@@ -430,18 +522,20 @@ export const renderDynamicChart = (
   }
 
   // Graph ID 14: DB CPU Saturation - AAS vs Core
+  // GraphRegistry: AAS_ONCPU_SESSIONS, CORE_BASELINE_SESSIONS
   if (graph.id === 14 || (title.includes("DB CPU Saturation") && title.includes("AAS vs Core"))) {
     return renderLine(graph, {
-      keys: ["cpu_saturation_pct", "aas_total"],
-      legends: ["CPU Saturation (%)", "AAS Total"],
+      keys: ["aas_oncpu_sessions", "core_baseline_sessions"],
+      legends: ["AAS On-CPU Sessions", "Core Baseline Sessions"],
     }, mode);
   }
 
   // Graph ID 16: DB CPU Share of Host
+  // GraphRegistry: DB_OF_HOST_SHARE_PCT, OTHER_PROCESSES_PCT
   if (graph.id === 16 || (title.includes("DB CPU Share of Host") && title.includes("Trend"))) {
     return renderLine(graph, {
-      keys: ["db_of_host_share_pct"],
-      legends: ["DB CPU Share (%)"],
+      keys: ["db_of_host_share_pct", "other_processes_pct"],
+      legends: ["DB CPU Share (%)", "Other Processes (%)"],
     }, mode);
   }
 
@@ -454,15 +548,22 @@ export const renderDynamicChart = (
   }
 
   // Graph ID 17: Run Queue per Core - Scheduler Load
+  // GraphRegistry: RunQ_per_Core_LOAD_PROXY, Load_threshold, load_threshold_min, load_threshold_max
   if (graph.id === 17 || title.includes("Run Queue per Core") || title.includes("Scheduler Load")) {
     return renderLine(graph, {
-      keys: ["run_q_per_core_load_proxy"],
-      legends: ["Run Queue per Core"],
+      keys: ["runq_per_core_load_proxy", "load_threshold", "load_threshold_min", "load_threshold_max"],
+      legends: ["Run Queue per Core", "Load Threshold", "Load Threshold Min", "Load Threshold Max"],
     }, mode);
   }
 
-  // Graph ID 20: Top SQL by CPU
+  // Graph ID 20: Top SQL by CPU (Type 5 = Timeline)
+  // 타입이 5번이면 Timeline으로 렌더링, 아니면 기존 로직 유지
   if (graph.id === 20 || title.includes("Top SQL by CPU")) {
+    // 타입이 5번(Timeline)이면 mainChartRenderer로 위임
+    if (graph.type === 5) {
+      return null; // mainChartRenderer에서 처리하도록
+    }
+    // 타입이 5번이 아니면 기존 StackChart 방식 유지
     return renderTopSql(
       graph,
       [
@@ -510,14 +611,18 @@ export const renderDynamicChart = (
     ], 4);
   }
 
-  if (title.includes("PGA Utilization") && title.includes("Trend")) {
+  // Graph ID 23: PGA Utilization (%) – Trend
+  // GraphRegistry: PGA_UTIL_PCT
+  if (graph.id === 23 || (title.includes("PGA Utilization") && title.includes("Trend"))) {
     return renderLine(graph, {
       keys: ["pga_util_pct"],
       legends: ["PGA Utilization (%)"],
     }, mode);
   }
 
-  if (title.includes("SGA Utilization") && title.includes("Trend")) {
+  // Graph ID 24: SGA Utilization (%) — Trend
+  // GraphRegistry: SGA_UTIL_PCT
+  if (graph.id === 24 || (title.includes("SGA Utilization") && title.includes("Trend"))) {
     return renderLine(graph, {
       keys: ["sga_util_pct"],
       legends: ["SGA Utilization (%)"],
@@ -599,79 +704,102 @@ export const renderDynamicChart = (
   }
 
   // === I/O 카테고리 ===
-  if (title.includes("I/O Performance Dashboard")) {
+  // Graph ID 37: I/O Performance Dashboard
+  // GraphRegistry: cache_hit_ratio_pct, avg_io_wait_time_ms, physical_reads_per_sec, redo_size_mb_per_sec, parse_execute_ratio, direct_path_io_per_sec
+  if (graph.id === 37 || title.includes("I/O Performance Dashboard")) {
     return renderMetricTiles(graph, [
-      { key: "buffer_cache_hit_pct", label: "Cache Hit Ratio(%)", suffix: "%" },
-      { key: "single_block_read_latency_ms", label: "Avg I/O Wait Time(ms)", suffix: " ms" },
+      { key: "cache_hit_ratio_pct", label: "Cache Hit Ratio(%)", suffix: "%" },
+      { key: "avg_io_wait_time_ms", label: "Avg I/O Wait Time(ms)", suffix: " ms" },
       { key: "physical_reads_per_sec", label: "Physical Reads(/s)" },
-      { key: "redo_generation_mbps", label: "Redo Size(MB/s)", suffix: " MB/s" },
-      { key: "hard_parse_ratio_pct", label: "Parse/Execute Ratio", suffix: "%" },
+      { key: "redo_size_mb_per_sec", label: "Redo Size(MB/s)", suffix: " MB/s" },
+      { key: "parse_execute_ratio", label: "Parse/Execute Ratio" },
       { key: "direct_path_io_per_sec", label: "Direct Path I/O(/s)" },
     ], 6);
   }
 
-  if (title.includes("Direct Path I/O")) {
+  // Graph ID 38: Direct Path I/O (개/초)
+  // GraphRegistry: physical_reads_direct_per_sec, physical_writes_direct_per_sec, direct_io_ratio_pct
+  if (graph.id === 38 || title.includes("Direct Path I/O")) {
     return renderLine(graph, {
-      keys: ["direct_path_read_latency_ms", "direct_path_write_latency_ms", "direct_path_io_per_sec"],
-      legends: ["Direct Read (ms)", "Direct Write (ms)", "Direct I/O (/s)"],
+      keys: ["physical_reads_direct_per_sec", "physical_writes_direct_per_sec", "direct_io_ratio_pct"],
+      legends: ["Physical Reads Direct (/s)", "Physical Writes Direct (/s)", "Direct I/O Ratio (%)"],
     }, mode);
   }
 
-  if (title.includes("SQL Parsing") && title.includes("Execution")) {
+  // Graph ID 39: SQL Parsing & Execution (개/초)
+  // GraphRegistry: parser_request_per_sec, sql_execute_per_sec, sql_parse_execute_ratio
+  if (graph.id === 39 || (title.includes("SQL Parsing") && title.includes("Execution"))) {
     return renderLine(graph, {
-      keys: ["hard_parses_per_sec", "execs_per_sec"],
-      legends: ["Parses/s", "Exec/s"],
+      keys: ["parser_request_per_sec", "sql_execute_per_sec", "sql_parse_execute_ratio"],
+      legends: ["Parser Request (/s)", "SQL Execute (/s)", "Parse/Execute Ratio"],
     }, mode);
   }
 
-  if (title.includes("Physical Reads vs Logical Reads")) {
+  // Graph ID 40: Physical Reads vs Logical Reads (개/초)
+  // GraphRegistry: physical_reads_per_diff_sec, logical_reads_per_sec, cache_hit_ratio_diff_pct, total_reads_per_sec
+  if (graph.id === 40 || title.includes("Physical Reads vs Logical Reads")) {
     return renderLine(graph, {
-      keys: ["physical_reads_per_sec", "logical_reads_per_sec"],
-      legends: ["Physical Reads/s", "Logical Reads/s"],
+      keys: ["physical_reads_per_diff_sec", "logical_reads_per_sec", "cache_hit_ratio_diff_pct", "total_reads_per_sec"],
+      legends: ["Physical Reads (/s)", "Logical Reads (/s)", "Cache Hit Ratio Diff (%)", "Total Reads (/s)"],
     }, mode);
   }
 
-  if (title.includes("Average I/O Wait Time")) {
+  // Graph ID 41: Average I/O Wait Time (ms)
+  // GraphRegistry: avg_wait_time_ms, p95_wait_time_ms, io_waits_per_sec, io_time_per_sec_ms
+  if (graph.id === 41 || title.includes("Average I/O Wait Time")) {
     return renderLine(graph, {
-      keys: ["single_block_read_latency_ms", "direct_path_read_latency_ms"],
-      legends: ["Single Read (ms)", "Direct Read (ms)"],
+      keys: ["avg_wait_time_ms", "p95_wait_time_ms", "io_waits_per_sec", "io_time_per_sec_ms"],
+      legends: ["Avg Wait Time (ms)", "P95 Wait Time (ms)", "I/O Waits (/s)", "I/O Time (/s ms)"],
     }, mode);
   }
 
-  if (title.includes("Redo Generation Rate")) {
+  // Graph ID 42: Redo Generation Rate (MB/초)
+  // GraphRegistry: redo_generation_mbps, redo_generation_mbps_total, redo_generation_24h_avg, log_switch_count_1min, log_switch_count_5min
+  if (graph.id === 42 || title.includes("Redo Generation Rate")) {
     return renderLine(graph, {
-      keys: ["redo_generation_mbps"],
-      legends: ["Redo (MB/s)"],
+      keys: ["redo_generation_mbps", "redo_generation_mbps_total", "redo_generation_24h_avg", "log_switch_count_1min", "log_switch_count_5min"],
+      legends: ["Redo Generation (MB/s)", "Redo Total (MB/s)", "Redo 24h Avg (MB/s)", "Log Switch 1min", "Log Switch 5min"],
     }, mode);
   }
 
   // === STORAGE 카테고리 ===
-  if (title.includes("Storage Health Dashboard")) {
+  // Graph ID 45: Storage Health Dashboard
+  // GraphRegistry: FRA_USAGE_PERCENT, FRA_FREE_GB, UNDO_USAGE_PCT, TEMP_USAGE_PCT, MAX_TS_NAME, MAX_TS_USAGE_PCT, TOTAL_DB_USAGE_PCT
+  if (graph.id === 45 || title.includes("Storage Health Dashboard")) {
     return renderMetricTiles(graph, [
-      { key: "fra_usage_pct", label: "FRA Usage(%)", suffix: "%" },
-      { key: "undo_ts_usage_pct", label: "Undo Usage(%)", suffix: "%" },
-      { key: "temp_ts_usage_pct", label: "Temp Usage(%)", suffix: "%" },
-      { key: "users_ts_usage_pct", label: "USERS(%)", suffix: "%" },
+      { key: "fra_usage_percent", label: "FRA Usage(%)", suffix: "%" },
+      { key: "fra_free_gb", label: "FRA Free(GB)", suffix: " GB" },
+      { key: "undo_usage_pct", label: "Undo Usage(%)", suffix: "%" },
+      { key: "temp_usage_pct", label: "Temp Usage(%)", suffix: "%" },
+      { key: "max_ts_name", label: "Max TS Name" },
       { key: "max_ts_usage_pct", label: "Max TS Usage(%)", suffix: "%" },
-      { key: "total_db_usage_pct", label: "Total DB Usage(GB)", suffix: " GB" },
-    ], 6);
+      { key: "total_db_usage_pct", label: "Total DB Usage(%)", suffix: "%" },
+    ], 7);
   }
 
-  if (title.includes("Temp Tablespace Active Usage")) {
+  // Graph ID 46: Temp Tablespace Active Usage (GB)
+  // GraphRegistry: temp_active_usage_gb, temp_current_size_gb, temp_max_size_gb, temp_usage_percent, temp_usage_pct_of_max, temp_peak_usage_24h_gb
+  if (graph.id === 46 || title.includes("Temp Tablespace Active Usage")) {
     return renderLine(graph, {
-      keys: ["temp_active_usage_gb"],
-      legends: ["Temp Usage (GB)"],
+      keys: ["temp_active_usage_gb", "temp_current_size_gb", "temp_max_size_gb", "temp_usage_percent", "temp_usage_pct_of_max", "temp_peak_usage_24h_gb"],
+      legends: ["Active Usage (GB)", "Current Size (GB)", "Max Size (GB)", "Usage (%)", "Usage of Max (%)", "Peak 24h (GB)"],
     }, mode);
   }
 
-  if (title.includes("테이블스페이스 사용률 추세")) {
+  // Graph ID 47: 테이블스페이스 사용률 추세 (%)
+  // GraphRegistry: system_tablespace_name, sysaux_tablespace_name, undotbs1_tablespace_name, users_tablespace_name,
+  //                system_used_percent, sysaux_used_percent, undotbs1_used_percent, users_used_percent
+  if (graph.id === 47 || title.includes("테이블스페이스 사용률 추세")) {
     return renderLine(graph, {
-      keys: ["system_ts_usage_pct", "sysaux_ts_usage_pct", "users_ts_usage_pct", "undo_ts_usage_pct", "temp_ts_usage_pct"],
-      legends: ["SYSTEM", "SYSAUX", "USERS", "UNDO", "TEMP"],
+      keys: ["system_used_percent", "sysaux_used_percent", "undotbs1_used_percent", "users_used_percent"],
+      legends: ["SYSTEM", "SYSAUX", "UNDOTBS1", "USERS"],
     }, mode);
   }
 
-  if (title.includes("테이블스페이스 증가 추세")) {
+  // Graph ID 48: 테이블스페이스 증가 추세 (GB/일)
+  // GraphRegistry: system_tablespace_name_inc, sysaux_tablespace_name_inc, undotbs1_tablespace_name_inc, users_tablespace_name_inc,
+  //                system_used_space_gb_inc, sysaux_used_space_gb_inc, undotbs1_used_space_gb_inc, users_used_space_gb_inc
+  if (graph.id === 48 || title.includes("테이블스페이스 증가 추세")) {
     return renderStack(
       graph,
       ["SYSTEM", "SYSAUX", "UNDOTBS1", "USERS"],
@@ -684,30 +812,46 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("FRA 사용률 추세")) {
+  // Graph ID 49: FRA 사용률 추세 (%)
+  // GraphRegistry: space_limit_gb, space_used_gb, space_reclaimable_gb, usage_pct, hourly_growth_pct, time_to_95_pct_hours
+  if (graph.id === 49 || title.includes("FRA 사용률 추세")) {
     return renderLine(graph, {
-      keys: ["fra_usage_pct"],
-      legends: ["FRA Usage (%)"],
+      keys: ["space_limit_gb", "space_used_gb", "space_reclaimable_gb", "usage_pct", "hourly_growth_pct", "time_to_95_pct_hours"],
+      legends: ["Space Limit (GB)", "Space Used (GB)", "Space Reclaimable (GB)", "Usage (%)", "Hourly Growth (%)", "Time to 95% (hours)"],
     }, mode);
   }
 
-  if (title.includes("Undo 사용률 추세")) {
+  // Graph ID 50: Undo 사용률 추세 (%)
+  // GraphRegistry: undo_tablespace_name, undo_usage_percent, long_transaction_count, long_transaction_undo_mb, undo_retention_sec
+  if (graph.id === 50 || title.includes("Undo 사용률 추세")) {
     return renderLine(graph, {
-      keys: ["undo_ts_usage_pct"],
-      legends: ["Undo Usage (%)"],
+      keys: ["undo_tablespace_name", "undo_usage_percent", "long_transaction_count", "long_transaction_undo_mb", "undo_retention_sec"],
+      legends: ["Undo TS Name", "Undo Usage (%)", "Long Transaction Count", "Long Transaction Undo (MB)", "Undo Retention (sec)"],
     }, mode);
   }
 
-  if (title.includes("Total Database Usage Trend")) {
+  // Graph ID 51: Total Database Usage Trend (%)
+  // GraphRegistry: total_db_usage_percent
+  if (graph.id === 51 || title.includes("Total Database Usage Trend")) {
     return renderLine(graph, {
-      keys: ["total_db_usage_pct"],
+      keys: ["total_db_usage_percent"],
       legends: ["Total Usage (%)"],
     }, mode);
   }
 
+  // 위의 조건들에 매칭되지 않으면 타입 기반으로 렌더링 시도
   if (graph.type != null) {
-    return mainChartRenderer(title, graph, mode);
+    const rendered = mainChartRenderer(title, graph, mode);
+    // mainChartRenderer가 null을 반환하지 않도록 보장
+    if (rendered) {
+      return rendered;
+    }
   }
 
-  return null;
+  // 모든 조건에 매칭되지 않으면 빈 차트 표시
+  return (
+    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af" }}>
+      데이터를 불러오는 중입니다...
+    </div>
+  );
 };

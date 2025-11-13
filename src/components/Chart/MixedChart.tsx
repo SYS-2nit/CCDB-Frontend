@@ -103,7 +103,9 @@ const MixedChart: React.FC<MixedChartProps> = ({
     <div
       style={{
         width: "100%",
+        maxWidth: "100%",
         height: typeof height === "number" ? `${height}px` : height,
+        overflow: "hidden",
       }}
     >
       <ReactApexChart
@@ -111,6 +113,7 @@ const MixedChart: React.FC<MixedChartProps> = ({
         series={series}
         height={height}
         type="line"
+        width="100%"
       />
     </div>
   );

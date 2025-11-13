@@ -131,7 +131,9 @@ const StackChart: React.FC<StackChartProps> = ({
       id="stack-chart"
       style={{
         width: "100%",
+        maxWidth: "100%",
         height: typeof height === "number" ? `${height}px` : height,
+        overflow: "hidden",
       }}
     >
       <ReactApexChart
@@ -139,6 +141,7 @@ const StackChart: React.FC<StackChartProps> = ({
         series={series}
         type="bar"
         height={height}
+        width="100%"
       />
     </div>
   );

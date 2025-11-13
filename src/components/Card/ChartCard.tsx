@@ -6,7 +6,7 @@ import SettingIcon from "@/assets/general/setting.svg";
 import InfoIcon from "@/assets/general/info.svg";
 import DragIcon from "@/assets/general/drag.svg";
 import { getChartByTitle } from "./utils/getChartByTitle";
-import { useDashboardContext } from "@/state/DashboardContext";
+import { useDashboardContext, type DashboardMode } from "@/state/DashboardContext";
 import { renderDynamicChart } from "./utils/renderDynamicChart";
 import type { GraphDataResponse } from "@/api/dashboard";
 
@@ -17,6 +17,7 @@ interface ChartCardProps {
   showSettingIcon?: boolean;
   showDragIcon?: boolean;
   graphData?: GraphDataResponse | null;
+  mode?: DashboardMode; // 히스토리 페이지에서 사용
 }
 
 const ChartCard: React.FC<ChartCardProps> = ({
@@ -26,6 +27,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
   showSettingIcon = true,
   showDragIcon = true,
   graphData: propGraphData,
+  mode: propMode,
 }) => {
   const StatusIcon = status === "warning" ? WarningIcon : SuccessGreenIcon;
   const {
@@ -33,22 +35,25 @@ const ChartCard: React.FC<ChartCardProps> = ({
     isFetching,
     error,
     selectedInstanceId,
-    mode,
+    mode: contextMode,
   } = useDashboardContext();
 
   const graphData = propGraphData ?? graphsByName[title];
+  const mode = propMode ?? contextMode; // propMode가 있으면 사용, 없으면 contextMode 사용
 
   let bodyContent: React.ReactNode;
 
-  if (!selectedInstanceId) {
+  // propGraphData가 있으면 (히스토리 페이지 등) selectedInstanceId 체크 생략
+  if (!propGraphData && !selectedInstanceId) {
     bodyContent = (
       <div className="chart-placeholder">인스턴스를 선택해주세요.</div>
     );
-  } else if (!graphData && isFetching) {
+  } else if ((!propGraphData && !graphData && isFetching) || (propGraphData === undefined && isFetching)) {
+    // propGraphData가 undefined이고 로딩 중이면 로딩 상태 표시
     bodyContent = (
       <div className="chart-placeholder">데이터를 불러오는 중입니다...</div>
     );
-  } else if (!graphData && error) {
+  } else if (!propGraphData && !graphData && error) {
     bodyContent = <div className="chart-placeholder">{error}</div>;
   } else if (graphData) {
     const rendered = renderDynamicChart(title, graphData, mode);

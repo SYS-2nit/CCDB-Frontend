@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./History.scss";
 import DateInput from "@/components/Input/DateInput";
 import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
-import LineChart from "@/components/Chart/LineChart";
-import { AlertTriangle, CheckCircle, Settings, X } from "lucide-react";
+import { X } from "lucide-react";
 import Select from "@/components/Select/Select";
+import { fetchHistoryData, fetchHistoryGraphList, type HistoryGraphDataResponse, type HistoryGraphInfo } from "@/api/history";
+import { useDashboardContext } from "@/state/DashboardContext";
+import ChartCard from "@/components/Card/ChartCard";
 
 interface FilterItem {
   key: string;
@@ -13,13 +15,39 @@ interface FilterItem {
   value: string;
 }
 
+// 카테고리 옵션
+const CATEGORY_OPTIONS = [
+  { label: "CPU", value: "CPU" },
+  { label: "Memory", value: "MEMORY" },
+  { label: "Session", value: "SESSION" },
+  { label: "I/O", value: "IO" },
+  { label: "Storage", value: "STORAGE" },
+  { label: "Custom", value: "CUSTOM" },
+];
+
+// 시간 단위 매핑 (프론트엔드 표시용 -> 백엔드 형식)
+const TIME_UNIT_MAP: Record<string, "1m" | "10m" | "1h" | "1d"> = {
+  "1분": "1m",
+  "10분": "10m",
+  "1시간": "1h",
+  "하루": "1d",
+};
+
 const History: React.FC = () => {
+  const { selectedInstanceId } = useDashboardContext();
   const [filters, setFilters] = useState<FilterItem[]>([]);
+  const [graphList, setGraphList] = useState<HistoryGraphInfo[]>([]);
+  const [historyGraphs, setHistoryGraphs] = useState<HistoryGraphDataResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [graphTimeUnits, setGraphTimeUnits] = useState<Map<number, "1m" | "10m" | "1h" | "1d">>(new Map());
 
   /** 공통 업데이트 함수 */
-  const updateFilter = (key: string, label: string, value: string) => {
+  const updateFilter = useCallback((key: string, label: string, value: string) => {
     setFilters((prev) => {
-      if (!value) return prev.filter((f) => f.key !== key);
+      if (!value || value === "0" || value === "") {
+        return prev.filter((f) => f.key !== key);
+      }
       const exists = prev.find((f) => f.key === key);
       if (exists) {
         return prev.map((f) => (f.key === key ? { ...f, value } : f));
@@ -27,7 +55,103 @@ const History: React.FC = () => {
         return [...prev, { key, label, value }];
       }
     });
-  };
+  }, []);
+
+  /** 카테고리 선택 시 그래프 리스트 조회 */
+  useEffect(() => {
+    const category = filters.find((f) => f.key === "category")?.value;
+    if (!category) {
+      setGraphList([]);
+      return;
+    }
+
+    const loadGraphList = async () => {
+      try {
+        const response = await fetchHistoryGraphList({ category });
+        setGraphList(response.graphs || []);
+      } catch (error) {
+        console.error("그래프 목록 조회 실패:", error);
+        setGraphList([]);
+      }
+    };
+
+    void loadGraphList();
+  }, [filters]);
+
+  /** 검색 버튼 클릭 핸들러 */
+  const handleSearch = useCallback(async () => {
+    if (!selectedInstanceId) {
+      alert("인스턴스를 선택해주세요.");
+      return;
+    }
+
+    const startDate = filters.find((f) => f.key === "start")?.value;
+    const endDate = filters.find((f) => f.key === "end")?.value;
+    const category = filters.find((f) => f.key === "category")?.value;
+    const graphId = filters.find((f) => f.key === "graph")?.value;
+    const keyword = filters.find((f) => f.key === "keyword")?.value;
+    const duration = filters.find((f) => f.key === "duration")?.value;
+
+    // 시작일 또는 종료일이 없으면 경고
+    if (!startDate && !endDate) {
+      alert("시작일 또는 종료일을 선택해주세요.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // 날짜 형식 변환 (datetime-local 또는 date -> ISO 8601)
+      let startDateTime: string | undefined;
+      let endDateTime: string | undefined;
+
+      if (startDate) {
+        // datetime-local 형식이면 그대로 사용, date 형식이면 시간 추가
+        if (startDate.includes("T")) {
+          startDateTime = startDate + ":00"; // 초 추가
+        } else {
+          startDateTime = startDate + "T00:00:00";
+        }
+      }
+
+      if (endDate) {
+        if (endDate.includes("T")) {
+          endDateTime = endDate + ":00"; // 초 추가
+        } else {
+          endDateTime = endDate + "T23:59:59";
+        }
+      }
+
+      // 시간 단위 변환
+      const timeUnit = duration ? TIME_UNIT_MAP[duration] || "1d" : "1d";
+
+      const response = await fetchHistoryData({
+        instanceId: selectedInstanceId,
+        startDateTime,
+        endDateTime,
+        category: category as any,
+        graphId: graphId ? Number(graphId) : undefined,
+        keyword: keyword || undefined,
+        timeUnit,
+      });
+
+      setHistoryGraphs(response.graphs || []);
+      
+      // 각 그래프의 기본 시간 단위 설정
+      const newTimeUnits = new Map<number, "1m" | "10m" | "1h" | "1d">();
+      response.graphs?.forEach((graph) => {
+        newTimeUnits.set(graph.id, timeUnit);
+      });
+      setGraphTimeUnits(newTimeUnits);
+    } catch (error) {
+      console.error("히스토리 데이터 조회 실패:", error);
+      setError("데이터를 불러오는데 실패했습니다.");
+      setHistoryGraphs([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedInstanceId, filters]);
 
   /** 필터 제거 */
   const removeFilter = (key: string) => {
@@ -168,14 +292,14 @@ const History: React.FC = () => {
             label="카테고리"
             placeholder="선택해주세요."
             value={filters.find((f) => f.key === "category")?.value || ""}
-            onChange={(e) =>
-              updateFilter("category", "카테고리", e.target.value)
-            }
+            onChange={(e) => {
+              updateFilter("category", "카테고리", e.target.value);
+              // 카테고리 변경 시 그래프 필터 초기화
+              updateFilter("graph", "그래프", "");
+            }}
             options={[
-              { label: "CPU", value: "CPU" },
-              { label: "Memory", value: "Memory" },
-              { label: "Session", value: "Session" },
-              { label: "I/O", value: "I/O" },
+              { label: "선택해주세요", value: "" },
+              ...CATEGORY_OPTIONS,
             ]}
           />
 
@@ -185,11 +309,13 @@ const History: React.FC = () => {
             value={filters.find((f) => f.key === "graph")?.value || ""}
             onChange={(e) => updateFilter("graph", "그래프", e.target.value)}
             options={[
-              { label: "Elapsed", value: "Elapsed" },
-              { label: "Wait", value: "Wait" },
-              { label: "Usage", value: "Usage" },
-              { label: "Trend", value: "Trend" },
+              { label: "선택해주세요", value: "" },
+              ...graphList.map((graph) => ({
+                label: graph.name,
+                value: String(graph.id),
+              })),
             ]}
+            disabled={!filters.find((f) => f.key === "category")?.value}
           />
 
           <Input
@@ -200,65 +326,103 @@ const History: React.FC = () => {
             onChange={(e) => updateFilter("keyword", "키워드", e.target.value)}
           />
 
-          <Button text="검색" size="sm" variant="primary" />
+          <Button 
+            text="검색" 
+            size="sm" 
+            variant="primary" 
+            onClick={handleSearch}
+            disabled={isLoading || !selectedInstanceId}
+          />
         </div>
 
         {/* 2행: 조건 표시 */}
         {filters.length > 0 && (
           <div className="history__conditions">
             <div className="history__conditions-title">검색 조건:</div>
-            {filters.map((f) => (
-              <div key={f.key} className="history__chip">
-                <span>
-                  {f.label}: {f.value}
-                </span>
-                <button
-                  className="history__chip-remove"
-                  onClick={() => removeFilter(f.key)}
-                >
-                  <X size={12} />
-                </button>
-              </div>
-            ))}
+            {filters.map((f) => {
+              // 그래프 ID인 경우 그래프 이름으로 변환
+              let displayValue = f.value;
+              if (f.key === "graph" && f.value) {
+                const graph = graphList.find((g) => String(g.id) === f.value);
+                if (graph) {
+                  displayValue = graph.name;
+                }
+              }
+              
+              return (
+                <div key={f.key} className="history__chip">
+                  <span>
+                    {f.label}: {displayValue}
+                  </span>
+                  <button
+                    className="history__chip-remove"
+                    onClick={() => removeFilter(f.key)}
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
 
       {/* 차트 카드 */}
       <div className="history__grid">
-        {Array.from({ length: 6 }).map((_, idx) => (
-          <div key={idx} className="history__card">
-            <div className="history__card-header">
-              <h4 className="history__card-title">
-                Title
-                {idx % 2 === 0 ? (
-                  <AlertTriangle size={16} color="#ef4444" />
-                ) : (
-                  <CheckCircle size={16} color="#16a34a" />
-                )}
-              </h4>
-              <Settings size={16} color="#6b7280" />
-            </div>
-
-            <LineChart
-              legends={["Text (단위)", "Text (단위)", "Text (단위)"]}
-              seriesData={[
-                [5, 7, 4, 8, 6, 9, 7],
-                [4, 6, 3, 5, 4, 7, 6],
-                [3, 5, 2, 4, 3, 5, 4],
-              ]}
-              categories={[
-                "Text",
-                "Text",
-                "Text",
-                "Text",
-                "Text",
-                "Text",
-                "Time",
-              ]}
-            />
+        {!selectedInstanceId ? (
+          <div className="history__empty">
+            <p>인스턴스를 선택해주세요.</p>
           </div>
-        ))}
+        ) : isLoading ? (
+          <div className="history__empty">
+            <p>데이터를 불러오는 중입니다...</p>
+          </div>
+        ) : error ? (
+          <div className="history__empty">
+            <p style={{ color: "#ef4444" }}>{error}</p>
+          </div>
+        ) : historyGraphs.length === 0 ? (
+          <div className="history__empty">
+            <p>검색 조건을 설정하고 검색 버튼을 클릭해주세요.</p>
+          </div>
+        ) : (
+          historyGraphs.map((graph) => {
+            const timeUnit = graphTimeUnits.get(graph.id) || "1d";
+            // timeUnit을 DashboardMode로 변환
+            const modeMap: Record<"1m" | "10m" | "1h" | "1d", "LIVE" | "10분" | "1시간" | "1일"> = {
+              "1m": "LIVE",
+              "10m": "10분",
+              "1h": "1시간",
+              "1d": "1일",
+            };
+            const chartMode = modeMap[timeUnit] || "1일";
+            
+            // GraphDataResponse 형식으로 변환 (호환성)
+            const graphDataForRender = {
+              id: graph.id,
+              name: graph.name,
+              description: graph.description,
+              type: graph.type,
+              data: graph.data.map((point) => ({
+                timestamp: point.timestamp,
+                values: point.values,
+              })),
+            };
+
+            return (
+              <div key={graph.id} className="history__card">
+                <ChartCard
+                  title={graph.name}
+                  status="normal"
+                  showDragIcon={false}
+                  showSettingIcon={false}
+                  graphData={graphDataForRender}
+                  mode={chartMode}
+                />
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

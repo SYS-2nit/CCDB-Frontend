@@ -43,6 +43,7 @@ export interface GraphDefinition {
 
 export const fetchDashboardData = async (
   params: DashboardDataParams,
+  signal?: AbortSignal,
 ): Promise<DashboardDataResponse> => {
   const searchParams = new URLSearchParams();
   searchParams.set("instanceId", String(params.instanceId));
@@ -51,6 +52,7 @@ export const fetchDashboardData = async (
 
   const response = await api.get<ApiResponse<DashboardDataResponse>>(
     `/api/dashboards/data?${searchParams.toString()}`,
+    { signal }, // AbortSignal 전달
   );
 
   return response.data.data ?? { graphs: [] };

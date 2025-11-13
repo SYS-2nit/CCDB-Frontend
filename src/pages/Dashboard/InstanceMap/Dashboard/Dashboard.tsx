@@ -78,6 +78,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     clearGraphs,
     isWidgetOrderDirty,
     saveWidgetOrder,
+    isFetching,
     setIsFetching,
     setError,
     triggerRefresh,
@@ -114,8 +115,8 @@ const Dashboard: React.FC<DashboardProps> = ({
       session: "SESSION",
       io: "IO",
       storage: "STORAGE",
-      performance: "PERFORMANCE",
-      prevention: "PREVENTION",
+      performance: "CUSTOM", // PERFORMANCE는 백엔드에 없으므로 CUSTOM으로 매핑
+      prevention: "CUSTOM", // PREVENTION은 백엔드에 없으므로 CUSTOM으로 매핑
     };
     return categoryMap[tab] ?? "CUSTOM";
   };
@@ -223,6 +224,36 @@ const Dashboard: React.FC<DashboardProps> = ({
       return;
     }
 
+    // LIVE 모드일 때 02초마다 자동 새로고침
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let intervalId: ReturnType<typeof setInterval>;
+
+    const scheduleNextUpdate = () => {
+      const now = new Date();
+      const seconds = now.getSeconds();
+      const milliseconds = now.getMilliseconds();
+      
+      // 02초에 데이터 호출하도록 설정
+      let msUntilNextUpdate: number;
+      if (seconds < 2) {
+        // 아직 02초가 안 지났으면 다음 02초까지 대기
+        msUntilNextUpdate = (2 - seconds) * 1000 - milliseconds;
+      } else {
+        // 02초가 지났으면 다음 분의 02초까지 대기
+        msUntilNextUpdate = (60 - seconds + 2) * 1000 - milliseconds;
+      }
+
+      timeoutId = setTimeout(() => {
+        triggerRefresh();
+        // 이후 1분마다 02초에 호출
+        intervalId = setInterval(() => {
+          triggerRefresh();
+        }, 60000);
+      }, msUntilNextUpdate);
+    };
+
+    scheduleNextUpdate();
+
     let cancelled = false;
 
     const loadDashboard = async () => {
@@ -269,8 +300,10 @@ const Dashboard: React.FC<DashboardProps> = ({
 
     return () => {
       cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
     };
-  }, [refreshToken, mode, selectedInstanceId, activeTab, setGraphs, setIsFetching, setError]);
+  }, [refreshToken, mode, selectedInstanceId, activeTab, setGraphs, setIsFetching, setError, triggerRefresh]);
 
   useEffect(() => {
     if (activeTab === "main" && graphList.length > 0) {
@@ -378,7 +411,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                   const currentGraphs = categoryGraphs.get(activeTab) ?? [];
                   
                   // 카테고리별 그래프 ID 기반 매핑
-                  const getGraphForTitle = (title: string): GraphDataResponse | null => {
+                  // 로딩 중이고 데이터가 없으면 undefined 반환 (ChartCard에서 로딩 상태 표시)
+                  const getGraphForTitle = (title: string): GraphDataResponse | null | undefined => {
+                    // 로딩 중이고 데이터가 없으면 undefined 반환하여 로딩 상태 표시
+                    if (isFetching && currentGraphs.length === 0) {
+                      return undefined;
+                    }
                     // CPU 카테고리 그래프 ID 매핑
                     if (activeTab === "cpu") {
                       const cpuGraphIdMap: Record<string, number> = {
