@@ -3,23 +3,46 @@
 @use "@styles/variables" as *;
 @use "@styles/mixins" as *;
 
+// 전체 틀
 .sql-top {
-  overflow: hidden; // 화면 스크롤 방지
+  overflow: hidden;
   height: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
 
-  &__filters {
+  // 검색 영역
+  &__search {
+    width: 100%;
     display: flex;
     align-items: flex-end;
-    justify-content: flex-start;
+    justify-content: space-between;
+    flex-direction: row;
     background: $gray-0;
-    gap: 20px;
-    border-radius: 5px;
-    padding: 20px;
+
+    // 왼쪽 영역 
+    &-left {
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+      padding: 20px;
+      border-radius: 5px;
+    
+        // 버튼 3개
+        &-btns {
+          display: flex;
+          gap: 10px;
+      }
+    }
+
+    // 오른쪽 영역 
+    &-right {
+      display: flex;
+      padding: 20px;
+    }
   }
 
+  // 차트 영역
   &__summary {
     .sql-top__chart {
       width: 100%;
@@ -29,6 +52,7 @@
     }
   }
 
+  // 테이블 영역
   &__tables {
     display: flex;
     gap: 16px;

@@ -212,7 +212,7 @@ const SqlStat: React.FC = () => {
     <div className="sql-stat">
       {/* 검색 영역 */}
       <div className="sql-stat__search">
-        {/* 좌측 (시작일, 종료일, 정렬기준, 버튼 3개) */}
+        {/* 좌측 (시작일, 종료일, 필터, 버튼 3개) */}
         <div className="sql-stat__search-left">
           <DateInput
             label="시작일"
@@ -229,7 +229,7 @@ const SqlStat: React.FC = () => {
             }
           />
           <Select
-            label="정렬 기준"
+            label="필터"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             options={[

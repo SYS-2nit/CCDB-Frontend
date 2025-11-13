@@ -18,6 +18,7 @@
     flex-direction: row;
     background: $gray-0;
 
+    // 왼쪽 영역 
     &-left {
       display: flex;
       align-items: flex-end;
@@ -32,6 +33,7 @@
       }
     }
 
+    // 오른쪽 영역 
     &-right {
       display: flex;
       padding: 20px;

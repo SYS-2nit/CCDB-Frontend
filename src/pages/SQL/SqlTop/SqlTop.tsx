@@ -257,37 +257,63 @@ const SqlTop: React.FC = () => {
     <div className="sql-top">
       {/* 필터 영역 */}
       <div className="sql-top__header">
-        <div className="sql-top__filters">
-          {/* 왼쪽 (기준 닐짜 + 비교 날짜 + ) */}
-          <DateInput
-            label="기준 날짜"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-          <DateInput
-            label="비교 날짜"
-            value={compareDate}
-            onChange={(e) => setCompareDate(e.target.value)}
-          />
-          <Select
-            label="필터"
-            options={[
-              { label: "선택해주세요", value: "0" },
-              { label: "Elapsed Time", value: "1" },
-              { label: "Wait Time", value: "2" },
-              { label: "Avg Elapsed Time", value: "3" },
-              { label: "Execute Count", value: "4" },
-              { label: "Logical Reads", value: "5" },
-              { label: "Physical Reads", value: "6" },
-              { label: "Block Changes", value: "7" },
-            ]}
-          />
-          <Button
-            text="검색"
-            size="sm"
-            variant="primary"
-            onClick={() => alert("검색 버튼을 클릭하였습니다.")}
-          />
+        <div className="sql-top__search">
+          {/* 왼쪽 (기준 닐짜 + 비교 날짜 + 필터) */}
+          <div className="sql-stat__search-left">
+            <DateInput
+              label="기준 날짜"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <DateInput
+              label="비교 날짜"
+              value={compareDate}
+              onChange={(e) => setCompareDate(e.target.value)}
+            />
+            <Select
+              label="필터"
+              options={[
+                { label: "선택해주세요", value: "0" },
+                { label: "Elapsed Time", value: "1" },
+                { label: "Wait Time", value: "2" },
+                { label: "Avg Elapsed Time", value: "3" },
+                { label: "Execute Count", value: "4" },
+                { label: "Logical Reads", value: "5" },
+                { label: "Physical Reads", value: "6" },
+                { label: "Block Changes", value: "7" },
+              ]}
+            />
+            <div className="sql-stat__search-left-btns">
+              <Button
+                text="10분"
+                size="sm"
+                variant="primary"
+                onClick={() => alert("10분 버튼 클릭")}
+              />
+              <Button
+                text="30분"
+                size="sm"
+                variant="primary"
+                onClick={() => alert("30분 버튼 클릭")}
+              />
+              <Button
+                text="1시간"
+                size="sm"
+                variant="primary"
+                onClick={() => alert("1시간 버튼 클릭")}
+              />
+            </div>
+          </div>
+
+          {/* 우측 (검색 버튼) */}
+          <div className="sql-stat__search-right">
+            <Button
+              text="검색"
+              size="sm"
+              variant="primary"
+              onClick={() => alert("검색 버튼을 클릭하였습니다.")}
+            />
+          </div>
         </div>
       </div>
 
