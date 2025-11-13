@@ -10,6 +10,9 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  overflow: hidden;
 
   // 검색 영역
   &__search {
@@ -43,14 +46,13 @@
   }
 
   // 차트 영역
-  &__summary {
-    .sql-top__chart {
-      width: 100%;
-      background: white;
+    &__summary {
+      background: $gray-0;
       border-radius: 5px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      color: $gray-700;
+      @include text-styles("body02");
     }
-  }
 
     // 테이블 영역
     &__table {
@@ -71,7 +73,7 @@
           flex-direction: row;
           margin-bottom: 10px;
           color: $gray-700;
-          @include text-styles("body02");
+          @include text-styles("label02");
 
           &-mainCircle {
             width: 10px;
@@ -87,11 +89,6 @@
             border-radius: 50%;
           }
         }
-
-      .table-chart__wrapper {
-        overflow: auto; // 테이블 내부 스크롤
-        max-height: calc(100vh - 320px);
-      }
 
       .sql-top__query-link {
         color: $main-600;

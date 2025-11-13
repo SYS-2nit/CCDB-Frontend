@@ -90,8 +90,10 @@ const SqlStat: React.FC = () => {
         orderBy: filter,
         direction: "DESC",
         page: page - 1,
-        size: 15, // 한 페이지당 갯수
+        size: 8, // 한 페이지당 갯수
       });
+
+      console.log("받은 데이터 길이:", data.content.length);
 
       if (data.content.length === 0) {
         setNoResult(true);
@@ -354,15 +356,6 @@ const SqlStat: React.FC = () => {
             exec: selectedRow.execution,
           }}
           onClose={() => setIsDrawerOpen(false)}
-        />
-      )}
-
-      {/* 페이지네이션 */}
-      {!noResult && totalPages > 1 && (
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={(page) => fetchStats(page)}
         />
       )}
     </div>
