@@ -39,7 +39,7 @@ const SqlStat: React.FC = () => {
 
   // 검색 조건
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState("Elapsed Time");
   const [currentPage, setCurrentPage] = useState(1);
 
   // 데이터 상태
@@ -212,40 +212,68 @@ const SqlStat: React.FC = () => {
     <div className="sql-stat">
       {/* 검색 영역 */}
       <div className="sql-stat__search">
-        <DateInput
-          label="시작일"
-          value={dateRange.start}
-          onChange={(e) =>
-            setDateRange((prev) => ({ ...prev, start: e.target.value }))
-          }
-        />
-        <DateInput
-          label="종료일"
-          value={dateRange.end}
-          onChange={(e) =>
-            setDateRange((prev) => ({ ...prev, end: e.target.value }))
-          }
-        />
-        <Select
-          label="정렬 기준"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          options={[
-            { label: "Elapsed Time", value: "elapsed" },
-            { label: "Avg Elapsed", value: "avg" },
-            { label: "Wait Time", value: "wait" },
-            { label: "Executions", value: "execution" },
-            { label: "Logical Read", value: "buffer" },
-            { label: "Physical Reads", value: "disk" },
-            { label: "CPU Time", value: "cpu" },
-          ]}
-        />
-        <Button
-          text="검색"
-          size="sm"
-          variant="primary"
-          onClick={() => fetchStats(1)}
-        />
+        {/* 좌측 (시작일, 종료일, 정렬기준, 버튼 3개) */}
+        <div className="sql-stat__search-left">
+          <DateInput
+            label="시작일"
+            value={dateRange.start}
+            onChange={(e) =>
+              setDateRange((prev) => ({ ...prev, start: e.target.value }))
+            }
+          />
+          <DateInput
+            label="종료일"
+            value={dateRange.end}
+            onChange={(e) =>
+              setDateRange((prev) => ({ ...prev, end: e.target.value }))
+            }
+          />
+          <Select
+            label="정렬 기준"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            options={[
+              { label: "Elapsed Time", value: "elapsed" },
+              { label: "Avg Elapsed", value: "avg" },
+              { label: "Wait Time", value: "wait" },
+              { label: "Executions", value: "execution" },
+              { label: "Logical Read", value: "buffer" },
+              { label: "Physical Reads", value: "disk" },
+              { label: "CPU Time", value: "cpu" },
+            ]}
+          />
+
+          <div className="sql-stat__search-left-btns">
+            <Button
+              text="10분"
+              size="sm"
+              variant="primary"
+              onClick={() => fetchStats(1)}
+            />
+            <Button
+              text="30분"
+              size="sm"
+              variant="primary"
+              onClick={() => fetchStats(1)}
+            />
+            <Button
+              text="1시간"
+              size="sm"
+              variant="primary"
+              onClick={() => fetchStats(1)}
+            />
+          </div>
+        </div>
+
+        {/* 우측 (검색 버튼) */}
+        <div className="sql-stat__search-right">
+          <Button
+            text="검색"
+            size="sm"
+            variant="primary"
+            onClick={() => fetchStats(1)}
+          />
+        </div>
       </div>
 
       {/* Summary Chart */}
@@ -294,7 +322,7 @@ const SqlStat: React.FC = () => {
       <div className="sql-stat__table">
         조회 결과
         {noResult ? (
-          <div className="sql-stat__no-result">검색 결과가 없습니다.</div>
+          <div className="sql-stat__table-null">검색 결과가 없습니다.</div>
         ) : (
           <TableChart
             columns={columns}

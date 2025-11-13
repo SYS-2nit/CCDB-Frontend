@@ -11,13 +11,31 @@
 
   // 검색 영역
   &__search {
+    width: 100%;
     display: flex;
     align-items: flex-end;
-    justify-content: flex-start;
-    gap: 20px;
-    padding: 20px;
+    justify-content: space-between;
+    flex-direction: row;
     background: $gray-0;
-    border-radius: 5px;
+
+    &-left {
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+      padding: 20px;
+      border-radius: 5px;
+    
+        // 버튼 3개
+        &-btns {
+          display: flex;
+          gap: 10px;
+      }
+    }
+
+    &-right {
+      display: flex;
+      padding: 20px;
+    }
   }
 
   // 차트 영역
@@ -36,6 +54,15 @@
       background-color:  $gray-0;
       color: $gray-700;
       @include text-styles("heading04");
+
+      &-null {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0px;
+        color: $gray-500;
+        @include text-styles("body02");
+      }
     }
 
     // 테이블 행 클릭 
