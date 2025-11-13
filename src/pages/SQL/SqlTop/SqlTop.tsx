@@ -363,15 +363,19 @@ const SqlTop: React.FC = () => {
       </div>
 
       {/* 테이블 비교 */}
-      <div className="sql-top__tables">
+      <div className="sql-top__table">
+        {/* 기준 테이블 영역*/}
         <div className="sql-top__table-block">
-          <div className="sql-top__table-block-title">
-            2024/05/16 00:00 ~ 2024/05/16 23:59
+          {/* 헤더 */}
+          <div className="sql-top__table-block-header">
+            <div className="sql-top__table-block-header-mainCircle"></div>
+            기준: 024/05/16 00:00 ~ 2024/05/16 23:59
           </div>
+
+          {/* 테이블  */}
           <TableChart
             columns={columns}
             rows={toRows(sortedLeftData)}
-            sortable
             sortConfig={sortConfigLeft}
             onSort={(key) =>
               setSortConfigLeft((prev) =>
@@ -383,9 +387,12 @@ const SqlTop: React.FC = () => {
           />
         </div>
 
+        {/* 비교 테이블 */}
         <div className="sql-top__table-block">
-          <div className="sql-top__table-block-title">
-            2024/05/09 00:00 ~ 2024/05/09 23:59
+          {/* 헤더 */}
+          <div className="sql-top__table-block-header">
+            <div className="sql-top__table-block-header-greenCircle" />
+            비교: 2024/05/09 00:00 ~ 2024/05/09 23:59
           </div>
           <TableChart
             columns={columns}
