@@ -20,53 +20,32 @@
     border-radius: 5px;
   }
 
-  // 테이블 영역
-  &__table {
-    border-radius: 5px;
-    padding: 20px;
-    background-color:  $gray-0;;
-
-    h3 {
-      @include text-styles("label02");
+  // 차트 영역
+    &__summary {
+      background: $gray-0;
+      border-radius: 5px;
+      padding: 20px;
       color: $gray-700;
-      margin-bottom: 12px;
+      @include text-styles("heading04");
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: center;
-      @include text-styles("label02");
-      color: $gray-700
+    // 테이블 영역
+    &__table {
+      padding: 20px;
+      border-radius:5px;
+      background-color:  $gray-0;
+      color: $gray-700;
+      @include text-styles("heading04");
+    }
 
-      th,
-      td {
-        border-bottom: 1px solid $gray-100;
-        padding: 10px;
-        
-      }
+    // 테이블 행 클릭 
+      &__sql-clickable {
+      cursor: pointer;
+      color: $main-600;
 
-      // 첫번째 행
-      th {
-        background-color: $gray-50;
-        @include text-styles("label02");
-        color: $gray-700
-      }
-
-      &-title {
-        @include text-styles("body02");
-        color: $gray-700
+      &:hover {
+        text-decoration: underline;
       }
     }
   }
-}
-
-.sql-stat__sql-clickable {
-  cursor: pointer;
-  color: $main-600;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
 

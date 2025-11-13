@@ -22,11 +22,23 @@ interface TableData {
 }
 
 const SqlStat: React.FC = () => {
+  // 초기 날짜 계산 (어제 ~ 오늘)
+  const getDefaultDateRange = () => {
+    const today = new Date();
+    const yesterday = new Date();
+
+    yesterday.setDate(today.getDate() - 1);
+
+    const toString = (d: Date) => d.toISOString().split("T")[0]; // yyyy-mm-dd 형태
+
+    return {
+      start: toString(yesterday),
+      end: toString(today),
+    };
+  };
+
   // 검색 조건
-  const [dateRange, setDateRange] = useState({
-    start: "",
-    end: "",
-  });
+  const [dateRange, setDateRange] = useState(getDefaultDateRange());
   const [filter, setFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -78,6 +90,7 @@ const SqlStat: React.FC = () => {
         orderBy: filter,
         direction: "DESC",
         page: page - 1,
+        size: 15, // 한 페이지당 갯수
       });
 
       if (data.content.length === 0) {
@@ -236,18 +249,15 @@ const SqlStat: React.FC = () => {
       </div>
 
       {/* Summary Chart */}
-      <div className="sql-top__summary">
-        <div className="sql-top__chart">
+      <div className="sql-stat__summary">
+        <div className="sql-stat__stat__summary-chart">
+          Summary Chart
           <LineChart
-            legends={["기준 날짜", "비교 날짜"]}
+            legends={["기준 날짜"]}
             seriesData={[
               [
                 8, 10, 12, 11, 9, 10, 8, 9, 11, 13, 12, 10, 9, 10, 11, 12, 13,
                 12, 11, 9, 8, 10, 9, 11,
-              ],
-              [
-                15, 18, 22, 20, 16, 18, 15, 17, 19, 21, 23, 20, 18, 19, 21, 22,
-                20, 19, 18, 17, 15, 16, 18, 17,
               ],
             ]}
             categories={[
@@ -282,7 +292,7 @@ const SqlStat: React.FC = () => {
 
       {/* 테이블 */}
       <div className="sql-stat__table">
-        <div className="sql-stat__table-title">조회 결과</div>
+        조회 결과
         {noResult ? (
           <div className="sql-stat__no-result">검색 결과가 없습니다.</div>
         ) : (
@@ -299,6 +309,11 @@ const SqlStat: React.FC = () => {
             size="lg"
           />
         )}
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={(page) => fetchStats(page)}
+        />
       </div>
 
       {/* SQL 상세 Drawer */}
