@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
+import api from "..";
 
 export interface SqlStatsItem {
   id: number;
@@ -28,7 +30,7 @@ export interface ApiResponse<T> {
 }
 
 /**
- * SQL 통계 목록 조회 (백엔드 실제 데이터)
+ * SQL 통계 목록 조회
  */
 export const getSqlStats = async (params: {
   instanceId: number;
@@ -47,10 +49,20 @@ export const getSqlStats = async (params: {
       "/api/sql/stats",
       { params }
     );
-    console.log("[API] SQL 통계 응답:", res.data);
+    console.log("[API] SQL 통계 테이블 응답:", res.data);
     return res.data.data;
   } catch (error) {
-    console.error("[API] SQL 통계 요청 실패:", error);
+    console.error("[API] SQL 통계 테이블 요청 실패:", error);
     throw error;
   }
+};
+
+/**
+ * SQL 통계 그래프 조회
+ */
+
+export const getSqlGraph = async (params: any) => {
+  const res = await api.get("api/sql/graph", { params });
+  console.log("[API] SQL 통계 그래프 응답:", res.data);
+  return res.data.data;
 };

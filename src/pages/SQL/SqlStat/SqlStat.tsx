@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo, useEffect } from "react";
 import "./SqlStat.scss";
 import DateInput from "@/components/Input/DateInput";
@@ -6,9 +7,10 @@ import TableChart from "@/components/Chart/TableChart";
 import BarGauge from "@/components/Chart/BarGauge";
 import Pagination from "@/components/Pagination/Pagination";
 import Select from "@/components/Select/Select";
-import { getSqlStats } from "@/api/Sql/stats";
+import { getSqlGraph, getSqlStats } from "@/api/Sql/stats";
 import SqlDetailDrawer from "@/pages/SQL/Modal/SqlDetailDrawer";
 import LineChart from "@/components/Chart/LineChart";
+import Spinner from "@/components/Spinner/Spinner";
 
 interface TableData {
   sql: string;
@@ -22,27 +24,28 @@ interface TableData {
 }
 
 const SqlStat: React.FC = () => {
-  // 초기 날짜 계산 (어제 ~ 오늘)
+  /* 기본 날짜값: 어제 ~ 오늘 */
   const getDefaultDateRange = () => {
     const today = new Date();
     const yesterday = new Date();
-
     yesterday.setDate(today.getDate() - 1);
 
-    const toString = (d: Date) => d.toISOString().split("T")[0]; // yyyy-mm-dd 형태
+    const toString = (d: Date) => d.toISOString().split("T")[0];
 
-    return {
-      start: toString(yesterday),
-      end: toString(today),
-    };
+    return { start: toString(yesterday), end: toString(today) };
   };
 
-  // 검색 조건
+  /* 상태 */
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
-  const [filter, setFilter] = useState("Elapsed Time");
+  const [filter, setFilter] = useState("elapsed");
+  const [interval, setInterval] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // 데이터 상태
+  const [graphData, setGraphData] = useState({
+    labels: [] as string[],
+    values: [] as number[],
+  });
+
   const [tableData, setTableData] = useState<TableData[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -51,7 +54,6 @@ const SqlStat: React.FC = () => {
   const [selectedRow, setSelectedRow] = useState<TableData | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // 게이지바 max
   const [maxValues, setMaxValues] = useState({
     elapsed: 1,
     avg: 1,
@@ -62,13 +64,12 @@ const SqlStat: React.FC = () => {
     cpu: 1,
   });
 
-  // 정렬
   const [sortConfig, setSortConfig] = useState<{
     key: keyof TableData;
     direction: "asc" | "desc";
   } | null>(null);
 
-  // 검색 함수
+  /* 검색 API 통합 함수 */
   const fetchStats = async (page = 1) => {
     if (!dateRange.start || !dateRange.end) {
       alert("조회 기간을 설정해주세요.");
@@ -79,21 +80,33 @@ const SqlStat: React.FC = () => {
       setIsLoading(true);
       setNoResult(false);
 
-      // API 호출
+      /* 그래프 API 호출 */
+      const graph = await getSqlGraph({
+        instanceId: 1,
+        startDate: dateRange.start,
+        endDate: dateRange.end,
+        metric: filter, // elapsed, avg, wait, execution, buffer …
+        intervalMinutes: interval,
+      });
+
+      setGraphData({
+        labels: graph.buckets.map((b: { timeLabel: any }) => b.timeLabel),
+        values: graph.buckets.map((b: { value: any }) => b.value),
+      });
+
+      /* 테이블 API 호출 */
       const data = await getSqlStats({
         instanceId: 1,
         startDate: dateRange.start,
         endDate: dateRange.end,
         keyword: "",
         minExecCount: 1,
-        maxExecCount: 1000,
+        maxExecCount: 10000,
         orderBy: filter,
         direction: "DESC",
         page: page - 1,
-        size: 8, // 한 페이지당 갯수
+        size: 8,
       });
-
-      console.log("받은 데이터 길이:", data.content.length);
 
       if (data.content.length === 0) {
         setNoResult(true);
@@ -101,7 +114,6 @@ const SqlStat: React.FC = () => {
         return;
       }
 
-      // 데이터 매핑
       const mapped = data.content.map((item) => ({
         sql: item.sqlText,
         elapsed: item.elapsedUsDelta,
@@ -113,7 +125,7 @@ const SqlStat: React.FC = () => {
         cpu: item.cpuUsDelta,
       }));
 
-      // 각 컬럼별 총합
+      /* 게이지 max값 계산 */
       const totals = mapped.reduce(
         (acc, cur) => {
           acc.elapsed += cur.elapsed;
@@ -147,19 +159,16 @@ const SqlStat: React.FC = () => {
     }
   };
 
-  // 페이지 변경 시 자동 조회
+  /* 페이지 바뀌면 재조회 */
   useEffect(() => {
-    if (dateRange.start && dateRange.end) {
-      fetchStats(currentPage);
-    }
+    fetchStats(currentPage);
   }, [currentPage]);
 
-  // 정렬
+  /* 정렬 */
   const handleSort = (key: keyof TableData) => {
     let direction: "asc" | "desc" = "asc";
-    if (sortConfig?.key === key && sortConfig.direction === "asc") {
+    if (sortConfig?.key === key && sortConfig.direction === "asc")
       direction = "desc";
-    }
     setSortConfig({ key, direction });
   };
 
@@ -179,7 +188,7 @@ const SqlStat: React.FC = () => {
     { key: "elapsed", label: "Elapsed Time" },
     { key: "avg", label: "Avg Elapsed" },
     { key: "wait", label: "Wait Time" },
-    { key: "exec", label: "Executions" },
+    { key: "execution", label: "Executions" },
     { key: "buffer", label: "Logical Reads" },
     { key: "disk", label: "Physical Reads" },
     { key: "cpu", label: "CPU Time" },
@@ -195,26 +204,22 @@ const SqlStat: React.FC = () => {
     >
       {row.sql}
     </span>,
-    <BarGauge value={row.elapsed} max={maxValues.elapsed || 1} />,
-    <BarGauge value={row.avg} max={maxValues.avg || 1} />,
-    <BarGauge value={row.wait} max={maxValues.wait || 1} />,
-    <BarGauge value={row.execution} max={maxValues.execution || 1} />,
-    <BarGauge value={row.buffer} max={maxValues.buffer || 1} />,
-    <BarGauge value={row.disk} max={maxValues.disk || 1} />,
-    <BarGauge value={row.cpu} max={maxValues.cpu || 1} />,
+    <BarGauge value={row.elapsed} max={maxValues.elapsed} />,
+    <BarGauge value={row.avg} max={maxValues.avg} />,
+    <BarGauge value={row.wait} max={maxValues.wait} />,
+    <BarGauge value={row.execution} max={maxValues.execution} />,
+    <BarGauge value={row.buffer} max={maxValues.buffer} />,
+    <BarGauge value={row.disk} max={maxValues.disk} />,
+    <BarGauge value={row.cpu} max={maxValues.cpu} />,
   ]);
 
-  // 로딩증일 경우
-  if (isLoading)
-    return (
-      <div className="sql-stat__loading">데이터를 불러오는 중입니다...</div>
-    );
+  /* 로딩 */
+  if (isLoading) return <Spinner message="데이터 불러오는 중..." />;
 
   return (
     <div className="sql-stat">
       {/* 검색 영역 */}
       <div className="sql-stat__search">
-        {/* 좌측 (시작일, 종료일, 필터, 버튼 3개) */}
         <div className="sql-stat__search-left">
           <DateInput
             label="시작일"
@@ -230,6 +235,8 @@ const SqlStat: React.FC = () => {
               setDateRange((prev) => ({ ...prev, end: e.target.value }))
             }
           />
+
+          {/* 필터 */}
           <Select
             label="필터"
             value={filter}
@@ -239,35 +246,41 @@ const SqlStat: React.FC = () => {
               { label: "Avg Elapsed", value: "avg" },
               { label: "Wait Time", value: "wait" },
               { label: "Executions", value: "execution" },
-              { label: "Logical Read", value: "buffer" },
+              { label: "Logical Reads", value: "buffer" },
               { label: "Physical Reads", value: "disk" },
               { label: "CPU Time", value: "cpu" },
             ]}
           />
 
+          {/* 인터벌 버튼 */}
           <div className="sql-stat__search-left-btns">
-            <Button
-              text="10분"
-              size="sm"
-              variant="primary"
-              onClick={() => fetchStats(1)}
-            />
             <Button
               text="30분"
               size="sm"
-              variant="primary"
-              onClick={() => fetchStats(1)}
+              variant={interval === 30 ? "primary" : "white"}
+              onClick={() => {
+                setInterval(30);
+              }}
             />
             <Button
               text="1시간"
               size="sm"
-              variant="primary"
-              onClick={() => fetchStats(1)}
+              variant={interval === 60 ? "primary" : "white"}
+              onClick={() => {
+                setInterval(60);
+              }}
+            />
+            <Button
+              text="2시간"
+              size="sm"
+              variant={interval === 120 ? "primary" : "white"}
+              onClick={() => {
+                setInterval(120);
+              }}
             />
           </div>
         </div>
 
-        {/* 우측 (검색 버튼) */}
         <div className="sql-stat__search-right">
           <Button
             text="검색"
@@ -282,41 +295,17 @@ const SqlStat: React.FC = () => {
       <div className="sql-stat__summary">
         <div className="sql-stat__stat__summary-chart">
           Summary Chart
-          <LineChart
-            legends={["기준 날짜"]}
-            seriesData={[
-              [
-                8, 10, 12, 11, 9, 10, 8, 9, 11, 13, 12, 10, 9, 10, 11, 12, 13,
-                12, 11, 9, 8, 10, 9, 11,
-              ],
-            ]}
-            categories={[
-              "00:00",
-              "01:00",
-              "02:00",
-              "03:00",
-              "04:00",
-              "05:00",
-              "06:00",
-              "07:00",
-              "08:00",
-              "09:00",
-              "10:00",
-              "11:00",
-              "12:00",
-              "13:00",
-              "14:00",
-              "15:00",
-              "16:00",
-              "17:00",
-              "18:00",
-              "19:00",
-              "20:00",
-              "21:00",
-              "22:00",
-              "23:00",
-            ]}
-          />
+          {graphData.values.length === 0 ? (
+            <div className="sql-stat__chart-null">
+              그래프 데이터가 없습니다.
+            </div>
+          ) : (
+            <LineChart
+              legends={[`${filter} Trend`]}
+              seriesData={[graphData.values]}
+              categories={graphData.labels}
+            />
+          )}
         </div>
       </div>
 
@@ -330,13 +319,8 @@ const SqlStat: React.FC = () => {
             columns={columns}
             rows={rows}
             sortable
-            sortConfig={
-              sortConfig
-                ? { key: sortConfig.key, direction: sortConfig.direction }
-                : null
-            }
+            sortConfig={sortConfig}
             onSort={(key) => handleSort(key as keyof TableData)}
-            size="lg"
           />
         )}
         <Pagination
@@ -346,7 +330,7 @@ const SqlStat: React.FC = () => {
         />
       </div>
 
-      {/* SQL 상세 Drawer */}
+      {/* 상세 탭 */}
       {isDrawerOpen && selectedRow && (
         <SqlDetailDrawer
           data={{
