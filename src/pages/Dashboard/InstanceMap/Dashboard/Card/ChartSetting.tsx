@@ -15,57 +15,6 @@ interface ChartSettingProps {
 
 type ModeType = "category" | "resource";
 
-const getCategoryByTab = (tab: TabType): string => {
-  const categoryMap: Record<TabType, string> = {
-    main: "CUSTOM",
-    cpu: "CPU",
-    memory: "MEMORY",
-    session: "SESSION",
-    io: "IO",
-    storage: "STORAGE",
-    performance: "CUSTOM", // PERFORMANCE는 백엔드에 없으므로 CUSTOM으로 매핑
-    prevention: "CUSTOM", // PREVENTION은 백엔드에 없으므로 CUSTOM으로 매핑
-  };
-  return categoryMap[tab] ?? "CUSTOM";
-};
-
-/** 그래프 이름으로 카테고리 추론 */
-const inferCategoryFromGraphName = (graphName: string): string => {
-  const name = graphName.toLowerCase();
-  
-  // CPU 관련
-  if (name.includes("cpu") || name.includes("cpu 효율")) {
-    return "CPU";
-  }
-  
-  // Memory 관련
-  if (name.includes("sga") || name.includes("pga") || name.includes("memory") || 
-      name.includes("hit ratio") || name.includes("hitratio") || name.includes("buffer")) {
-    return "MEMORY";
-  }
-  
-  // Session 관련
-  if (name.includes("session") || name.includes("aas") || name.includes("tps") || 
-      name.includes("lock") || name.includes("wait")) {
-    return "SESSION";
-  }
-  
-  // IO 관련
-  if (name.includes("i/o") || name.includes("io") || name.includes("redo") || 
-      name.includes("read") || name.includes("write") || name.includes("latency")) {
-    return "IO";
-  }
-  
-  // Storage 관련
-  if (name.includes("storage") || name.includes("tablespace") || name.includes("fra") || 
-      name.includes("undo") || name.includes("temp") || name.includes("segment")) {
-    return "STORAGE";
-  }
-  
-  // 기본값
-  return "CUSTOM";
-};
-
 /** 타입별 고정 더미데이터 생성 함수 (모든 타입에 대해 0~10 범위의 더미데이터 생성) */
 const generateDummyDataByType = (graphType: number | null): GraphDataResponse["data"] => {
   const dataPoints: GraphDataResponse["data"] = [];
@@ -141,7 +90,7 @@ const generateDummyData = (graphName: string, graphType: number | null): GraphDa
   return {
     id: 0,
     name: graphName,
-    description: null,
+    description: "",
     type: type,
     data: cachedData,
   };

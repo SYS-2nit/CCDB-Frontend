@@ -18,7 +18,6 @@ const DonutChart: React.FC<DonutChartProps> = ({
   labels = ["Series 1", "Series 2", "Series 3"],
   series = [44, 55, 13],
   colors = ["#3B82F6", "#22C55E", "#A855F7", "#F97316", "#EAB308"],
-  size = 180,
   height = 190,
 }) => {
   const options: ApexOptions = {
