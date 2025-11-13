@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import "./SqlStat.scss";
 import DateInput from "@/components/Input/DateInput";
-import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
 import TableChart from "@/components/Chart/TableChart";
 import BarGauge from "@/components/Chart/BarGauge";
@@ -27,7 +26,6 @@ const SqlStat: React.FC = () => {
     start: "",
     end: "",
   });
-  const [queryCount, setQueryCount] = useState("15");
   const [filter, setFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -79,7 +77,6 @@ const SqlStat: React.FC = () => {
         orderBy: filter,
         direction: "DESC",
         page: page - 1,
-        size: Number(queryCount) || 15,
       });
 
       if (data.content.length === 0) {
@@ -229,15 +226,6 @@ const SqlStat: React.FC = () => {
             { label: "Physical Reads", value: "disk" },
             { label: "CPU Time", value: "cpu" },
           ]}
-        />
-
-        <Input
-          label="조회 건수"
-          size="sm"
-          type="number"
-          placeholder="15"
-          value={queryCount}
-          onChange={(e) => setQueryCount(e.target.value)}
         />
 
         <Button

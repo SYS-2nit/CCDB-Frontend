@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useMemo, useState } from "react";
 import "./SqlTop.scss";
-import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
 import TableChart from "@/components/Chart/TableChart";
 import Pagination from "@/components/Pagination/Pagination";
@@ -23,7 +22,6 @@ interface RankData {
 const SqlTop: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [compareDate, setCompareDate] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 1;
 
@@ -286,16 +284,6 @@ const SqlTop: React.FC = () => {
               { label: "Physical Reads", value: "6" },
               { label: "Block Changes", value: "7" },
             ]}
-          />
-
-          <Input
-            label="조회 건수"
-            type="number"
-            size="sm"
-            variant="default"
-            placeholder="0"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Button
             text="검색"
