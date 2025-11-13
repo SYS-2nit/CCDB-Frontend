@@ -3,7 +3,6 @@ import React, { useMemo, useState } from "react";
 import "./SqlTop.scss";
 import Button from "@/components/Button/Button";
 import TableChart from "@/components/Chart/TableChart";
-import Pagination from "@/components/Pagination/Pagination";
 import LineChart from "@/components/Chart/LineChart";
 import DateInput from "@/components/Input/DateInput";
 import BarGauge from "@/components/Chart/BarGauge";
@@ -22,8 +21,6 @@ interface RankData {
 const SqlTop: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [compareDate, setCompareDate] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 1;
 
   // 상세 모달 상태
   const [selectedRow, setSelectedRow] = useState<RankData | null>(null);
@@ -380,13 +377,6 @@ const SqlTop: React.FC = () => {
           />
         </div>
       </div>
-
-      {/* 페이지네이션 */}
-      <Pagination
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
 
       {/* 상세 모달 */}
       {isDrawerOpen && selectedRow && (
