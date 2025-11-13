@@ -68,11 +68,11 @@ const Sidebar: React.FC = () => {
 
         {openMenu === "dashboard" && (
           <div className="sidebar__submenu">
+            <NavLink to="/dashboard/instance-map" className="sidebar__subitem">
+              데이터베이스 맵
+            </NavLink>
             <NavLink to="/dashboard/instance-list" className="sidebar__subitem">
               인스턴스 목록
-            </NavLink>
-            <NavLink to="/dashboard/instance-map" className="sidebar__subitem">
-              인스턴스 맵
             </NavLink>
           </div>
         )}
