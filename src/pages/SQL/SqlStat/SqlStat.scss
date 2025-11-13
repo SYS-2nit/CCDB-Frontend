@@ -13,7 +13,7 @@
   &__search {
     display: flex;
     align-items: flex-end;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 20px;
     padding: 20px;
     background: $gray-0;

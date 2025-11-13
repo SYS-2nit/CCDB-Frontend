@@ -8,6 +8,7 @@ import Pagination from "@/components/Pagination/Pagination";
 import Select from "@/components/Select/Select";
 import { getSqlStats } from "@/api/Sql/stats";
 import SqlDetailDrawer from "@/pages/SQL/Modal/SqlDetailDrawer";
+import LineChart from "@/components/Chart/LineChart";
 
 interface TableData {
   sql: string;
@@ -212,7 +213,6 @@ const SqlStat: React.FC = () => {
             setDateRange((prev) => ({ ...prev, end: e.target.value }))
           }
         />
-
         <Select
           label="정렬 기준"
           value={filter}
@@ -227,13 +227,57 @@ const SqlStat: React.FC = () => {
             { label: "CPU Time", value: "cpu" },
           ]}
         />
-
         <Button
           text="검색"
           size="sm"
           variant="primary"
           onClick={() => fetchStats(1)}
         />
+      </div>
+
+      {/* Summary Chart */}
+      <div className="sql-top__summary">
+        <div className="sql-top__chart">
+          <LineChart
+            legends={["기준 날짜", "비교 날짜"]}
+            seriesData={[
+              [
+                8, 10, 12, 11, 9, 10, 8, 9, 11, 13, 12, 10, 9, 10, 11, 12, 13,
+                12, 11, 9, 8, 10, 9, 11,
+              ],
+              [
+                15, 18, 22, 20, 16, 18, 15, 17, 19, 21, 23, 20, 18, 19, 21, 22,
+                20, 19, 18, 17, 15, 16, 18, 17,
+              ],
+            ]}
+            categories={[
+              "00:00",
+              "01:00",
+              "02:00",
+              "03:00",
+              "04:00",
+              "05:00",
+              "06:00",
+              "07:00",
+              "08:00",
+              "09:00",
+              "10:00",
+              "11:00",
+              "12:00",
+              "13:00",
+              "14:00",
+              "15:00",
+              "16:00",
+              "17:00",
+              "18:00",
+              "19:00",
+              "20:00",
+              "21:00",
+              "22:00",
+              "23:00",
+            ]}
+          />
+        </div>
       </div>
 
       {/* 테이블 */}
