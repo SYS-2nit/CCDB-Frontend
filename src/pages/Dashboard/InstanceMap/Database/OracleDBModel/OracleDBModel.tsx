@@ -27,8 +27,10 @@ const OracleDBModel: React.FC<OracleDBModelProps> = ({
     { color: "#1F76FF", y: 0 },
   ];
 
+  const scaleValue = isZoomed ? 3.2 : 2.6;
+
   return (
-    <group onClick={onClick} scale={isZoomed ? 1.8 : 3.0}>
+    <group onClick={onClick} scale={scaleValue}>
       {showInfoCard && (
         <Html position={[0.7, -0.2, 0]} center zIndexRange={[0, 1]}>
           <div className="db-info-card">

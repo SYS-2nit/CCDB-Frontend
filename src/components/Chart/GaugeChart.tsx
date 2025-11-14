@@ -85,12 +85,16 @@ const GaugeChart: React.FC<GaugeChartProps> = ({
   return (
     <div
       style={{
-        width: size,
-        height: size,
+        width: "100%",
+        maxWidth: `${size}px`,
+        height: "100%",
+        maxHeight: `${size}px`,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
+        overflow: "hidden",
+        margin: "0 auto",
       }}
     >
       <ReactApexChart
@@ -98,6 +102,7 @@ const GaugeChart: React.FC<GaugeChartProps> = ({
         series={series}
         type="radialBar"
         height={size}
+        width={size}
       />
       {subLabel && (
         <p style={{ fontSize: 10, color: "#6B7280", marginTop: -12 }}>

@@ -1,4 +1,5 @@
-import type { ApiResponse, ScenarioMeta, RunRequest, RunStatus } from "./types";
+import type { ScenarioMeta, RunRequest, RunStatus } from "./types";
+import type { ApiResponse } from "../../api/types";
 
 const BASE = "/api/diagnosis";
 
@@ -11,7 +12,7 @@ export const scenarioApi = {
   },
   run: async (body: RunRequest): Promise<void> => {
     const r = await fetch(`${BASE}/run`, {
-      method: "POST",
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });

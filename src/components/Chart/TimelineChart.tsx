@@ -3,7 +3,7 @@ import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import { formatNumberWithUnit, formatTooltipNumber } from "@/utils/numberFormatter";
 
-interface LineChartProps {
+interface TimelineChartProps {
   legends?: string[];
   showLegend?: boolean;
   seriesData?: number[][];
@@ -14,9 +14,14 @@ interface LineChartProps {
   yMax?: number;
 }
 
-const LineChart: React.FC<LineChartProps> = ({
+/**
+ * Timeline Chart (Type 5)
+ * 시간에 따른 여러 시리즈의 데이터를 보여주는 라인 차트
+ * Top SQL by CPU 같은 경우에 사용
+ */
+const TimelineChart: React.FC<TimelineChartProps> = ({
   legends = ["Series 1"],
-  showLegend = false,
+  showLegend = true,
   seriesData = [
     Array.from({ length: 5 }, () => Math.floor(Math.random() * 20) + 5),
   ],
@@ -139,4 +144,5 @@ const LineChart: React.FC<LineChartProps> = ({
   );
 };
 
-export default LineChart;
+export default TimelineChart;
+

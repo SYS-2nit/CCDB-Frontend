@@ -1,303 +1,537 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "./InstanceList.scss";
 import TableChart from "@/components/Chart/TableChart";
+import Input from "@/components/Input/Input";
+import SearchIcon from "@/assets/general/search.svg";
+import TabMenu from "@/components/Tabs/TabMenu";
+import Pagination from "@/components/Pagination/Pagination";
 import Button from "@/components/Button/Button";
 import Modal from "@/components/Modal/Modal";
-import Pagination from "@/components/Pagination/Pagination";
 import EditIcon from "@/assets/general/edit.svg";
 import TrashIcon from "@/assets/general/trash.svg";
-import Input from "@/components/Input/Input";
-import TabMenu from "@/components/Tabs/TabMenu";
+import {
+  fetchInstancesByDatabase,
+  createInstanceForDatabase,
+  updateInstanceForDatabase,
+  deleteInstanceForDatabase,
+  testInstanceForDatabase,
+  type DatabaseInstanceListItem,
+  type DatabaseTestResult,
+} from "@/api/databases";
+import { isAxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
-import SearchIcon from "@/assets/general/search.svg";
 
-interface DBItem {
-  status: string;
-  server: string;
-  ip: string;
-  port: string;
-  db: string;
-  sid: string;
-  cpu: string;
-  session: string;
-  activeSession: string;
-  lockWait: string;
-  pga: string;
-  sga: string;
-}
+const SELECTED_DB_STORAGE_KEY = "selectedDatabase";
+const ROWS_PER_PAGE = 10;
 
-const InstanceList: React.FC = () => {
-  // 더미 데이터
-  const [data, setData] = useState<DBItem[]>([
-    {
-      status: "정상",
-      server: "db-prod-01",
-      ip: "192.168.1.101",
-      port: "3306",
-      db: "ccdb-database",
-      sid: "ORCL001",
-      cpu: "65%",
-      session: "24",
-      activeSession: "7",
-      lockWait: "0.8ms",
-      pga: "1.25M",
-      sga: "8,540",
-    },
-    {
-      status: "주의",
-      server: "db-prod-02",
-      ip: "192.168.1.101",
-      port: "3306",
-      db: "ccdb-database",
-      sid: "ORCL002",
-      cpu: "82%",
-      session: "48",
-      activeSession: "12",
-      lockWait: "2.3ms",
-      pga: "2.15M",
-      sga: "15,240",
-    },
-  ]);
+type StatusTab = "all" | "normal" | "warn" | "danger" | "error";
 
-  const columns = [
+type SelectedDatabaseInfo = {
+  id: number;
+  name?: string;
+};
+
+type InstanceRow = DatabaseInstanceListItem;
+
+type StatusCounts = Record<Exclude<StatusTab, "all">, number>;
+
+  const columns: { key: string; label: string }[] = [
     { key: "status", label: "상태" },
     { key: "serverName", label: "서버명" },
     { key: "ip", label: "IP" },
     { key: "port", label: "포트" },
-    { key: "database", label: "데이터베이스" },
+    { key: "databaseName", label: "데이터베이스" },
     { key: "sid", label: "SID" },
     { key: "cpuUsage", label: "CPU 사용률" },
-    { key: "session", label: "Session" },
-    { key: "activeSession", label: "Active Session" },
+    { key: "sessionCount", label: "Session" },
+    { key: "activeSessionCount", label: "Active Session" },
     { key: "lockWait", label: "Lock Wait" },
     { key: "pga", label: "PGA" },
     { key: "sga", label: "SGA" },
-    { key: "task", label: "작업" },
+    { key: "actions", label: "작업" },
   ];
 
-  type StatusTab = "all" | "normal" | "warn" | "danger" | "error";
-  const [activeTab, setActiveTab] = useState<StatusTab>("all");
+const loadSelectedDatabase = (): SelectedDatabaseInfo | null => {
+  const stored = sessionStorage.getItem(SELECTED_DB_STORAGE_KEY);
+  if (!stored) return null;
+
+  try {
+    const parsed = JSON.parse(stored) as { id?: number | string; name?: string };
+    if (parsed?.id === undefined || parsed.id === null) {
+      return null;
+    }
+    const numericId = typeof parsed.id === "number" ? parsed.id : Number(parsed.id);
+    if (Number.isNaN(numericId)) return null;
+    return {
+      id: numericId,
+      name: parsed.name ?? undefined,
+    };
+  } catch (error) {
+    console.warn("[InstanceList] 저장된 DB 정보를 읽는 중 오류", error);
+    return null;
+  }
+};
+
+const getErrorMessage = (error: unknown) => {
+  if (isAxiosError(error)) {
+    const data = error.response?.data as { message?: string } | undefined;
+    return data?.message ?? error.message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "알 수 없는 오류가 발생했습니다.";
+};
+
+const mapStatusToTab = (status?: string | null): StatusTab => {
+  switch (status) {
+    case "정상":
+      return "normal";
+    case "주의":
+      return "warn";
+    case "위험":
+      return "danger";
+    case "장애":
+      return "error";
+    default:
+      return "warn";
+  }
+};
+
+const getStatusClass = (status?: string | null) => {
+  switch (status) {
+    case "정상":
+      return "normal";
+    case "위험":
+      return "danger";
+    case "장애":
+      return "error";
+    case "주의":
+    default:
+      return "warn";
+  }
+};
+
+const formatValue = (value?: string | number | null) => {
+  if (value === undefined || value === null || value === "") {
+    return "-";
+  }
+  return String(value);
+};
+
+const InstanceList: React.FC = () => {
+  const [selectedDatabase, setSelectedDatabase] = useState<SelectedDatabaseInfo | null>(
+    () => loadSelectedDatabase(),
+  );
+  const [instances, setInstances] = useState<InstanceRow[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-
-  // 상태 탭 (이름(갯수))
-  const tabs = [
-    { id: "all", label: `전체(${data.length})` },
-    {
-      id: "normal",
-      label: `정상(${data.filter((d) => d.status === "정상").length})`,
-    },
-    {
-      id: "warn",
-      label: `주의(${data.filter((d) => d.status === "주의").length})`,
-    },
-    {
-      id: "danger",
-      label: `위험(${data.filter((d) => d.status === "위험").length})`,
-    },
-    {
-      id: "error",
-      label: `에러(${data.filter((d) => d.status === "에러").length})`,
-    },
-  ] as const;
-
-  // 탭 필터링
-  const filteredByStatus =
-    activeTab === "all"
-      ? data
-      : data.filter((item) => {
-          if (activeTab === "normal") return item.status === "정상";
-          if (activeTab === "warn") return item.status === "주의";
-          if (activeTab === "danger") return item.status === "위험";
-          return false;
-        });
-
-  // SID 검색 필터링
-  const filteredData = filteredByStatus.filter((item) =>
-    item.sid.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // 페이지네이션
+  const [activeTab, setActiveTab] = useState<StatusTab>("all");        
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
-  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
-
-  // 모달 상태
-  const [isModalOpen, setIsModalOpen] = useState<null | "add" | "edit">(null);
-  const [selectedItem, setSelectedItem] = useState<DBItem | null>(null);
-  const [inputs, setInputs] = useState({
-    name: "",
-    ip: "",
-    port: "",
-    sid: "",
-  });
-  const [newDB, setNewDB] = useState({ sid: "" });
-  const [testResult, setTestResult] = useState<null | "success" | "fail">(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createSid, setCreateSid] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const [createTestResult, setCreateTestResult] = useState<DatabaseTestResult | null>(null);
+  const [isCreateTesting, setIsCreateTesting] = useState(false);
+  const [editTarget, setEditTarget] = useState<InstanceRow | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editSid, setEditSid] = useState("");
+  const [isEditTesting, setIsEditTesting] = useState(false);
+  const [editTestResult, setEditTestResult] = useState<DatabaseTestResult | null>(null);
+  const [isEditSaving, setIsEditSaving] = useState(false);
   const navigate = useNavigate();
 
-  // 수정 아이콘 핸들러
-  const handleEdit = (item: DBItem) => {
-    setSelectedItem(item);
-    setInputs({
-      name: item.server,
-      ip: item.ip,
-      port: item.port,
-      sid: item.sid,
-    });
-    setIsModalOpen("edit");
-    setTestResult(null);
-  };
+  const loadInstances = useCallback(
+    async (databaseId: number) => {
+      setIsLoading(true);
+      try {
+        const data = await fetchInstancesByDatabase(databaseId);
+        setInstances(data);
+        setError(null);
+      } catch (err) {
+        setInstances([]);
+        setError(getErrorMessage(err));
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
 
-  // 삭제 아이콘 핸들러
-  const handleDelete = (sid: string) => {
-    if (window.confirm("정말 삭제하시겠습니까?"))
-      setData((prev) => prev.filter((item) => item.sid !== sid));
-    alert(`${inputs.name} 인스턴스가 삭제되었습니다.`);
-  };
-
-  // 테스트 버튼 핸들러
-  const handleTest = () => {
-    // 이전 테스트 결과 초기화
-    setTestResult(null);
-
-    // 입력란이 비어있을 경우 알림 처리
-    if (!inputs.sid.trim()) {
-      alert("모든 필드를 입력해주세요.");
+  useEffect(() => {
+    if (!selectedDatabase) {
+      setInstances([]);
       return;
     }
-    const isSuccess = Math.random() > 0.5;
-    setTestResult(isSuccess ? "success" : "fail");
-  };
+    void loadInstances(selectedDatabase.id);
+  }, [selectedDatabase, loadInstances]);
 
-  // 저장 버튼 핸들러
-  const handleConfirm = () => {
-    const allFilled = Object.values(inputs).every((v) => v.trim() !== "");
+  useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.storageArea !== sessionStorage) return;
+      if (event.key !== SELECTED_DB_STORAGE_KEY) return;
+      setSelectedDatabase(loadSelectedDatabase());
+    };
 
-    // 입력란이 비어있을 경우 알림 처리
-    if (!allFilled) {
-      alert("모든 필드를 입력해주세요.");
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchTerm, selectedDatabase]);
+
+  const statusCounts = useMemo(() => {
+    const initial: StatusCounts = {
+      normal: 0,
+      warn: 0,
+      danger: 0,
+      error: 0,
+    };
+
+    return instances.reduce((acc, item) => {
+      const tab = mapStatusToTab(item.status);
+      if (tab !== "all") {
+        acc[tab] += 1;
+      }
+      return acc;
+    }, initial);
+  }, [instances]);
+
+  const tabs = useMemo(
+    () => [
+      { id: "all", label: `전체(${instances.length})` },
+      { id: "normal", label: `무해(${statusCounts.normal})` },
+      { id: "warn", label: `주의(${statusCounts.warn})` },
+      { id: "danger", label: `위험(${statusCounts.danger})` },
+      { id: "error", label: `장애(${statusCounts.error})` },
+    ] as const,
+    [instances.length, statusCounts],
+  );
+
+  const filteredByStatus = useMemo(() => {
+    if (activeTab === "all") return instances;
+    return instances.filter((item) => mapStatusToTab(item.status) === activeTab);
+  }, [instances, activeTab]);
+
+  const filteredData = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return filteredByStatus;
+    return filteredByStatus.filter((item) =>
+      (item.sid ?? "").toLowerCase().includes(term),
+    );
+  }, [filteredByStatus, searchTerm]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / ROWS_PER_PAGE));
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const openCreateModal = useCallback(() => {
+    if (!selectedDatabase) {
+      alert("DB를 먼저 선택해주세요.");
+      return;
+    }
+    setCreateSid("");
+    setCreateTestResult(null);
+    setIsCreateTesting(false);
+    setIsCreateModalOpen(true);
+  }, [selectedDatabase]);
+
+  const handleCreateTest = useCallback(async () => {
+    if (isCreateTesting) return;
+    if (!selectedDatabase) {
+      alert("DB를 먼저 선택해주세요.");
       return;
     }
 
-    // 테스트 결과가 없을 경우 알림 처리
-    if (!testResult) {
-      alert("저장 전에 테스트를 먼저 수행해주세요.");
-      return;
-    }
-
-    // 테스트 결과 실패 시 알림 처리
-    if (testResult === "fail") {
-      alert("테스트에 실패했습니다. 연결 정보를 확인해주세요.");
-      return;
-    }
-
-    // 테스트 결과 성공 시 수정된 데이터 반영
-    if (selectedItem) {
-      setData((prevData) =>
-        prevData.map((item) =>
-          item.sid === selectedItem.sid
-            ? {
-                ...item,
-                server: inputs.name,
-                ip: inputs.ip,
-                port: inputs.port,
-                sid: inputs.sid,
-              }
-            : item
-        )
-      );
-    }
-
-    alert(`${inputs.name} 인스턴스가 수정되었습니다.`);
-    setIsModalOpen(null);
-  };
-
-  // 인스턴스 생성 - 확인 버튼 핸들러
-  const handleAdd = () => {
-    if (!newDB.sid.trim()) {
+    const sid = createSid.trim();
+    if (!sid) {
       alert("SID를 입력해주세요.");
       return;
     }
 
-    setData((prev) => [
-      ...prev,
-      {
-        status: "정상",
-        server: "ccdb-server",
-        ip: "192.168.1.101",
-        port: "3306",
-        db: "ccdb-database",
-        sid: newDB.sid,
-        cpu: "0%",
-        session: "0",
-        activeSession: "0",
-        lockWait: "0ms",
-        pga: "0M",
-        sga: "0",
-      },
-    ]);
+    setIsCreateTesting(true);
+    try {
+      const result = await testInstanceForDatabase(selectedDatabase.id, { sid });
+      setCreateTestResult(result);
+    } catch {
+      setCreateTestResult({
+        success: false,
+        message: null,
+        errorMessage: "테스트 연결 실패",
+      });
+    } finally {
+      setIsCreateTesting(false);
+    }
+  }, [createSid, isCreateTesting, selectedDatabase]);
 
-    alert(`${newDB.sid} 인스턴스가 추가되었습니다.`);
-    setNewDB({ sid: "" });
-    setIsModalOpen(null);
-  };
+  const handleCreateInstance = useCallback(async () => {
+    if (isCreating) return;
+    if (!selectedDatabase) {
+      alert("DB를 먼저 선택해주세요.");
+      return;
+    }
 
-  // 테이블 데이터
-  const rows = paginatedData.map((item, index) => [
-    <div
-      key={`status-${index}`}
-      className={`status status--${
-        item.status === "정상"
-          ? "normal"
-          : item.status === "주의"
-          ? "warn"
-          : "danger"
-      }`}
-    />,
-    <span key={`server-${index}`} className="link">
-      {item.server}
-    </span>,
-    item.ip,
-    item.port,
-    item.db,
-    item.sid,
-    item.cpu,
-    item.session,
-    item.activeSession,
-    item.lockWait,
-    item.pga,
-    item.sga,
-    <div key={`actions-${index}`} className="table-actions">
-      <img
-        src={EditIcon}
-        alt="Edit"
-        className="action-btn edit"
-        onClick={() => handleEdit(item)}
-      />
-      <img
-        src={TrashIcon}
-        alt="Delete"
-        className="action-btn delete"
-        onClick={() => handleDelete(item.sid)}
-      />
-    </div>,
-  ]);
+    if (!createTestResult || !createTestResult.success) {
+      alert("저장 전에 테스트를 먼저 수행해주세요.");
+      return;
+    }
+
+    const sid = createSid.trim();
+    if (!sid) {
+      alert("SID를 입력해주세요.");
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      await createInstanceForDatabase(selectedDatabase.id, { sid });
+      setIsCreateModalOpen(false);
+      setCreateSid("");
+      setCreateTestResult(null);
+      await loadInstances(selectedDatabase.id);
+    } catch (err) {
+      alert(getErrorMessage(err));
+    } finally {
+      setIsCreating(false);
+    }
+  }, [createSid, createTestResult, isCreating, loadInstances, selectedDatabase]);
+
+  const openEditModal = useCallback(
+    (item: InstanceRow) => {
+      if (!selectedDatabase) {
+        alert("DB를 먼저 선택해주세요.");
+        return;
+      }
+      setEditTarget(item);
+      setEditSid(item.sid ?? "");
+      setEditTestResult(null);
+      setIsEditTesting(false);
+      setIsEditSaving(false);
+      setIsEditModalOpen(true);
+    },
+    [selectedDatabase],
+  );
+
+  const handleEditTest = useCallback(async () => {
+    if (isEditTesting) return;
+    if (!selectedDatabase || !editTarget) {
+      alert("DB를 먼저 선택해주세요.");
+      return;
+    }
+
+    const sid = editSid.trim();
+    if (!sid) {
+      alert("SID를 입력해주세요.");
+      return;
+    }
+
+    setIsEditTesting(true);
+    try {
+      const result = await testInstanceForDatabase(selectedDatabase.id, { sid });
+      setEditTestResult(result);
+    } catch {
+      setEditTestResult({
+        success: false,
+        message: null,
+        errorMessage: "테스트 연결 실패",
+      });
+    } finally {
+      setIsEditTesting(false);
+    }
+  }, [editSid, editTarget, isEditTesting, selectedDatabase]);
+
+  const handleUpdateInstance = useCallback(async () => {
+    if (isEditSaving) return;
+    if (!selectedDatabase || !editTarget) {
+      alert("DB를 먼저 선택해주세요.");
+      return;
+    }
+
+    if (!editTestResult || !editTestResult.success) {
+      alert("저장 전에 테스트를 먼저 수행해주세요.");
+      return;
+    }
+
+    const sid = editSid.trim();
+    if (!sid) {
+      alert("SID를 입력해주세요.");
+      return;
+    }
+
+    setIsEditSaving(true);
+    try {
+      await updateInstanceForDatabase(selectedDatabase.id, editTarget.id, { sid });
+      setIsEditModalOpen(false);
+      setEditTarget(null);
+      setEditTestResult(null);
+      await loadInstances(selectedDatabase.id);
+    } catch (err) {
+      alert(getErrorMessage(err));
+    } finally {
+      setIsEditSaving(false);
+    }
+  }, [editSid, editTarget, editTestResult, isEditSaving, loadInstances, selectedDatabase]);
+
+  const handleDeleteInstance = useCallback(
+    async (item: InstanceRow) => {
+      if (!selectedDatabase) {
+        alert("DB를 먼저 선택해주세요.");
+        return;
+      }
+
+      if (!window.confirm("정말 삭제하시겠습니까?")) {
+        return;
+      }
+
+      try {
+        await deleteInstanceForDatabase(selectedDatabase.id, item.id);
+        await loadInstances(selectedDatabase.id);
+      } catch (err) {
+        alert(getErrorMessage(err));
+      }
+    },
+    [loadInstances, selectedDatabase],
+  );
+
+  const handleNavigateToDashboard = useCallback(
+    (item: InstanceRow) => {
+      if (!selectedDatabase) {
+        alert("DB를 먼저 선택해주세요.");
+        return;
+      }
+
+      try {
+        sessionStorage.setItem(
+          SELECTED_DB_STORAGE_KEY,
+          JSON.stringify({ id: selectedDatabase.id, name: selectedDatabase.name }),
+        );
+      } catch (error) {
+        console.warn("[InstanceList] 선택한 DB 저장 실패", error);
+      }
+
+      try {
+        sessionStorage.setItem(
+          "selectedInstance",
+          JSON.stringify({ id: item.id, name: item.serverName ?? item.sid ?? `${item.id}` }),
+        );
+      } catch (error) {
+        console.warn("[InstanceList] 선택한 인스턴스를 저장하는 중 오류", error);
+      }
+
+      window.dispatchEvent(
+        new CustomEvent("dashboard:selected-instance", {
+          detail: { id: item.id, name: item.serverName ?? item.sid ?? `${item.id}` },
+        }),
+      );
+
+      navigate(`/dashboard?instanceId=${item.id}`);
+    },
+    [navigate, selectedDatabase],
+  );
+
+  const paginatedData = useMemo(
+    () =>
+      filteredData.slice(
+        (currentPage - 1) * ROWS_PER_PAGE,
+        currentPage * ROWS_PER_PAGE,
+      ),
+    [filteredData, currentPage],
+  );
+
+  const rows = useMemo(
+    () =>
+      paginatedData.map((item) => {
+        const statusClass = getStatusClass(item.status);
+        const statusLabel = item.status ?? "비활성";
+
+        return [
+          <div
+            key={`status-${item.id}`}
+            className={`status status--${statusClass}`}
+            title={statusLabel}
+          />,
+          <span
+            key={`server-${item.id}`}
+            className="link"
+            onClick={() => handleNavigateToDashboard(item)}
+          >
+            {formatValue(item.serverName)}
+          </span>,
+          formatValue(item.ip),
+          formatValue(item.port),
+          formatValue(item.databaseName),
+          formatValue(item.sid),
+          formatValue(item.cpuUsage),
+          formatValue(item.sessionCount),
+          formatValue(item.activeSessionCount),
+          formatValue(item.lockWait),
+          formatValue(item.pga),
+          formatValue(item.sga),
+          <div key={`actions-${item.id}`} className="table-actions">
+            <img
+              src={EditIcon}
+              alt="Edit"
+              className="action-btn edit"
+              onClick={() => openEditModal(item)}
+            />
+            <img
+              src={TrashIcon}
+              alt="Delete"
+              className="action-btn delete"
+              onClick={() => handleDeleteInstance(item)}
+            />
+          </div>,
+        ];
+      }),
+    [paginatedData, handleDeleteInstance, openEditModal, handleNavigateToDashboard],
+  );
 
   return (
     <div className="instance-list">
+      <div className="instance-list__header">
+        <div>
+          <h2>인스턴스 목록</h2>
+          {selectedDatabase ? (
+            <p className="instance-list__subtitle">
+              선택된 DB: {selectedDatabase.name ?? `ID ${selectedDatabase.id}`}
+            </p>
+          ) : (
+            <p className="instance-list__subtitle">선택된 DB가 없습니다. 인스턴스 맵에서 DB를 선택해주세요.</p>
+          )}
+        </div>
+        <div className="instance-list__header-actions">
+          <Button
+            text="+ 생성"
+            size="sm"
+            variant="primary"
+            disabled={!selectedDatabase || isLoading}
+            onClick={openCreateModal}
+          />
+        </div>
+      </div>
+
+      {!selectedDatabase ? (
+        <div className="instance-list__empty">
+          인스턴스 맵에서 DB를 선택하면 목록이 표시됩니다.
+        </div>
+      ) : (
+        <>
       <TabMenu
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab as StatusTab)}
       />
 
-      {/* 검색란 + 생성 버튼 + 테이블 */}
-      <div className="table-chart">
-        {/* 테이블 위 검색란 + 생성 버튼 */}
-        <div className="table-chart__header">
+          <div className="instance-list__table-wrapper">
+            <div className="instance-list__table-header">
           <Input
             size="sm"
             variant="default"
@@ -306,108 +540,101 @@ const InstanceList: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Button
-            text="인스턴스 추가"
-            size="sm"
-            variant="primary"
-            onClick={() => setIsModalOpen("add")}
-          />
         </div>
 
-        {/* 테이블 차트 */}
-        <TableChart
-          size="lg"
-          columns={columns}
-          rows={rows}
-          onClick={() => navigate("/dashboard")}
-        />
+            {error && <div className="instance-list__status instance-list__status--error">{error}</div>}
+            {isLoading ? (
+              <div className="instance-list__status">로딩 중입니다...</div>
+            ) : rows.length === 0 ? (
+              <div className="instance-list__status">표시할 인스턴스가 없습니다.</div>
+            ) : (
+              <TableChart size="lg" columns={columns} rows={rows} />
+            )}
 
-        {/* 수정 모달 */}
-        {isModalOpen === "edit" && (
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+          </div>
+        </>
+      )}
+
+      {isCreateModalOpen && (
+
           <Modal
-            title="DB 수정"
-            cancelText="테스트"
-            confirmText="저장"
+          title="인스턴스 생성"
+          cancelText={isCreateTesting ? "테스트 중" : "테스트"}
+          confirmText={isCreating ? "생성 중" : "확인"}
             onClose={() => {
-              setIsModalOpen(null);
+            if (isCreating) return;
+            setIsCreateModalOpen(false);
+            setCreateSid("");
+            setCreateTestResult(null);
             }}
-            onConfirm={handleConfirm}
-            onReset={handleTest}
+          onConfirm={handleCreateInstance}
+          onReset={handleCreateTest}
             fields={[
               {
-                label: "DB NAME ",
-                placeholder: "DB 이름을 입력해주세요.",
+              label: "SID",
                 type: "textarea",
-                value: inputs.name,
-                onChange: (_, val) =>
-                  setNewDB({ ...newDB, sid: val as string }),
+              placeholder: "SID를 입력해주세요.",
+              value: createSid,
+              onChange: (_label, val) => {
+                setCreateSid(val);
+                setCreateTestResult(null);
               },
-              {
-                label: "DB IP ",
-                placeholder: "DB IP를 입력해주세요.",
-                type: "textarea",
-                value: inputs.ip,
-                onChange: (_, val) =>
-                  setInputs((prev) => ({ ...prev, ip: val })),
-              },
-              {
-                label: "DB PORT ",
-                placeholder: "DB 포트를 입력해주세요.",
-                type: "textarea",
-                value: inputs.port,
-                onChange: (_, val) =>
-                  setInputs((prev) => ({ ...prev, port: val })),
-              },
-              {
-                label: "SID ",
-                placeholder: "SID를 입력해주세요.",
-                type: "textarea",
-                value: inputs.sid,
-                onChange: (_, val) =>
-                  setInputs((prev) => ({ ...prev, sid: val })),
               },
             ]}
           >
-            {/* 테스트 결과 */}
-            {testResult && (
-              <div className="modal__test-result">
-                {testResult === "success" ? (
-                  <div className="success">✅ 테스트 성공</div>
-                ) : (
-                  <div className="fail">❌ 테스트 실패: 연결 오류</div>
-                )}
+          {createTestResult && (
+            <div className={`modal__test-result ${createTestResult.success ? "success" : "fail"}`}>
+              {createTestResult.success ? "✅ " : "❌ "}
+              {createTestResult.success
+                ? createTestResult.message ?? "테스트에 성공했습니다."
+                : createTestResult.errorMessage ?? "테스트에 실패했습니다."}
               </div>
             )}
           </Modal>
         )}
 
-        {/* 인스턴스 생성 모달 */}
-        {isModalOpen === "add" && (
+      {isEditModalOpen && editTarget && (
           <Modal
-            title="인스턴스 추가"
-            cancelText="취소"
-            confirmText="확인"
-            onClose={() => setIsModalOpen(null)}
-            onConfirm={handleAdd}
+
+          title="DB 수정"
+          cancelText={isEditTesting ? "테스트 중" : "테스트"}
+          confirmText={isEditSaving ? "저장 중" : "저장"}
+          onClose={() => {
+            if (isEditSaving) return;
+            setIsEditModalOpen(false);
+            setEditTarget(null);
+            setEditTestResult(null);
+          }}
+          onConfirm={handleUpdateInstance}
+          onReset={handleEditTest}
             fields={[
               {
-                label: "SID ",
+              label: "SID",
+              type: "textarea",
                 placeholder: "SID를 입력해주세요.",
-                type: "textarea",
-                value: newDB.sid,
-                onChange: (_, val) =>
-                  setNewDB({ ...newDB, sid: val as string }),
+              value: editSid,
+              onChange: (_label, val) => {
+                setEditSid(val);
+                setEditTestResult(null);
               },
-            ]}
-          />
-        )}
-      </div>
-      {/* 페이지네이션 */}
-      <Pagination
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
+            },
+          ]}
+        >
+          {editTestResult && (
+            <div className={`modal__test-result ${editTestResult.success ? "success" : "fail"}`}>
+              {editTestResult.success ? "✅ " : "❌ "}
+              {editTestResult.success
+                ? editTestResult.message ?? "테스트에 성공했습니다."
+                : editTestResult.errorMessage ?? "테스트에 실패했습니다."}
+            </div>
+          )}
+        </Modal>
+      )}
     </div>
   );
 };
