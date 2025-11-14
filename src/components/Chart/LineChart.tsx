@@ -1,6 +1,7 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import dayjs from "dayjs";
 
 interface LineChartProps {
   legends?: string[];
@@ -57,6 +58,10 @@ const LineChart: React.FC<LineChartProps> = ({
     xaxis: {
       categories,
       labels: {
+        formatter: (value: string) => {
+          const formatted = dayjs(value).format("MM-DD HH:mm");
+          return formatted;
+        },
         style: {
           colors: "#777",
           fontSize: "11px",
