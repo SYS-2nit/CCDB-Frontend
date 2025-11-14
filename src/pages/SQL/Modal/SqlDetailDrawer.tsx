@@ -24,19 +24,6 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const gaugeTotal =
     cpuRaw + userIoRaw + concRaw + appRaw + clusterRaw + otherRaw;
 
-  // divide-by-zero 방지
-  const getRatio = (v: number) =>
-    gaugeTotal === 0 ? 0 : (v / gaugeTotal) * 100;
-
-  /*
-  const cpuRatio = getRatio(cpuRaw);
-  const userIoRatio = getRatio(userIoRaw);
-  const concRatio = getRatio(concRaw);
-  const appRatio = getRatio(appRaw);
-  const clusterRatio = getRatio(clusterRaw);
-  const otherRatio = getRatio(otherRaw);
-  */
-
   // Table 데이터
   const columns1 = [
     { key: "metric", label: "Metric" },
