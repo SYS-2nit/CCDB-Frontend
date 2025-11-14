@@ -249,7 +249,7 @@ const List: React.FC<ListProps> = ({
   return (
     <div className="db-list">
       <div className="db-list-header">
-        데이터베이스 목록 ({filteredDatabases.length})
+        목록 ({filteredDatabases.length})
         <img
           src={isCollapsed ? ArrowFillBottomIcon : ArrowFillTopIcon}
           alt="toggle"
