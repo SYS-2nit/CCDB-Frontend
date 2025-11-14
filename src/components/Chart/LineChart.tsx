@@ -1,7 +1,11 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
-import { formatNumberWithUnit, formatTooltipNumber } from "@/utils/numberFormatter";
+import dayjs from "dayjs";
+import {
+  formatNumberWithUnit,
+  formatTooltipNumber,
+} from "@/utils/numberFormatter";
 
 interface LineChartProps {
   legends?: string[];
@@ -62,6 +66,10 @@ const LineChart: React.FC<LineChartProps> = ({
     xaxis: {
       categories,
       labels: {
+        formatter: (value: string) => {
+          const formatted = dayjs(value).format("MM-DD HH:mm");
+          return formatted;
+        },
         style: {
           colors: "#777",
           fontSize: "11px",
@@ -127,7 +135,14 @@ const LineChart: React.FC<LineChartProps> = ({
   };
 
   return (
-    <div style={{ width: "100%", height: "100%", maxWidth: "100%", overflow: "hidden" }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        maxWidth: "100%",
+        overflow: "hidden",
+      }}
+    >
       <ReactApexChart
         options={options}
         series={series}

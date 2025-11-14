@@ -1,20 +1,29 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import "./SqlDetailDrawer.scss";
 import LineChart from "@/components/Chart/LineChart";
 import BarChart from "@/components/Chart/BarChart";
 import TableChart from "@/components/Chart/TableChart";
+import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
+import StackChart from "@/components/Chart/StackChart";
 
 interface SqlDetailDrawerProps {
-  data: {
-    query: string;
-    rank: number;
-    ratio: number;
-    exec: number;
-  };
+  data: SqlDetailData;
   onClose: () => void;
 }
 
 const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
+  // 상세 탭 게이지 비율 계산
+  const cpuRaw = data.totalCpu;
+  const userIoRaw = data.waitUserIoUsDelta;
+  const concRaw = data.waitConcurrencyUsDelta;
+  const appRaw = data.waitApplicationUsDelta;
+  const clusterRaw = data.waitClusterUsDelta;
+  const otherRaw = data.waitOtherUsDelta;
+
+  const gaugeTotal =
+    cpuRaw + userIoRaw + concRaw + appRaw + clusterRaw + otherRaw;
+
   // Table 데이터
   const columns1 = [
     { key: "metric", label: "Metric" },
@@ -25,23 +34,49 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
     { key: "value", label: "Value" },
   ];
 
+  // Elapsed Time
+  const cpuMs = (data.totalCpu / 1_000).toFixed(2);
+
+  // Total Statistics
+  const cpuSec = (data.totalCpu / 1_000_000).toFixed(1);
+  const elapsedSec = (data.totalElapsed / 1_000_000).toFixed(1);
+  const execSec = (data.totalExec / 1_000_000).toFixed(1);
+  const avgElapsedSec = (data.avgElapsed / 1_000_000).toFixed(1);
+  const waitSec = (data.totalWait / 1_000_000).toFixed(1);
+
+  // Total Wait Classes
+  const waitUserIoUsDelta = (data.waitUserIoUsDelta / 1_000).toFixed(2);
+  const waitConcurrencyUsDelta = (data.waitConcurrencyUsDelta / 1_000).toFixed(
+    2
+  );
+  const waitApplicationUsDelta = (data.waitApplicationUsDelta / 1_000).toFixed(
+    2
+  );
+  const waitClusterUsDelta = (data.waitClusterUsDelta / 1_000).toFixed(2);
+  const waitOtherUsDelta = (data.waitOtherUsDelta / 1_000).toFixed(2);
+
   const rows1 = [
-    ["CPU Time", "28ms"],
-    ["Elapsed Time", "42ms"],
-    ["Execute Count", "146ms"],
-    ["Avg Elapsed Time", "62ms"],
-    ["Wait TIme ", "17ms"],
-    ["Logical Reads", "58,02개"],
-    ["Physical Reads", "4,312개"],
+    ["CPU Time", `${cpuSec} Sec`],
+    ["Elapsed Time", `${elapsedSec} Sec`],
+    ["Execute Count", `${execSec} Sec`],
+    ["Avg Elapsed Time", `${avgElapsedSec} Sec`],
+    ["Wait TIme ", `${waitSec} Sec`],
+    ["Logical Reads", `${data.totalBuffer} 개`],
+    ["Physical Reads", `${data.totalDisk} 개`],
   ];
 
   const rows2 = [
-    ["User I/O", "32ms"],
-    ["Concurrency", "17ms"],
-    ["Application", "10ms"],
-    ["Cluster", "9ms"],
-    ["Other", "8ms"],
+    ["User I/O", `${waitUserIoUsDelta} ms`],
+    ["Concurrency", `${waitConcurrencyUsDelta} ms`],
+    ["Application", `${waitApplicationUsDelta} ms`],
+    ["Cluster", `${waitClusterUsDelta} ms`],
+    ["Other", `${waitOtherUsDelta} ms`],
   ];
+
+  // Trend 공통 카테고리 (x축)
+  const elapsedCategories = data.elapsedTrend.map((t) => t.label);
+  const bufferCategories = data.bufferTrend.map((t) => t.label);
+  const waitCategories = data.waitTrend.map((t) => t.label);
 
   return (
     <>
@@ -55,83 +90,114 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
         </div>
 
         <div className="sql-drawer__body">
-          {/* 왼쪽 Query 영역 */}
+          {/* ---------------- Query Section ---------------- */}
           <div className="sql-drawer__query-section">
-            <h4 className="sql-drawer__query-title">Query (id:...)</h4>
-            <div className="sql-drawer__query-box">
-              {data.query ||
-                `SELECT count(*) 
-                    FROM ...
-                    (
-                      SELECT * 
-                      FROM ...
-                      WHERE ...
-                    ) cc`}
-            </div>
+            <h4 className="sql-drawer__query-title">
+              Query (id: {data.sqlId})
+            </h4>
+            <div className="sql-drawer__query-box">{data.sqlText || ""}</div>
           </div>
 
-          {/* 오른쪽 Trend + Chart + Table */}
+          {/* ---------------- Trend Section ---------------- */}
           <div className="sql-drawer__trend">
             <h4 className="sql-drawer__trend-title">Trend</h4>
 
+            {/* Elapsed Gauge → StackChart로 변경 */}
             <div className="chart-block">
-              <h5>Elapsed Time</h5>
-              <div className="sql-drawer__gauge">
-                <div className="sql-drawer__gauge-cpu">cpu_time (N Sec)</div>
-                <div className="sql-drawer__gauge-scheduler">Scheduler</div>
-              </div>
-            </div>
+              <h5>Elapsed Time (ms)</h5>
 
-            <div className="chart-block">
-              <h5>Elapsed Time Trend</h5>
-              <LineChart
-                legends={["CPU Time", "Other"]}
-                seriesData={[
-                  [5, 6, 4, 7, 8, 6, 9],
-                  [3, 4, 3, 5, 6, 4, 5],
+              <StackChart
+                stackCount={6}
+                labels={[
+                  "CPU",
+                  "User I/O",
+                  "Concurrency",
+                  "Application",
+                  "Cluster",
+                  "Other",
                 ]}
-                categories={[
-                  "Text",
-                  "Text",
-                  "Text",
-                  "Text",
-                  "Text",
-                  "Text",
-                  "Text",
+                usage={[
+                  cpuRaw,
+                  userIoRaw,
+                  concRaw,
+                  appRaw,
+                  clusterRaw,
+                  otherRaw,
                 ]}
+                total={[
+                  gaugeTotal,
+                  gaugeTotal,
+                  gaugeTotal,
+                  gaugeTotal,
+                  gaugeTotal,
+                  gaugeTotal,
+                ]}
+                height={140}
+                tooltipFormatter={(
+                  { used: _used, total: _totalpercent, percent },
+                  idx
+                ) => {
+                  const label = [
+                    "CPU",
+                    "User I/O",
+                    "Concurrency",
+                    "Application",
+                    "Cluster",
+                    "Other",
+                  ][idx];
+
+                  const secValue = [
+                    cpuMs,
+                    waitUserIoUsDelta,
+                    waitConcurrencyUsDelta,
+                    waitApplicationUsDelta,
+                    waitClusterUsDelta,
+                    waitOtherUsDelta,
+                  ][idx];
+
+                  return `${label}: ${secValue} (${percent.toFixed(1)}%)`;
+                }}
               />
             </div>
 
+            {/* Elapsed Time Trend */}
+            <div className="chart-block">
+              <h5>Elapsed Time Trend</h5>
+              <LineChart
+                legends={["Elapsed Trend", "Execute Trend"]}
+                seriesData={[
+                  data.elapsedTrend.map((t) => t.value),
+                  data.execTrend.map((t) => t.value),
+                ]}
+                categories={elapsedCategories}
+              />
+            </div>
+
+            {/* I/O Trend */}
             <div className="chart-block">
               <h5>I/O Trend</h5>
               <LineChart
                 legends={["Logical Reads Sum", "Physical Reads Sum"]}
                 seriesData={[
-                  [10, 14, 8, 11, 15, 9, 13],
-                  [5, 7, 4, 6, 8, 5, 7],
+                  data.bufferTrend.map((t) => t.value),
+                  data.diskTrend.map((t) => t.value),
                 ]}
-                categories={[
-                  "Text",
-                  "Text",
-                  "Text",
-                  "Text",
-                  "Text",
-                  "Text",
-                  "Text",
-                ]}
+                categories={bufferCategories}
               />
             </div>
 
+            {/* Wait Time Trend */}
             <div className="chart-block">
               <h5>Wait Time Trend</h5>
               <BarChart
                 legends={["Wait Time"]}
-                seriesData={[[3, 5, 4, 6, 5, 4]]}
-                categories={["Text", "Text", "Text", "Text", "Text", "Text"]}
+                seriesData={[data.waitTrend.map((t) => t.value)]}
+                categories={waitCategories}
                 horizontal={false}
               />
             </div>
 
+            {/* Tables */}
             <div className="chart-block">
               <div className="sql-drawer__tables">
                 <div className="sql-drawer__table">
