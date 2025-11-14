@@ -25,7 +25,7 @@ export const chartData: Record<TabType, string[]> = {
     "핵심 테이블스페이스 여유율",
   ],
   cpu: [
-    "CPU 활동 현황 타일",
+    "CPU 활동 현황 타일(수정)",
     "Foreground vs Background CPU 추이 (AAS)",
     "Host CPU Utilization (%)",
     "DB CPU Saturation - AAS vs Core (Load)",

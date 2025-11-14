@@ -420,7 +420,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     // CPU 카테고리 그래프 ID 매핑
                     if (activeTab === "cpu") {
                       const cpuGraphIdMap: Record<string, number> = {
-                        "CPU 활동 현황 타일": 13,
+                        "CPU 활동 현황 타일(수정)": 13,
                         "Foreground vs Background CPU 추이 (AAS)": 19,
                         "Host CPU Utilization (%)": 15,
                         "DB CPU Saturation - AAS vs Core (Load)": 14,

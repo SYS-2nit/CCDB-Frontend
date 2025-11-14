@@ -31,7 +31,7 @@ export const chartData: Record<TabType, string[]> = {
     "제한 근접 파라미터 상태 (%)",
   ],
   cpu: [
-    "CPU 활동 현황 타일",
+    "CPU 활동 현황 타일(수정)",
     "Foreground vs Background CPU 추이 (AAS)",
     "Host CPU Utilization (%)",
     "DB CPU Saturation - AAS vs Core (Load)",
