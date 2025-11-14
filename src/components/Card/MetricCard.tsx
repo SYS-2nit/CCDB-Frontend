@@ -48,6 +48,9 @@ const MetricGrid: React.FC<MetricGridProps> = ({
       style={{
         gridTemplateColumns: `repeat(${columns}, 1fr)`,
         height: typeof height === "number" ? `${height}px` : height,
+        width: "100%",
+        maxWidth: "100%",
+        overflow: "hidden",
       }}
     >
       {metrics.map((metric, index) => (

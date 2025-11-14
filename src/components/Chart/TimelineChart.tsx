@@ -1,13 +1,9 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
-import dayjs from "dayjs";
-import {
-  formatNumberWithUnit,
-  formatTooltipNumber,
-} from "@/utils/numberFormatter";
+import { formatNumberWithUnit, formatTooltipNumber } from "@/utils/numberFormatter";
 
-interface LineChartProps {
+interface TimelineChartProps {
   legends?: string[];
   showLegend?: boolean;
   seriesData?: number[][];
@@ -18,9 +14,14 @@ interface LineChartProps {
   yMax?: number;
 }
 
-const LineChart: React.FC<LineChartProps> = ({
+/**
+ * Timeline Chart (Type 5)
+ * 시간에 따른 여러 시리즈의 데이터를 보여주는 라인 차트
+ * Top SQL by CPU 같은 경우에 사용
+ */
+const TimelineChart: React.FC<TimelineChartProps> = ({
   legends = ["Series 1"],
-  showLegend = false,
+  showLegend = true,
   seriesData = [
     Array.from({ length: 5 }, () => Math.floor(Math.random() * 20) + 5),
   ],
@@ -66,10 +67,6 @@ const LineChart: React.FC<LineChartProps> = ({
     xaxis: {
       categories,
       labels: {
-        formatter: (value: string) => {
-          const formatted = dayjs(value).format("MM-DD HH:mm");
-          return formatted;
-        },
         style: {
           colors: "#777",
           fontSize: "11px",
@@ -135,14 +132,7 @@ const LineChart: React.FC<LineChartProps> = ({
   };
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        maxWidth: "100%",
-        overflow: "hidden",
-      }}
-    >
+    <div style={{ width: "100%", height: "100%", maxWidth: "100%", overflow: "hidden" }}>
       <ReactApexChart
         options={options}
         series={series}
@@ -154,4 +144,5 @@ const LineChart: React.FC<LineChartProps> = ({
   );
 };
 
-export default LineChart;
+export default TimelineChart;
+

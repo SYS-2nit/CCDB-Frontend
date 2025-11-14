@@ -1,12 +1,3 @@
-// src/components/Scenario/types.ts
-// ... 기존 코드 ...
-
-export interface ApiResponse<T> {
-  statusCode: number;
-  message: string;
-  data: T;
-}
-
 export type ScenarioId = number;
 
 export interface ScenarioMeta {
@@ -20,6 +11,7 @@ export interface ScenarioMeta {
 export interface RunRequest {
   scenarioIds: ScenarioId[];
   durationSec: number;
+  instanceId: number;
 }
 
 export interface RunStatus {

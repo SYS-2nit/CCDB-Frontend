@@ -6,6 +6,7 @@ import ScenarioControls from "@/components/Scenario/ScenarioControls";
 import ScenarioDetailDrawer from "@/components/Scenario/ScenarioDetailDrawer";
 import ScenarioListItem from "@/components/Scenario/ScenarioListItem";
 import { scenarioApi } from "@/components/Scenario/scenarioApi";
+import { useDashboardContext } from "@/state/DashboardContext";
 
 const DURATIONS = [30, 60, 90, 120, 150, 180];
 
@@ -24,8 +25,11 @@ const Analysis: React.FC = () => {
   }>({});
   const [detail, setDetail] = React.useState<ScenarioMeta | null>(null);
   const toast = useToast();
+  const { selectedInstanceId } = useDashboardContext();
 
   React.useEffect(() => {
+    if (!selectedInstanceId) return;
+    
     scenarioApi
       .list()
       .then((list) => {
@@ -37,10 +41,12 @@ const Analysis: React.FC = () => {
       .catch(() => {
         toast.show("시나리오 목록 조회 실패", "error");
       });
-  }, [toast]);
+  }, [toast, selectedInstanceId]);
 
   // 상태 폴링
   React.useEffect(() => {
+    if (!selectedInstanceId) return;
+    
     let t: number | undefined;
     const poll = async () => {
       try {
@@ -63,12 +69,17 @@ const Analysis: React.FC = () => {
         clearTimeout(t);
       }
     };
-  }, []);
+  }, [toast, selectedInstanceId]);
 
   const toggle = (id: ScenarioId) =>
     setSelected((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const start = async () => {
+    if (!selectedInstanceId) {
+      alert("인스턴스를 선택해주세요.");
+      return;
+    }
+    
     const chosen = scenarios.filter((s) => selected[s.id]).map((s) => s.id);
     if (chosen.length === 0) {
       alert("진단을 1개 이상 선택하세요.");
@@ -79,11 +90,14 @@ const Analysis: React.FC = () => {
       alert("진단은 한 번에 1개만 선택할 수 있습니다.");
       return;
     }
-
     setBusy(true);
     try {
-      await scenarioApi.run({ scenarioIds: chosen, durationSec: duration });
-      alert("진단을 시작합니다");
+      await scenarioApi.run({ 
+        scenarioIds: chosen, 
+        durationSec: duration,
+        instanceId: selectedInstanceId 
+      });
+      toast.show("진단을 시작했습니다.", "success");
     } catch (e) {
       alert(`진단을 시작하는 데 실패하였습니다.: ${e}`);
     } finally {
@@ -102,6 +116,14 @@ const Analysis: React.FC = () => {
       setBusy(false);
     }
   };
+
+  if (!selectedInstanceId) {
+    return (
+      <div className="scenario-page">
+        <div className="scenario-page__status">인스턴스를 선택해주세요.</div>
+      </div>
+    );
+  }
 
   return (
     <div className="scenario-page">

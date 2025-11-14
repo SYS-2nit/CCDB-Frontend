@@ -1,6 +1,6 @@
 import "./Sidebar.scss";
-import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import WhiteLogoIcon from "@/assets/logo-white.svg";
 import SidebarIcon from "@/assets/sidebar/sidebar.svg";
 import DashboardIcon from "@/assets/sidebar/dashboard.svg";
@@ -13,14 +13,42 @@ import HistoryIcon from "@/assets/sidebar/history.svg";
 import ProfileIcon from "@/assets/sidebar/profile.svg";
 import BottomArrowIcon from "@/assets/general/bottom-arrow.svg";
 import ClickedTopArrowIcon from "@/assets/general/clicked-top-arrow.svg";
+import { useDashboardContext } from "@/state/DashboardContext";
 
 const Sidebar: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { selectedInstanceId } = useDashboardContext();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false); // 사이드바 축소 상태
+
+  // 대시보드 관련 경로일 때 서브메뉴 자동 열기
+  useEffect(() => {
+    if (location.pathname.startsWith("/dashboard")) {
+      setOpenMenu("dashboard");
+    }
+  }, [location.pathname]);
 
   const toggleMenu = (menu: string) => {
     if (isCollapsed) setIsCollapsed(false); // 축소 상태에서 클릭 시 복원
     setOpenMenu(openMenu === menu ? null : menu);
+  };
+
+  // 대시보드 클릭 핸들러 - 대시보드 아이콘/텍스트 클릭 시
+  const handleDashboardClick = (e: React.MouseEvent) => {
+    // 화살표가 아닌 경우에만 페이지 이동
+    if ((e.target as HTMLElement).closest('.arrow')) {
+      return;
+    }
+    e.stopPropagation(); // 부모 클릭 이벤트 방지
+    if (isCollapsed) setIsCollapsed(false);
+    
+    // instanceId가 있으면 쿼리 파라미터로 추가, 없으면 없이 이동
+    if (selectedInstanceId !== null) {
+      navigate(`/dashboard?instanceId=${selectedInstanceId}`);
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   return (
@@ -49,14 +77,22 @@ const Sidebar: React.FC = () => {
       {/* Navigation */}
       <nav className="sidebar__nav">
         {/* 대시보드 */}
-        <div
-          className="sidebar__item--parent--arrow"
-          onClick={() => toggleMenu("dashboard")}
-        >
-          <div className="sidebar__item--parent--left">
+        <div className="sidebar__item--parent--arrow">
+          <div 
+            className={`sidebar__item--parent--left ${
+              location.pathname === "/dashboard" || location.pathname.startsWith("/dashboard?") ? "active" : ""
+            }`}
+            onClick={handleDashboardClick}
+          >
             <img src={DashboardIcon} alt="dashboard" />
             <span className="sidebar__item--title">대시보드</span>
-            <span className="arrow">
+            <span 
+              className="arrow"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleMenu("dashboard");
+              }}
+            >
               {openMenu === "dashboard" ? (
                 <img src={ClickedTopArrowIcon} alt="clicked-top-arrow" />
               ) : (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./List.scss";
 import DatabaseItem from "./Item";
 import ArrowFillTopIcon from "@/assets/general/arrow-fill-top.svg";
@@ -8,150 +8,246 @@ import Modal from "@/components/Modal/Modal";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import SearchIcon from "@/assets/general/search.svg";
+import { isAxiosError } from "axios";
+import type {
+  DatabaseCreatePayload,
+  DatabaseDeletePayload,
+  DatabaseTestPayload,
+} from "@/api/databases";
 
-interface ListProps {
-  databases: {
-    name: string;
-    ip: string;
-    port: string;
-    account: string;
-    password: string;
-    SID: string;
-  }[];
-  onAddDatabase: (newDB: {
-    name: string;
-    ip: string;
-    port: string;
-    account: string;
-    password: string;
-    SID: string;
-  }) => void;
-  onDeleteDatabase: (name: string, password: string) => boolean;
-}
+type DatabaseListItem = {
+  id: number;
+  name: string;
+  ip: string;
+  port: string;
+  account: string;
+  sid: string;
+  isActive: boolean;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+};
+
+type TestFeedback = {
+  status: "success" | "fail";
+  message?: string;
+};
+
+type FormState = {
+  name: string;
+  ip: string;
+  port: string;
+  account: string;
+  password: string;
+  sid: string;
+};
+
+type ListProps = {
+  databases: DatabaseListItem[];
+  isLoading?: boolean;
+  error?: string | null;
+  selectedDatabaseId?: number | null;
+  onAddDatabase: (payload: DatabaseCreatePayload) => Promise<void>;
+  onTestDatabase: (
+    payload: DatabaseTestPayload,
+  ) => Promise<{ success: boolean; message?: string; errorMessage?: string }>;
+  onDeleteDatabase?: (payload: DatabaseDeletePayload) => Promise<void>;
+  onDatabaseSelect?: (database: DatabaseListItem | null) => void;
+};
+
+type ModalType = null | "add" | "delete";
+
+const INITIAL_INPUTS: FormState = {
+  name: "",
+  ip: "",
+  port: "",
+  account: "",
+  password: "",
+  sid: "",
+};
+
+const getErrorMessage = (error: unknown) => {
+  if (isAxiosError(error)) {
+    const data = error.response?.data as { message?: string } | undefined;
+    return data?.message ?? error.message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "알 수 없는 오류가 발생했습니다.";
+};
 
 const List: React.FC<ListProps> = ({
   databases,
+  isLoading = false,
+  error,
+  selectedDatabaseId,
   onAddDatabase,
+  onTestDatabase,
   onDeleteDatabase,
+  onDatabaseSelect,
 }) => {
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState<null | "add" | "delete">(null);
+  const [isModalOpen, setIsModalOpen] = useState<ModalType>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [inputs, setInputs] = useState({
-    name: "",
-    ip: "",
-    port: "",
-    account: "",
-    password: "",
-    sid: "",
-  });
-  const [testResult, setTestResult] = useState<null | "success" | "fail">(null);
+  const [inputs, setInputs] = useState<FormState>(INITIAL_INPUTS);
+  const [testFeedback, setTestFeedback] = useState<TestFeedback | null>(null);
+  const [isTesting, setIsTesting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
 
-  // 테스트 버튼 핸들러
-  const handleTest = () => {
-    // 입력란이 비어있을 경우 알림 처리
-    const allFilled = Object.values(inputs).every((v) => v.trim() !== "");
-    if (!allFilled) {
-      alert("모든 항목을 입력해주세요.");
-      return;
-    }
-    const isSuccess = Math.random() > 0.5;
-    setTestResult(isSuccess ? "success" : "fail");
-  };
-
-  // 저장 버튼 핸들러
-  const handleConfirm = () => {
-    const allFilled = Object.values(inputs).every(
-      (v) => typeof v === "string" && v.trim() !== ""
-    );
-
-    // 입력란이 비어있을 경우 알림 처리
-    if (!allFilled) {
-      alert("모든 항목을 입력해주세요.");
-      return;
-    }
-
-    // 테스트 결과가 없을 경우 알림 처리
-    if (!testResult) {
-      alert("저장 전에 테스트를 먼저 수행해주세요.");
-      return;
-    }
-
-    // 테스트 결과 실패 시 알림 처리
-    if (testResult === "fail") {
-      alert("테스트에 실패했습니다. 연결 정보를 확인해주세요.");
-      return;
-    }
-
-    // 테스트 결과 성공 시 추가된 데이터 반영
-    if (isModalOpen === "add") {
-      const { name, ip, port, account, password, sid } = inputs;
-      onAddDatabase({ name, ip, port, account, password, SID: sid });
-      alert(`${name} DB가 추가되었습니다.`);
-    } else if (isModalOpen === "delete") {
-      const { name, password } = inputs;
-      const isDeleted = onDeleteDatabase(name, password);
-      alert(isDeleted ? `${name} 삭제 완료` : "존재하는 DB 정보가 없습니다.");
-    }
-
-    setIsModalOpen(null);
-    setTestResult(null);
-    setInputs({
-      name: "",
-      ip: "",
-      port: "",
-      account: "",
-      password: "",
-      sid: "",
-    });
-  };
-
-  // 삭제 버튼 핸들러
-  const handleDelete = () => {
-    const { name, password } = inputs;
-
-    if (!name.trim() || !password.trim()) {
-      alert("데이터베이스 이름과 비밀번호를 입력해주세요.");
-      return;
-    }
-
-    // 데이터에서 이름과 비밀번호가 일치하는 항목 찾기
-    const target = databases.find(
-      (item) => item.name === name && item.password === password
-    );
-
-    if (!target) {
-      alert("존재하는 정보가 없습니다.");
-      return;
-    }
-
-    const isDeleted = onDeleteDatabase(name, password);
-
-    if (isDeleted) {
-      alert(`${name} 데이터베이스가 삭제되었습니다.`);
-      setIsModalOpen(null);
-      setInputs({
-        name: "",
-        ip: "",
-        port: "",
-        account: "",
-        password: "",
-        sid: "",
-      });
-    } else {
-      alert("삭제 중 오류가 발생했습니다.");
-    }
-  };
-
-  // 검색 필터링
-  const filteredDatabases = databases.filter((db) =>
-    db.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDatabases = useMemo(
+    () =>
+      databases.filter((db) =>
+        db.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    [databases, searchTerm],
   );
+
+  const selectedDatabase = useMemo(
+    () =>
+      selectedDatabaseId == null
+        ? null
+        : databases.find((db) => db.id === selectedDatabaseId) ?? null,
+    [databases, selectedDatabaseId],
+  );
+
+  useEffect(() => {
+    setDeletePassword("");
+  }, [selectedDatabaseId]);
+
+  const resetAddForm = () => {
+    setInputs(INITIAL_INPUTS);
+    setTestFeedback(null);
+  };
+
+  const handleTest = async () => {
+    if (isTesting) return;
+
+    const values = Object.values(inputs);
+    const allFilled = values.every((value) => value.trim() !== "");
+
+    if (!allFilled) {
+      alert("모든 항목을 입력해주세요.");
+      return;
+    }
+
+    const portValue = Number(inputs.port.trim());
+    if (Number.isNaN(portValue)) {
+      alert("포트 번호는 숫자여야 합니다.");
+      return;
+    }
+
+    setIsTesting(true);
+
+    try {
+      const result = await onTestDatabase({
+        ip: inputs.ip.trim(),
+        port: portValue,
+        account: inputs.account.trim(),
+        password: inputs.password,
+        sid: inputs.sid.trim(),
+      });
+
+      if (result.success) {
+        setTestFeedback({
+          status: "success",
+          message: result.message ?? "DB 연결에 성공했습니다.",
+        });
+      } else {
+        setTestFeedback({
+          status: "fail",
+          message:
+            result.errorMessage ??
+            result.message ??
+            "테스트에 실패했습니다. 연결 정보를 확인해주세요.",
+        });
+      }
+    } catch (error) {
+      const message = getErrorMessage(error);
+      setTestFeedback({ status: "fail", message });
+      alert(message);
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    if (isSaving) return;
+
+    const values = Object.values(inputs);
+    const allFilled = values.every((value) => value.trim() !== "");
+
+    if (!allFilled) {
+      alert("모든 항목을 입력해주세요.");
+      return;
+    }
+
+    if (!testFeedback || testFeedback.status !== "success") {
+      alert("저장 전에 연결 테스트를 먼저 수행해주세요.");
+      return;
+    }
+
+    const portValue = Number(inputs.port.trim());
+    if (Number.isNaN(portValue)) {
+      alert("포트 번호는 숫자여야 합니다.");
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      await onAddDatabase({
+        name: inputs.name.trim(),
+        ip: inputs.ip.trim(),
+        port: portValue,
+        account: inputs.account.trim(),
+        password: inputs.password,
+        sid: inputs.sid.trim(),
+      });
+
+      alert(`${inputs.name} DB가 추가되었습니다.`);
+      setIsModalOpen(null);
+      resetAddForm();
+    } catch (error) {
+      alert(getErrorMessage(error));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!onDeleteDatabase) {
+      alert("삭제 기능은 아직 지원되지 않습니다.");
+      return;
+    }
+
+    if (selectedDatabaseId === null || !selectedDatabase) {
+      alert("삭제할 DB를 선택해주세요.");
+      return;
+    }
+
+    const password = deletePassword.trim();
+    if (!password) {
+      alert("비밀번호를 입력해주세요.");
+      return;
+    }
+
+    try {
+      await onDeleteDatabase({ id: selectedDatabase.id, password });
+      alert(`${selectedDatabase.name} 데이터베이스가 삭제되었습니다.`);
+      setIsModalOpen(null);
+      setDeletePassword("");
+      onDatabaseSelect?.(null);
+    } catch (error) {
+      alert(getErrorMessage(error));
+    }
+  };
 
   return (
     <div className="db-list">
-      {/* 헤더 */}
       <div className="db-list-header">
         목록 ({filteredDatabases.length})
         <img
@@ -162,7 +258,6 @@ const List: React.FC<ListProps> = ({
         />
       </div>
 
-      {/* 본문 (토글로 표시/숨김) */}
       {!isCollapsed && (
         <>
           <div className="db-list-body">
@@ -174,23 +269,47 @@ const List: React.FC<ListProps> = ({
               onChange={(e) => setSearchTerm(e.target.value)}
             />
 
-            {filteredDatabases.map((db, idx) => (
-              <DatabaseItem
-                key={idx}
-                name={db.name}
-                onClick={() => navigate("/dashboard/instance-list")}
-              />
-            ))}
+            {isLoading ? (
+              <div className="db-list__status db-list__status--loading">
+                로딩 중입니다...
+              </div>
+            ) : error ? (
+              <div className="db-list__status db-list__status--error">
+                {error}
+              </div>
+            ) : filteredDatabases.length === 0 ? (
+              <div className="db-list__status">등록된 데이터베이스가 없습니다.</div>
+            ) : (
+              filteredDatabases.map((db) => (
+                <DatabaseItem
+                  key={db.id}
+                  name={db.name}
+                  updatedAt={db.updatedAt ?? undefined}
+                  selected={db.id === selectedDatabaseId}
+                  onSelect={(checked) =>
+                    onDatabaseSelect?.(checked ? db : null)
+                  }
+                  onClick={() => {
+                    onDatabaseSelect?.(db);
+                    navigate("/dashboard/instance-list");
+                  }}
+                />
+              ))
+            )}
           </div>
 
-          {/* 푸터 (버튼 영역) */}
           <div className="db-list-footer">
             <Button
               text="삭제"
               size="sm"
               variant="error"
+              disabled={selectedDatabaseId === null}
               onClick={() => {
-                setTestResult(null);
+                if (selectedDatabaseId === null) {
+                  alert("삭제할 DB를 선택해주세요.");
+                  return;
+                }
+                setDeletePassword("");
                 setIsModalOpen("delete");
               }}
             />
@@ -199,7 +318,7 @@ const List: React.FC<ListProps> = ({
               size="sm"
               variant="primary"
               onClick={() => {
-                setTestResult(null);
+                resetAddForm();
                 setIsModalOpen("add");
               }}
             />
@@ -207,15 +326,14 @@ const List: React.FC<ListProps> = ({
         </>
       )}
 
-      {/* 생성 모달 */}
       {isModalOpen === "add" && (
         <Modal
           title="데이터베이스 생성"
-          cancelText="테스트"
-          confirmText="저장"
+          cancelText={isTesting ? "테스트 중" : "테스트"}
+          confirmText={isSaving ? "저장 중" : "저장"}
           onClose={() => {
             setIsModalOpen(null);
-            setTestResult(null);
+            resetAddForm();
           }}
           onReset={handleTest}
           onConfirm={handleConfirm}
@@ -225,8 +343,7 @@ const List: React.FC<ListProps> = ({
               type: "textarea",
               placeholder: "DB 이름을 입력해주세요.",
               value: inputs.name,
-              onChange: (_, val) =>
-                setInputs((prev) => ({ ...prev, name: val })),
+              onChange: (_, val) => setInputs((prev) => ({ ...prev, name: val })),
             },
             {
               label: "IP",
@@ -240,8 +357,7 @@ const List: React.FC<ListProps> = ({
               type: "textarea",
               placeholder: "DB 포트번호를 입력해주세요.",
               value: inputs.port,
-              onChange: (_, val) =>
-                setInputs((prev) => ({ ...prev, port: val })),
+              onChange: (_, val) => setInputs((prev) => ({ ...prev, port: val })),
             },
             {
               label: "Account",
@@ -264,51 +380,50 @@ const List: React.FC<ListProps> = ({
               type: "textarea",
               placeholder: "SID를 입력해주세요.",
               value: inputs.sid,
-              onChange: (_, val) =>
-                setInputs((prev) => ({ ...prev, sid: val })),
+              onChange: (_, val) => setInputs((prev) => ({ ...prev, sid: val })),
             },
           ]}
         >
-          {/* 테스트 결과 */}
-          {testResult && (
-            <div className="modal__test-result">
-              {testResult === "success" ? (
-                <div className="success">✅ 테스트 성공</div>
-              ) : (
-                <div className="fail">❌ 테스트 실패: 연결 오류</div>
-              )}
+          {isTesting && (
+            <div className="modal__test-result">⏳ 연결 테스트 중입니다...</div>
+          )}
+          {!isTesting && testFeedback && (
+            <div
+              className={`modal__test-result ${testFeedback.status}`}
+            >
+              {testFeedback.status === "success" ? "✅ " : "❌ "}
+              {testFeedback.message}
             </div>
           )}
         </Modal>
       )}
 
-      {/* 삭제 모달 */}
       {isModalOpen === "delete" && (
         <Modal
-          title={"데이터베이스 삭제"}
+          title="데이터베이스 삭제"
           cancelText="취소"
           confirmText="확인"
-          onClose={() => setIsModalOpen(null)}
+          onClose={() => {
+            setIsModalOpen(null);
+            setDeletePassword("");
+          }}
           onConfirm={handleDelete}
           fields={[
-            {
-              label: "Name",
-              type: "textarea",
-              placeholder: "삭제할 DB 이름을 입력해주세요.",
-              value: inputs.name,
-              onChange: (_label, val) =>
-                setInputs((prev) => ({ ...prev, name: val })),
-            },
             {
               label: "Password",
               type: "textarea",
               placeholder: "삭제할 DB의 비밀번호를 입력해주세요.",
-              value: inputs.password,
-              onChange: (_label, val) =>
-                setInputs((prev) => ({ ...prev, password: val })),
+              value: deletePassword,
+              onChange: (_label, val) => setDeletePassword(val),
             },
           ]}
-        />
+        >
+          {selectedDatabase && (
+            <div className="modal__custom-content">
+              선택한 DB: <strong>{selectedDatabase.name}</strong>
+            </div>
+          )}
+        </Modal>
       )}
     </div>
   );

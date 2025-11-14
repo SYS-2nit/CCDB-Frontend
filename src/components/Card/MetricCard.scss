@@ -6,7 +6,10 @@
 .metric-grid {
   display: grid;
   width: 100%;
+  max-width: 100%;
   height: 100%;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .metric-card {
@@ -19,6 +22,10 @@
   transition: all 0.2s ease;
   padding: 10px;
   cursor: pointer;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  min-width: 0;
 
 
   &:hover {

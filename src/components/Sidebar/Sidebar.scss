@@ -114,15 +114,15 @@
       cursor: pointer;
 
       &:hover {
-      color: var(--color-sidebar-text);
-      background-color: var(--color-active-tap-bg);
-    }
+        color: var(--color-sidebar-text);
+        background-color: var(--color-active-tap-bg);
+      }
 
-    &.active {
-      color: var(--color-sidebar-text);
-      background: var(--color-active-tap-bg);
-      outline: 1px solid var(--color-active-tap-stroke);
-    }
+      // 대시보드 주 메뉴는 active 상태에서도 배경 제거
+      &.active {
+        color: var(--color-sidebar-text);
+        // background와 outline 제거 - 서브 메뉴에서만 표시
+      }
     }
 
     &--arrow {
