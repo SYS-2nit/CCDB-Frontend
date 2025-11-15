@@ -17,6 +17,9 @@ import {
 } from "@/api/Sql/stats";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 
+/* ============================================================
+   Types
+============================================================ */
 interface RankData {
   rank: number;
   rankChanged: React.ReactNode;
@@ -27,7 +30,7 @@ interface RankData {
 }
 
 /* ============================================================
-   SqlTop Component
+   Component
 ============================================================ */
 const SqlTop: React.FC = () => {
   /* ===== 날짜 기본값 ===== */
@@ -35,7 +38,6 @@ const SqlTop: React.FC = () => {
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth() + 1).padStart(2, "0");
   const dd = String(today.getDate()).padStart(2, "0");
-
   const todayStr = `${yyyy}-${mm}-${dd}`;
 
   const yesterday = new Date(today);
@@ -43,13 +45,12 @@ const SqlTop: React.FC = () => {
   const yyyy2 = yesterday.getFullYear();
   const mm2 = String(yesterday.getMonth() + 1).padStart(2, "0");
   const dd2 = String(yesterday.getDate()).padStart(2, "0");
-
   const yesterdayStr = `${yyyy2}-${mm2}-${dd2}`;
 
   const [startDate, setStartDate] = useState(todayStr);
   const [compareDate, setCompareDate] = useState(yesterdayStr);
 
-  /* ===== 필터 ===== */
+  /* ===== Metric Filter ===== */
   const [filter, setFilter] = useState("elapsed");
 
   const metricFieldMap: Record<string, string> = {
@@ -76,20 +77,16 @@ const SqlTop: React.FC = () => {
   /* ===== interval ===== */
   const [interval, setInterval] = useState(30);
 
-  /* ===== 테이블 상태 ===== */
+  /* ===== 상태값들 ===== */
   const [baseList, setBaseList] = useState<RankData[]>([]);
   const [compareList, setCompareList] = useState<RankData[]>([]);
-
-  /* ===== 기간 그래프 ===== */
   const [basePeriod, setBasePeriod] = useState<SqlPeriodGraphItem[]>([]);
   const [comparePeriod, setComparePeriod] = useState<SqlPeriodGraphItem[]>([]);
-
-  /* ===== 상세 Drawer ===== */
   const [detailData, setDetailData] = useState<SqlDetailData | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   /* ============================================================
-     Rank Change 계산
+     Rank 변화 계산
   ============================================================ */
   const calcRankChange = (baseRank: number, compareRank: number) => {
     if (baseRank === 0 || compareRank === 0) return "-";
@@ -102,7 +99,7 @@ const SqlTop: React.FC = () => {
   };
 
   /* ============================================================
-     두 리스트를 동일한 sqlId 기준으로 정렬 (rank align)
+     Rank 정렬 (sqlId 기준)
   ============================================================ */
   const alignBySqlId = (baseList: RankData[], compareList: RankData[]) => {
     const sqlSet = new Set([
@@ -168,7 +165,7 @@ const SqlTop: React.FC = () => {
   };
 
   /* ============================================================
-     리스트 변환 함수
+     리스트 변환
   ============================================================ */
   const convert = (list: any[], filter: string): RankData[] => {
     if (!list || list.length === 0) return [];
@@ -190,9 +187,9 @@ const SqlTop: React.FC = () => {
   };
 
   /* ============================================================
-     검색 버튼 클릭 → Compare API 호출
+     테이블 비교 데이터 자동 & 수동 호출
   ============================================================ */
-  const handleSearch = async () => {
+  const fetchCompare = async () => {
     const data = await getSqlCompareStats({
       baseDate: startDate,
       compareDate,
@@ -203,52 +200,78 @@ const SqlTop: React.FC = () => {
 
     const base = convert(data.baseList, filter);
     const comp = convert(data.compareList, filter);
-
     const { alignedBase, alignedCompare } = alignBySqlId(base, comp);
 
     setBaseList(alignedBase);
     setCompareList(alignedCompare);
   };
 
-  /* ============================================================
-     기간 전체 timeline 생성
-  ============================================================ */
+  /* 날짜/필터/interval 변경 → 자동 갱신 */
+  useEffect(() => {
+    fetchCompare();
+  }, [startDate, compareDate, filter, interval]);
+
+  // Timeline 생성
   const buildTimeline = (
     startDate: string,
     compareDate: string,
     intervalMinutes: number
   ): string[] => {
-    const start = new Date(compareDate + "T00:00:00");
-    const end = new Date(startDate + "T23:59:59");
+    const d1 = new Date(startDate + "T00:00:00");
+    const d2 = new Date(compareDate + "T00:00:00");
+
+    const start = d1 < d2 ? d1 : d2;
+    const end =
+      d1 > d2
+        ? new Date(startDate + "T23:59:59")
+        : new Date(compareDate + "T23:59:59");
 
     const timeline: string[] = [];
+    const cursor = new Date(start);
 
-    while (start <= end) {
-      const mm = String(start.getMonth() + 1).padStart(2, "0");
-      const dd = String(start.getDate()).padStart(2, "0");
-      const HH = String(start.getHours()).padStart(2, "0");
-      const MM = String(start.getMinutes()).padStart(2, "0");
-
+    while (cursor <= end) {
+      const mm = String(cursor.getMonth() + 1).padStart(2, "0");
+      const dd = String(cursor.getDate()).padStart(2, "0");
+      const HH = String(cursor.getHours()).padStart(2, "0");
+      const MM = String(cursor.getMinutes()).padStart(2, "0");
       timeline.push(`${mm}-${dd} ${HH}:${MM}`);
 
-      start.setMinutes(start.getMinutes() + intervalMinutes);
+      cursor.setMinutes(cursor.getMinutes() + intervalMinutes);
     }
 
     return timeline;
   };
 
-  /* timeline에 맞게 데이터 매핑 */
+  // 그래프 값 매핑 (datetime 포맷 통일)
   const mapValuesToTimeline = (
     timeline: string[],
     data: SqlPeriodGraphItem[]
   ): number[] => {
-    const map = new Map(data.map((d) => [d.datetime, d.value]));
+    const normalize = (raw: string) => {
+      const d = new Date(raw);
+      if (isNaN(d.getTime())) return null;
+
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      const HH = String(d.getHours()).padStart(2, "0");
+      const MM = String(d.getMinutes()).padStart(2, "0");
+
+      return `${mm}-${dd} ${HH}:${MM}`;
+    };
+
+    const map = new Map(
+      data
+        .map((d) => {
+          const key = normalize(d.datetime);
+          return key ? [key, d.value] : null;
+        })
+        .filter(Boolean) as [string, number][]
+    );
+
     return timeline.map((t) => map.get(t) ?? 0);
   };
 
-  /* ============================================================
-     기간 그래프 가져오기
-  ============================================================ */
+  // 기간 그래프 호출 (자동)
   useEffect(() => {
     const fetchPeriod = async () => {
       const base = await getPeriodGraph({
@@ -274,9 +297,7 @@ const SqlTop: React.FC = () => {
     fetchPeriod();
   }, [startDate, compareDate, filter, interval]);
 
-  /* ============================================================
-     Row 클릭 → 상세 Drawer
-  ============================================================ */
+  // 상세 조회
   const handleRowClick = async (row: RankData) => {
     try {
       const detail = await getSqlDetail({
@@ -285,7 +306,6 @@ const SqlTop: React.FC = () => {
         endDate: startDate,
         intervalMinutes: interval,
       });
-
       setDetailData(detail);
       setIsDrawerOpen(true);
     } catch (e) {
@@ -294,52 +314,6 @@ const SqlTop: React.FC = () => {
     }
   };
 
-  /* ============================================================
-     테이블 컬럼 정의
-  ============================================================ */
-  const leftColumns = [
-    { key: "rank", label: "rank" },
-    { key: "rankChanged", label: "rank changed" },
-    { key: "ratio", label: "ratio (%)" },
-    { key: "exec", label: metricLabel },
-    { key: "hash", label: "hash" },
-    { key: "query", label: "query" },
-  ];
-
-  const rightColumns = [
-    { key: "rank", label: "rank" },
-    { key: "ratio", label: "ratio (%)" },
-    { key: "exec", label: metricLabel },
-    { key: "hash", label: "hash" },
-    { key: "query", label: "query" },
-  ];
-
-  const leftRows = (data: RankData[]) =>
-    data.map((row) => [
-      row.rank,
-      <span>{row.rankChanged}</span>,
-      <BarGauge value={row.ratio} max={100} />,
-      row.exec,
-      row.sqlId,
-      <span className="sql-top__query-link" onClick={() => handleRowClick(row)}>
-        {row.query}
-      </span>,
-    ]);
-
-  const rightRows = (data: RankData[]) =>
-    data.map((row) => [
-      row.rank,
-      <BarGauge value={row.ratio} max={100} />,
-      row.exec,
-      row.sqlId,
-      <span className="sql-top__query-link" onClick={() => handleRowClick(row)}>
-        {row.query}
-      </span>,
-    ]);
-
-  /* ============================================================
-     Render
-  ============================================================ */
   return (
     <div className="sql-top">
       {/* 검색 */}
@@ -390,15 +364,6 @@ const SqlTop: React.FC = () => {
               />
             </div>
           </div>
-
-          <div className="sql-stat__search-right">
-            <Button
-              text="검색"
-              size="sm"
-              variant="primary"
-              onClick={handleSearch}
-            />
-          </div>
         </div>
       </div>
 
@@ -427,7 +392,29 @@ const SqlTop: React.FC = () => {
             <div className="sql-top__table-block-header-mainCircle" />
             기준 데이터 ({startDate})
           </div>
-          <TableChart columns={leftColumns} rows={leftRows(baseList)} />
+          <TableChart
+            columns={[
+              { key: "rank", label: "rank" },
+              { key: "rankChanged", label: "rank changed" },
+              { key: "ratio", label: "ratio (%)" },
+              { key: "exec", label: metricLabel },
+              { key: "hash", label: "hash" },
+              { key: "query", label: "query" },
+            ]}
+            rows={baseList.map((row) => [
+              row.rank,
+              <span>{row.rankChanged}</span>,
+              <BarGauge value={row.ratio} max={100} />,
+              row.exec,
+              row.sqlId,
+              <span
+                className="sql-top__query-link"
+                onClick={() => handleRowClick(row)}
+              >
+                {row.query}
+              </span>,
+            ])}
+          />
         </div>
 
         <div className="sql-top__table-block">
@@ -435,7 +422,27 @@ const SqlTop: React.FC = () => {
             <div className="sql-top__table-block-header-greenCircle" />
             비교 데이터 ({compareDate})
           </div>
-          <TableChart columns={rightColumns} rows={rightRows(compareList)} />
+          <TableChart
+            columns={[
+              { key: "rank", label: "rank" },
+              { key: "ratio", label: "ratio (%)" },
+              { key: "exec", label: metricLabel },
+              { key: "hash", label: "hash" },
+              { key: "query", label: "query" },
+            ]}
+            rows={compareList.map((row) => [
+              row.rank,
+              <BarGauge value={row.ratio} max={100} />,
+              row.exec,
+              row.sqlId,
+              <span
+                className="sql-top__query-link"
+                onClick={() => handleRowClick(row)}
+              >
+                {row.query}
+              </span>,
+            ])}
+          />
         </div>
       </div>
 

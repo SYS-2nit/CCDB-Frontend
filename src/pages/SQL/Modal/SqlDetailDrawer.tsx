@@ -21,6 +21,18 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const clusterRaw = data.waitClusterUsDelta;
   const otherRaw = data.waitOtherUsDelta;
 
+  const formatToMonthDayTime = (raw: string) => {
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return raw;
+
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const HH = String(d.getHours()).padStart(2, "0");
+    const MM = String(d.getMinutes()).padStart(2, "0");
+
+    return `${mm}-${dd} ${HH}:${MM}`;
+  };
+
   const gaugeTotal =
     cpuRaw + userIoRaw + concRaw + appRaw + clusterRaw + otherRaw;
 
@@ -74,9 +86,15 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   ];
 
   // Trend 공통 카테고리 (x축)
-  const elapsedCategories = data.elapsedTrend.map((t) => t.label);
-  const bufferCategories = data.bufferTrend.map((t) => t.label);
-  const waitCategories = data.waitTrend.map((t) => t.label);
+  const elapsedCategories = data.elapsedTrend.map((t) =>
+    formatToMonthDayTime(t.label)
+  );
+  const bufferCategories = data.bufferTrend.map((t) =>
+    formatToMonthDayTime(t.label)
+  );
+  const waitCategories = data.waitTrend.map((t) =>
+    formatToMonthDayTime(t.label)
+  );
 
   return (
     <>
