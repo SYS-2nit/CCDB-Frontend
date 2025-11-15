@@ -66,6 +66,18 @@ export interface SqlDetailItem {
   ratio: number;
 }
 
+/* ===== Top SQL 비교 조회 탭 ===== */
+export interface SqlCompareResponse {
+  baseList: SqlStatsItem[];
+  compareList: SqlStatsItem[];
+}
+
+/* ===== Daily SQL 그래프 조회 ===== */
+export interface SqlDailyGraphItem {
+  time: string; // "00:00"
+  value: number; // metric value
+}
+
 /* -----------------------------------------------------
  * 1. SQL 통계 목록 조회
  * ----------------------------------------------------- */
@@ -129,6 +141,83 @@ export const getSqlDetail = async ({
     return res.data.data;
   } catch (error) {
     console.error("[API] SQL 상세 조회 실패:", error);
+    throw error;
+  }
+};
+
+/* -----------------------------------------------------
+ * 4. Top SQL 비교 조회
+ * ----------------------------------------------------- */
+export const getSqlCompareStats = async (params: {
+  baseDate: string;
+  compareDate: string;
+  instanceId: number;
+  keyword?: string;
+  intervalMinutes?: number;
+}): Promise<SqlCompareResponse> => {
+  try {
+    const res = await axios.get<ApiWrapper<SqlCompareResponse>>(
+      "/api/sql/compare",
+      { params }
+    );
+
+    console.log("[API] Top SQL 비교 조회 성공:", res.data);
+    return res.data.data;
+  } catch (error) {
+    console.error("[API] Top SQL 비교 조회 실패:", error);
+    throw error;
+  }
+};
+
+/* -----------------------------------------------------
+ * 5. 일뱔 SQL 그래프 조회
+ * ----------------------------------------------------- */
+export const getDailyGraph = async (params: {
+  date: string;
+  metric: string;
+  instanceId: number;
+  intervalMinutes?: number;
+}): Promise<SqlDailyGraphItem[]> => {
+  try {
+    const res = await axios.get<ApiWrapper<SqlDailyGraphItem[]>>(
+      "/api/sql/daily",
+      { params }
+    );
+
+    console.log("[API] Daily SQL 그래프 조회 성공:", res.data);
+    return res.data.data;
+  } catch (error) {
+    console.error("[API] Daily SQL 그래프 조회 실패:", error);
+    throw error;
+  }
+};
+
+/* -----------------------------------------------------
+ * 6. 기간별 SQL 그래프 조회 (Period Graph)
+ * ----------------------------------------------------- */
+
+export interface SqlPeriodGraphItem {
+  datetime: string; // "2025-11-10 16:00"
+  value: number;
+}
+
+export const getPeriodGraph = async (params: {
+  startDate: string;
+  endDate: string;
+  metric: string;
+  intervalMinutes: number;
+  instanceId: number;
+}): Promise<SqlPeriodGraphItem[]> => {
+  try {
+    const res = await axios.get<ApiWrapper<SqlPeriodGraphItem[]>>(
+      "/api/sql/period",
+      { params }
+    );
+
+    console.log("[API] 기간별 SQL 그래프 조회 성공:", res.data);
+    return res.data.data;
+  } catch (error) {
+    console.error("[API] 기간별 SQL 그래프 조회 실패:", error);
     throw error;
   }
 };
