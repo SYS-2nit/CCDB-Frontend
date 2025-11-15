@@ -1,9 +1,12 @@
+import type { ReactNode } from "react";
+
 export interface TrendPoint {
   label: string;
   value: number;
 }
 
 export interface SqlDetailData {
+  date: ReactNode;
   id: number;
   instanceId: number;
   sqlId: string;

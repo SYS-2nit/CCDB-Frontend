@@ -118,30 +118,26 @@ export const getSqlGraph = async (params: unknown) => {
 /* -----------------------------------------------------
  * 3. SQL 상세 탭 조회
  * ----------------------------------------------------- */
-export const getSqlDetail = async ({
-  sqlId,
-  startDate,
-  endDate,
-  intervalMinutes = 30,
-}: {
-  sqlId: string;
-  startDate: string;
-  endDate: string;
-  intervalMinutes?: number;
-}): Promise<SqlDetailItem> => {
+export const getSqlDetail = async (params: {
+  sqlId: any;
+  startDate: any;
+  endDate: any;
+  intervalMinutes: any;
+}) => {
   try {
-    const res = await axios.get<ApiWrapper<SqlDetailItem>>(
-      `/api/sql/detail/${sqlId}`,
-      {
-        params: { startDate, endDate, intervalMinutes },
-      }
-    );
+    const res = await api.get("/api/sql/detail/" + params.sqlId, {
+      params: {
+        startDate: params.startDate,
+        endDate: params.endDate,
+        intervalMinutes: params.intervalMinutes,
+      },
+    });
 
-    console.log("[API] SQL 상세 조회 성공:", res.data);
+    console.error("[API] SQL 상세 조회 성공:", res.data.data);
     return res.data.data;
-  } catch (error) {
-    console.error("[API] SQL 상세 조회 실패:", error);
-    throw error;
+  } catch (err) {
+    console.error("[API] SQL 상세 조회 실패:", err);
+    throw err;
   }
 };
 
