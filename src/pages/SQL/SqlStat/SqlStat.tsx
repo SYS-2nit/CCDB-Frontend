@@ -26,6 +26,19 @@ interface TableData {
   disk: number;
 }
 
+// X축 변환 함수 (MM-DD HH:mm)
+const formatToMonthDayTime = (raw: string) => {
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return raw;
+
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const HH = String(d.getHours()).padStart(2, "0");
+  const MM = String(d.getMinutes()).padStart(2, "0");
+
+  return `${mm}-${dd} ${HH}:${MM}`;
+};
+
 const SqlStat: React.FC = () => {
   /* 기본 날짜값 */
   const getDefaultDateRange = () => {
@@ -43,7 +56,7 @@ const SqlStat: React.FC = () => {
   /* 상태 */
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
   const [filter, setFilter] = useState("elapsed");
-  const [interval, setInterval] = useState(30); // 기본 30분
+  const [interval, setInterval] = useState(30);
   const [currentPage, setCurrentPage] = useState(1);
 
   const [graphData, setGraphData] = useState({
@@ -65,15 +78,13 @@ const SqlStat: React.FC = () => {
 
   /* 통합 조회 */
   const fetchStats = async (page = 1) => {
-    if (!dateRange.start || !dateRange.end) {
-      alert("조회 기간을 설정해주세요.");
-      return;
-    }
+    if (!dateRange.start || !dateRange.end) return;
 
     try {
       setIsLoading(true);
       setNoResult(false);
 
+      // Graph API
       const graph = await getSqlGraph({
         instanceId: 1,
         startDate: dateRange.start,
@@ -83,11 +94,13 @@ const SqlStat: React.FC = () => {
       });
 
       setGraphData({
-        labels: graph.buckets.map((b: any) => b.timeLabel),
+        labels: graph.buckets.map((b: any) =>
+          formatToMonthDayTime(b.timeLabel)
+        ),
         values: graph.buckets.map((b: any) => b.value),
       });
 
-      /* 테이블 API */
+      // Table API
       const data = await getSqlStats({
         instanceId: 1,
         startDate: dateRange.start,
@@ -130,12 +143,17 @@ const SqlStat: React.FC = () => {
     }
   };
 
-  /* 페이지 변경 시 재조회 */
+  /* 페이지 변경 시 자동 재조회 */
   useEffect(() => {
     fetchStats(currentPage);
   }, [currentPage]);
 
-  /* 정렬 처리 */
+  /* dateRange, filter, interval 바뀔 때 자동 반영 */
+  useEffect(() => {
+    fetchStats(1); // 페이지 초기화
+  }, [dateRange, filter, interval]);
+
+  /* 정렬 */
   const handleSort = (key: keyof TableData) => {
     let direction: "asc" | "desc" = "asc";
     if (sortConfig?.key === key && sortConfig.direction === "asc")
@@ -165,7 +183,7 @@ const SqlStat: React.FC = () => {
     { key: "cpu", label: "CPU Time" },
   ];
 
-  /* row 렌더링 */
+  /* row 구성 */
   const rows = sortedData.map((row) => [
     <span
       className="sql-stat__sql-text sql-stat__sql-clickable"
@@ -251,15 +269,6 @@ const SqlStat: React.FC = () => {
             />
           </div>
         </div>
-
-        <div className="sql-stat__search-right">
-          <Button
-            text="검색"
-            size="sm"
-            variant="primary"
-            onClick={() => fetchStats(1)}
-          />
-        </div>
       </div>
 
       {/* Summary Chart */}
@@ -301,7 +310,7 @@ const SqlStat: React.FC = () => {
         />
       </div>
 
-      {/* 상세 탭 - 조건부 렌더링 */}
+      {/* 상세 탭 */}
       {isDrawerOpen && detailData && (
         <SqlDetailDrawer
           data={detailData}
