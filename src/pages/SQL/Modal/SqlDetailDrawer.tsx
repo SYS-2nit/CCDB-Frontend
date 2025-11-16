@@ -10,6 +10,7 @@ import Pagination from "@/components/Pagination/Pagination";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 import { getPlanHistoryDetail, getPlanHistoryList } from "@/api/Sql/sql";
 import PlanCompareView from "./PlanCompareView";
+import Spinner from "@/components/Spinner/Spinner";
 
 interface SqlDetailDrawerProps {
   data: SqlDetailData;
@@ -285,15 +286,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                       }
                     />
 
-                    <Pagination
-                      totalPages={totalPages}
-                      currentPage={currentPage}
-                      onPageChange={setCurrentPage}
-                    />
-
-                    {loadingDetail && (
-                      <div className="loading">Loading Detail...</div>
-                    )}
+                    {loadingDetail && <Spinner />}
 
                     {selectedPlanRow && !loadingDetail && (
                       <PlanCompareView
@@ -303,6 +296,12 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                         afterPlanText={selectedPlanRow.afterPlanText}
                       />
                     )}
+
+                    <Pagination
+                      totalPages={totalPages}
+                      currentPage={currentPage}
+                      onPageChange={setCurrentPage}
+                    />
                   </>
                 )}
               </div>

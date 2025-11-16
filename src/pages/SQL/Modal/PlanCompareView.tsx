@@ -1,6 +1,6 @@
 import React from "react";
-import DiffViewer, { DiffMethod } from "react-diff-viewer";
 import "./PlanCompareView.scss";
+import DiffViewer, { DiffMethod } from "react-diff-viewer-continued";
 
 interface Props {
   beforeHash: number | null;
