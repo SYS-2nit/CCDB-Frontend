@@ -9,6 +9,7 @@ import TabMenu from "@/components/Tabs/TabMenu";
 import Pagination from "@/components/Pagination/Pagination";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 import { getPlanHistoryDetail, getPlanHistoryList } from "@/api/Sql/sql";
+import PlanCompareView from "./PlanCompareView";
 
 interface SqlDetailDrawerProps {
   data: SqlDetailData;
@@ -295,17 +296,12 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                     )}
 
                     {selectedPlanRow && !loadingDetail && (
-                      <div className="plan-diff-box">
-                        <div className="plan-diff-column">
-                          <h5>Before ({selectedPlanRow.beforePlanHash})</h5>
-                          <pre>{selectedPlanRow.beforePlanText}</pre>
-                        </div>
-
-                        <div className="plan-diff-column">
-                          <h5>After ({selectedPlanRow.afterPlanHash})</h5>
-                          <pre>{selectedPlanRow.afterPlanText}</pre>
-                        </div>
-                      </div>
+                      <PlanCompareView
+                        beforeHash={selectedPlanRow.beforePlanHash}
+                        afterHash={selectedPlanRow.afterPlanHash}
+                        beforePlanText={selectedPlanRow.beforePlanText}
+                        afterPlanText={selectedPlanRow.afterPlanText}
+                      />
                     )}
                   </>
                 )}
