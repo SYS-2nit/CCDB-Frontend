@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "composite": true,
+    "noEmit": false,
     "baseUrl": ".",
     "paths": {
       "@/*": [
@@ -30,10 +32,8 @@
     "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    "noEmit": true,
     "jsx": "react-jsx",
     /* Linting */
     "strict": true,
