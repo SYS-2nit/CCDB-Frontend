@@ -10,7 +10,6 @@ import BarGauge from "@/components/Chart/BarGauge";
 import SqlDetailDrawer from "../Modal/SqlDetailDrawer";
 import Select from "@/components/Select/Select";
 import Checkbox from "@/components/Checkbox/Checkbox";
-import CompareSqlDetailDrawer from "../Modal/CompareSqlDetailDrawer";
 
 import {
   getSqlDetail,
@@ -20,13 +19,8 @@ import {
 } from "@/api/Sql/stats";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 
-/* ===============================
-   Compare Detail Wrapper Type
-================================*/
-interface CompareDetail {
-  date: string;
-  detail: SqlDetailData;
-}
+// 새 창 전용 비교 컴포넌트
+import CompareSqlWindow from "../Modal/CompareSqlWindow";
 
 /* ===============================
    Rank Row Type
@@ -41,7 +35,6 @@ interface RankData {
 }
 
 const SqlTop: React.FC = () => {
-  /* 날짜 계산 */
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
 
@@ -91,13 +84,6 @@ const SqlTop: React.FC = () => {
   const [detailData, setDetailData] = useState<SqlDetailData | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  /* 비교 Drawer */
-  const [compareDrawerOpen, setCompareDrawerOpen] = useState(false);
-  const [compareBaseDetail, setCompareBaseDetail] =
-    useState<CompareDetail | null>(null);
-  const [compareCompareDetail, setCompareCompareDetail] =
-    useState<CompareDetail | null>(null);
-
   /* 체크박스 */
   const [selectedBase, setSelectedBase] = useState<string | null>(null);
   const [selectedCompare, setSelectedCompare] = useState<string | null>(null);
@@ -113,7 +99,7 @@ const SqlTop: React.FC = () => {
     return "-";
   };
 
-  /* 두 리스트를 sqlId 기준으로 정렬 */
+  /* 리스트 정렬 */
   const alignBySqlId = (base: RankData[], compare: RankData[]) => {
     const sqlIds = new Set([
       ...base.map((b) => b.sqlId),
@@ -256,7 +242,6 @@ const SqlTop: React.FC = () => {
     return timeline;
   };
 
-  /* 그래프 매핑 */
   const mapValuesToTimeline = (
     timeline: string[],
     data: SqlPeriodGraphItem[]
@@ -320,7 +305,7 @@ const SqlTop: React.FC = () => {
     setIsDrawerOpen(true);
   };
 
-  /* 비교 상세 조회 */
+  /* 비교 상세 조회 → 새 창 */
   const fetchCompareDetails = async () => {
     if (!selectedBase || !selectedCompare) return;
 
@@ -338,17 +323,42 @@ const SqlTop: React.FC = () => {
       intervalMinutes: interval,
     });
 
-    setCompareBaseDetail({
-      date: startDate,
-      detail: base,
-    });
+    /** 새 창 생성 */
+    const popup = window.open("", "_blank", "width=1600,height=900");
 
-    setCompareCompareDetail({
-      date: compareDate,
-      detail: compare,
-    });
+    if (!popup) {
+      alert("팝업 차단이 감지되었습니다. 팝업 허용 후 다시 시도해주세요.");
+      return;
+    }
 
-    setCompareDrawerOpen(true);
+    popup.document.write(`
+      <html>
+        <head>
+          <title>SQL 상세 비교</title>
+          <style>
+            body { margin: 0; font-family: sans-serif; }
+          </style>
+        </head>
+        <body>
+          <div id="compare-root"></div>
+        </body>
+      </html>
+    `);
+
+    popup.document.close();
+
+    const rootEl = popup.document.getElementById("compare-root");
+    if (!rootEl) return;
+
+    import("react-dom/client").then(({ createRoot }) => {
+      const root = createRoot(rootEl);
+      root.render(
+        <CompareSqlWindow
+          base={{ date: startDate, detail: base }}
+          compare={{ date: compareDate, detail: compare }}
+        />
+      );
+    });
   };
 
   /* ===============================
@@ -508,15 +518,6 @@ const SqlTop: React.FC = () => {
         <SqlDetailDrawer
           data={detailData}
           onClose={() => setIsDrawerOpen(false)}
-        />
-      )}
-
-      {/* 비교 Drawer */}
-      {compareDrawerOpen && compareBaseDetail && compareCompareDetail && (
-        <CompareSqlDetailDrawer
-          base={compareBaseDetail}
-          compare={compareCompareDetail}
-          onClose={() => setCompareDrawerOpen(false)}
         />
       )}
     </div>

@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ReactNode } from "react";
 
 export interface TrendPoint {
+  time: any;
   label: string;
   value: number;
 }
