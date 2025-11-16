@@ -140,7 +140,12 @@ const renderGauge = (graph: GraphDataResponse, valueKey: string) => {
 
 const renderMetricTiles = (
   graph: GraphDataResponse,
-  mappings: Array<{ key: string; label: string; suffix?: string }>,
+  mappings: Array<{ 
+    key: string; 
+    label: string; 
+    suffix?: string;
+    subtitleKeys?: string[]; // 서브 값으로 표시할 키 배열 (예: ["key1", "key2"])
+  }>,
   columns = 2,
 ) => {
   const sorted = sortPoints(graph);
@@ -162,7 +167,7 @@ const renderMetricTiles = (
     return matched ?? null;
   };
 
-  const metrics: MetricData[] = mappings.map(({ key, label, suffix }) => {
+  const metrics: MetricData[] = mappings.map(({ key, label, suffix, subtitleKeys }) => {
     const matchedKey = findMatchingKey(key);
     if (!matchedKey) {
       console.warn(`컬럼 '${key}'를 찾을 수 없습니다. 사용 가능한 키:`, availableKeys);
@@ -185,10 +190,27 @@ const renderMetricTiles = (
       display = String(latest.values?.[matchedKey]);
     }
 
+    // 서브 값 생성
+    let subtitle = "";
+    if (subtitleKeys && subtitleKeys.length > 0) {
+      const subtitleValues = subtitleKeys
+        .map((subKey) => {
+          const matchedSubKey = findMatchingKey(subKey);
+          if (!matchedSubKey) return null;
+          const subNumeric = ensureNumber(latest.values?.[matchedSubKey]);
+          return subNumeric !== null ? subNumeric.toLocaleString() : null;
+        })
+        .filter((v): v is string => v !== null);
+      
+      if (subtitleValues.length > 0) {
+        subtitle = subtitleValues.join(" / ");
+      }
+    }
+
     return {
       title: label,
       value: display,
-      subtitle: "",
+      subtitle: subtitle,
     };
   });
 
@@ -517,9 +539,22 @@ export const renderDynamicChart = (
   //                CPU_SATURATION_PCT, DB_OF_HOST_SHARE_PCT, RunQ_per_Core_LOAD_PROXY, TPS_PER_SEC, EXECS_PER_SEC
   if (graph.id === 13 ) {
     return renderMetricTiles(graph, [
-      { key: "host_cpu_util_pct", label: "Host CPU(%)", suffix: "%" },      // HOST_BUSY_CORES , HOST_TOTAL_CORES
-      { key: "cpu_saturation_pct", label: "DB CPU Saturation(%)", suffix: "%" },  // CORE_BASELINE_SESSIONS , AAS_ONCPU_SESSIONS
-      { key: "db_of_host_share_pct", label: "DB Share of Host(%)", suffix: "%" }, // AAS_ONCPU_SESSIONS , HOST_TOTAL_CORES
+      { 
+        key: "host_cpu_util_pct", 
+        label: "Host CPU(%)", 
+        suffix: "%"
+      },
+      { 
+        key: "cpu_saturation_pct", 
+        label: "DB CPU Saturation(%)", 
+        suffix: "%"
+      },
+      { 
+        key: "db_of_host_share_pct", 
+        label: "DB Share of Host(%)", 
+        suffix: "%",
+        subtitleKeys: [ "aas_oncpu_sessions", "host_busy_cores"]
+      },
       { key: "runq_per_core_load_proxy", label: "Run Queue per Core(process)" },  
       { key: "tps_per_sec", label: "TPS" },
       { key: "execs_per_sec", label: "EXEC/S" },
@@ -743,31 +778,31 @@ export const renderDynamicChart = (
   }
 
   // Graph ID 41: Average I/O Wait Time (ms)
-  // GraphRegistry: avg_wait_time_ms, p95_wait_time_ms, io_waits_per_sec, io_time_per_sec_ms
+  // GraphRegistry: avg_wait_time_ms, io_waits_per_sec, io_time_per_sec_ms
   if (graph.id === 41 ) {
     return renderLine(graph, {
-      keys: ["avg_wait_time_ms", "p95_wait_time_ms", "io_waits_per_sec", "io_time_per_sec_ms"],
-      legends: ["Avg Wait Time (ms)", "P95 Wait Time (ms)", "I/O Waits (/s)", "I/O Time (/s ms)"],
+      keys: ["avg_wait_time_ms",  "io_waits_per_sec", "io_time_per_sec_ms"],
+      legends: ["Avg Wait Time (ms)",  "I/O Waits (/s)", "I/O Time (/s ms)"],
     }, mode);
   }
 
   // Graph ID 42: Redo Generation Rate (MB/초)
-  // GraphRegistry: redo_generation_mbps, redo_generation_mbps_total, redo_generation_24h_avg, log_switch_count_1min, log_switch_count_5min
+  // GraphRegistry: redo_generation_mbps, redo_generation_mbps_total,log_switch_count_1min
   if (graph.id === 42 ) {
     return renderLine(graph, {
-      keys: ["redo_generation_mbps", "redo_generation_mbps_total", "redo_generation_24h_avg", "log_switch_count_1min", "log_switch_count_5min"],
-      legends: ["Redo Generation (MB/s)", "Redo Total (MB/s)", "Redo 24h Avg (MB/s)", "Log Switch 1min", "Log Switch 5min"],
+      keys: ["redo_generation_mbps", "redo_generation_mbps_total", "log_switch_count_1min"],
+      legends: ["Redo Generation (MB/s)", "Redo Total (MB/s)", "Log Switch 1min"],
     }, mode);
   }
 
-    // Graph ID 42: Redo Generation Rate (MB/초)
-  // GraphRegistry: redo_generation_mbps, redo_generation_mbps_total, redo_generation_24h_avg, log_switch_count_1min, log_switch_count_5min
-  if (graph.id === 43 ) {
-    return renderLine(graph, {
-      keys: ["redo_generation_mbps", "redo_generation_mbps_total", "redo_generation_24h_avg", "log_switch_count_1min", "log_switch_count_5min"],
-      legends: ["Redo Generation (MB/s)", "Redo Total (MB/s)", "Redo 24h Avg (MB/s)", "Log Switch 1min", "Log Switch 5min"],
-    }, mode);
-  }
+  //   // Graph ID 42: Redo Generation Rate (MB/초)
+  // // GraphRegistry: redo_generation_mbps, redo_generation_mbps_total,  log_switch_count_1min
+  // if (graph.id === 43 ) {
+  //   return renderLine(graph, {
+  //     keys: ["redo_generation_mbps", "redo_generation_mbps_total", "log_switch_count_1min"],
+  //     legends: ["Redo Generation (MB/s)", "Redo Total (MB/s)",  "Log Switch 1min"],
+  //   }, mode);
+  // }
 
 
   // === STORAGE 카테고리 ===

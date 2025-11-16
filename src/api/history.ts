@@ -95,3 +95,4 @@ export const fetchHistoryGraphList = async (
   return response.data.data ?? { graphs: [] };
 };
 
+

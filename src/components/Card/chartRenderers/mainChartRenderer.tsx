@@ -94,14 +94,13 @@ const formatColumnName = (key: string): string => {
     cache_hit_ratio_diff_pct: "Cache Hit Ratio Diff (%)",
     total_reads_per_sec: "Total Reads (/s)",
     avg_wait_time_ms: "Avg Wait Time (ms)",
-    p95_wait_time_ms: "P95 Wait Time (ms)",
+    // p95_wait_time_ms: "P95 Wait Time (ms)",
     io_waits_per_sec: "I/O Waits (/s)",
     io_time_per_sec_ms: "I/O Time (/s ms)",
     redo_generation_mbps: "Redo Generation (MB/s)",
     redo_generation_mbps_total: "Redo Total (MB/s)",
-    redo_generation_24h_avg: "Redo 24h Avg (MB/s)",
     log_switch_count_1min: "Log Switch 1min",
-    log_switch_count_5min: "Log Switch 5min",
+    // log_switch_count_5min: "Log Switch 5min",
     
     // Session 관련
     sessions_limit_util_pct: "Session Util (%)",
