@@ -10,5 +10,9 @@
     {
       "path": "./tsconfig.node.json"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true
+  }
 }
