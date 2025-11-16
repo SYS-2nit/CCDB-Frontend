@@ -10,7 +10,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between; 
-    padding: 20px;
+    padding: 10px;
     background: $gray-0;
     border-radius: 5px;
 
@@ -25,8 +25,8 @@
     &__table-wrapper {
         display: flex;
         flex-direction: column;
-        padding: 20px;
-        margin-top: 20px;
+        padding: 10px;
+        margin-top: 10px;
         border-radius: 5px;
         background: $gray-0;
         text-align: center;

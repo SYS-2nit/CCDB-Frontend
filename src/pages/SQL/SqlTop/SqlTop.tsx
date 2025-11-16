@@ -46,7 +46,7 @@ const SqlTop: React.FC = () => {
   const [compareDate, setCompareDate] = useState(yesterdayStr);
 
   /* 필터 */
-  const [filter, setFilter] = useState("elapsed");
+  const [filter, setFilter] = useState("");
 
   const metricFieldMap: Record<string, string> = {
     elapsed: "elapsedUsDelta",
@@ -336,7 +336,7 @@ const SqlTop: React.FC = () => {
         <head>
           <title>SQL 상세 비교</title>
           <style>
-            body { margin: 0; font-family: sans-serif; }
+            body { margin: 0; }
           </style>
         </head>
         <body>
@@ -382,6 +382,7 @@ const SqlTop: React.FC = () => {
 
           <Select
             label="필터"
+            placeholder="선택하세요."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             options={[
@@ -446,18 +447,20 @@ const SqlTop: React.FC = () => {
 
           <TableChart
             columns={[
-              { key: "chk", label: "" },
+              { key: "check", label: "check" },
               { key: "rankChanged", label: "rank changed" },
-              { key: "ratio", label: "ratio (%)" },
-              { key: "exec", label: metricLabel },
+              { key: "ratio", label: "ratio" },
+              { key: "exec", label: metricLabel || "필터" },
               { key: "hash", label: "hash" },
               { key: "query", label: "query" },
             ]}
             rows={baseList.map((row) => [
               <Checkbox
                 checked={selectedBase === row.sqlId}
-                onChange={() => setSelectedBase(row.sqlId)}
-                size="md"
+                onChange={() =>
+                  setSelectedBase(selectedBase === row.sqlId ? null : row.sqlId)
+                }
+                size="sm"
               />,
               <span>{row.rankChanged}</span>,
               <BarGauge value={row.ratio} max={100} />,
@@ -484,7 +487,7 @@ const SqlTop: React.FC = () => {
               <Button
                 text="비교하기"
                 size="sm"
-                variant="white"
+                variant="primary"
                 disabled={!selectedBase || !selectedCompare}
                 onClick={fetchCompareDetails}
               />
@@ -494,16 +497,20 @@ const SqlTop: React.FC = () => {
           <TableChart
             columns={[
               { key: "check", label: "check" },
-              { key: "ratio", label: "ratio (%)" },
-              { key: "exec", label: metricLabel },
+              { key: "ratio", label: "ratio" },
+              { key: "exec", label: metricLabel || "필터" },
               { key: "hash", label: "hash" },
               { key: "query", label: "query" },
             ]}
             rows={compareList.map((row) => [
               <Checkbox
                 checked={selectedCompare === row.sqlId}
-                onChange={() => setSelectedCompare(row.sqlId)}
-                size="md"
+                onChange={() =>
+                  setSelectedCompare(
+                    selectedCompare === row.sqlId ? null : row.sqlId
+                  )
+                }
+                size="sm"
               />,
               <BarGauge value={row.ratio} max={100} />,
               row.exec,

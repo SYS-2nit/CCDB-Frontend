@@ -56,7 +56,7 @@ const SqlStat: React.FC = () => {
 
   /* 상태값 */
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
-  const [filter, setFilter] = useState("elapsed");
+  const [filter, setFilter] = useState("");
   const [interval, setInterval] = useState(30);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -244,6 +244,7 @@ const SqlStat: React.FC = () => {
 
           <Select
             label="필터"
+            placeholder="선택하세요."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             options={[

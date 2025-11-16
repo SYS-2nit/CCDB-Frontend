@@ -17,7 +17,7 @@ const SqlDetailPanel: React.FC<Props> = ({ data, date }) => {
         whiteSpace: "normal",
       }}
     >
-      <h2 style={{ fontSize: "18px" }}>SQL 상세 정보 ({date})</h2>
+      <h2 style={{ fontSize: "20px" }}>SQL 상세 정보 ({date})</h2>
 
       <pre
         style={{
@@ -75,7 +75,7 @@ const ChartSection: React.FC<{ title: string; children: any }> = ({
   children,
 }) => (
   <div>
-    <h3 style={{ fontSize: "18px" }}>{title}</h3>
+    <h3 style={{ fontSize: "16px" }}>{title}</h3>
     <div>{children}</div>
   </div>
 );

@@ -25,8 +25,8 @@
     &-left {
       display: flex;
       align-items: flex-end;
-      gap: 20px;
-      padding: 20px;
+      gap: 10px;
+      padding: 10px;
       border-radius: 5px;
     
         // 버튼 3개
@@ -39,7 +39,7 @@
     // 오른쪽 영역 
     &-right {
       display: flex;
-      padding: 20px;
+      padding: 10px;
     }
   }
 
@@ -59,14 +59,14 @@
     &__summary {
       background: $gray-0;
       border-radius: 5px;
-      padding: 20px;
+      padding: 10px;
       color: $gray-700;
       @include text-styles("body02");
     }
 
     // 테이블 영역
     &__table {
-      padding: 20px;
+      padding: 10px;
       border-radius:5px;
       background-color:  $gray-0;
       color: $gray-700;

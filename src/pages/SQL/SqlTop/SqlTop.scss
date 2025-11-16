@@ -14,8 +14,8 @@
 
   // 검색 영역
   &__search {
-    gap: 20px;
-    padding: 20px;
+    gap: 10px;
+    padding: 10px;
     width: 100%;
     display: flex;
     align-items: flex-end;
@@ -28,7 +28,7 @@
     &-left {
       display: flex;
       align-items: flex-end;
-      gap: 20px;
+      gap: 10px;
       padding: 20px;
       border-radius: 5px;
     
@@ -49,9 +49,9 @@
   // 차트 영역
     &__summary {
       margin-top: 10px;
+      padding: 10px;
       background: $gray-0;
       border-radius: 5px;
-      padding: 20px;
       color: $gray-700;
       @include text-styles("body02");
     }
@@ -59,23 +59,24 @@
     // 테이블 영역
     &__table {
       gap: 10px;
+      margin-top: 10px;
       display: flex;
       overflow: hidden;
 
       &-block {
         flex-direction: row;
         background: $gray-0;
-        padding: 20px;
+        padding: 10px;
         border-radius: 5px;
       
         &-header {
           gap: 10px;
           display: flex;
           align-items: center;
-           justify-content: space-between;
+          justify-content: space-between;
           margin-bottom: 10px;
           color: $gray-700;
-          @include text-styles("label02");
+          @include text-styles("body02");
 
           &-left {
             gap: 10px;
