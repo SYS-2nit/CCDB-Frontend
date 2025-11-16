@@ -278,7 +278,7 @@ const SqlTop: React.FC = () => {
   }, [startDate, compareDate, filter, interval]);
 
   /* 단일 상세 조회 */
-  const handleRowClick = async (row: RankData) => {
+  const handleBaseRowClick = async (row: RankData) => {
     const raw = await getSqlDetail({
       sqlId: row.sqlId,
       startDate,
@@ -288,6 +288,22 @@ const SqlTop: React.FC = () => {
 
     setDetailData({
       date: startDate,
+      ...raw,
+    });
+
+    setIsDrawerOpen(true);
+  };
+
+  const handleCompareRowClick = async (row: RankData) => {
+    const raw = await getSqlDetail({
+      sqlId: row.sqlId,
+      startDate: compareDate,
+      endDate: compareDate,
+      intervalMinutes: interval,
+    });
+
+    setDetailData({
+      date: compareDate,
       ...raw,
     });
 
@@ -461,7 +477,7 @@ const SqlTop: React.FC = () => {
                 row.sqlId,
                 <span
                   className="sql-top__query-link"
-                  onClick={() => handleRowClick(row)}
+                  onClick={() => handleBaseRowClick(row)}
                 >
                   {row.query}
                 </span>,
@@ -513,7 +529,7 @@ const SqlTop: React.FC = () => {
                 row.sqlId,
                 <span
                   className="sql-top__query-link"
-                  onClick={() => handleRowClick(row)}
+                  onClick={() => handleCompareRowClick(row)}
                 >
                   {row.query}
                 </span>,

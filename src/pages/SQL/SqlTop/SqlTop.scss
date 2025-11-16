@@ -118,4 +118,6 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    color: $gray-400;
+    @include text-styles("body02");
 }
