@@ -255,12 +255,14 @@ export const getPlanHistoryList = async (
  * 8. SQL Plan Change History - DETAIL
  * ----------------------------------------------------- */
 export const getPlanHistoryDetail = async (
+  sqlId: string,
   beforeHash: number,
-  afterHash: number
+  afterHash: number,
+  time: string
 ): Promise<PlanHistoryDetail> => {
   try {
-    const res = await api.get(`/api/sql/plany/detail`, {
-      params: { beforeHash, afterHash },
+    const res = await api.get(`/api/sql/plan/detail`, {
+      params: { sqlId, beforeHash, afterHash, time },
     });
     console.log("[API] Plan History Detail:", res.data.data);
     return res.data.data;

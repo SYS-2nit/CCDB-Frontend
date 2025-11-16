@@ -15,7 +15,7 @@ interface SqlDetailDrawerProps {
   onClose: () => void;
 }
 
-/* trend / plan-change 탭 */
+/* Tabs */
 const tabs = [
   { id: "1", label: "Trend" },
   { id: "2", label: "Plan Change History" },
@@ -25,29 +25,31 @@ const tabs = [
 const formatToMonthDayTime = (raw: string) => {
   const d = new Date(raw);
   if (isNaN(d.getTime())) return raw;
+
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
   const HH = String(d.getHours()).padStart(2, "0");
   const MM = String(d.getMinutes()).padStart(2, "0");
+
   return `${mm}-${dd} ${HH}:${MM}`;
 };
 
 const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const [activeTab, setActiveTab] = useState("1");
 
-  /* Plan Change */
+  /* -------------------- Plan Change -------------------- */
   const [planList, setPlanList] = useState<any[]>([]);
   const [loadingPlan, setLoadingPlan] = useState(false);
 
-  /* Pagination */
-  const [currentPage, setCurrentPage] = useState(1);
+  /* 페이지네이션 */
   const rowsPerPage = 15;
+  const [currentPage, setCurrentPage] = useState(1);
 
-  /* 선택된 행 */
+  /* 상세조회 */
   const [selectedPlanRow, setSelectedPlanRow] = useState<any | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
-  /* -------------------------- Plan List Load -------------------------- */
+  /* -------------------- Plan LIST API -------------------- */
   useEffect(() => {
     if (activeTab !== "2") return;
 
@@ -64,22 +66,25 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
     loadPlan();
   }, [activeTab, data.sqlId]);
 
-  /* -------------------------- Pagination 처리 -------------------------- */
+  /* -------------------- Pagination -------------------- */
   const totalPages = Math.max(1, Math.ceil(planList.length / rowsPerPage));
+
   const pagedData = planList.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
 
-  /* -------------------- 클릭 시 detail API 호출 -------------------- */
+  /* -------------------- Detail API -------------------- */
   const handlePlanRowClick = async (row: any) => {
     if (!row.beforePlanHash || !row.afterPlanHash) return;
 
     setLoadingDetail(true);
     try {
       const detail = await getPlanHistoryDetail(
+        row.sqlId,
         row.beforePlanHash,
-        row.afterPlanHash
+        row.afterPlanHash,
+        row.time
       );
 
       setSelectedPlanRow({
@@ -92,30 +97,25 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
     }
   };
 
-  /* -------------------- Trend 탭 계산 -------------------- */
+  /* -------------------- Trend 계산 -------------------- */
   const cpuRaw = data.totalCpu;
   const userIoRaw = data.waitUserIoUsDelta;
   const concRaw = data.waitConcurrencyUsDelta;
   const appRaw = data.waitApplicationUsDelta;
   const clusterRaw = data.waitClusterUsDelta;
   const otherRaw = data.waitOtherUsDelta;
+
   const gaugeTotal =
     cpuRaw + userIoRaw + concRaw + appRaw + clusterRaw + otherRaw;
 
-  const cpuSec = (data.totalCpu / 1_000_000).toFixed(1);
-  const elapsedSec = (data.totalElapsed / 1_000_000).toFixed(1);
-  const execSec = (data.totalExec / 1_000_000).toFixed(1);
-  const avgElapsedSec = (data.avgElapsed / 1_000_000).toFixed(1);
-  const waitSec = (data.totalWait / 1_000_000).toFixed(1);
-
   const rows1 = [
-    ["CPU Time", `${cpuSec} Sec`],
-    ["Elapsed Time", `${elapsedSec} Sec`],
-    ["Execute Count", `${execSec} Sec`],
-    ["Avg Elapsed Time", `${avgElapsedSec} Sec`],
-    ["Wait Time ", `${waitSec} Sec`],
-    ["Logical Reads", `${data.totalBuffer}`],
-    ["Physical Reads", `${data.totalDisk}`],
+    ["CPU Time", `${(data.totalCpu / 1_000_000).toFixed(1)} Sec`],
+    ["Elapsed Time", `${(data.totalElapsed / 1_000_000).toFixed(1)} Sec`],
+    ["Execute Count", `${(data.totalExec / 1_000_000).toFixed(1)} Sec`],
+    ["Avg Elapsed", `${(data.avgElapsed / 1_000_000).toFixed(1)} Sec`],
+    ["Wait Time", `${(data.totalWait / 1_000_000).toFixed(1)} Sec`],
+    ["Logical Reads", data.totalBuffer],
+    ["Physical Reads", data.totalDisk],
   ];
 
   const rows2 = [
@@ -126,17 +126,6 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
     ["Other", `${data.waitOtherUsDelta / 1000} ms`],
   ];
 
-  const elapsedCategories = data.elapsedTrend.map((t) =>
-    formatToMonthDayTime(t.label)
-  );
-  const bufferCategories = data.bufferTrend.map((t) =>
-    formatToMonthDayTime(t.label)
-  );
-  const waitCategories = data.waitTrend.map((t) =>
-    formatToMonthDayTime(t.label)
-  );
-
-  /* --------------------------- Table rows --------------------------- */
   const tableRows = pagedData.map((row) => [
     formatToMonthDayTime(row.time),
     row.queryText,
@@ -145,12 +134,14 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
     row.afterPlanHash,
   ]);
 
+  /* -------------------- Render -------------------- */
   return (
     <>
       <div className="sql-drawer__overlay" onClick={onClose} />
+
       <div className="sql-drawer">
         <div className="sql-drawer__header">
-          <h3>SQL 상세 탭</h3>
+          <h3>SQL Detail</h3>
           <button className="close-btn" onClick={onClose}>
             ✕
           </button>
@@ -173,7 +164,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
               onTabChange={setActiveTab}
             />
 
-            {/* 🟦 TREND TAB */}
+            {/* TREND TAB */}
             {activeTab === "1" && (
               <div className="sql-drawer__trend">
                 <div className="chart-block">
@@ -210,12 +201,14 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                 <div className="chart-block">
                   <h5>Elapsed Trend</h5>
                   <LineChart
-                    legends={["Elapsed Trend", "Execute Trend"]}
+                    legends={["Elapsed", "Execute"]}
                     seriesData={[
                       data.elapsedTrend.map((t) => t.value),
                       data.execTrend.map((t) => t.value),
                     ]}
-                    categories={elapsedCategories}
+                    categories={data.elapsedTrend.map((t) =>
+                      formatToMonthDayTime(t.label)
+                    )}
                   />
                 </div>
 
@@ -227,16 +220,20 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                       data.bufferTrend.map((t) => t.value),
                       data.diskTrend.map((t) => t.value),
                     ]}
-                    categories={bufferCategories}
+                    categories={data.bufferTrend.map((t) =>
+                      formatToMonthDayTime(t.label)
+                    )}
                   />
                 </div>
 
                 <div className="chart-block">
                   <h5>Wait Time Trend</h5>
                   <BarChart
-                    legends={["Wait Time"]}
+                    legends={["Wait"]}
                     seriesData={[data.waitTrend.map((t) => t.value)]}
-                    categories={waitCategories}
+                    categories={data.waitTrend.map((t) =>
+                      formatToMonthDayTime(t.label)
+                    )}
                   />
                 </div>
 
@@ -266,7 +263,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
               </div>
             )}
 
-            {/* PLAN CHANGE HISTORY TAB */}
+            {/* PLAN CHANGE HISTORY */}
             {activeTab === "2" && (
               <div className="sql-drawer__plan">
                 {loadingPlan ? (
