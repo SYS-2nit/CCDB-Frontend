@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import "./TableChart.scss";
 
@@ -5,7 +6,7 @@ interface TableChartProps {
   columns: { key: string; label: string }[];
   rows: React.ReactNode[][];
   size?: "sm" | "md" | "lg";
-  onClick?: () => void;
+  onClick?: (row: any) => void;
   sortable?: boolean;
   sortConfig?: { key: string; direction: "asc" | "desc" } | null;
   onSort?: (key: string) => void;
