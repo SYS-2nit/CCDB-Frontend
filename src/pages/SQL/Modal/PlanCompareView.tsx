@@ -24,11 +24,13 @@ const PlanCompareView: React.FC<Props> = ({
   if (noChange) {
     return (
       <div className="plan-compare-empty">
-        <h3>Before / After 비교 </h3>
         <div className="empty-box">
           <p>이번 실행에서는 Plan 변경이 없습니다.</p>
-          <p className="sub">before hash: {beforeHash}</p>
-          <p className="sub">after hash: {afterHash}</p>
+          <div className="empty-box-hash">
+            <p className="sub">BEFORE - {beforeHash}</p>
+            <p className="sub">/</p>
+            <p className="sub">AFTER - {afterHash}</p>
+          </div>
         </div>
       </div>
     );

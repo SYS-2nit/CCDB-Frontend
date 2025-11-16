@@ -15,17 +15,15 @@
 }
 
 .plan-compare-empty {
-    margin-top: 20px;
     border-radius: 5px;
     border: 1px solid $gray-100;
     background: $gray-50;
-    padding: 20px;
+    padding: 10px;
     text-align: center;
 
   .empty-box {
     width: 100%;
     padding: 20px;
-    margin-top: 20px;
     background: $gray-0;
     border: 1px solid $gray-100;
     border-radius: 5px;
@@ -39,6 +37,14 @@
     .sub {
         color: $gray-300;
         @include text-styles("label02");
+    }
+
+    &-hash {
+        gap: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: row;
     }
   }
 }
