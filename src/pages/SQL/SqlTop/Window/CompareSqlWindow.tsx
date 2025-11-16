@@ -36,8 +36,9 @@ const CompareSqlWindow: React.FC<Props> = ({ base, compare }) => {
       <div
         style={{
           flex: 1,
+          width: "100%",
+          height: "100%",
           overflowY: "auto",
-          overflowX: "hidden",
           padding: "20px",
         }}
       >

@@ -8,7 +8,7 @@ import TableChart from "@/components/Chart/TableChart";
 import BarGauge from "@/components/Chart/BarGauge";
 import Pagination from "@/components/Pagination/Pagination";
 import Select from "@/components/Select/Select";
-import { getSqlDetail, getSqlGraph, getSqlStats } from "@/api/Sql/stats";
+import { getSqlDetail, getSqlGraph, getSqlStats } from "@/api/Sql/sql";
 import SqlDetailDrawer from "@/pages/SQL/Modal/SqlDetailDrawer";
 import LineChart from "@/components/Chart/LineChart";
 import Spinner from "@/components/Spinner/Spinner";

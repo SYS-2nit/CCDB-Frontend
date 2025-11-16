@@ -166,7 +166,7 @@ export const getSqlCompareStats = async (params: {
 };
 
 /* -----------------------------------------------------
- * 5. 일뱔 SQL 그래프 조회
+ * 5. 일별 SQL 그래프 조회
  * ----------------------------------------------------- */
 export const getDailyGraph = async (params: {
   date: string;

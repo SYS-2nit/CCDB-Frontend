@@ -17,16 +17,19 @@ const SqlDetailPanel: React.FC<Props> = ({ data, date }) => {
         whiteSpace: "normal",
       }}
     >
-      <h2 style={{ margin: "0 0 10px 0", fontSize: "18px" }}>
-        SQL 상세 정보 ({date})
-      </h2>
+      <h2 style={{ fontSize: "18px" }}>SQL 상세 정보 ({date})</h2>
 
       <pre
         style={{
           background: "#f6f6f6",
+          margin: "20px 0px",
           padding: "20px",
           borderRadius: "5px",
           fontSize: "12px",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+          boxSizing: "border-box",
+          width: "100%",
         }}
       >
         {data.sqlText}

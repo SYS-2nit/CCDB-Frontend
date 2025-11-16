@@ -16,11 +16,11 @@ import {
   getSqlCompareStats,
   getPeriodGraph,
   type SqlPeriodGraphItem,
-} from "@/api/Sql/stats";
+} from "@/api/Sql/sql";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 
 // 새 창 전용 비교 컴포넌트
-import CompareSqlWindow from "../Modal/CompareSqlWindow";
+import CompareSqlWindow from "./Window/CompareSqlWindow";
 
 /* ===============================
    Rank Row Type
@@ -438,8 +438,10 @@ const SqlTop: React.FC = () => {
         {/* 기준 */}
         <div className="sql-top__table-block">
           <div className="sql-top__table-block-header">
-            <div className="sql-top__table-block-header-mainCircle" />
-            기준 데이터 ({startDate})
+            <div className="sql-top__table-block-header-left">
+              <div className="sql-top__table-block-header-left-mainCircle" />
+              기준 데이터 ({startDate})
+            </div>
           </div>
 
           <TableChart
@@ -455,7 +457,7 @@ const SqlTop: React.FC = () => {
               <Checkbox
                 checked={selectedBase === row.sqlId}
                 onChange={() => setSelectedBase(row.sqlId)}
-                size="sm"
+                size="md"
               />,
               <span>{row.rankChanged}</span>,
               <BarGauge value={row.ratio} max={100} />,
@@ -474,20 +476,24 @@ const SqlTop: React.FC = () => {
         {/* 비교 */}
         <div className="sql-top__table-block">
           <div className="sql-top__table-block-header">
-            <div className="sql-top__table-block-header-greenCircle" />
-            비교 데이터 ({compareDate})
-            <Button
-              text="비교하기"
-              size="sm"
-              variant="primary"
-              disabled={!selectedBase || !selectedCompare}
-              onClick={fetchCompareDetails}
-            />
+            <div className="sql-top__table-block-header-left">
+              <div className="sql-top__table-block-header-left-greenCircle" />
+              비교 데이터 ({compareDate})
+            </div>
+            <div className="sql-top__table-block-header-right">
+              <Button
+                text="비교하기"
+                size="sm"
+                variant="white"
+                disabled={!selectedBase || !selectedCompare}
+                onClick={fetchCompareDetails}
+              />
+            </div>
           </div>
 
           <TableChart
             columns={[
-              { key: "chk", label: "" },
+              { key: "check", label: "check" },
               { key: "ratio", label: "ratio (%)" },
               { key: "exec", label: metricLabel },
               { key: "hash", label: "hash" },
@@ -497,7 +503,7 @@ const SqlTop: React.FC = () => {
               <Checkbox
                 checked={selectedCompare === row.sqlId}
                 onChange={() => setSelectedCompare(row.sqlId)}
-                size="sm"
+                size="md"
               />,
               <BarGauge value={row.ratio} max={100} />,
               row.exec,
