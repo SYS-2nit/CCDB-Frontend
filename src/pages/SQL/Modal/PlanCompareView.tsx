@@ -1,6 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from "react";
 import "./PlanCompareView.scss";
-import DiffViewer, { DiffMethod } from "react-diff-viewer-continued";
+import { createTwoFilesPatch } from "diff";
+// @ts-ignore
+import * as Diff2Html from "diff2html/lib/ui/js/diff2html-ui";
+import "diff2html/bundles/css/diff2html.min.css";
 
 interface Props {
   beforeHash: number | null;
@@ -15,7 +20,6 @@ const PlanCompareView: React.FC<Props> = ({
   beforePlanText,
   afterPlanText,
 }) => {
-  // null 처리
   const noChange =
     beforePlanText === null ||
     afterPlanText === null ||
@@ -36,6 +40,20 @@ const PlanCompareView: React.FC<Props> = ({
     );
   }
 
+  const diffString = createTwoFilesPatch(
+    `Before (${beforeHash})`,
+    `After (${afterHash})`,
+    beforePlanText ?? "",
+    afterPlanText ?? ""
+  );
+
+  const diffHtml = (Diff2Html as any).html(diffString, {
+    inputFormat: "diff",
+    showFiles: false,
+    outputFormat: "side-by-side",
+    matching: "words",
+  });
+
   return (
     <div className="plan-compare-container">
       <div className="plan-compare-header">
@@ -43,12 +61,9 @@ const PlanCompareView: React.FC<Props> = ({
         <div className="title">After ({afterHash})</div>
       </div>
 
-      <DiffViewer
-        oldValue={beforePlanText ?? ""}
-        newValue={afterPlanText ?? ""}
-        splitView={true}
-        useDarkTheme={false}
-        compareMethod={DiffMethod.WORDS}
+      <div
+        className="diff-wrapper"
+        dangerouslySetInnerHTML={{ __html: diffHtml }}
       />
     </div>
   );
