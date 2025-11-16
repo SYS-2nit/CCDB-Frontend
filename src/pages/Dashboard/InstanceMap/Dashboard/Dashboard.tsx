@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
 import ChartSetting from "@/pages/Dashboard/InstanceMap/Dashboard/Card/ChartSetting";
-import { chartData } from "./data/chartData";
 import StatusCard from "@/components/Card/StatusCard";
 import {
   DragDropContext,
@@ -10,7 +9,6 @@ import {
   Draggable,
   type DropResult,
 } from "@hello-pangea/dnd";
-import { cloneDeep } from "lodash";
 import TabMenu from "@/components/Tabs/TabMenu";
 import {
   useDashboardContext,
@@ -20,7 +18,7 @@ import { fetchDashboardData, fetchAllGraphs, type GraphDefinition, type GraphDat
 import { isAxiosError } from "axios";
 import { useSearchParams } from "react-router-dom";
 
-export type TabType = keyof typeof chartData;
+export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 
 interface DashboardProps {
   initialTab?: TabType;
@@ -59,12 +57,13 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [searchParams] = useSearchParams();
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
-  const [charts, setCharts] = useState<string[]>(() =>
-    cloneDeep(chartData[initialTab])
-  );
+  // 서버에서 받은 그래프 데이터를 그대로 사용 (이름 배열이 아닌 GraphDataResponse 배열)
+  const [charts, setCharts] = useState<GraphDataResponse[]>([]);
 
   const [settingTargetIndex, setSettingTargetIndex] = useState<number | null>(null);
   const [categoryGraphs, setCategoryGraphs] = useState<Map<TabType, GraphDataResponse[]>>(new Map());
+  const lastLoadedTabRef = useRef<TabType | null>(null);
+  // 서버에서 받은 그래프 데이터를 그대로 사용 (하드코딩된 chartData 제거)
   const {
     selectedInstanceId: contextInstanceId,
     selectInstance,
@@ -115,8 +114,6 @@ const Dashboard: React.FC<DashboardProps> = ({
       session: "SESSION",
       io: "IO",
       storage: "STORAGE",
-      performance: "CUSTOM", // PERFORMANCE는 백엔드에 없으므로 CUSTOM으로 매핑
-      prevention: "CUSTOM", // PREVENTION은 백엔드에 없으므로 CUSTOM으로 매핑
     };
     return categoryMap[tab] ?? "CUSTOM";
   };
@@ -146,17 +143,17 @@ const Dashboard: React.FC<DashboardProps> = ({
     setActiveTab(initialTab);
   }, [initialTab]);
 
+  // 서버에서 받은 그래프 데이터를 그대로 사용
   useEffect(() => {
     if (activeTab === "main") {
-      if (graphList.length > 0) {
-        setCharts(graphList.map((graph) => graph.name));
-      } else {
-        setCharts(cloneDeep(chartData.main));
-      }
+      // main 탭은 graphList를 그대로 사용
+      setCharts(graphList);
     } else {
-      setCharts(cloneDeep(chartData[activeTab]));
+      // 다른 탭은 categoryGraphs에서 그래프 데이터를 그대로 사용
+      const currentGraphs = categoryGraphs.get(activeTab) ?? [];
+      setCharts(currentGraphs);
     }
-  }, [activeTab, graphList]);
+  }, [activeTab, graphList, categoryGraphs]);
 
   // 초기 로드 및 모드/인스턴스/탭 변경 시 데이터 로드
   useEffect(() => {
@@ -165,13 +162,29 @@ const Dashboard: React.FC<DashboardProps> = ({
       setCategoryGraphs(new Map());
       setIsFetching(false);
       setError(null);
+      lastLoadedTabRef.current = null;
       return;
+    }
+
+    // 같은 탭이고 모드와 인스턴스가 같으면 다시 로드하지 않음 (LIVE 모드 자동 새로고침 제외)
+    const isSameTab = lastLoadedTabRef.current === activeTab;
+    if (isSameTab && mode !== "LIVE") {
+      return;
+    }
+
+    // 캐시된 데이터 확인
+    const hasCachedData = activeTab === "main" 
+      ? graphList.length > 0 
+      : (categoryGraphs.get(activeTab)?.length ?? 0) > 0;
+    
+    // 캐시된 데이터가 없으면 즉시 로딩 상태 표시 (렌더링 전에 설정)
+    if (!hasCachedData) {
+      setIsFetching(true);
     }
 
     let cancelled = false;
 
     const loadDashboard = async () => {
-      setIsFetching(true);
       setError(null);
       try {
         const category = getCategoryByTab(activeTab);
@@ -184,6 +197,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         
         if (activeTab === "main") {
           setGraphs(response?.graphs ?? []);
+          lastLoadedTabRef.current = activeTab;
         } else {
           setCategoryGraphs((prev) => {
             const next = new Map(prev);
@@ -195,6 +209,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         if (cancelled) return;
         if (activeTab === "main") {
           setGraphs([]);
+          lastLoadedTabRef.current = activeTab;
         } else {
           setCategoryGraphs((prev) => {
             const next = new Map(prev);
@@ -217,16 +232,116 @@ const Dashboard: React.FC<DashboardProps> = ({
     };
   }, [selectedInstanceId, mode, activeTab, setGraphs, clearGraphs, setIsFetching, setError]);
 
-  // LIVE 모드일 때만 refreshToken 변경에 반응하여 데이터 자동 새로고침
+  // categoryGraphs가 업데이트된 후 lastLoadedTabRef 설정
+  useEffect(() => {
+    if (activeTab !== "main" && selectedInstanceId) {
+      const currentGraphs = categoryGraphs.get(activeTab);
+      // 데이터가 로드되었는지 확인 (빈 배열이어도 로드된 것으로 간주)
+      if (currentGraphs !== undefined) {
+        lastLoadedTabRef.current = activeTab;
+      }
+    }
+  }, [categoryGraphs, activeTab, selectedInstanceId]);
+
+  // LIVE 모드일 때만 1분마다 지정된 시간(02초)에 데이터 자동 새로고침
   useEffect(() => {
     // LIVE 모드가 아니면 자동 새로고침하지 않음
     if (mode !== "LIVE" || !selectedInstanceId) {
       return;
     }
 
-    // LIVE 모드일 때 02초마다 자동 새로고침
     let timeoutId: ReturnType<typeof setTimeout>;
     let intervalId: ReturnType<typeof setInterval>;
+    let cancelled = false;
+
+    // 기존 데이터에 새 데이터 포인트를 추가하는 함수
+    const mergeGraphData = (
+      existingGraphs: GraphDataResponse[],
+      newGraphs: GraphDataResponse[],
+    ): GraphDataResponse[] => {
+      const existingMap = new Map(existingGraphs.map((g) => [g.id, g]));
+      
+      return newGraphs.map((newGraph) => {
+        const existing = existingMap.get(newGraph.id);
+        if (!existing || !existing.data || existing.data.length === 0) {
+          return newGraph;
+        }
+
+        // 기존 데이터의 마지막 타임스탬프 확인
+        const existingTimestamps = new Set(
+          existing.data.map((d) => d.timestamp).filter(Boolean),
+        );
+
+        // 새로운 데이터 포인트만 필터링 (중복 제거)
+        const newDataPoints = (newGraph.data ?? []).filter(
+          (point) => !existingTimestamps.has(point.timestamp),
+        );
+
+        if (newDataPoints.length === 0) {
+          return existing; // 새 데이터가 없으면 기존 데이터 유지
+        }
+
+        // 기존 데이터에 새 포인트 추가 (타임스탬프 순서 유지)
+        const mergedData = [...existing.data, ...newDataPoints].sort((a, b) => {
+          const timeA = new Date(a.timestamp ?? 0).getTime();
+          const timeB = new Date(b.timestamp ?? 0).getTime();
+          return timeA - timeB;
+        });
+
+        // 최대 100개 데이터 포인트만 유지 (메모리 관리)
+        const maxPoints = 100;
+        const trimmedData =
+          mergedData.length > maxPoints
+            ? mergedData.slice(-maxPoints)
+            : mergedData;
+
+        return {
+          ...newGraph,
+          data: trimmedData,
+        };
+      });
+    };
+
+    const loadDashboard = async () => {
+      if (cancelled) return;
+      
+      // 로딩 상태를 표시하지 않음 (백그라운드 업데이트)
+      setError(null);
+      try {
+        const category = getCategoryByTab(activeTab);
+        const response = await fetchDashboardData({
+          instanceId: selectedInstanceId,
+          timeUnit: resolveTimeUnit(mode),
+          category,
+        });
+        if (cancelled) return;
+        
+        if (activeTab === "main") {
+          setGraphs((prev) => {
+            if (prev.length === 0) {
+              return response?.graphs ?? [];
+            }
+            return mergeGraphData(prev, response?.graphs ?? []);
+          });
+        } else {
+          setCategoryGraphs((prev) => {
+            const next = new Map(prev);
+            const existing = next.get(activeTab) ?? [];
+            const newGraphs = response?.graphs ?? [];
+            
+            if (existing.length === 0) {
+              next.set(activeTab, newGraphs);
+            } else {
+              next.set(activeTab, mergeGraphData(existing, newGraphs));
+            }
+            return next;
+          });
+        }
+      } catch (error) {
+        if (cancelled) return;
+        setError(getErrorMessage(error));
+      }
+    };
 
     const scheduleNextUpdate = () => {
       const now = new Date();
@@ -244,66 +359,24 @@ const Dashboard: React.FC<DashboardProps> = ({
       }
 
       timeoutId = setTimeout(() => {
-        triggerRefresh();
+        if (cancelled) return;
+        void loadDashboard();
         // 이후 1분마다 02초에 호출
         intervalId = setInterval(() => {
-          triggerRefresh();
+          if (cancelled) return;
+          void loadDashboard();
         }, 60000);
       }, msUntilNextUpdate);
     };
 
     scheduleNextUpdate();
 
-    let cancelled = false;
-
-    const loadDashboard = async () => {
-      setIsFetching(true);
-      setError(null);
-      try {
-        const category = getCategoryByTab(activeTab);
-        const response = await fetchDashboardData({
-          instanceId: selectedInstanceId,
-          timeUnit: resolveTimeUnit(mode),
-          category,
-        });
-        if (cancelled) return;
-        
-        if (activeTab === "main") {
-          setGraphs(response?.graphs ?? []);
-        } else {
-          setCategoryGraphs((prev) => {
-            const next = new Map(prev);
-            next.set(activeTab, response?.graphs ?? []);
-            return next;
-          });
-        }
-      } catch (error) {
-        if (cancelled) return;
-        if (activeTab === "main") {
-          setGraphs([]);
-        } else {
-          setCategoryGraphs((prev) => {
-            const next = new Map(prev);
-            next.set(activeTab, []);
-            return next;
-          });
-        }
-        setError(getErrorMessage(error));
-      } finally {
-        if (!cancelled) {
-          setIsFetching(false);
-        }
-      }
-    };
-
-    void loadDashboard();
-
     return () => {
       cancelled = true;
       if (timeoutId) clearTimeout(timeoutId);
       if (intervalId) clearInterval(intervalId);
     };
-  }, [refreshToken, mode, selectedInstanceId, activeTab, setGraphs, setIsFetching, setError, triggerRefresh]);
+  }, [mode, selectedInstanceId, activeTab, setGraphs, setError]);
 
   useEffect(() => {
     if (activeTab === "main" && graphList.length > 0) {
@@ -322,20 +395,22 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   const handleDragEnd = ({ source, destination }: DropResult) => {
     if (!destination || destination.index === source.index) return;
-    let nextOrder: string[] | null = null;
+    if (activeTab !== "main") return;
+    
     setCharts((prev) => {
       const reordered = [...prev];
       const [moved] = reordered.splice(source.index, 1);
       reordered.splice(destination.index, 0, moved);
-      nextOrder = reordered;
-      return reordered;
-    });
-    if (activeTab === "main" && nextOrder) {
-      reorderGraphsByNames(nextOrder);
+      
+      // GraphDataResponse 배열에서 이름 배열로 변환
+      const names = reordered.map((graph) => graph.name);
+      reorderGraphsByNames(names);
       void saveWidgetOrder().finally(() => {
         triggerRefresh();
       });
-    }
+      
+      return reordered;
+    });
   };
 
   const handleGraphSwap = async (graph: GraphDefinition) => {
@@ -382,10 +457,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {...provided.droppableProps}
               >
                 {activeTab === "main" &&
-                  charts.map((title, index) => (
+                  charts.map((graph, index) => (
                     <Draggable
-                      key={title}
-                      draggableId={`${title}-${index}`}
+                      key={graph.id}
+                      draggableId={`${graph.id}-${index}`}
                       index={index}
                       isDragDisabled={false}
                     >
@@ -396,249 +471,19 @@ const Dashboard: React.FC<DashboardProps> = ({
                           {...provided.dragHandleProps}
                         >
                           <ChartCard
-                            title={title}
+                            title={graph.name}
                             status="normal"
                             onSettingClick={() => handleOpenSetting(index)}
                             showDragIcon
                             showSettingIcon
+                            graphData={graph}
                           />
                         </div>
                       )}
                     </Draggable>
                   ))}
 
-                {activeTab !== "main" && (() => {
-                  const currentGraphs = categoryGraphs.get(activeTab) ?? [];
-                  
-                  // 카테고리별 그래프 ID 기반 매핑
-                  // 로딩 중이고 데이터가 없으면 undefined 반환 (ChartCard에서 로딩 상태 표시)
-                  const getGraphForTitle = (title: string): GraphDataResponse | null | undefined => {
-                    // 로딩 중이고 데이터가 없으면 undefined 반환하여 로딩 상태 표시
-                    if (isFetching && currentGraphs.length === 0) {
-                      return undefined;
-                    }
-                    // CPU 카테고리 그래프 ID 매핑
-                    if (activeTab === "cpu") {
-                      const cpuGraphIdMap: Record<string, number> = {
-                        "CPU 활동 현황 타일": 13,
-                        "Foreground vs Background CPU 추이 (AAS)": 19,
-                        "Host CPU Utilization (%)": 15,
-                        "DB CPU Saturation - AAS vs Core (Load)": 14,
-                        "DB CPU Share of Host (%)": 16,
-                        "CPU Cost per Commit/Execution (ms)": 18,
-                        "Run Queue per Core - Scheduler Load (%)": 17,
-                        "Top SQL by CPU (Last 10 min)": 20,
-                      };
-                      
-                      const graphId = cpuGraphIdMap[title];
-                      if (graphId) {
-                        const found = currentGraphs.find(g => g.id === graphId);
-                        if (found) return found;
-                      }
-                      
-                      // 이름 기반 매칭 (백엔드 이름과 일부 차이 반영)
-                      const nameVariations: Record<string, string[]> = {
-                        "CPU 활동 현황 타일": ["CPU Activity Overview Tiles"],
-                        "Foreground vs Background CPU 추이 (AAS)": ["Foreground vs Background CPU — AAS Trend"],
-                        "Host CPU Utilization (%)": ["Host CPU Utilization (%)", "Host CPU Utilization (%) – Trend"],
-                        "DB CPU Saturation - AAS vs Core (Load)": ["DB CPU Saturation (AAS vs Core)"],
-                        "DB CPU Share of Host (%)": ["DB CPU Share of Host (%)", "DB CPU Share of Host (%) – Trend"],
-                        "CPU Cost per Commit/Execution (ms)": ["CPU Cost per Commit/Execution (ms)"],
-                        "Run Queue per Core - Scheduler Load (%)": ["Run Queue per Core (Scheduler Load)", "Run Queue per Core (Scheduler Load) – Trend"],
-                        "Top SQL by CPU (Last 10 min)": ["Top SQL by CPU_1m"],
-                      };
-                      
-                      const variations = nameVariations[title];
-                      if (variations) {
-                        for (const variation of variations) {
-                          const found = currentGraphs.find(g => g.name === variation);
-                          if (found) return found;
-                        }
-                      }
-                    }
-                    
-                    // Memory 카테고리 그래프 ID 매핑
-                    if (activeTab === "memory") {
-                      const memoryGraphIdMap: Record<string, number> = {
-                        "SGA Efficiency & Memory Pools": 22,
-                        "PGA Execution Memory & Processes": 21,
-                        "SGA Utilization (%)": 24,
-                        "PGA Utilization (%)": 23,
-                        "Workarea Spill Rate (%)": 25,
-                        "Library Cache Reloads per Second": 26,
-                        "Buffer Cache Miss Rate (%) - Proxy": 27,
-                        "Top SQL by Shared Pool Memory": 28,
-                      };
-                      
-                      const graphId = memoryGraphIdMap[title];
-                      if (graphId) {
-                        const found = currentGraphs.find(g => g.id === graphId);
-                        if (found) return found;
-                      }
-                      
-                      // 이름 기반 매칭 (백엔드 이름과 일부 차이 반영)
-                      const nameVariations: Record<string, string[]> = {
-                        "SGA Efficiency & Memory Pools": ["SGA Efficiency & Memory Pools"],
-                        "PGA Execution Memory & Processes": ["PGA Execution Memory & Processes"],
-                        "SGA Utilization (%)": ["SGA Utilization (%)", "SGA Utilization (%) — Trend"],
-                        "PGA Utilization (%)": ["PGA Utilization (%)", "PGA Utilization (%) – Trend"],
-                        "Workarea Spill Rate (%)": ["Workarea Spill Rate (%)", "Workarea Spill Rate (%) – Trend"],
-                        "Library Cache Reloads per Second": ["Library Cache Reloads per Second", "Library Cache Reloads per Second – Trend"],
-                        "Buffer Cache Miss Rate (%) - Proxy": ["Buffer Cache Miss Rate (%) - Proxy", "Buffer Cache Miss Rate (%) – Proxy – Trend"],
-                        "Top SQL by Shared Pool Memory": ["Top SQL by Shared Pool Memory", "Top SQL by Shared Pool Memory — Bar"],
-                      };
-                      
-                      const variations = nameVariations[title];
-                      if (variations) {
-                        for (const variation of variations) {
-                          const found = currentGraphs.find(g => g.name === variation);
-                          if (found) return found;
-                        }
-                      }
-                    }
-                    
-                    // Session 카테고리 그래프 ID 매핑 (29-36)
-                    if (activeTab === "session") {
-                      const sessionGraphIdMap: Record<string, number> = {
-                        "Session Activity & Resource Summary": 35,
-                        "Active vs Inactive Sessions": 29,
-                        "Lock Wait Sessions — TX vs TM vs Total": 31,
-                        "TPS": 32,
-                        "On-CPU vs Wait (AAS 분해)": 30,
-                        "Exec/s": 33,
-                        "Logons/sec & Disconnects/sec": 34,
-                        "Top Blocker Sessions — Snapshot Top 5": 36,
-                      };
-                      
-                      const graphId = sessionGraphIdMap[title];
-                      if (graphId) {
-                        const found = currentGraphs.find(g => g.id === graphId);
-                        if (found) return found;
-                      }
-                      
-                      // 이름 기반 매칭 (백엔드 이름과 일부 차이 반영)
-                      const nameVariations: Record<string, string[]> = {
-                        "Session Activity & Resource Summary": ["Session Activity & Resource Summary"],
-                        "Active vs Inactive Sessions": ["Active vs Inactive Sessions", "Active vs Inactive Sessions — Trend"],
-                        "Lock Wait Sessions — TX vs TM vs Total": ["Lock Wait Sessions — TX vs TM vs Total"],
-                        "TPS": ["TPS", "TPS — Trend"],
-                        "On-CPU vs Wait (AAS 분해)": ["On-CPU vs Wait (AAS 분해)", "On-CPU vs Wait (AAS 분해) — Trend"],
-                        "Exec/s": ["Exec/s", "Exec/s — Trend"],
-                        "Logons/sec & Disconnects/sec": ["Logons/sec & Disconnects/sec", "Logons/sec & Disconnects/sec — Trend"],
-                        "Top Blocker Sessions — Snapshot Top 5": ["Top Blocker Sessions — Snapshot Top 5"],
-                      };
-                      
-                      const variations = nameVariations[title];
-                      if (variations) {
-                        for (const variation of variations) {
-                          const found = currentGraphs.find(g => g.name === variation || g.name.includes(variation.split(" —")[0]));
-                          if (found) return found;
-                        }
-                      }
-                    }
-                    
-                    // I/O 카테고리 그래프 매핑 (이름 기반 우선, ID는 폴백)
-                    if (activeTab === "io") {
-                      // 이름 기반 매칭 (백엔드 이름과 일부 차이 반영) - 우선 실행
-                      const nameVariations: Record<string, string[]> = {
-                        "I/O Performance Dashboard": ["I/O Performance Dashboard"],
-                        "Physical Reads vs Logical Reads": ["Physical Reads vs Logical Reads", "Physical Reads vs Logical Reads (개/초)"],
-                        "Average I/O Wait Time (ms)": ["Average I/O Wait Time (ms)"],
-                        "데이터파일별 I/O 통계 (Top 5)": ["데이터파일별 I/O 통계 (Top 5)"],
-                        "Direct Path I/O": ["Direct Path I/O", "Direct Path I/O (개/초)"],
-                        "Redo Generation Rate": ["Redo Generation Rate", "Redo Generation Rate (MB/초)"],
-                        "DBWR Checkpoint Activity": ["DBWR Checkpoint Activity"],
-                        "SQL Parsing & Execution": ["SQL Parsing & Execution", "SQL Parsing & Execution (개/초)"],
-                      };
-                      
-                      const variations = nameVariations[title];
-                      if (variations) {
-                        for (const variation of variations) {
-                          const found = currentGraphs.find(g => g.name === variation);
-                          if (found) return found;
-                        }
-                        // 부분 매칭 시도 (예: "Physical Reads" 포함)
-                        for (const variation of variations) {
-                          const keyPart = variation.split(" (")[0]; // 괄호 전 부분만
-                          const found = currentGraphs.find(g => g.name.includes(keyPart) || keyPart.includes(g.name.split(" (")[0]));
-                          if (found) return found;
-                        }
-                      }
-                      
-                      // 이름 매칭 실패 시 ID 기반 매핑 (SQL 파일 기준: 41-48, 이미지 기준: 37-44)
-                      const ioGraphIdMap: Record<string, number> = {
-                        "I/O Performance Dashboard": 41,
-                        "Physical Reads vs Logical Reads": 44,
-                        "Average I/O Wait Time (ms)": 45,
-                        "데이터파일별 I/O 통계 (Top 5)": 48,
-                        "Direct Path I/O": 42,
-                        "Redo Generation Rate": 46,
-                        "DBWR Checkpoint Activity": 47,
-                        "SQL Parsing & Execution": 43,
-                      };
-                      
-                      const graphId = ioGraphIdMap[title];
-                      if (graphId) {
-                        const found = currentGraphs.find(g => g.id === graphId);
-                        if (found) return found;
-                      }
-                    }
-                    
-                    // Storage 카테고리 그래프 매핑 (이름 기반 우선, ID는 폴백)
-                    if (activeTab === "storage") {
-                      // 이름 기반 매칭 (백엔드 이름과 일부 차이 반영) - 우선 실행
-                      const nameVariations: Record<string, string[]> = {
-                        "Storage Health Dashboard": ["Storage Health Dashboard"],
-                        "FRA 사용률 추세 (%)": ["FRA 사용률 추세 (%)"],
-                        "Undo 사용률 추세 (%)": ["Undo 사용률 추세 (%)"],
-                        "Total Database Usage Trend (%)": ["Total Database Usage Trend (%)"],
-                        "테이블스페이스 사용률 추세 (%)": ["테이블스페이스 사용률 추세 (%)"],
-                        "테이블스페이스 증가 추세 (GB)": ["테이블스페이스 증가 추세 (GB)", "테이블스페이스 증가 추세 (GB/일)"],
-                        "Temp Tablespace Active Usage (GB)": ["Temp Tablespace Active Usage (GB)"],
-                        "대용량 세그먼트 Top 5": ["대용량 세그먼트 Top 5", "대용량 세그먼트 (Top 5)"],
-                      };
-                      
-                      const variations = nameVariations[title];
-                      if (variations) {
-                        for (const variation of variations) {
-                          const found = currentGraphs.find(g => g.name === variation);
-                          if (found) return found;
-                        }
-                        // 부분 매칭 시도 (예: "테이블스페이스" 포함)
-                        for (const variation of variations) {
-                          const keyPart = variation.split(" (")[0].split(" (%)")[0]; // 괄호 및 % 제거
-                          const found = currentGraphs.find(g => {
-                            const graphPart = g.name.split(" (")[0].split(" (%)")[0];
-                            return g.name.includes(keyPart) || keyPart.includes(graphPart);
-                          });
-                          if (found) return found;
-                        }
-                      }
-                      
-                      // 이름 매칭 실패 시 ID 기반 매핑 (SQL 파일 기준: 49-56, 이미지 기준: 45-52)
-                      const storageGraphIdMap: Record<string, number> = {
-                        "Storage Health Dashboard": 49,
-                        "FRA 사용률 추세 (%)": 53,
-                        "Undo 사용률 추세 (%)": 54,
-                        "Total Database Usage Trend (%)": 55,
-                        "테이블스페이스 사용률 추세 (%)": 51,
-                        "테이블스페이스 증가 추세 (GB)": 52,
-                        "Temp Tablespace Active Usage (GB)": 50,
-                        "대용량 세그먼트 Top 5": 56,
-                      };
-                      
-                      const graphId = storageGraphIdMap[title];
-                      if (graphId) {
-                        const found = currentGraphs.find(g => g.id === graphId);
-                        if (found) return found;
-                      }
-                    }
-                    
-                    // 매핑되지 않은 경우 이름 기반 매핑 시도
-                    return currentGraphs.find(g => g.name === title) ?? null;
-                  };
-                  
-                  return (
+                {activeTab !== "main" && (
                     <>
                       <div className="dashboard__row row-1">
                         <div className="dashboard__status-wrap">
@@ -649,60 +494,59 @@ const Dashboard: React.FC<DashboardProps> = ({
                         </div>
                         {charts[0] && (
                           <ChartCard
-                            title={charts[0]}
+                          title={charts[0].name}
                             status="normal"
                             onSettingClick={handleOpenSetting.bind(null, 0)}
                             showDragIcon={false}
                             showSettingIcon={false}
-                            graphData={getGraphForTitle(charts[0])}
+                          graphData={charts[0]}
                           />
                         )}
                       </div>
 
                       <div className="dashboard__row row-2">
-                        {charts.slice(1, 3).map((title, index) => (
+                      {charts.slice(1, 3).map((graph, index) => (
                           <ChartCard
-                            key={title}
-                            title={title}
+                          key={graph.id}
+                          title={graph.name}
                             status="normal"
                             onSettingClick={handleOpenSetting.bind(null, index + 1)}
                             showDragIcon={false}
                             showSettingIcon={false}
-                            graphData={getGraphForTitle(title)}
+                          graphData={graph}
                           />
                         ))}
                       </div>
 
                       <div className="dashboard__row row-3">
-                        {charts.slice(3, 5).map((title, index) => (
+                      {charts.slice(3, 5).map((graph, index) => (
                           <ChartCard
-                            key={title}
-                            title={title}
+                          key={graph.id}
+                          title={graph.name}
                             status="normal"
                             onSettingClick={handleOpenSetting.bind(null, index + 3)}
                             showDragIcon={false}
                             showSettingIcon={false}
-                            graphData={getGraphForTitle(title)}
+                          graphData={graph}
                           />
                         ))}
                       </div>
 
                       <div className="dashboard__row row-4">
-                        {charts.slice(5, 8).map((title, index) => (
+                      {charts.slice(5, 8).map((graph, index) => (
                           <ChartCard
-                            key={title}
-                            title={title}
+                          key={graph.id}
+                          title={graph.name}
                             status="normal"
                             onSettingClick={handleOpenSetting.bind(null, index + 5)}
                             showDragIcon={false}
                             showSettingIcon={false}
-                            graphData={getGraphForTitle(title)}
+                          graphData={graph}
                           />
                         ))}
                       </div>
                     </>
-                  );
-                })()}
+                )}
 
                 {provided.placeholder}
               </div>

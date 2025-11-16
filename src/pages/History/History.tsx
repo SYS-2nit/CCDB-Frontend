@@ -182,44 +182,6 @@ const History: React.FC = () => {
         alert("종료일은 시작일보다 이후여야 합니다.");
         return;
       }
-
-      // 같은 날 검증
-      const sameDay =
-        startDate.getFullYear() === endDate.getFullYear() &&
-        startDate.getMonth() === endDate.getMonth() &&
-        startDate.getDate() === endDate.getDate();
-
-      if (["1분", "10분", "1시간"].includes(duration) && !sameDay) {
-        alert("1분, 10분, 1시간 단위는 같은 날 내에서만 선택 가능합니다.");
-        return;
-      }
-
-      // 10분 단위 정렬 검증
-      if (duration === "10분") {
-        const startMin = startDate.getMinutes();
-        const endMin = endDate.getMinutes();
-
-        // 예: 시작이 01:02면 종료는 01:12, 01:22 등 '분의 일의 자리'가 같아야 함
-        if (startMin % 10 !== endMin % 10) {
-          alert(
-            "10분 단위는 시작 시간의 일 단위와 동일해야 합니다. \n(예: 1:00 -> 1:10)"
-          );
-          return;
-        }
-      }
-
-      // 1시간 단위 정렬 검증
-      if (duration === "1시간") {
-        const startMin = startDate.getMinutes();
-        const endMin = endDate.getMinutes();
-
-        if (startMin !== endMin) {
-          alert(
-            "1시간 단위는 시작 시각의 분 단위와 동일해야 합니다. \n(예: 01:00 → 02:00)"
-          );
-          return;
-        }
-      }
     }
 
     updateFilter(type, type === "start" ? "시작일" : "종료일", value);

@@ -37,9 +37,14 @@ const LineChart: React.FC<LineChartProps> = ({
     "#6366F1",
   ];
 
+  // 데이터 검증: NaN, Infinity, -Infinity를 필터링
+  const sanitizeData = (data: number[]): number[] => {
+    return data.map((v) => (Number.isFinite(v) ? v : 0));
+  };
+
   const series = legends.map((name, i) => ({
     name,
-    data: seriesData[i] || [],
+    data: sanitizeData(seriesData[i] || []),
   }));
 
   const options: ApexOptions = {
@@ -48,6 +53,18 @@ const LineChart: React.FC<LineChartProps> = ({
       toolbar: { show: false },
       background: "transparent",
       animations: { enabled: true },
+      zoom: {
+        enabled: true,
+        type: "x",
+        autoSelected: "selection",
+      },
+      selection: {
+        enabled: true,
+        xaxis: {
+          min: undefined,
+          max: undefined,
+        },
+      },
     },
     stroke: {
       curve: "smooth",
@@ -99,8 +116,8 @@ const LineChart: React.FC<LineChartProps> = ({
       axisTicks: {
         show: false,
       },
-      min: yMin !== undefined ? yMin : 0,
-      max: yMax !== undefined ? yMax : undefined,
+      min: yMin !== undefined && Number.isFinite(yMin) ? yMin : 0,
+      max: yMax !== undefined && Number.isFinite(yMax) ? yMax : undefined,
     },
     dataLabels: { enabled: false },
     legend: {

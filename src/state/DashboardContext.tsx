@@ -36,7 +36,7 @@ interface DashboardContextValue {
   setMode: (mode: DashboardMode, minutes: number | null) => void;
   graphList: GraphDataResponse[];
   graphsByName: Record<string, GraphDataResponse>;
-  setGraphs: (graphs: GraphDataResponse[]) => void;
+  setGraphs: (graphs: GraphDataResponse[] | ((prev: GraphDataResponse[]) => GraphDataResponse[])) => void;
   reorderGraphsByNames: (names: string[]) => void;
   replaceGraphAt: (index: number, graph: GraphDataResponse) => void;
   clearGraphs: () => void;
@@ -147,29 +147,31 @@ export const DashboardProvider: React.FC<React.PropsWithChildren> = ({ children 
     setRangeMinutes(minutes);
   }, []);
 
-  const setGraphs = useCallback((graphs: GraphDataResponse[]) => {
+  const setGraphs = useCallback((graphs: GraphDataResponse[] | ((prev: GraphDataResponse[]) => GraphDataResponse[])) => {
     setGraphList((prev) => {
-      if (!graphs || graphs.length === 0) {
+      const nextGraphs = typeof graphs === 'function' ? graphs(prev) : graphs;
+      
+      if (!nextGraphs || nextGraphs.length === 0) {
         return [];
       }
 
       if (prev.length === 0) {
-        return graphs;
+        return nextGraphs;
       }
 
-      const map = new Map(graphs.map((graph) => [graph.id, graph] as const));
+      const map = new Map(nextGraphs.map((graph) => [graph.id, graph] as const));
       const ordered = prev
         .map((graph) => map.get(graph.id))
         .filter((graph): graph is GraphDataResponse => Boolean(graph));
 
-      const remaining = graphs.filter((graph) => !ordered.some((item) => item.id === graph.id));
+      const remaining = nextGraphs.filter((graph) => !ordered.some((item) => item.id === graph.id));
       const nextList = [...ordered, ...remaining];
 
-      if (nextList.length === graphs.length) {
+      if (nextList.length === nextGraphs.length) {
         return nextList;
       }
 
-      return graphs;
+      return nextGraphs;
     });
   }, []);
 

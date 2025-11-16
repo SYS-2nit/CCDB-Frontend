@@ -190,11 +190,12 @@ const formatTimeByMode = (timestamp: string, mode: DashboardMode = "LIVE") => {
   if (Number.isNaN(date.getTime())) return timestamp;
   
   switch (mode) {
-    case "LIVE":
+    case "LIVE": {
       // 24시간 형식으로 포맷팅 (HH:mm)
       const hours = String(date.getHours()).padStart(2, "0");
       const minutes = String(date.getMinutes()).padStart(2, "0");
       return `${hours}:${minutes}`;
+    }
     case "10분":
     case "1시간":
       return date.toLocaleTimeString("ko-KR", {
@@ -208,11 +209,12 @@ const formatTimeByMode = (timestamp: string, mode: DashboardMode = "LIVE") => {
         hour: "2-digit",
         minute: "2-digit",
       });
-    default:
+    default: {
       // 24시간 형식으로 포맷팅 (HH:mm)
       const defaultHours = String(date.getHours()).padStart(2, "0");
       const defaultMinutes = String(date.getMinutes()).padStart(2, "0");
       return `${defaultHours}:${defaultMinutes}`;
+    }
   }
 };
 
