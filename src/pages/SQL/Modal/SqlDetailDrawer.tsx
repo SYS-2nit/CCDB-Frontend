@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./SqlDetailDrawer.scss";
-
 import LineChart from "@/components/Chart/LineChart";
 import BarChart from "@/components/Chart/BarChart";
 import TableChart from "@/components/Chart/TableChart";
 import StackChart from "@/components/Chart/StackChart";
 import TabMenu from "@/components/Tabs/TabMenu";
-
+import Pagination from "@/components/Pagination/Pagination";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
+import { getPlanHistoryDetail, getPlanHistoryList } from "@/api/Sql/sql";
 
 interface SqlDetailDrawerProps {
   data: SqlDetailData;
@@ -22,24 +21,78 @@ const tabs = [
   { id: "2", label: "Plan Change History" },
 ] as const;
 
+/* 날짜 포맷 */
+const formatToMonthDayTime = (raw: string) => {
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return raw;
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const HH = String(d.getHours()).padStart(2, "0");
+  const MM = String(d.getMinutes()).padStart(2, "0");
+  return `${mm}-${dd} ${HH}:${MM}`;
+};
+
 const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const [activeTab, setActiveTab] = useState("1");
 
-  /** ★ Plan Change History 클릭된 row 저장 */
-  const [selectedPlanRow, setSelectedPlanRow] = useState<any | null>(null);
+  /* Plan Change */
+  const [planList, setPlanList] = useState<any[]>([]);
+  const [loadingPlan, setLoadingPlan] = useState(false);
 
-  /* 날짜 포맷 */
-  const formatToMonthDayTime = (raw: string) => {
-    const d = new Date(raw);
-    if (isNaN(d.getTime())) return raw;
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const HH = String(d.getHours()).padStart(2, "0");
-    const MM = String(d.getMinutes()).padStart(2, "0");
-    return `${mm}-${dd} ${HH}:${MM}`;
+  /* Pagination */
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 15;
+
+  /* 선택된 행 */
+  const [selectedPlanRow, setSelectedPlanRow] = useState<any | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
+  /* -------------------------- Plan List Load -------------------------- */
+  useEffect(() => {
+    if (activeTab !== "2") return;
+
+    const loadPlan = async () => {
+      setLoadingPlan(true);
+      try {
+        const list = await getPlanHistoryList(data.sqlId);
+        setPlanList(list);
+      } finally {
+        setLoadingPlan(false);
+      }
+    };
+
+    loadPlan();
+  }, [activeTab, data.sqlId]);
+
+  /* -------------------------- Pagination 처리 -------------------------- */
+  const totalPages = Math.max(1, Math.ceil(planList.length / rowsPerPage));
+  const pagedData = planList.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
+  /* -------------------- 클릭 시 detail API 호출 -------------------- */
+  const handlePlanRowClick = async (row: any) => {
+    if (!row.beforePlanHash || !row.afterPlanHash) return;
+
+    setLoadingDetail(true);
+    try {
+      const detail = await getPlanHistoryDetail(
+        row.beforePlanHash,
+        row.afterPlanHash
+      );
+
+      setSelectedPlanRow({
+        ...row,
+        beforePlanText: detail.beforePlanText,
+        afterPlanText: detail.afterPlanText,
+      });
+    } finally {
+      setLoadingDetail(false);
+    }
   };
 
-  /* ◆ Trend 탭에서 사용되는 데이터들 */
+  /* -------------------- Trend 탭 계산 -------------------- */
   const cpuRaw = data.totalCpu;
   const userIoRaw = data.waitUserIoUsDelta;
   const concRaw = data.waitConcurrencyUsDelta;
@@ -49,7 +102,6 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const gaugeTotal =
     cpuRaw + userIoRaw + concRaw + appRaw + clusterRaw + otherRaw;
 
-  const cpuMs = (data.totalCpu / 1000).toFixed(2);
   const cpuSec = (data.totalCpu / 1_000_000).toFixed(1);
   const elapsedSec = (data.totalElapsed / 1_000_000).toFixed(1);
   const execSec = (data.totalExec / 1_000_000).toFixed(1);
@@ -84,8 +136,14 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
     formatToMonthDayTime(t.label)
   );
 
-  /* ◆ Plan Change History용 mock/key 데이터 (API 연동 시 교체) */
-  const planList = data.planHistoryList || []; // 예: [{time, query_text, before_plan, after_plan}]
+  /* --------------------------- Table rows --------------------------- */
+  const tableRows = pagedData.map((row) => [
+    formatToMonthDayTime(row.time),
+    row.queryText,
+    row.sqlId,
+    row.beforePlanHash,
+    row.afterPlanHash,
+  ]);
 
   return (
     <>
@@ -99,7 +157,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
         </div>
 
         <div className="sql-drawer__body">
-          {/* ---------- LEFT: Query Box ---------- */}
+          {/* LEFT QUERY */}
           <div className="sql-drawer__query-section">
             <h4 className="sql-drawer__query-title">
               Query (id: {data.sqlId})
@@ -107,7 +165,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
             <div className="sql-drawer__query-box">{data.sqlText}</div>
           </div>
 
-          {/* ---------- RIGHT: Tab + Content ---------- */}
+          {/* RIGHT CONTENT */}
           <div className="sql-drawer__content">
             <TabMenu
               tabs={tabs}
@@ -115,12 +173,11 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
               onTabChange={setActiveTab}
             />
 
-            {/* ---------------- TAB: Trend ---------------- */}
+            {/* 🟦 TREND TAB */}
             {activeTab === "1" && (
               <div className="sql-drawer__trend">
                 <div className="chart-block">
-                  <h5>Elapsed Time (ms)</h5>
-
+                  <h5>Elapsed Time Stack</h5>
                   <StackChart
                     stackCount={6}
                     labels={[
@@ -147,12 +204,11 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                       gaugeTotal,
                       gaugeTotal,
                     ]}
-                    height={140}
                   />
                 </div>
 
                 <div className="chart-block">
-                  <h5>Elapsed Time Trend</h5>
+                  <h5>Elapsed Trend</h5>
                   <LineChart
                     legends={["Elapsed Trend", "Execute Trend"]}
                     seriesData={[
@@ -166,7 +222,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                 <div className="chart-block">
                   <h5>I/O Trend</h5>
                   <LineChart
-                    legends={["Logical Reads Sum", "Physical Reads Sum"]}
+                    legends={["Logical Reads", "Physical Reads"]}
                     seriesData={[
                       data.bufferTrend.map((t) => t.value),
                       data.diskTrend.map((t) => t.value),
@@ -184,71 +240,77 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                   />
                 </div>
 
-                <div className="chart-block">
-                  <div className="sql-drawer__tables">
-                    <div className="sql-drawer__table">
-                      <h5>Total Statistics</h5>
-                      <TableChart
-                        columns={[
-                          { key: "metric", label: "Metric" },
-                          { key: "value", label: "Value" },
-                        ]}
-                        rows={rows1}
-                        size="sm"
-                      />
-                    </div>
+                <div className="sql-drawer__tables">
+                  <div className="sql-drawer__table">
+                    <h5>Total Statistics</h5>
+                    <TableChart
+                      columns={[
+                        { key: "metric", label: "Metric" },
+                        { key: "value", label: "Value" },
+                      ]}
+                      rows={rows1}
+                    />
+                  </div>
 
-                    <div className="sql-drawer__table">
-                      <h5>Total Wait Classes</h5>
-                      <TableChart
-                        columns={[
-                          { key: "metric", label: "Metric" },
-                          { key: "value", label: "Value" },
-                        ]}
-                        rows={rows2}
-                        size="sm"
-                      />
-                    </div>
+                  <div className="sql-drawer__table">
+                    <h5>Total Wait</h5>
+                    <TableChart
+                      columns={[
+                        { key: "metric", label: "Metric" },
+                        { key: "value", label: "Value" },
+                      ]}
+                      rows={rows2}
+                    />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* ---------------- TAB: Plan Change History ---------------- */}
+            {/* PLAN CHANGE HISTORY TAB */}
             {activeTab === "2" && (
               <div className="sql-drawer__plan">
-                {/* 상단 테이블 */}
-                <TableChart
-                  columns={[
-                    { key: "time", label: "time" },
-                    { key: "query_text", label: "query_text" },
-                    { key: "sql_id", label: "sql_id" },
-                    { key: "before", label: "before_plan_hash" },
-                    { key: "after", label: "after_plan_hash" },
-                  ]}
-                  rows={planList.map((row: any) => [
-                    row.time,
-                    row.query_text,
-                    row.sql_id,
-                    row.before,
-                    row.after,
-                  ])}
-                  onClick={(row: any) => setSelectedPlanRow(row)}
-                />
+                {loadingPlan ? (
+                  <div className="loading">Loading Plan History...</div>
+                ) : (
+                  <>
+                    <TableChart
+                      columns={[
+                        { key: "time", label: "Time" },
+                        { key: "query", label: "Query" },
+                        { key: "sqlId", label: "SQL ID" },
+                        { key: "before", label: "Before" },
+                        { key: "after", label: "After" },
+                      ]}
+                      rows={tableRows}
+                      onClick={(_: any, index: number) =>
+                        handlePlanRowClick(pagedData[index])
+                      }
+                    />
 
-                {/* 아래 diff displayed only when clicked */}
-                {selectedPlanRow && (
-                  <div className="plan-diff-box">
-                    <div className="plan-diff-column">
-                      <h5>Before ({selectedPlanRow.before})</h5>
-                      <pre>{selectedPlanRow.beforePlanText}</pre>
-                    </div>
+                    <Pagination
+                      totalPages={totalPages}
+                      currentPage={currentPage}
+                      onPageChange={setCurrentPage}
+                    />
 
-                    <div className="plan-diff-column">
-                      <h5>After ({selectedPlanRow.after})</h5>
-                      <pre>{selectedPlanRow.afterPlanText}</pre>
-                    </div>
-                  </div>
+                    {loadingDetail && (
+                      <div className="loading">Loading Detail...</div>
+                    )}
+
+                    {selectedPlanRow && !loadingDetail && (
+                      <div className="plan-diff-box">
+                        <div className="plan-diff-column">
+                          <h5>Before ({selectedPlanRow.beforePlanHash})</h5>
+                          <pre>{selectedPlanRow.beforePlanText}</pre>
+                        </div>
+
+                        <div className="plan-diff-column">
+                          <h5>After ({selectedPlanRow.afterPlanHash})</h5>
+                          <pre>{selectedPlanRow.afterPlanText}</pre>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}

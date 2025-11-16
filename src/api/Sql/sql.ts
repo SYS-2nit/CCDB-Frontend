@@ -66,6 +66,23 @@ export interface SqlDetailItem {
   ratio: number;
 }
 
+/* ===== Plan History 관련 ===== */
+
+export interface PlanHistoryItem {
+  time: string;
+  sqlId: string;
+  beforePlanHash: number;
+  afterPlanHash: number;
+  queryText: string;
+}
+
+export interface PlanHistoryDetail {
+  beforeHash: number;
+  beforePlanText: string;
+  afterHash: number;
+  afterPlanText: string;
+}
+
 /* ===== Top SQL 비교 조회 탭 ===== */
 export interface SqlCompareResponse {
   baseList: SqlStatsItem[];
@@ -193,7 +210,7 @@ export const getDailyGraph = async (params: {
  * ----------------------------------------------------- */
 
 export interface SqlPeriodGraphItem {
-  datetime: string; // "2025-11-10 16:00"
+  datetime: string;
   value: number;
 }
 
@@ -215,5 +232,40 @@ export const getPeriodGraph = async (params: {
   } catch (error) {
     console.error("[API] 기간별 SQL 그래프 조회 실패:", error);
     throw error;
+  }
+};
+
+/* -----------------------------------------------------
+ * 7. SQL Plan Change History - LIST
+ * ----------------------------------------------------- */
+export const getPlanHistoryList = async (
+  sqlId: string
+): Promise<PlanHistoryItem[]> => {
+  try {
+    const res = await api.get(`/api/sql/plan/${sqlId}`);
+    console.log("[API] Plan History List:", res.data.data);
+    return res.data.data;
+  } catch (err) {
+    console.error("[API] Plan History List Error:", err);
+    throw err;
+  }
+};
+
+/* -----------------------------------------------------
+ * 8. SQL Plan Change History - DETAIL
+ * ----------------------------------------------------- */
+export const getPlanHistoryDetail = async (
+  beforeHash: number,
+  afterHash: number
+): Promise<PlanHistoryDetail> => {
+  try {
+    const res = await api.get(`/api/sql/plany/detail`, {
+      params: { beforeHash, afterHash },
+    });
+    console.log("[API] Plan History Detail:", res.data.data);
+    return res.data.data;
+  } catch (err) {
+    console.error("[API] Plan History Detail Error:", err);
+    throw err;
   }
 };
