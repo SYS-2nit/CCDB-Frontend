@@ -166,12 +166,6 @@ const Dashboard: React.FC<DashboardProps> = ({
       return;
     }
 
-    // 같은 탭이고 모드와 인스턴스가 같으면 다시 로드하지 않음 (LIVE 모드 자동 새로고침 제외)
-    const isSameTab = lastLoadedTabRef.current === activeTab;
-    if (isSameTab && mode !== "LIVE") {
-      return;
-    }
-
     // 캐시된 데이터 확인
     const hasCachedData = activeTab === "main" 
       ? graphList.length > 0 
@@ -184,6 +178,27 @@ const Dashboard: React.FC<DashboardProps> = ({
 
     let cancelled = false;
 
+    // LIVE 이외 모드에서 그래프 포인트 수를 제한 (현재 시점 기준 최근 10개만 유지)
+    const normalizeGraphsForMode = (
+      graphs: GraphDataResponse[] | undefined,
+    ): GraphDataResponse[] => {
+      if (!graphs || graphs.length === 0) return [];
+      // LIVE 모드는 백엔드에서 분 단위로 계속 받아오고, 별도 머지 로직이 있으므로 그대로 사용
+      if (mode === "LIVE") return graphs;
+
+      const limit = 10;
+      return graphs.map((graph) => {
+        const sorted = [...(graph.data ?? [])].sort((a, b) => {
+          const ta = new Date(a.timestamp ?? 0).getTime();
+          const tb = new Date(b.timestamp ?? 0).getTime();
+          return ta - tb;
+        });
+        const sliced =
+          sorted.length > limit ? sorted.slice(-limit) : sorted;
+        return { ...graph, data: sliced };
+      });
+    };
+
     const loadDashboard = async () => {
       setError(null);
       try {
@@ -194,14 +209,15 @@ const Dashboard: React.FC<DashboardProps> = ({
           category,
         });
         if (cancelled) return;
-        
+        const normalizedGraphs = normalizeGraphsForMode(response?.graphs);
+
         if (activeTab === "main") {
-          setGraphs(response?.graphs ?? []);
+          setGraphs(normalizedGraphs);
           lastLoadedTabRef.current = activeTab;
         } else {
           setCategoryGraphs((prev) => {
             const next = new Map(prev);
-            next.set(activeTab, response?.graphs ?? []);
+            next.set(activeTab, normalizedGraphs);
             return next;
           });
         }
@@ -230,7 +246,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [selectedInstanceId, mode, activeTab, setGraphs, clearGraphs, setIsFetching, setError]);
+  }, [selectedInstanceId, mode, activeTab, refreshToken, setGraphs, clearGraphs, setIsFetching, setError]);
 
   // categoryGraphs가 업데이트된 후 lastLoadedTabRef 설정
   useEffect(() => {
@@ -376,7 +392,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       if (timeoutId) clearTimeout(timeoutId);
       if (intervalId) clearInterval(intervalId);
     };
-  }, [mode, selectedInstanceId, activeTab, setGraphs, setError]);
+  }, [mode, selectedInstanceId, activeTab, refreshToken, setGraphs, setError]);
 
   useEffect(() => {
     if (activeTab === "main" && graphList.length > 0) {
