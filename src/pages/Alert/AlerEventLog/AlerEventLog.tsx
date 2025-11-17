@@ -64,7 +64,7 @@ const AlerEventLog: React.FC = () => {
             {
               label: "위험도",
               type: "button-group",
-              options: ["주의", "위험", "에러"],
+              options: ["주의", "위험", "치명"],
             },
             {
               label: "상태",

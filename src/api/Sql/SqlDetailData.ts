@@ -8,6 +8,11 @@ export interface TrendPoint {
 }
 
 export interface SqlDetailData {
+  planHistoryList: never[];
+  beforePlanHash: ReactNode;
+  beforePlanText: string;
+  afterPlanHash: ReactNode;
+  afterPlanText: string;
   date: ReactNode;
   id: number;
   instanceId: number;
