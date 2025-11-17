@@ -5,15 +5,26 @@ import TableChart from "@/components/Chart/TableChart";
 
 const AlertTable: React.FC = () => {
   const [isListOpen, setIsListOpen] = useState(false);
+
+  // 심각도 DOT 컴포넌트
   const SeverityDot: React.FC<{ color: "yellow" | "red" | "black" }> = ({
     color,
   }) => {
     return <span className={`severity-dot severity-dot--${color}`} />;
-  }; // 위험도
+  };
 
+  // 심각도 텍스트 매핑
+  const severityTextMap: Record<"yellow" | "red" | "black", string> = {
+    yellow: "주의",
+    red: "위험",
+    black: "치명",
+  };
+
+  // 더미 데이터
   const data = [
     {
-      status: "발생",
+      list: "발생",
+      status: "미처리",
       severity: "yellow",
       category: "CPU",
       policy: "정책1",
@@ -21,7 +32,8 @@ const AlertTable: React.FC = () => {
       time: "2025-11-01 12:00",
     },
     {
-      status: "종료",
+      list: "종료",
+      status: "처리 완료",
       severity: "red",
       category: "Memory",
       policy: "정책2",
@@ -29,7 +41,8 @@ const AlertTable: React.FC = () => {
       time: "2025-11-01 13:20",
     },
     {
-      status: "종료",
+      list: "종료",
+      status: "미처리",
       severity: "black",
       category: "Session",
       policy: "정책3",
@@ -37,7 +50,8 @@ const AlertTable: React.FC = () => {
       time: "2025-11-01 14:15",
     },
     {
-      status: "종료",
+      list: "종료",
+      status: "미처리",
       severity: "red",
       category: "I/O",
       policy: "정책4",
@@ -45,7 +59,8 @@ const AlertTable: React.FC = () => {
       time: "2025-11-01 14:40",
     },
     {
-      status: "발생",
+      list: "발생",
+      status: "처리 완료",
       severity: "black",
       category: "Storage",
       policy: "정책5",
@@ -56,7 +71,8 @@ const AlertTable: React.FC = () => {
 
   // 컬럼 정의
   const columns = [
-    { key: "status", label: "처리 내역" },
+    { key: "list", label: "처리 내역" },
+    { key: "status", label: "상태" },
     { key: "severity", label: "심각도" },
     { key: "category", label: "카테고리" },
     { key: "policy", label: "정책" },
@@ -64,7 +80,7 @@ const AlertTable: React.FC = () => {
     { key: "time", label: "발생시간" },
   ];
 
-  // 행 데이터 구성
+  // 행 생성
   const rows = data.map((row) => [
     <div style={{ display: "flex", justifyContent: "center" }}>
       <Button
@@ -78,7 +94,22 @@ const AlertTable: React.FC = () => {
       />
     </div>,
 
-    <SeverityDot color={row.severity as "yellow" | "red" | "black"} />,
+    row.status,
+
+    // 심각도
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: "6px",
+        width: "100%",
+      }}
+    >
+      <SeverityDot color={row.severity as "yellow" | "red" | "black"} />
+      <span>{severityTextMap[row.severity as "yellow" | "red" | "black"]}</span>
+    </div>,
+
     row.category,
     row.policy,
     row.event,

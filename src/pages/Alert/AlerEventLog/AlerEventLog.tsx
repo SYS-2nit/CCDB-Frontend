@@ -1,35 +1,77 @@
 import React, { useState } from "react";
 import "./AlerEventLog.scss";
-import Modal from "@/components/Modal/Modal";
 import AlertTable from "./AlertTable/AlertTable";
-import FilterIcon from "@/assets/general/filter.svg";
 import DownloadIcon from "@/assets/general/download.svg";
 import Button from "@/components/Button/Button";
-import Input from "@/components/Input/Input";
+import Select from "@/components/Select/Select";
+import DateInput from "@/components/Input/DateInput";
 
 const AlerEventLog: React.FC = () => {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [resetKey, setResetKey] = useState(0);
+  // 필터 상태
+  const [category, setCategory] = useState("");
+  const [, setPeriod] = useState("");
+  const [severity, setSeverity] = useState("");
+  const [status, setStatus] = useState("");
 
   return (
     <div className="alert-log">
-      {/* 검색란 + 검색 버튼 + 필터 버튼 */}
+      {/* 검색 영역 전체 */}
       <div className="alert-log__top">
+        {/* 왼쪽: 필터 + 키워드 검색 */}
         <div className="alert-log__top-left">
-          <Input
-            size="lg"
-            variant="default"
-            placeholder="키워드를 입력해주세요."
+          {/* 카테고리 */}
+          <Select
+            size="sm"
+            label="카테고리"
+            placeholder="선택하세요."
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            options={[
+              { label: "CPU", value: "CPU" },
+              { label: "Memory", value: "Memory" },
+              { label: "Session", value: "Session" },
+              { label: "I/O", value: "I/O" },
+              { label: "Storage", value: "Storage" },
+            ]}
           />
+
+          {/* 기간 */}
+          <DateInput
+            size="sm"
+            label="날짜"
+            value={"기간을 선택해주세요."}
+            onChange={(e) => setPeriod(e.target.value)}
+          />
+
+          {/* 위험도 */}
+          <Select
+            size="sm"
+            label="위험도"
+            placeholder="선택하세요."
+            value={severity}
+            onChange={(e) => setSeverity(e.target.value)}
+            options={[
+              { label: "주의", value: "주의" },
+              { label: "위험", value: "위험" },
+              { label: "치명", value: "치명" },
+            ]}
+          />
+
+          {/* 상태 */}
+          <Select
+            size="sm"
+            label="상태"
+            placeholder="선택하세요."
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            options={[
+              { label: "미처리", value: "미처리" },
+              { label: "처리 완료", value: "처리 완료" },
+            ]}
+          />
+          {/* 검색 버튼 */}
           <Button text="검색" size="sm" variant="primary" />
         </div>
-        <Button
-          text="필터"
-          icon={FilterIcon}
-          size="sm"
-          variant="white"
-          onClick={() => setIsFilterOpen(true)}
-        />
       </div>
 
       {/* 테이블 */}
@@ -42,38 +84,6 @@ const AlerEventLog: React.FC = () => {
         </div>
         <AlertTable />
       </div>
-
-      {/* 필터 모달 */}
-      {isFilterOpen && (
-        <Modal
-          title="필터"
-          confirmText="적용"
-          cancelText="초기화"
-          onReset={() => setResetKey((prev) => prev + 1)}
-          onConfirm={() => setIsFilterOpen(false)}
-          theme="light"
-          resetTrigger={resetKey}
-          fields={[
-            {
-              label: "카테고리",
-              placeholder: "카테고리를 정해주세요.",
-              type: "select",
-              options: ["CPU", "Memory", "Session", "I/O", "Storage"],
-            },
-            { label: "기간", placeholder: "기간을 정해주세요.", type: "date" },
-            {
-              label: "위험도",
-              type: "button-group",
-              options: ["주의", "위험", "에러"],
-            },
-            {
-              label: "상태",
-              type: "button-group",
-              options: ["미처리", "처리 완료"],
-            },
-          ]}
-        />
-      )}
     </div>
   );
 };

@@ -17,7 +17,6 @@ export const chartData: Record<TabType, string[]> = {
     "PGA / SGA 압박률",
     "SGA 압박(FreeMB/Reloads)",
     "AAS",
-    "Wait Class 분포",
     "Wait Class 분포 (Sessions)",
     "CPU 사용(호스트 vs DB CPU)",
     "CPU 상태 (%)",
@@ -95,14 +94,24 @@ const fallbackStyle: React.CSSProperties = {
 export const getChartByTitle = (
   title: string,
   graphData?: GraphDataResponse | null,
-  mode: DashboardMode = "LIVE",
+  mode: DashboardMode = "LIVE"
 ): React.ReactNode => {
-  if (chartData.main.includes(title)) return mainChartRenderer(title, graphData, mode);
-  if (chartData.cpu.includes(title)) return cpuChartRenderer(title, graphData, mode);
-  if (chartData.memory.includes(title)) return memoryChartRenderer(title, graphData, mode);
-  if (chartData.session.includes(title)) return sessionChartRenderer(title, graphData, mode);
-  if (chartData.io.includes(title)) return ioChartRenderer(title, graphData, mode);
-  if (chartData.storage.includes(title)) return storageChartRenderer(title, graphData, mode);
+  if (chartData.main.includes(title))
+    return mainChartRenderer(title, graphData, mode);
+  if (chartData.cpu.includes(title))
+    return cpuChartRenderer(title, graphData, mode);
+  if (chartData.memory.includes(title))
+    return memoryChartRenderer(title, graphData, mode);
+  if (chartData.session.includes(title))
+    return sessionChartRenderer(title, graphData, mode);
+  if (chartData.io.includes(title))
+    return ioChartRenderer(title, graphData, mode);
+  if (chartData.storage.includes(title))
+    return storageChartRenderer(title, graphData, mode);
 
-  return React.createElement("div", { style: fallbackStyle }, "데이터가 없습니다.");
+  return React.createElement(
+    "div",
+    { style: fallbackStyle },
+    "데이터가 없습니다."
+  );
 };

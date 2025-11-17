@@ -112,8 +112,37 @@
     color: $gray-300;
     @include text-styles("label02");
   }
+
+  // DB별 인스턴스 미리보기 모달창
+    &-wrapper {
+    position: relative;
+  }
 }
 
+  // DB별 인스턴스 미리보기 모달창
+  .instance-popup {
+    position: absolute;
+    top: calc(100% - 40px); 
+    left: calc(100% - 40px); 
+    min-width: 160px;
+    background: $gray-0;
+    border: 1px solid $gray-100;
+    border-radius: 5px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .instance-popup-item {
+    padding: 12px;
+    cursor: pointer !important; 
+    transition: background 0.15s ease;
+    white-space: nowrap;
+
+    &:hover {
+      color: $gray-0;
+      background: $main-600; 
+    }
+  }
+  
 // + / - 버튼  
 .zoom-btn {
     width: 24px;
@@ -134,5 +163,31 @@
 
   &:active {
     transform: scale(0.95);
+  }
+}
+
+// 추가
+.db-tree-group {
+  margin-top: 8px;
+
+  &__title {
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  &__children {
+    margin-left: 16px;
+    border-left: 1px solid #ddd;
+    padding-left: 12px;
+  }
+}
+
+.db-tree-item {
+  cursor: pointer;
+  padding: 4px 0;
+
+  &:hover {
+    color: #357edd;
   }
 }

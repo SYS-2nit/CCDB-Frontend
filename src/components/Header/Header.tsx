@@ -6,8 +6,15 @@ import AlertIcon from "@/assets/header/alert.svg";
 import LightIcon from "@/assets/header/light.svg";
 import DarkIcon from "@/assets/header/dark.svg";
 import Select from "../Select/Select";
-import { fetchInstancesByDatabase, type DatabaseInstanceListItem } from "@/api/databases";
-import { useDashboardContext, type InstanceOption, type DashboardMode } from "@/state/DashboardContext";
+import {
+  fetchInstancesByDatabase,
+  type DatabaseInstanceListItem,
+} from "@/api/databases";
+import {
+  useDashboardContext,
+  type InstanceOption,
+  type DashboardMode,
+} from "@/state/DashboardContext";
 import { isAxiosError } from "axios";
 
 const SELECTED_DB_STORAGE_KEY = "selectedDatabase";
@@ -86,7 +93,10 @@ const Header: React.FC = () => {
     }
 
     try {
-      const parsed = JSON.parse(stored) as { id?: number | string; name?: string };
+      const parsed = JSON.parse(stored) as {
+        id?: number | string;
+        name?: string;
+      };
       if (parsed?.id !== undefined && parsed.id !== null) {
         const numericId =
           typeof parsed.id === "number" ? parsed.id : Number(parsed.id);
@@ -112,7 +122,9 @@ const Header: React.FC = () => {
 
     let mounted = true;
 
-    const mapInstanceToOption = (item: DatabaseInstanceListItem): InstanceOption => ({
+    const mapInstanceToOption = (
+      item: DatabaseInstanceListItem
+    ): InstanceOption => ({
       id: item.id,
       label:
         item.sid ?? item.serverName ?? item.databaseName ?? `SID ${item.id}`,
@@ -138,7 +150,8 @@ const Header: React.FC = () => {
               const numericId =
                 typeof parsed.id === "number" ? parsed.id : Number(parsed.id);
               if (!Number.isNaN(numericId)) {
-                nextSelection = options.find((opt) => opt.id === numericId) ?? null;
+                nextSelection =
+                  options.find((opt) => opt.id === numericId) ?? null;
               }
             }
           } catch (error) {
@@ -178,12 +191,20 @@ const Header: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, [dbId, setInstances, selectInstance, triggerRefresh, setError, clearGraphs]);
+  }, [
+    dbId,
+    setInstances,
+    selectInstance,
+    triggerRefresh,
+    setError,
+    clearGraphs,
+  ]);
 
   useEffect(() => {
     const handleDbChange = (event: Event) => {
-      const detail = (event as CustomEvent<{ id: number | null; name: string | null }>)
-        .detail;
+      const detail = (
+        event as CustomEvent<{ id: number | null; name: string | null }>
+      ).detail;
       if (!detail) return;
       setDbInfo({ id: detail.id, name: detail.name ?? null });
       if (!detail.id) {
@@ -194,7 +215,7 @@ const Header: React.FC = () => {
       } else {
         sessionStorage.setItem(
           SELECTED_DB_STORAGE_KEY,
-          JSON.stringify({ id: detail.id, name: detail.name ?? null }),
+          JSON.stringify({ id: detail.id, name: detail.name ?? null })
         );
       }
     };
@@ -218,12 +239,24 @@ const Header: React.FC = () => {
         hour12: false,
       });
       const formatted = formatter.formatToParts(new Date());
-      const year = Number(formatted.find((part) => part.type === "year")?.value ?? "0");
-      const month = Number(formatted.find((part) => part.type === "month")?.value ?? "1");
-      const day = Number(formatted.find((part) => part.type === "day")?.value ?? "1");
-      const hour = Number(formatted.find((part) => part.type === "hour")?.value ?? "0");
-      const minute = Number(formatted.find((part) => part.type === "minute")?.value ?? "0");
-      const second = Number(formatted.find((part) => part.type === "second")?.value ?? "0");
+      const year = Number(
+        formatted.find((part) => part.type === "year")?.value ?? "0"
+      );
+      const month = Number(
+        formatted.find((part) => part.type === "month")?.value ?? "1"
+      );
+      const day = Number(
+        formatted.find((part) => part.type === "day")?.value ?? "1"
+      );
+      const hour = Number(
+        formatted.find((part) => part.type === "hour")?.value ?? "0"
+      );
+      const minute = Number(
+        formatted.find((part) => part.type === "minute")?.value ?? "0"
+      );
+      const second = Number(
+        formatted.find((part) => part.type === "second")?.value ?? "0"
+      );
 
       const now = new Date();
       now.setFullYear(year, month - 1, day);
@@ -274,8 +307,12 @@ const Header: React.FC = () => {
       const month = Number(parts.find((p) => p.type === "month")?.value ?? "1");
       const day = Number(parts.find((p) => p.type === "day")?.value ?? "1");
       const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
-      const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
-      const second = Number(parts.find((p) => p.type === "second")?.value ?? "0");
+      const minute = Number(
+        parts.find((p) => p.type === "minute")?.value ?? "0"
+      );
+      const second = Number(
+        parts.find((p) => p.type === "second")?.value ?? "0"
+      );
 
       const date = new Date();
       date.setFullYear(year, month - 1, day);
@@ -285,7 +322,8 @@ const Header: React.FC = () => {
 
     const scheduleAlignedRefresh = () => {
       const now = getSeoulNow();
-      const elapsedMs = (now.getSeconds() * 1000 + now.getMilliseconds()) % 60_000;
+      const elapsedMs =
+        (now.getSeconds() * 1000 + now.getMilliseconds()) % 60_000;
       const msUntilNextMinute = elapsedMs === 0 ? 60_000 : 60_000 - elapsedMs;
 
       timeoutId = window.setTimeout(() => {
@@ -314,7 +352,9 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     const handleInstanceSelected = (event: Event) => {
-      const detail = (event as CustomEvent<{ id: number | null; name?: string | null }>).detail;
+      const detail = (
+        event as CustomEvent<{ id: number | null; name?: string | null }>
+      ).detail;
       if (!detail || detail.id === null) return;
       const option = instances.find((opt) => opt.id === detail.id);
       if (option) {
@@ -323,9 +363,15 @@ const Header: React.FC = () => {
       }
     };
 
-    window.addEventListener("dashboard:selected-instance", handleInstanceSelected);
+    window.addEventListener(
+      "dashboard:selected-instance",
+      handleInstanceSelected
+    );
     return () => {
-      window.removeEventListener("dashboard:selected-instance", handleInstanceSelected);
+      window.removeEventListener(
+        "dashboard:selected-instance",
+        handleInstanceSelected
+      );
     };
   }, [instances, selectInstance, triggerRefresh]);
 
@@ -346,19 +392,21 @@ const Header: React.FC = () => {
     return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
   };
 
-  const handleInstanceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleInstanceChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const value = Number(event.target.value);
     const next = instances.find((opt) => opt.id === value) ?? null;
     selectInstance(next ?? null);
     if (next) {
       sessionStorage.setItem(
         "selectedInstance",
-        JSON.stringify({ id: next.id, name: next.label }),
+        JSON.stringify({ id: next.id, name: next.label })
       );
       window.dispatchEvent(
         new CustomEvent("dashboard:selected-instance", {
           detail: { id: next.id, name: next.label },
-        }),
+        })
       );
       triggerRefresh();
     } else {
@@ -391,7 +439,9 @@ const Header: React.FC = () => {
               className="header-time__icon"
               onClick={() => setShowDropdown((prev) => !prev)}
             />
-            <span className="header-time__text">{formatClock(currentTime)}</span>
+            <span className="header-time__text">
+              {formatClock(currentTime)}
+            </span>
             <span className="header-time__badge header-time__badge--live">
               LIVE
             </span>
@@ -560,7 +610,7 @@ const Header: React.FC = () => {
                 <div key={i} className="alert-item">
                   <div className="alert-item__icon">⚠️</div>
                   <div className="alert-item__text">
-                    <strong>그래프 이름</strong> 에 에러 메시지 요약이
+                    <strong>그래프 이름</strong> 에 치명 메시지 요약이
                     발견되었습니다.
                     <div className="alert-item__sub">N분 전 · DB명</div>
                   </div>
