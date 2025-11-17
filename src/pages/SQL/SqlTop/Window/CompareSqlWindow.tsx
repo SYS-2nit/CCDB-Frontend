@@ -12,6 +12,7 @@ interface Props {
   compare: CompareDetail;
 }
 
+// 선택된 두 SQL의 상세 정보를 새 창에서 비교
 const CompareSqlWindow: React.FC<Props> = ({ base, compare }) => {
   return (
     <div

@@ -8,6 +8,7 @@ interface Props {
   date: string;
 }
 
+// 단일 SQL의 상세 정보를 Drawer 형태로 표시
 const SqlDetailPanel: React.FC<Props> = ({ data, date }) => {
   return (
     <div
