@@ -88,11 +88,44 @@ const ChartCard: React.FC<ChartCardProps> = ({
 };
 
 // props가 동일하면 리렌더링 방지 (불필요한 깜빡임 제거)
+// graphData와 mode가 변경되면 리렌더링 (실시간 업데이트를 위해)
 export default memo(
   ChartCard,
-  (prev, next) =>
-    prev.title === next.title &&
-    prev.status === next.status &&
-    prev.showDragIcon === next.showDragIcon &&
-    prev.showSettingIcon === next.showSettingIcon
+  (prev, next) => {
+    // 기본 props 비교
+    if (
+      prev.title !== next.title ||
+      prev.status !== next.status ||
+      prev.showDragIcon !== next.showDragIcon ||
+      prev.showSettingIcon !== next.showSettingIcon ||
+      prev.mode !== next.mode
+    ) {
+      return false; // 리렌더링 필요
+    }
+
+    // graphData 비교 (실시간 업데이트를 위해 데이터 변경 감지)
+    const prevData = prev.graphData;
+    const nextData = next.graphData;
+
+    // 둘 다 없으면 동일
+    if (!prevData && !nextData) return true;
+    // 하나만 있으면 다름
+    if (!prevData || !nextData) return false;
+    // ID가 다르면 다름
+    if (prevData.id !== nextData.id) return false;
+
+    // data 배열 길이 비교 (새 데이터가 추가되었는지 확인)
+    const prevDataLength = prevData.data?.length ?? 0;
+    const nextDataLength = nextData.data?.length ?? 0;
+    if (prevDataLength !== nextDataLength) return false;
+
+    // 마지막 타임스탬프 비교 (새 데이터 포인트가 추가되었는지 확인)
+    if (prevDataLength > 0 && nextDataLength > 0) {
+      const prevLastTimestamp = prevData.data?.[prevDataLength - 1]?.timestamp;
+      const nextLastTimestamp = nextData.data?.[nextDataLength - 1]?.timestamp;
+      if (prevLastTimestamp !== nextLastTimestamp) return false;
+    }
+
+    return true; // 동일하므로 리렌더링 불필요
+  }
 );

@@ -2,6 +2,13 @@ import React, { useMemo, useState } from "react";
 import "./Improvement.scss";
 import DateInput from "@/components/Input/DateInput";
 import Button from "@/components/Button/Button";
+import { useDashboardContext } from "@/state/DashboardContext";
+import {
+  generateReport,
+  type ReportType,
+  type GraphCategory,
+  type ReportContent,
+} from "@/api/report";
 
 type ReportTemplate = "daily" | "weekly" | "monthly" | "performance";
 
@@ -67,6 +74,7 @@ const SECTIONS: { id: SectionKey; label: string; tooltip: string }[] = [
 ];
 
 const Improvement: React.FC = () => {
+  const { selectedInstanceId } = useDashboardContext();
   const [template, setTemplate] = useState<ReportTemplate>("daily");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
@@ -80,6 +88,8 @@ const Improvement: React.FC = () => {
     "charts",
     "table",
   ]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleToggleMetric = (metric: MetricKey) => {
     setSelectedMetrics((prev) =>
@@ -98,46 +108,168 @@ const Improvement: React.FC = () => {
   };
 
   const isSingleDateTemplate = template === "daily";
+  const isWeeklyTemplate = template === "weekly";
+  const isMonthlyTemplate = template === "monthly";
 
   const periodError = useMemo(() => {
     if (!startDate) return "";
+    
+    // 주간 보고서와 월간 보고서는 endDate 검증 불필요
+    if (isWeeklyTemplate || isMonthlyTemplate) {
+      return "";
+    }
+    
+    // 일일 보고서가 아닌 경우에만 endDate 검증
     if (!isSingleDateTemplate && !endDate) return "";
 
     const start = new Date(startDate);
     const end = isSingleDateTemplate ? start : new Date(endDate);
     if (end < start) return "종료일은 시작일 이후여야 합니다.";
 
-    if (template === "weekly") {
-      const diffDays = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
-      if (diffDays > 28) {
-        return "주간 보고서는 최대 4주까지만 선택할 수 있습니다.";
-      }
-    }
     return "";
-  }, [startDate, endDate, template, isSingleDateTemplate]);
+  }, [startDate, endDate, template, isSingleDateTemplate, isWeeklyTemplate, isMonthlyTemplate]);
 
   const canGenerate = useMemo(() => {
+    if (!selectedInstanceId) return false;
     if (!startDate) return false;
-    if (!isSingleDateTemplate && !endDate) return false;
+    // 주간/월간 보고서는 endDate 검증 불필요
+    if (!isSingleDateTemplate && !isWeeklyTemplate && !isMonthlyTemplate && !endDate) return false;
     if (periodError) return false;
     if (selectedMetrics.length === 0) return false;
     if (selectedSections.length === 0) return false;
     return true;
   }, [
+    selectedInstanceId,
     startDate,
     endDate,
     isSingleDateTemplate,
+    isWeeklyTemplate,
+    isMonthlyTemplate,
     periodError,
     selectedMetrics,
     selectedSections,
   ]);
 
-  const handleGenerate = () => {
+  // 프론트엔드 타입을 백엔드 타입으로 변환
+  const mapTemplateToReportType = (template: ReportTemplate): ReportType => {
+    switch (template) {
+      case "daily":
+        return "DAILY";
+      case "weekly":
+        return "WEEKLY";
+      case "monthly":
+        return "MONTHLY";
+      case "performance":
+        return "PERFORMANCE";
+      default:
+        return "DAILY";
+    }
+  };
+
+  const mapMetricToCategory = (metric: MetricKey): GraphCategory => {
+    switch (metric) {
+      case "CPU":
+        return "CPU";
+      case "MEMORY":
+        return "MEMORY";
+      case "SESSION":
+        return "SESSION";
+      case "IO":
+        return "IO";
+      case "STORAGE":
+        return "STORAGE";
+      case "PERF_IMPROVE":
+        return "IMPROVEMENTS";
+      default:
+        return "CUSTOM";
+    }
+  };
+
+  const mapSectionToContent = (section: SectionKey): ReportContent => {
+    switch (section) {
+      case "summary":
+        return "AI";
+      case "charts":
+        return "GRAPH";
+      case "table":
+        return "TABLE";
+      default:
+        return "AI";
+    }
+  };
+
+  const handleGenerate = async () => {
     if (!canGenerate) return;
-    // 실제 다운로드/생성 로직은 백엔드 API 설계 후 연동 예정
-    // 지금은 사용자에게 구성 내용을 알려주는 정도로만 처리
-    // eslint-disable-next-line no-alert
-    alert("보고서 생성 요청이 준비되었습니다. (추후 다운로드 기능 연동 예정)");
+    if (!selectedInstanceId) {
+      setError("인스턴스를 선택해주세요.");
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      // 주간 보고서: endDate = startDate + 6일
+      let calculatedStartDate = startDate;
+      let calculatedEndDate: string | null = null;
+      
+      if (isWeeklyTemplate) {
+        const start = new Date(startDate);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 6);
+        calculatedEndDate = end.toISOString().split('T')[0];
+      } else if (isMonthlyTemplate) {
+        // 월간 보고서: YYYY-MM 형식의 값을 YYYY-MM-01로 변환
+        if (startDate && startDate.length === 7) {
+          // YYYY-MM 형식인 경우 첫날로 변환
+          calculatedStartDate = `${startDate}-01`;
+        }
+        // 해당 월의 마지막 날짜 계산
+        const start = new Date(calculatedStartDate);
+        const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+        calculatedEndDate = lastDay.toISOString().split('T')[0];
+      } else if (!isSingleDateTemplate) {
+        calculatedEndDate = endDate || null;
+      }
+      
+      const request = {
+        reportType: mapTemplateToReportType(template),
+        instanceId: selectedInstanceId,
+        startDate: calculatedStartDate,
+        endDate: isSingleDateTemplate ? null : calculatedEndDate,
+        categories: selectedMetrics.map(mapMetricToCategory),
+        contents: selectedSections.map(mapSectionToContent),
+      };
+
+      // 보고서 생성 및 다운로드
+      const blob = await generateReport(request);
+
+      // 파일 다운로드
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      // 파일명 생성 (백엔드에서 Content-Disposition 헤더로 파일명을 제공하지만, 
+      // 브라우저 호환성을 위해 여기서도 설정)
+      const reportTypeName = TEMPLATES.find((t) => t.id === template)?.title || "보고서";
+      const dateStr = startDate.replace(/-/g, "");
+      const endDateStr = endDate ? `_${endDate.replace(/-/g, "")}` : "";
+      link.download = `${reportTypeName}_${dateStr}${endDateStr}_${selectedInstanceId}.pdf`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("보고서 생성 실패:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "보고서 생성 중 오류가 발생했습니다.",
+      );
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const selectedTemplateInfo = TEMPLATES.find((t) => t.id === template);
@@ -200,15 +332,22 @@ const Improvement: React.FC = () => {
               <div className="report-period">
                 <div className="report-period__field">
                   <span className="report-period__label">
-                    {isSingleDateTemplate ? "일자" : "시작일"}
+                    {isSingleDateTemplate 
+                      ? "일자" 
+                      : isWeeklyTemplate 
+                      ? "시작일 (7일간)"
+                      : isMonthlyTemplate
+                      ? "월 선택"
+                      : "시작일"}
                   </span>
                   <DateInput
+                    type={isMonthlyTemplate ? "month" : "date"}
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                   />
                 </div>
 
-                {!isSingleDateTemplate && (
+                {!isSingleDateTemplate && !isWeeklyTemplate && !isMonthlyTemplate && (
                   <div className="report-period__field">
                     <span className="report-period__label">종료일</span>
                     <DateInput
@@ -218,13 +357,23 @@ const Improvement: React.FC = () => {
                   </div>
                 )}
               </div>
-              {template === "weekly" && (
+              {isWeeklyTemplate && (
                 <p className="report-period__hint">
-                  주간 보고서는 최대 4주까지 선택할 수 있습니다.
+                  주간 보고서는 시작일부터 7일간의 데이터를 조회합니다.
+                </p>
+              )}
+              {isMonthlyTemplate && (
+                <p className="report-period__hint">
+                  월간 보고서는 선택한 월의 전체 데이터를 조회합니다.
                 </p>
               )}
               {periodError && (
                 <p className="report-period__error">{periodError}</p>
+              )}
+              {!selectedInstanceId && (
+                <p className="report-period__error">
+                  인스턴스를 선택해주세요.
+                </p>
               )}
             </div>
 
@@ -366,6 +515,21 @@ const Improvement: React.FC = () => {
                       ? "보고서 생성을 위해 기간을 선택해주세요."
                       : isSingleDateTemplate
                       ? startDate
+                      : isWeeklyTemplate
+                      ? (() => {
+                          const start = new Date(startDate);
+                          const end = new Date(start);
+                          end.setDate(end.getDate() + 6);
+                          return `${startDate} ~ ${end.toISOString().split('T')[0]}`;
+                        })()
+                      : isMonthlyTemplate
+                      ? (() => {
+                          // YYYY-MM 형식인 경우 첫날로 변환
+                          const monthDate = startDate.length === 7 ? `${startDate}-01` : startDate;
+                          const start = new Date(monthDate);
+                          const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+                          return `${monthDate} ~ ${lastDay.toISOString().split('T')[0]}`;
+                        })()
                       : endDate
                       ? `${startDate} ~ ${endDate}`
                       : `${startDate} ~ (종료일 미선택)`}
@@ -381,12 +545,17 @@ const Improvement: React.FC = () => {
             </div>
 
             <div className="report-preview__footer">
+              {error && (
+                <div className="report-preview__error" style={{ marginBottom: "12px", color: "red", fontSize: "14px" }}>
+                  {error}
+                </div>
+              )}
               <Button
-                text="생성하기"
+                text={isGenerating ? "생성 중..." : "생성하기"}
                 size="md"
                 variant="primary"
                 onClick={handleGenerate}
-                disabled={!canGenerate}
+                disabled={!canGenerate || isGenerating || !selectedInstanceId}
               />
             </div>
           </section>
