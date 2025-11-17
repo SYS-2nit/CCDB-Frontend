@@ -1,0 +1,56 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.plan-compare-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 10px;
+    border-bottom: 1px solid $gray-100;
+
+    .title {
+        text-align: center;
+    }
+}
+
+.plan-compare-empty {
+    border: 1px solid $gray-100;
+    background: $gray-50;
+    padding: 10px;
+    text-align: center;
+
+  .empty-box {
+    width: 100%;
+    padding: 20px;
+    background: $gray-0;
+    border: 1px solid $gray-100;
+    border-radius: 5px;
+
+    p {
+        margin-bottom: 5px;
+        color: $gray-700;
+        @include text-styles("body02");
+    }
+
+    .sub {
+        color: $gray-300;
+        @include text-styles("label02");
+    }
+
+    &-hash {
+        gap: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: row;
+    }
+  }
+}
+
+// 
+.diff-wrapper {
+  font-family: monospace;
+  border-radius: 8px;
+  overflow: hidden;
+}

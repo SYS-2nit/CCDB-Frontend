@@ -59,13 +59,22 @@
     cursor: not-allowed;
   }
 
-  &--sm {
-    .custom-checkbox__box {
-      width: 14px;
-      height: 14px;
-    }
-    .custom-checkbox__label {
-      @include text-styles("body02");
+&--sm {
+  .custom-checkbox__box {
+    width: 16px;
+    height: 16px;
+
+    &::after {
+      top: 2px;  
+      left: 4px;
+      width: 4px;
+      height: 6px;
     }
   }
+
+  .custom-checkbox__label {
+    @include text-styles("label02");
+  }
+}
+
 }
