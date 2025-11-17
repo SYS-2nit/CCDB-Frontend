@@ -1,18 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import "./AlerEventLog.scss";
 import AlertTable from "./AlertTable/AlertTable";
 import DownloadIcon from "@/assets/general/download.svg";
 import Button from "@/components/Button/Button";
-import Input from "@/components/Input/Input";
 import Select from "@/components/Select/Select";
 import DateInput from "@/components/Input/DateInput";
 
 const AlerEventLog: React.FC = () => {
   // 필터 상태
-  const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("");
-  const [period, setPeriod] = useState("");
+  const [, setPeriod] = useState("");
   const [severity, setSeverity] = useState("");
   const [status, setStatus] = useState("");
 
