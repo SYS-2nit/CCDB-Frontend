@@ -1,0 +1,71 @@
+.alert-table__wrapper {
+  width: 100%;
+  
+  // 테이블 컬럼 너비 조정
+  :global(.table-chart) {
+    table-layout: fixed;
+    
+    th:nth-child(1), // 번호
+    td:nth-child(1) {
+      width: 60px;
+      min-width: 60px;
+      max-width: 60px;
+    }
+    
+    th:nth-child(2), // 처리 내역
+    td:nth-child(2) {
+      width: 100px;
+      min-width: 100px;
+      max-width: 100px;
+    }
+    
+    th:nth-child(3), // 상태
+    td:nth-child(3) {
+      width: 80px;
+      min-width: 80px;
+      max-width: 80px;
+    }
+    
+    th:nth-child(4), // 심각도
+    td:nth-child(4) {
+      width: 100px;
+      min-width: 100px;
+      max-width: 100px;
+    }
+    
+    th:nth-child(5), // 카테고리
+    td:nth-child(5) {
+      width: 100px;
+      min-width: 100px;
+      max-width: 100px;
+    }
+    
+    th:nth-child(6), // 메시지
+    td:nth-child(6) {
+      width: auto; // 나머지 공간 차지
+      min-width: 200px;
+    }
+    
+    th:nth-child(7), // 인스턴스 ID
+    td:nth-child(7) {
+      width: 100px;
+      min-width: 100px;
+      max-width: 100px;
+    }
+    
+    th:nth-child(8), // 발생시간
+    td:nth-child(8) {
+      width: 150px;
+      min-width: 150px;
+      max-width: 150px;
+    }
+    
+    // 메시지 컬럼은 텍스트가 길어도 줄바꿈 허용
+    td:nth-child(6) {
+      white-space: normal;
+      word-break: break-word;
+      text-align: left;
+      padding: 8px 12px;
+    }
+  }
+}

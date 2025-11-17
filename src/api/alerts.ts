@@ -33,6 +33,7 @@ export interface EventResponse {
   thresholdValue: number;
   thresholdFormat: ThresholdFormat;
   message: string;
+  category: AlertCategory | null;
   acknowledgedAt: string | null;
   acknowledgedBy: number | null;
   resolvedAt: string | null;
