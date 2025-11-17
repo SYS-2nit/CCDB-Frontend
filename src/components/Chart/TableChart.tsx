@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import "./TableChart.scss";
 
@@ -5,7 +6,7 @@ interface TableChartProps {
   columns: { key: string; label: string }[];
   rows: React.ReactNode[][];
   size?: "sm" | "md" | "lg";
-  onClick?: () => void;
+  onClick?: (row: any[], index: number) => void;
   sortable?: boolean;
   sortConfig?: { key: string; direction: "asc" | "desc" } | null;
   onSort?: (key: string) => void;
@@ -54,14 +55,17 @@ const TableChart: React.FC<TableChartProps> = ({
 
         <tbody>
           {rows.map((row, rIdx) => (
-            <tr key={rIdx} className="table-chart__row">
+            <tr
+              key={rIdx}
+              className="table-chart__row"
+              onClick={() => onClick?.(row, rIdx)}
+            >
               {row.map((cell, cIdx) => (
                 <td
                   key={cIdx}
                   className={`table-chart__cell ${
                     typeof cell === "number" ? "numeric" : ""
                   }`}
-                  onClick={cIdx === 1 && onClick ? onClick : undefined}
                 >
                   {cell}
                 </td>

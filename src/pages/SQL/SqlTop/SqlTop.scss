@@ -5,29 +5,30 @@
 
 // 전체 틀
 .sql-top {
-  overflow: hidden;
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
   overflow-y: hidden;
   overflow-x: hidden;
   overflow: hidden;
 
   // 검색 영역
   &__search {
+    gap: 10px;
+    padding: 10px;
     width: 100%;
     display: flex;
     align-items: flex-end;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-direction: row;
     background: $gray-0;
+    border-radius: 5px;
 
     // 왼쪽 영역 
     &-left {
       display: flex;
       align-items: flex-end;
-      gap: 20px;
+      gap: 10px;
       padding: 20px;
       border-radius: 5px;
     
@@ -47,9 +48,10 @@
 
   // 차트 영역
     &__summary {
+      margin-top: 10px;
+      padding: 10px;
       background: $gray-0;
       border-radius: 5px;
-      padding: 20px;
       color: $gray-700;
       @include text-styles("body02");
     }
@@ -57,36 +59,45 @@
     // 테이블 영역
     &__table {
       gap: 10px;
+      margin-top: 10px;
       display: flex;
       overflow: hidden;
 
       &-block {
         flex-direction: row;
         background: $gray-0;
-        padding: 20px;
+        padding: 10px;
         border-radius: 5px;
       
         &-header {
           gap: 10px;
           display: flex;
           align-items: center;
-          flex-direction: row;
+          justify-content: space-between;
           margin-bottom: 10px;
           color: $gray-700;
-          @include text-styles("label02");
+          @include text-styles("body02");
 
-          &-mainCircle {
-            width: 10px;
-            height: 10px;
-            background-color: $main-600;
-            border-radius: 50%;
-          }
+          &-left {
+            gap: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-          &-greenCircle {
-            width: 10px;
-            height: 10px;
-            background-color: $green-400;
-            border-radius: 50%;
+            &-greenCircle {
+              width: 10px;
+              height: 10px;
+              background-color: $green-400;
+              border-radius: 50%;
+            }
+
+              
+            &-mainCircle {
+              width: 10px;
+              height: 10px;
+              background-color: $main-600;
+              border-radius: 50%;
+            }
           }
         }
 
@@ -99,4 +110,14 @@
       }
     }
   }
+}
+
+.no-result {
+    width: 45vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: $gray-400;
+    @include text-styles("body02");
 }

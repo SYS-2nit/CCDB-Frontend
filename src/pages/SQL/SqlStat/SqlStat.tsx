@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo, useEffect } from "react";
 import "./SqlStat.scss";
@@ -7,7 +8,7 @@ import TableChart from "@/components/Chart/TableChart";
 import BarGauge from "@/components/Chart/BarGauge";
 import Pagination from "@/components/Pagination/Pagination";
 import Select from "@/components/Select/Select";
-import { getSqlDetail, getSqlGraph, getSqlStats } from "@/api/Sql/stats";
+import { getSqlDetail, getSqlGraph, getSqlStats } from "@/api/Sql/sql";
 import SqlDetailDrawer from "@/pages/SQL/Modal/SqlDetailDrawer";
 import LineChart from "@/components/Chart/LineChart";
 import Spinner from "@/components/Spinner/Spinner";
@@ -26,8 +27,21 @@ interface TableData {
   disk: number;
 }
 
+// X축 변환함수
+const formatToMonthDayTime = (raw: string) => {
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return raw;
+
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const HH = String(d.getHours()).padStart(2, "0");
+  const MM = String(d.getMinutes()).padStart(2, "0");
+
+  return `${mm}-${dd} ${HH}:${MM}`;
+};
+
 const SqlStat: React.FC = () => {
-  /* 기본 날짜값 */
+  /* 기본 날짜 범위 */
   const getDefaultDateRange = () => {
     const today = new Date();
     const yesterday = new Date();
@@ -40,10 +54,10 @@ const SqlStat: React.FC = () => {
   /* 상세 데이터 */
   const [detailData, setDetailData] = useState<SqlDetailData | null>(null);
 
-  /* 상태 */
+  /* 상태값 */
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
-  const [filter, setFilter] = useState("elapsed");
-  const [interval, setInterval] = useState(30); // 기본 30분
+  const [filter, setFilter] = useState("");
+  const [interval, setInterval] = useState(30);
   const [currentPage, setCurrentPage] = useState(1);
 
   const [graphData, setGraphData] = useState({
@@ -63,17 +77,15 @@ const SqlStat: React.FC = () => {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  /* 통합 조회 */
+  /* 통합 조회 API */
   const fetchStats = async (page = 1) => {
-    if (!dateRange.start || !dateRange.end) {
-      alert("조회 기간을 설정해주세요.");
-      return;
-    }
+    if (!dateRange.start || !dateRange.end) return;
 
     try {
       setIsLoading(true);
       setNoResult(false);
 
+      /** Graph */
       const graph = await getSqlGraph({
         instanceId: 1,
         startDate: dateRange.start,
@@ -83,11 +95,13 @@ const SqlStat: React.FC = () => {
       });
 
       setGraphData({
-        labels: graph.buckets.map((b: any) => b.timeLabel),
+        labels: graph.buckets.map((b: any) =>
+          formatToMonthDayTime(b.timeLabel)
+        ),
         values: graph.buckets.map((b: any) => b.value),
       });
 
-      /* 테이블 API */
+      /** Table */
       const data = await getSqlStats({
         instanceId: 1,
         startDate: dateRange.start,
@@ -130,16 +144,22 @@ const SqlStat: React.FC = () => {
     }
   };
 
-  /* 페이지 변경 시 재조회 */
+  /** 페이지 변경 */
   useEffect(() => {
     fetchStats(currentPage);
   }, [currentPage]);
 
-  /* 정렬 처리 */
+  /** 날짜/필터/interval 변경 시 재조회 */
+  useEffect(() => {
+    fetchStats(1);
+  }, [dateRange, filter, interval]);
+
+  /* 정렬 */
   const handleSort = (key: keyof TableData) => {
     let direction: "asc" | "desc" = "asc";
     if (sortConfig?.key === key && sortConfig.direction === "asc")
       direction = "desc";
+
     setSortConfig({ key, direction });
   };
 
@@ -165,17 +185,23 @@ const SqlStat: React.FC = () => {
     { key: "cpu", label: "CPU Time" },
   ];
 
-  /* row 렌더링 */
+  /* Row 구성 */
   const rows = sortedData.map((row) => [
     <span
       className="sql-stat__sql-text sql-stat__sql-clickable"
       onClick={async () => {
-        const detail = await getSqlDetail({
+        const raw = await getSqlDetail({
           sqlId: row.sqlId,
           startDate: dateRange.start,
           endDate: dateRange.end,
           intervalMinutes: interval,
         });
+
+        /** ★ SqlDetailItem → SqlDetailData 변환 (중요!!) */
+        const detail: SqlDetailData = {
+          date: `${dateRange.start} ~ ${dateRange.end}`,
+          ...raw,
+        };
 
         setDetailData(detail);
         setIsDrawerOpen(true);
@@ -183,6 +209,7 @@ const SqlStat: React.FC = () => {
     >
       {row.sql}
     </span>,
+
     <BarGauge value={row.elapsed} max={50000000} />,
     <BarGauge value={row.avg} max={50000000} />,
     <BarGauge value={row.wait} max={50000000} />,
@@ -217,6 +244,7 @@ const SqlStat: React.FC = () => {
 
           <Select
             label="필터"
+            placeholder="선택하세요."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             options={[
@@ -250,15 +278,6 @@ const SqlStat: React.FC = () => {
               onClick={() => setInterval(120)}
             />
           </div>
-        </div>
-
-        <div className="sql-stat__search-right">
-          <Button
-            text="검색"
-            size="sm"
-            variant="primary"
-            onClick={() => fetchStats(1)}
-          />
         </div>
       </div>
 
@@ -301,7 +320,7 @@ const SqlStat: React.FC = () => {
         />
       </div>
 
-      {/* 상세 탭 - 조건부 렌더링 */}
+      {/* 상세 Drawer */}
       {isDrawerOpen && detailData && (
         <SqlDetailDrawer
           data={detailData}

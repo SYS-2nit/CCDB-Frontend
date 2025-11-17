@@ -2,26 +2,18 @@ import React from "react";
 import "./BarGauge.scss";
 
 interface BarGaugeProps {
-  value: number;
+  value: number; // 0~100
   max?: number;
-  color?: string;
 }
 
-const BarGauge: React.FC<BarGaugeProps> = ({
-  value,
-  max = 100,
-  color = "#3B82F6",
-}) => {
-  const percent = Math.min(100, (value / max) * 100);
+const BarGauge: React.FC<BarGaugeProps> = ({ value }) => {
+  const clamped = Math.min(100, Math.max(0, value));
 
   return (
     <div className="bar-gauge">
-      <div className="bar-gauge__value">{value}</div>
+      <div className="bar-gauge__value">{clamped.toFixed(1)}%</div>
       <div className="bar-gauge__bar">
-        <div
-          className="bar-gauge__fill"
-          style={{ width: `${percent}%`, backgroundColor: color }}
-        />
+        <div className="bar-gauge__fill" style={{ width: `${clamped}%` }} />
       </div>
     </div>
   );
