@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./Header.scss";
 import BedgeSuccessIcon from "@/assets/header/bedge-success.svg";
 import TimeIcon from "@/assets/header/time.svg";
@@ -12,6 +12,7 @@ import { isAxiosError } from "axios";
 import {
   fetchUnreadAlertCount,
   fetchPendingAlerts,
+  connectSSE,
   type EventResponse,
 } from "@/api/alerts";
 
@@ -340,28 +341,115 @@ const Header: React.FC = () => {
     };
   }, [instances, selectInstance, triggerRefresh]);
 
+  // 알림 개수 갱신 함수
+  const loadUnreadCount = useCallback(async () => {
+    try {
+      const count = await fetchUnreadAlertCount(memberId);
+      setUnreadCount(count);
+    } catch (error) {
+      console.error("[Header] 알림 개수 조회 실패:", error);
+      // 에러 발생 시에도 UI는 정상 동작하도록 처리
+    }
+  }, [memberId]);
+
   // 알림 개수 조회 (컴포넌트 마운트 시 및 30초마다 갱신)
   useEffect(() => {
-    const loadUnreadCount = async () => {
-      try {
-        const count = await fetchUnreadAlertCount(memberId);
-        setUnreadCount(count);
-      } catch (error) {
-        console.error("[Header] 알림 개수 조회 실패:", error);
-        // 에러 발생 시에도 UI는 정상 동작하도록 처리
-      }
-    };
-
     // 초기 로드
     loadUnreadCount();
 
-    // 30초마다 갱신
+    // 30초마다 갱신 (SSE 연결 실패 시 대비)
     const intervalId = setInterval(loadUnreadCount, 30000);
 
     return () => {
       clearInterval(intervalId);
     };
-  }, [memberId]);
+  }, [loadUnreadCount]);
+
+  // SSE 실시간 알림 연결
+  useEffect(() => {
+    let eventSource: EventSource | null = null;
+    let reconnectTimeoutId: number | undefined;
+
+    const connectToSSE = () => {
+      try {
+        eventSource = connectSSE(memberId);
+
+        // 연결 성공 이벤트
+        eventSource.addEventListener("connected", (event) => {
+          console.log("[Header] SSE 연결 성공:", event);
+        });
+
+        // 실시간 알림 수신 이벤트
+        eventSource.addEventListener("alert", (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log("[Header] 새 알림 수신:", data);
+
+            // 알림 개수 자동 갱신
+            loadUnreadCount();
+
+            // 모달이 열려있으면 새 알림을 리스트 맨 위에 추가
+            if (showAlertPanel && data.event) {
+              setAlerts((prevAlerts) => {
+                // 중복 방지: 이미 존재하는 알림은 추가하지 않음
+                const exists = prevAlerts.some((alert) => alert.id === data.event.id);
+                if (exists) {
+                  return prevAlerts;
+                }
+                // 새 알림을 맨 위에 추가
+                return [data.event, ...prevAlerts];
+              });
+            }
+
+            // 브라우저 알림 표시 (선택사항)
+            if ("Notification" in window && Notification.permission === "granted") {
+              new Notification("새 알림", {
+                body: data.event?.message || "새로운 알림이 발생했습니다.",
+                icon: "/favicon.ico",
+                tag: `alert-${data.event?.id}`,
+              });
+            }
+          } catch (error) {
+            console.error("[Header] 알림 데이터 파싱 실패:", error);
+          }
+        });
+
+        // Heartbeat 이벤트 (연결 유지 확인, 무시)
+        eventSource.addEventListener("heartbeat", () => {
+          // 연결 유지 확인용, 별도 처리 불필요
+        });
+
+        // 에러 처리
+        eventSource.onerror = (error) => {
+          console.error("[Header] SSE 연결 오류:", error);
+          
+          // 연결 종료 시 재연결 시도 (3초 후)
+          if (eventSource?.readyState === EventSource.CLOSED) {
+            reconnectTimeoutId = window.setTimeout(() => {
+              console.log("[Header] SSE 재연결 시도...");
+              connectToSSE();
+            }, 3000);
+          }
+        };
+      } catch (error) {
+        console.error("[Header] SSE 연결 생성 실패:", error);
+      }
+    };
+
+    // SSE 연결 시작
+    connectToSSE();
+
+    // 컴포넌트 언마운트 시 연결 종료
+    return () => {
+      if (reconnectTimeoutId) {
+        clearTimeout(reconnectTimeoutId);
+      }
+      if (eventSource) {
+        eventSource.close();
+        console.log("[Header] SSE 연결 종료");
+      }
+    };
+  }, [memberId, showAlertPanel, loadUnreadCount]);
 
   // 알림 모달 열릴 때 알림 목록 조회
   useEffect(() => {
