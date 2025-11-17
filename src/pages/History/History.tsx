@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useCallback } from "react";
 import "./History.scss";
 import DateInput from "@/components/Input/DateInput";
@@ -5,9 +6,15 @@ import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
 import { X } from "lucide-react";
 import Select from "@/components/Select/Select";
-import { fetchHistoryData, fetchHistoryGraphList, type HistoryGraphDataResponse, type HistoryGraphInfo } from "@/api/history";
+import {
+  fetchHistoryData,
+  fetchHistoryGraphList,
+  type HistoryGraphDataResponse,
+  type HistoryGraphInfo,
+} from "@/api/history";
 import { useDashboardContext } from "@/state/DashboardContext";
 import ChartCard from "@/components/Card/ChartCard";
+import Spinner from "@/components/Spinner/Spinner";
 
 interface FilterItem {
   key: string;
@@ -30,32 +37,39 @@ const TIME_UNIT_MAP: Record<string, "1m" | "10m" | "1h" | "1d"> = {
   "1분": "1m",
   "10분": "10m",
   "1시간": "1h",
-  "하루": "1d",
+  하루: "1d",
 };
 
 const History: React.FC = () => {
   const { selectedInstanceId } = useDashboardContext();
   const [filters, setFilters] = useState<FilterItem[]>([]);
   const [graphList, setGraphList] = useState<HistoryGraphInfo[]>([]);
-  const [historyGraphs, setHistoryGraphs] = useState<HistoryGraphDataResponse[]>([]);
+  const [historyGraphs, setHistoryGraphs] = useState<
+    HistoryGraphDataResponse[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [graphTimeUnits, setGraphTimeUnits] = useState<Map<number, "1m" | "10m" | "1h" | "1d">>(new Map());
+  const [graphTimeUnits, setGraphTimeUnits] = useState<
+    Map<number, "1m" | "10m" | "1h" | "1d">
+  >(new Map());
 
   /** 공통 업데이트 함수 */
-  const updateFilter = useCallback((key: string, label: string, value: string) => {
-    setFilters((prev) => {
-      if (!value || value === "0" || value === "") {
-        return prev.filter((f) => f.key !== key);
-      }
-      const exists = prev.find((f) => f.key === key);
-      if (exists) {
-        return prev.map((f) => (f.key === key ? { ...f, value } : f));
-      } else {
-        return [...prev, { key, label, value }];
-      }
-    });
-  }, []);
+  const updateFilter = useCallback(
+    (key: string, label: string, value: string) => {
+      setFilters((prev) => {
+        if (!value || value === "0" || value === "") {
+          return prev.filter((f) => f.key !== key);
+        }
+        const exists = prev.find((f) => f.key === key);
+        if (exists) {
+          return prev.map((f) => (f.key === key ? { ...f, value } : f));
+        } else {
+          return [...prev, { key, label, value }];
+        }
+      });
+    },
+    []
+  );
 
   /** 카테고리 선택 시 그래프 리스트 조회 */
   useEffect(() => {
@@ -137,7 +151,7 @@ const History: React.FC = () => {
       });
 
       setHistoryGraphs(response.graphs || []);
-      
+
       // 각 그래프의 기본 시간 단위 설정
       const newTimeUnits = new Map<number, "1m" | "10m" | "1h" | "1d">();
       response.graphs?.forEach((graph) => {
@@ -326,10 +340,10 @@ const History: React.FC = () => {
             onChange={(e) => updateFilter("keyword", "키워드", e.target.value)}
           />
 
-          <Button 
-            text="검색" 
-            size="sm" 
-            variant="primary" 
+          <Button
+            text="검색"
+            size="sm"
+            variant="primary"
             onClick={handleSearch}
             disabled={isLoading || !selectedInstanceId}
           />
@@ -348,7 +362,7 @@ const History: React.FC = () => {
                   displayValue = graph.name;
                 }
               }
-              
+
               return (
                 <div key={f.key} className="history__chip">
                   <span>
@@ -375,7 +389,7 @@ const History: React.FC = () => {
           </div>
         ) : isLoading ? (
           <div className="history__empty">
-            <p>데이터를 불러오는 중입니다...</p>
+            <Spinner />
           </div>
         ) : error ? (
           <div className="history__empty">
@@ -389,14 +403,17 @@ const History: React.FC = () => {
           historyGraphs.map((graph) => {
             const timeUnit = graphTimeUnits.get(graph.id) || "1d";
             // timeUnit을 DashboardMode로 변환
-            const modeMap: Record<"1m" | "10m" | "1h" | "1d", "LIVE" | "10분" | "1시간" | "1일"> = {
+            const modeMap: Record<
+              "1m" | "10m" | "1h" | "1d",
+              "LIVE" | "10분" | "1시간" | "1일"
+            > = {
               "1m": "LIVE",
               "10m": "10분",
               "1h": "1시간",
               "1d": "1일",
             };
             const chartMode = modeMap[timeUnit] || "1일";
-            
+
             // GraphDataResponse 형식으로 변환 (호환성)
             const graphDataForRender = {
               id: graph.id,

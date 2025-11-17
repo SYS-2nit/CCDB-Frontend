@@ -6,7 +6,7 @@
 .history {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
   background-color: $gray-50;
   overflow-y: auto;
   overflow-x: hidden;
@@ -27,7 +27,7 @@
     flex-direction: column;
     gap: 16px;
     background-color: $gray-0;
-    padding: 20px;
+    padding: 10px;
     border-radius: 5px;
     border: 1px solid $gray-100;
     position: sticky;
@@ -84,7 +84,7 @@
   &__grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    gap: 10px;
   }
 
   /* 빈 상태 */
@@ -101,10 +101,8 @@
 
   &__card {
     background: $gray-0;
-    border-radius: 10px;
+    border-radius: 5px;
     border: 1px solid $gray-100;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    padding: 20px;
     overflow: hidden;
     width: 100%;
 

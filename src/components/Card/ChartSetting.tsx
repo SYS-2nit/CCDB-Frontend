@@ -43,7 +43,9 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
         setGraphs(response ?? []);
         if (currentGraph) {
           setSelectedGraphId(currentGraph.id);
-          const current = response.find((graph) => graph.id === currentGraph.id);
+          const current = response.find(
+            (graph) => graph.id === currentGraph.id
+          );
           if (current) {
             setActiveCategory(current.category);
           }
@@ -76,7 +78,8 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
   const filteredGraphs = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     return graphs.filter((graph) => {
-      const matchesCategory = graph.category === activeCategory || term.length > 0;
+      const matchesCategory =
+        graph.category === activeCategory || term.length > 0;
       const matchesSearch = term
         ? graph.name.toLowerCase().includes(term)
         : graph.category === activeCategory;
@@ -109,7 +112,7 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
   return (
     <aside className="chart-setting">
       <div className="chart-setting__header">
-        <span className="chart-setting__header--title">차트 설정</span>
+        <span className="chart-setting__header--title">차트 변경</span>
         <span className="chart-setting__header--subtitle">
           위치 {position + 1}번 그래프를 변경합니다.
         </span>
@@ -152,7 +155,9 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
 
         <div className="chart-setting__body--options">
           {isLoading ? (
-            <span className="chart-setting__body--no-result">불러오는 중입니다...</span>
+            <span className="chart-setting__body--no-result">
+              불러오는 중입니다...
+            </span>
           ) : error ? (
             <span className="chart-setting__body--no-result">{error}</span>
           ) : filteredGraphs.length > 0 ? (
@@ -167,7 +172,8 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
                   checked={selectedGraphId === graph.id}
                   readOnly
                 />
-                {graph.name} ({CATEGORY_LABELS[graph.category] ?? graph.category})
+                {graph.name} (
+                {CATEGORY_LABELS[graph.category] ?? graph.category})
               </label>
             ))
           ) : (
@@ -182,7 +188,11 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
         <button className="cancel" onClick={onClose} disabled={isSaving}>
           취소
         </button>
-        <button className="confirm" onClick={handleConfirmClick} disabled={isSaving}>
+        <button
+          className="confirm"
+          onClick={handleConfirmClick}
+          disabled={isSaving}
+        >
           {isSaving ? "저장 중..." : "저장"}
         </button>
       </div>
