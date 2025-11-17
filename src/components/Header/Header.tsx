@@ -9,6 +9,11 @@ import Select from "../Select/Select";
 import { fetchInstancesByDatabase, type DatabaseInstanceListItem } from "@/api/databases";
 import { useDashboardContext, type InstanceOption, type DashboardMode } from "@/state/DashboardContext";
 import { isAxiosError } from "axios";
+import {
+  fetchUnreadAlertCount,
+  fetchPendingAlerts,
+  type EventResponse,
+} from "@/api/alerts";
 
 const SELECTED_DB_STORAGE_KEY = "selectedDatabase";
 
@@ -44,6 +49,12 @@ const Header: React.FC = () => {
 
   // 알림 패널 상태
   const [showAlertPanel, setShowAlertPanel] = useState(false);
+  
+  // 알림 관련 상태
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [alerts, setAlerts] = useState<EventResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const memberId = 3; // 기본 사용자 ID
 
   // 테마 전환
   const handleModeToggle = () => {
@@ -329,6 +340,51 @@ const Header: React.FC = () => {
     };
   }, [instances, selectInstance, triggerRefresh]);
 
+  // 알림 개수 조회 (컴포넌트 마운트 시 및 30초마다 갱신)
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      try {
+        const count = await fetchUnreadAlertCount(memberId);
+        setUnreadCount(count);
+      } catch (error) {
+        console.error("[Header] 알림 개수 조회 실패:", error);
+        // 에러 발생 시에도 UI는 정상 동작하도록 처리
+      }
+    };
+
+    // 초기 로드
+    loadUnreadCount();
+
+    // 30초마다 갱신
+    const intervalId = setInterval(loadUnreadCount, 30000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [memberId]);
+
+  // 알림 모달 열릴 때 알림 목록 조회
+  useEffect(() => {
+    if (!showAlertPanel) {
+      return;
+    }
+
+    const loadAlerts = async () => {
+      setIsLoading(true);
+      try {
+        const result = await fetchPendingAlerts(memberId, 0, 20);
+        setAlerts(result.content);
+      } catch (error) {
+        console.error("[Header] 알림 목록 조회 실패:", error);
+        setAlerts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAlerts();
+  }, [showAlertPanel, memberId]);
+
   const formatClock = (date: Date) => {
     const hh = String(date.getHours()).padStart(2, "0");
     const mm = String(date.getMinutes()).padStart(2, "0");
@@ -344,6 +400,28 @@ const Header: React.FC = () => {
     const mi = String(date.getMinutes()).padStart(2, "0");
     const ss = String(date.getSeconds()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+  };
+
+  // 시간 포맷 유틸리티 함수 (N분 전, N시간 전 형식)
+  const formatTimeAgo = (createdAt: string): string => {
+    const now = new Date();
+    const created = new Date(createdAt);
+    const diffMs = now.getTime() - created.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) {
+      return "방금 전";
+    } else if (diffMins < 60) {
+      return `${diffMins}분 전`;
+    } else if (diffHours < 24) {
+      return `${diffHours}시간 전`;
+    } else if (diffDays < 7) {
+      return `${diffDays}일 전`;
+    } else {
+      return formatFullDateTime(created);
+    }
   };
 
   const handleInstanceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -518,6 +596,9 @@ const Header: React.FC = () => {
               onClick={() => setShowAlertPanel(true)}
             >
               <img src={AlertIcon} alt="alert" />
+              {unreadCount > 0 && (
+                <span className="header__right-alert-badge">{unreadCount}</span>
+              )}
             </button>
 
             {/* 테마 토글 */}
@@ -556,16 +637,43 @@ const Header: React.FC = () => {
               </button>
             </div>
             <div className="alert-panel__content">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <div key={i} className="alert-item">
-                  <div className="alert-item__icon">⚠️</div>
-                  <div className="alert-item__text">
-                    <strong>그래프 이름</strong> 에 에러 메시지 요약이
-                    발견되었습니다.
-                    <div className="alert-item__sub">N분 전 · DB명</div>
-                  </div>
+              {isLoading ? (
+                <div className="alert-panel__empty">
+                  로딩 중...
                 </div>
-              ))}
+              ) : alerts.length === 0 ? (
+                <div className="alert-panel__empty">
+                  알림이 없습니다.
+                </div>
+              ) : (
+                alerts.map((alert) => {
+                  // 심각도별 아이콘 및 색상 결정
+                  let icon = "⚠️";
+                  let severityClass = "alert-item__icon--warning"; // 기본 노란색 (WARNING)
+                  
+                  if (alert.severity === 2) {
+                    icon = "⚠️";
+                    severityClass = "alert-item__icon--danger"; // 주황색 (DANGER)
+                  } else if (alert.severity === 3) {
+                    icon = "🚨";
+                    severityClass = "alert-item__icon--critical"; // 빨간색 (CRITICAL)
+                  }
+
+                  return (
+                    <div key={alert.id} className="alert-item">
+                      <div className={`alert-item__icon ${severityClass}`}>
+                        {icon}
+                      </div>
+                      <div className="alert-item__text">
+                        <strong>{alert.message}</strong>
+                        <div className="alert-item__sub">
+                          {formatTimeAgo(alert.createdAt)} · 인스턴스 ID: {alert.instanceId ?? "N/A"}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>

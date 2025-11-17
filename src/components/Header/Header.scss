@@ -82,6 +82,7 @@
         background: none;
         cursor: pointer;
         transition: background 0.2s ease;
+        position: relative;
 
         img {
           width: 28px;
@@ -91,6 +92,25 @@
         &:hover {
           background: $gray-100;
         }
+    }
+
+    &-alert-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background-color: #ef4444;
+      color: white;
+      border-radius: 50%;
+      min-width: 18px;
+      height: 18px;
+      font-size: 11px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      padding: 0 4px;
+      box-sizing: border-box;
     }
   }
 
@@ -273,6 +293,14 @@
   }
 }
 
+/* 빈 상태 및 로딩 상태 */
+.alert-panel__empty {
+  padding: 20px;
+  text-align: center;
+  color: $gray-500;
+  @include text-styles("label02");
+}
+
 /* 개별 알림 아이템 */
 .alert-item {
   display: flex;
@@ -291,6 +319,20 @@
   &__icon {
     @include text-styles("heading04");
     margin-top: 2px;
+    font-size: 20px;
+    line-height: 1;
+
+    &--warning {
+      color: #f59e0b; // 노란색 (WARNING)
+    }
+
+    &--danger {
+      color: #f97316; // 주황색 (DANGER)
+    }
+
+    &--critical {
+      color: #ef4444; // 빨간색 (CRITICAL)
+    }
   }
 
   &__text {
@@ -301,6 +343,7 @@
     strong {
       color: $gray-900;
       margin-right: 4px;
+      font-weight: 600;
     }
   }
 
@@ -308,6 +351,7 @@
     margin-top: 3px;
     color: $gray-500;
     font-size: 11px;
+    @include text-styles("label02");
   }
 }
 
