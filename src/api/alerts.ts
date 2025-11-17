@@ -7,6 +7,13 @@ export type AlertStatus = "PENDING" | "CLOSED";
 
 export type AlertLevel = 1 | 2 | 3; // 1: WARNING, 2: DANGER, 3: CRITICAL
 
+// AlertLevel enum (런타임에서 사용 가능)
+export enum AlertLevelEnum {
+  WARNING = 1,
+  DANGER = 2,
+  CRITICAL = 3,
+}
+
 export type ThresholdFormat = "PERCENT" | "MS" | "MBPS" | "COUNT";
 
 export type DelayTime = "ONE_MINUTE" | "FIVE_MINUTES" | "TEN_MINUTES" | "ONE_HOUR";

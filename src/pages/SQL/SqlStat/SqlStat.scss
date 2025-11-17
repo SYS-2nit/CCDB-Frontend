@@ -8,65 +8,98 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  overflow: hidden;
 
   // 검색 영역
   &__search {
+    width: 100%;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 20px;
-    padding: 20px;
+    flex-direction: row;
     background: $gray-0;
-    border-radius: 5px;
+
+    // 왼쪽 영역 
+    &-left {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 5px;
+    
+        // 버튼 3개
+        &-btns {
+          display: flex;
+          gap: 10px;
+      }
+    }
+
+    // 오른쪽 영역 
+    &-right {
+      display: flex;
+      padding: 10px;
+    }
   }
 
-  // 테이블 영역
-  &__table {
-    border-radius: 5px;
-    padding: 20px;
-    background-color:  $gray-0;;
+  // 차트 영역
+  &__chart-null {
+    width: 100%;
+    padding: 40px 0;
+    text-align: center;
+    color: #999;
+    font-size: 15px;
+    border: 1px dashed #dcdcdc;
+    border-radius: 8px;
+    margin-top: 10px;
+    background: #fafafa;
+  }
 
-    h3 {
-      @include text-styles("label02");
+    &__summary {
+      background: $gray-0;
+      border-radius: 5px;
+      padding: 10px;
       color: $gray-700;
-      margin-bottom: 12px;
+      @include text-styles("body02");
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: center;
-      @include text-styles("label02");
-      color: $gray-700
+    // 테이블 영역
+    &__table {
+      padding: 10px;
+      border-radius:5px;
+      background-color:  $gray-0;
+      color: $gray-700;
+      @include text-styles("body02");
 
-      th,
-      td {
-        border-bottom: 1px solid $gray-100;
-        padding: 10px;
-        
-      }
-
-      // 첫번째 행
-      th {
-        background-color: $gray-50;
-        @include text-styles("label02");
-        color: $gray-700
-      }
-
-      &-title {
+      &-null {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0px;
+        color: $gray-500;
         @include text-styles("body02");
-        color: $gray-700
       }
     }
-  }
-}
 
-.sql-stat__sql-clickable {
-  cursor: pointer;
-  color: $main-600;
+    // 테이블 행 클릭 
+      &__sql-clickable {
+      cursor: pointer;
+      color: $main-600;
 
-  &:hover {
-    text-decoration: underline;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    // 로딩 영역
+    &__stat__loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
   }
-}
 
