@@ -1,0 +1,67 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.user-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+}
+
+.user-modal {
+  width: 360px;
+  background: $gray-0;
+  padding: 20px;
+  border-radius: 10px;
+
+  &__title {
+    @include text-styles("heading01");
+    color: $gray-900;
+  }
+}
+
+.user-modal__list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 20px 0px;
+}
+
+.user-modal__item {
+  padding: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $main-0;
+  }
+}
+
+.user-modal__name {
+    @include text-styles("heading04");
+    color: $gray-700;
+}
+
+.user-modal__email {
+    @include text-styles("body02");
+    color: $gray-500;
+}
+
+.user-modal__company {
+    @include text-styles("body02");
+    color: $gray-500;
+}
+
+.user-modal__close {
+  width: 100%;
+  margin-top: 16px;
+  padding: 8px 0;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}

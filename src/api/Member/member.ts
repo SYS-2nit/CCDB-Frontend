@@ -13,6 +13,7 @@ export interface Member {
   updatedAt: string;
 }
 
+// 전체 회원 조회 API
 export const fetchMembers = async (): Promise<Member[]> => {
   const res = await axios.get("http://localhost:8080/api/members");
   return res.data.data;

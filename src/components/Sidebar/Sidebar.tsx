@@ -14,7 +14,9 @@ import ProfileIcon from "@/assets/sidebar/profile.svg";
 import SidebarParentItem from "./components/SidebarParentItem";
 import SidebarItem from "./components/SidebarItem";
 import SidebarHoverModal from "./Modal/SidebarHoverModal";
+
 import { fetchMembers, type Member } from "@/api/Member/member";
+import UserListModal from "./Modal/UserListModal";
 
 const menuRoutes: Record<string, string[]> = {
   dashboard: ["/dashboard/instance-map", "/dashboard/instance-list"],
@@ -27,7 +29,6 @@ const menuRoutes: Record<string, string[]> = {
   logo: ["/dashboard"],
 };
 
-/* ===== 사이드바 ===== */
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,22 +36,45 @@ const Sidebar: React.FC = () => {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const [member, setMember] = useState<Member | null>(null);
+  /** -------------------------
+   *  🔥 사용자 정보 상태
+   *  ------------------------- */
+  const [currentUser, setCurrentUser] = useState<Member | null>(null); // 단일 사용자
+  const [members, setMembers] = useState<Member[]>([]); // 전체 목록
   const [loading, setLoading] = useState(true);
 
-  // hover tooltip 관리
+  /** -------------------------
+   *  Hover Tooltip 상태
+   *  ------------------------- */
   const [hoverMenu, setHoverMenu] = useState<string | null>(null);
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
     null
   );
 
-  // 페이지 진입 시 사용자 정보 불러오기
+  /** -------------------------
+   *  사용자 모달
+   *  ------------------------- */
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+
+  const openUserModal = async () => {
+    try {
+      const data = await fetchMembers(); // 전체 회원 목록
+      setMembers(data); // 목록 저장
+      setIsUserModalOpen(true);
+    } catch (e) {
+      console.error("회원 목록 조회 실패", e);
+    }
+  };
+
+  /** -------------------------
+   *  페이지 로드시 사용자 정보 로드
+   *  ------------------------- */
   useEffect(() => {
     const load = async () => {
       try {
-        const members = await fetchMembers();
-
-        setMember(members[0]);
+        const data = await fetchMembers();
+        setMembers(data);
+        setCurrentUser(data[0]); // 첫 번째 회원을 현재 사용자로 가정
       } catch (err) {
         console.error("사용자 정보 로딩 실패:", err);
       } finally {
@@ -61,20 +85,20 @@ const Sidebar: React.FC = () => {
     load();
   }, []);
 
-  /** 대시보드 자동 열림 */
+  /** 자동으로 대시보드 메뉴 펼침 */
   useEffect(() => {
     if (location.pathname.startsWith("/dashboard")) {
       setOpenMenu("dashboard");
     }
   }, [location.pathname]);
 
-  /** accordion toggle */
+  /** 아코디언 toggle */
   const toggleMenu = (menu: string) => {
     if (isCollapsed) return;
     setOpenMenu(openMenu === menu ? null : menu);
   };
 
-  /** Hover Modal Position 계산 */
+  /** Hover 모달 위치 계산 */
   const handleHover = (e: React.MouseEvent, menuKey: string) => {
     if (!isCollapsed) return;
     setHoverMenu(menuKey);
@@ -83,8 +107,8 @@ const Sidebar: React.FC = () => {
     setHoverPos({ x: rect.right - 11, y: rect.top + 12 });
   };
 
-  // 로딩 중 UI
-  if (loading || !member)
+  /** 로딩 중 */
+  if (loading || !currentUser)
     return <div className="setting">사용자 정보를 불러오는 중...</div>;
 
   return (
@@ -189,7 +213,7 @@ const Sidebar: React.FC = () => {
           </SidebarParentItem>
         </div>
 
-        {/* 자식 없는 메뉴들 */}
+        {/* 자식 없는 메뉴 */}
         <div
           onMouseEnter={(e) => handleHover(e, "analysis")}
           onMouseLeave={() => isCollapsed && setHoverMenu(null)}
@@ -240,15 +264,29 @@ const Sidebar: React.FC = () => {
           isCollapsed={isCollapsed}
         />
 
-        <div className="sidebar__item--user">
+        {/* 사용자 영역 */}
+        <div
+          className="sidebar__item--user"
+          onClick={openUserModal}
+          style={{ cursor: "pointer" }}
+        >
           <img src={ProfileIcon} alt="user" />
-          {!isCollapsed && (
+          {!isCollapsed && currentUser && (
             <div className="user-info">
-              <span className="sidebar__item--title">{member.username}</span>
-              <span className="user-email">{member.email}</span>
+              <span className="sidebar__item--title">
+                {currentUser.username}
+              </span>
+              <span className="user-email">{currentUser.email}</span>
             </div>
           )}
         </div>
+
+        {isUserModalOpen && (
+          <UserListModal
+            members={members} // 전체 사용자 목록 전달
+            onClose={() => setIsUserModalOpen(false)}
+          />
+        )}
       </div>
 
       {/* Hover Modal */}
@@ -272,8 +310,8 @@ const Sidebar: React.FC = () => {
           onSelect={(index) => {
             const routeList = menuRoutes[hoverMenu] || [];
             const target = routeList[index];
-            if (target) navigate(target); // 실제 페이지 이동
-            setHoverMenu(null); // 모달 닫기
+            if (target) navigate(target);
+            setHoverMenu(null);
           }}
         />
       )}
