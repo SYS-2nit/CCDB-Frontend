@@ -10,7 +10,7 @@ import Select from "../Select/Select";
 import {
   fetchInstancesByDatabase,
   type DatabaseInstanceListItem,
-} from "@/api/databases";
+} from "@/api/Databases/databases";
 import {
   useDashboardContext,
   type InstanceOption,
