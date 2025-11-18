@@ -134,6 +134,7 @@ const AlertTable: React.FC<AlertTableProps> = ({
     e.stopPropagation(); // 행 클릭 이벤트 방지
 
     const isRead = isEventRead(alert);
+    const newReadStatus = !isRead; // 변경될 상태
 
     try {
       if (isRead) {
@@ -148,6 +149,14 @@ const AlertTable: React.FC<AlertTableProps> = ({
       if (onRefresh) {
         onRefresh();
       }
+
+      // Header에 알림 상태 변경 이벤트 발생
+      window.dispatchEvent(new CustomEvent("alert:read-status-changed", {
+        detail: {
+          eventId: alert.id,
+          isRead: newReadStatus, // 변경된 상태
+        }
+      }));
     } catch (error) {
       console.error("[AlertTable] 읽음 상태 변경 실패:", error);
       alert("읽음 상태 변경에 실패했습니다.");

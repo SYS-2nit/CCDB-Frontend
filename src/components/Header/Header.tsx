@@ -400,6 +400,24 @@ const Header: React.FC = () => {
     }
   }, [memberId]);
 
+  // 알림 목록 갱신 함수 (안읽음 알림만 표시)
+  const loadAlertsList = useCallback(async () => {
+    if (!showAlertPanel) return;
+    
+    setIsLoading(true);
+    try {
+      const result = await fetchPendingAlerts(memberId, 0, 20);
+      // 안읽음 알림만 필터링 (acknowledgedAt이 null인 알림만)
+      const unreadAlerts = result.content.filter((alert) => !isEventRead(alert));
+      setAlerts(unreadAlerts);
+    } catch (error) {
+      console.error("[Header] 알림 목록 조회 실패:", error);
+      setAlerts([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [showAlertPanel, memberId]);
+
   // 알림 개수 조회 (컴포넌트 마운트 시 및 30초마다 갱신)
   useEffect(() => {
     // 초기 로드
@@ -505,21 +523,37 @@ const Header: React.FC = () => {
       return;
     }
 
-    const loadAlerts = async () => {
-      setIsLoading(true);
-      try {
-        const result = await fetchPendingAlerts(memberId, 0, 20);
-        setAlerts(result.content);
-      } catch (error) {
-        console.error("[Header] 알림 목록 조회 실패:", error);
-        setAlerts([]);
-      } finally {
-        setIsLoading(false);
+    loadAlertsList();
+  }, [showAlertPanel, loadAlertsList]);
+
+  // 알림 상태 변경 이벤트 리스너 (AlertTable에서 읽음 상태 변경 시 Header 갱신)
+  useEffect(() => {
+    const handleAlertStatusChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{ eventId: number; isRead: boolean }>;
+      const { eventId, isRead } = customEvent.detail;
+      
+      // 안읽음 개수 갱신
+      loadUnreadCount();
+      
+      // 알림 패널이 열려있으면 알림 목록도 갱신
+      if (showAlertPanel) {
+        // 읽음 처리된 경우 목록에서 제거, 안읽음 처리된 경우 목록에 추가
+        if (isRead) {
+          // 읽음 처리: 목록에서 제거
+          setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.id !== eventId));
+        } else {
+          // 안읽음 처리: 목록 갱신 (새로고침하여 안읽음 알림만 표시)
+          loadAlertsList();
+        }
       }
     };
 
-    loadAlerts();
-  }, [showAlertPanel, memberId]);
+    window.addEventListener("alert:read-status-changed", handleAlertStatusChange);
+
+    return () => {
+      window.removeEventListener("alert:read-status-changed", handleAlertStatusChange);
+    };
+  }, [showAlertPanel, memberId, loadUnreadCount, loadAlertsList]);
 
   // 알림 클릭 시 읽음 처리
   const handleAlertClick = async (alert: EventResponse) => {
@@ -532,14 +566,8 @@ const Header: React.FC = () => {
       // 읽음 처리 API 호출 (status는 변경되지 않음, acknowledgedAt만 설정)
       await acknowledgeEvent(alert.id, memberId);
       
-      // 로컬 상태 업데이트: 해당 알림의 acknowledgedAt 설정
-      setAlerts((prevAlerts) =>
-        prevAlerts.map((a) =>
-          a.id === alert.id
-            ? { ...a, acknowledgedAt: new Date().toISOString(), acknowledgedBy: memberId }
-            : a
-        )
-      );
+      // 로컬 상태 업데이트: 읽음 처리된 알림은 목록에서 제거 (안읽음만 표시)
+      setAlerts((prevAlerts) => prevAlerts.filter((a) => a.id !== alert.id));
 
       // 안읽음 개수 갱신
       loadUnreadCount();
