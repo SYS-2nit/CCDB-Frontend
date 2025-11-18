@@ -8,7 +8,6 @@ interface LineChartProps {
   showLegend?: boolean;
   seriesData?: number[][];
   categories?: string[];
-  date?: string;
   yaxisTitle?: string;
   height?: number | string;
   yMin?: number;
@@ -20,7 +19,6 @@ const LineChart: React.FC<LineChartProps> = ({
   showLegend = false,
   seriesData = [],
   categories = [],
-  date,
   yaxisTitle = "",
   height = 190,
   yMin,
