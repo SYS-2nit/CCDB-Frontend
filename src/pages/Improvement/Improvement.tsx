@@ -30,22 +30,22 @@ const TEMPLATES: {
   {
     id: "daily",
     title: "일일 보고서",
-    description: "하루 동안의 DB 성능 지표를 요약한 보고서",
+    description: "하루 동안의 DB 성능 지표 요약",
   },
   {
     id: "weekly",
     title: "주간 보고서",
-    description: "일간 성능 추이와 분석을 포함한 주간 리포트",
+    description: "일간 성능 추이와 분석",
   },
   {
     id: "monthly",
     title: "월간 보고서",
-    description: "월간 종합 분석 및 개선 제안을 포함한 보고서",
+    description: "월간 종합 분석 및 개선 제안",
   },
   {
     id: "performance",
     title: "성능 분석",
-    description: "상세한 성능 메트릭 및 병목 지점 분석",
+    description: "성능 메트릭 및 병목 지점 분석",
   },
 ];
 
@@ -296,22 +296,12 @@ const Improvement: React.FC = () => {
 
   return (
     <div className="report-page">
-      {/* 상단 타이틀 */}
-      <div className="report-page__header">
-        <div>
-          <h1 className="report-page__title">보고서 생성</h1>
-          <p className="report-page__subtitle">
-            DB 모니터링 데이터를 종합하여 보고서를 생성합니다.
-          </p>
-        </div>
-      </div>
-
       <div className="report-page__layout">
         {/* 왼쪽: 설정 영역 */}
         <div className="report-page__left">
           {/* 보고서 템플릿 선택 */}
           <section className="report-section">
-            <h2 className="report-section__title">보고서 템플릿 선택</h2>
+            <h2 className="report-section__title">템플릿</h2>
             <div className="report-section__templates">
               {TEMPLATES.map((t) => (
                 <button
@@ -342,11 +332,10 @@ const Improvement: React.FC = () => {
 
           {/* 보고서 설정 */}
           <section className="report-section">
-            <h2 className="report-section__title">보고서 설정</h2>
+            <h2 className="report-section__title">설정</h2>
 
             {/* 기간 선택 */}
             <div className="report-section__block">
-              <div className="report-section__block-title">보고서 기간</div>
               <div className="report-period">
                 <div className="report-period__field">
                   <span className="report-period__label">
@@ -421,7 +410,7 @@ const Improvement: React.FC = () => {
 
             {/* 보고서 구성 */}
             <div className="report-section__block">
-              <div className="report-section__block-title">보고서 구성</div>
+              <div className="report-section__block-title">구성</div>
               <div className="report-sections">
                 {SECTIONS.map((section) => (
                   <button
@@ -459,7 +448,7 @@ const Improvement: React.FC = () => {
             <div className="report-preview__header">
               <div className="report-preview__header-icon">📄</div>
               <div>
-                <h2 className="report-preview__title">보고서 미리보기</h2>
+                <h2 className="report-preview__title">미리보기</h2>
                 <p className="report-preview__subtitle">
                   생성될 보고서의 구성을 확인하세요.
                 </p>
