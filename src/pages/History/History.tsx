@@ -49,6 +49,7 @@ const History: React.FC = () => {
 
   // 탭 옵션
   const TAB_ITEMS = [
+    { id: "CUSTOM", label: "Custom" },
     { id: "CPU", label: "CPU" },
     { id: "MEMORY", label: "Memory" },
     { id: "SESSION", label: "Session" },
@@ -65,6 +66,26 @@ const History: React.FC = () => {
   const filteredGraphs = historyGraphs.filter((graph) =>
     chartData[activeTab]?.includes(graph.name)
   );
+  // GraphId 기반 카테고리 필터링
+  const getCategoryByGraphId = (
+    graphId: number
+  ):
+    | "cpu"
+    | "memory"
+    | "session"
+    | "io"
+    | "storage"
+    | "custom"
+    | "main"
+    | null => {
+    if (graphId >= 1 && graphId <= 12) return "custom";
+    if (graphId >= 13 && graphId <= 20) return "cpu";
+    if (graphId >= 21 && graphId <= 28) return "memory";
+    if (graphId >= 29 && graphId <= 36) return "session";
+    if (graphId >= 37 && graphId <= 44) return "io";
+    if (graphId >= 45 && graphId <= 52) return "storage";
+    return "main";
+  };
 
   /** 공통 필터 업데이트 */
   const updateFilter = useCallback(
