@@ -6,7 +6,7 @@ import MetricGrid, { type MetricData } from "@/components/Card/MetricCard";
 import StackChart from "@/components/Chart/StackChart";
 import SuccessGreenIcon from "@/assets/general/succes-green.svg";
 import ErrorRedIcon from "@/assets/general/error-red.svg";
-import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
+import type { GraphDataResponse } from "@/api/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 
 const ensureNumber = (value: unknown): number | null => {
@@ -140,10 +140,7 @@ const renderGauge = (graph: GraphDataResponse, valueKey: string) => {
 
 const renderMetricTiles = (
   graph: GraphDataResponse,
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   mappings: Array<{
     key: string;
     label: string;
@@ -193,11 +190,8 @@ const renderMetricTiles = (
       if (numeric !== null) {
         if (suffix === "%") {
           display = `${numeric.toFixed(1)}%`;
-<<<<<<< HEAD
-=======
         } else if (suffix) {
           display = `${numeric.toLocaleString()} ${suffix}`;
->>>>>>> dev
         } else {
           display = numeric.toLocaleString();
         }
@@ -433,10 +427,7 @@ export const renderDynamicChart = (
 
   // Graph ID 8: 세션 한도/급증
   // GraphRegistry: session_usage_pct
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 8) {
     return renderGauge(graph, "session_usage_pct");
   }
@@ -489,10 +480,7 @@ export const renderDynamicChart = (
 
   // Graph ID 4: CPU 사용(호스트 vs DB CPU)
   // GraphRegistry: HOST_CPU_UTIL_PCT, CPU_SATURATION_PCT
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 4) {
     return renderLine(
       graph,
@@ -547,10 +535,7 @@ export const renderDynamicChart = (
 
   // Graph ID 7: SGA 압박(FreeMB/Reloads)
   // GraphRegistry: LIBRARY_CACHE_HIT_PCT, DICTIONARY_CACHE_HIT_PCT, HARD_PARSE_RATIO_PCT
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 7) {
     return renderMetricTiles(graph, [
       {
@@ -577,10 +562,7 @@ export const renderDynamicChart = (
 
   // Graph ID 2: AAS
   // GraphRegistry: AAS_TOTAL, AAS_ONCPU_SESSIONS, CORE_BASELINE_SESSIONS
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 2) {
     return renderLine(
       graph,
@@ -610,30 +592,13 @@ export const renderDynamicChart = (
   // Graph ID 13: CPU 활동 현황 타일
   // GraphRegistry: HOST_BUSY_CORES, HOST_TOTAL_CORES, HOST_CPU_UTIL_PCT, AAS_ONCPU_SESSIONS, CORE_BASELINE_SESSIONS,
   //                CPU_SATURATION_PCT, DB_OF_HOST_SHARE_PCT, RunQ_per_Core_LOAD_PROXY, TPS_PER_SEC, EXECS_PER_SEC
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 13) {
     return renderMetricTiles(
       graph,
       [
         {
           key: "host_cpu_util_pct",
-<<<<<<< HEAD
-          label: "Host CPU(%)",
-          suffix: "%",
-        },
-        {
-          key: "cpu_saturation_pct",
-          label: "DB CPU Saturation(%)",
-          suffix: "%",
-        },
-        {
-          key: "db_of_host_share_pct",
-          label: "DB Share of Host(%)",
-          suffix: "%",
-=======
           label: "호스트 CPU 사용률",
           suffix: " %",
         },
@@ -646,23 +611,15 @@ export const renderDynamicChart = (
           key: "db_of_host_share_pct",
           label: "DB CPU 점유율",
           suffix: " %",
->>>>>>> dev
           subtitleKeys: ["aas_oncpu_sessions", "host_busy_cores"],
         },
         {
           key: "runq_per_core_load_proxy",
-<<<<<<< HEAD
-          label: "Run Queue per Core(process)",
-        },
-        { key: "tps_per_sec", label: "TPS" },
-        { key: "execs_per_sec", label: "EXEC/S" },
-=======
           label: "RunQ",
           suffix: " /Core",
         },
         { key: "tps_per_sec", label: "TPS", suffix: " /s" },
         { key: "execs_per_sec", label: "EXEC/S", suffix: " /s" },
->>>>>>> dev
       ],
       6
     );
@@ -694,20 +651,13 @@ export const renderDynamicChart = (
 
   // Graph ID 14: DB CPU Saturation - AAS vs Core
   // GraphRegistry: AAS_ONCPU_SESSIONS, CORE_BASELINE_SESSIONS
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 14) {
     return renderLine(
       graph,
       {
         keys: ["aas_oncpu_sessions", "core_baseline_sessions"],
-<<<<<<< HEAD
-        legends: ["AAS On-CPU Sessions", "Core Baseline Sessions"],
-=======
         legends: ["AAS On-CPU", "Core Baseline Sessions"],
->>>>>>> dev
       },
       mode
     );
@@ -715,10 +665,7 @@ export const renderDynamicChart = (
 
   // Graph ID 16: DB CPU Share of Host
   // GraphRegistry: DB_OF_HOST_SHARE_PCT, OTHER_PROCESSES_PCT
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 16) {
     return renderLine(
       graph,
@@ -744,10 +691,7 @@ export const renderDynamicChart = (
 
   // Graph ID 17: Run Queue per Core - Scheduler Load
   // GraphRegistry: RunQ_per_Core_LOAD_PROXY, Load_threshold, load_threshold_min, load_threshold_max
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 17) {
     return renderLine(
       graph,
@@ -774,17 +718,10 @@ export const renderDynamicChart = (
     return renderMetricTiles(
       graph,
       [
-<<<<<<< HEAD
-        { key: "pga_used_bytes", label: "PGA Used (bytes)" },
-        { key: "pga_target_bytes", label: "PGA Target (bytes)" },
-        { key: "pga_util_pct", label: "PGA Util (%)", suffix: "%" },
-        { key: "memory_sort_pct", label: "Memory Sort (%)", suffix: "%" },
-=======
         { key: "pga_used_bytes", label: "PGA 사용량", suffix: "bytes" },
         { key: "pga_target_bytes", label: "PGA 할당량", suffix: "bytes" },
         { key: "pga_util_pct", label: "PGA 사용률", suffix: "%" },
         { key: "memory_sort_pct", label: "Memory Sort", suffix: "%" },
->>>>>>> dev
         { key: "dedicated_sess_cnt", label: "Dedicated" },
         { key: "parallel_proc_cnt", label: "Parallel" },
         { key: "shared_server_proc_cnt", label: "Shared" },
@@ -799,12 +736,6 @@ export const renderDynamicChart = (
     return renderMetricTiles(
       graph,
       [
-<<<<<<< HEAD
-        { key: "sga_util_pct", label: "SGA Usage", suffix: "%" },
-        { key: "shared_pool_free_pct", label: "Shared Pool", suffix: "%" },
-        { key: "library_cache_mb", label: "Lib.Cache", suffix: " MB" },
-        { key: "dictionary_cache_mb", label: "Dic.Cache", suffix: " MB" },
-=======
         { key: "sga_util_pct", label: "SGA 사용률", suffix: "%" },
         { key: "shared_pool_free_pct", label: "Shared Pool", suffix: "%" },
         { key: "library_cache_mb", label: "Libary Cache", suffix: " MB" },
@@ -813,7 +744,6 @@ export const renderDynamicChart = (
           label: "Dictionary Cache",
           suffix: " MB",
         },
->>>>>>> dev
         { key: "large_pool_mb", label: "Large Pool", suffix: " MB" },
         { key: "java_pool_mb", label: "Java Pool", suffix: " MB" },
         { key: "log_buffer_mb", label: "Log Buffer", suffix: " MB" },
@@ -825,10 +755,7 @@ export const renderDynamicChart = (
 
   // Graph ID 23: PGA Utilization (%) – Trend
   // GraphRegistry: PGA_UTIL_PCT
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 23) {
     return renderLine(
       graph,
@@ -842,10 +769,7 @@ export const renderDynamicChart = (
 
   // Graph ID 24: SGA Utilization (%) — Trend
   // GraphRegistry: SGA_UTIL_PCT
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 24) {
     return renderLine(
       graph,
@@ -962,34 +886,19 @@ export const renderDynamicChart = (
     return renderMetricTiles(
       graph,
       [
-<<<<<<< HEAD
-        { key: "active_user_sessions_now", label: "Active / Total Users" },
-        {
-          key: "sessions_limit_util_pct",
-          label: "Sessions Limit Util(%)",
-=======
         { key: "active_user_sessions_now", label: "활성 세션" },
         {
           key: "sessions_limit_util_pct",
           label: "세션 사용률",
->>>>>>> dev
           suffix: "%",
         },
         {
           key: "processes_limit_util_pct",
-<<<<<<< HEAD
-          label: "Processes Limit Util(%)",
-          suffix: "%",
-        },
-        { key: "blockers_now", label: "Blockers(session)" },
-        { key: "blocked_now", label: "Blocked(session)" },
-=======
           label: "프로세스 사용률",
           suffix: "%",
         },
         { key: "blockers_now", label: "Blockers" },
         { key: "blocked_now", label: "Blocked" },
->>>>>>> dev
       ],
       5
     );
@@ -1004,24 +913,6 @@ export const renderDynamicChart = (
       [
         {
           key: "cache_hit_ratio_pct",
-<<<<<<< HEAD
-          label: "Cache Hit Ratio(%)",
-          suffix: "%",
-        },
-        {
-          key: "avg_io_wait_time_ms",
-          label: "Avg I/O Wait Time(ms)",
-          suffix: " ms",
-        },
-        { key: "physical_reads_per_sec", label: "Physical Reads(/s)" },
-        {
-          key: "redo_size_mb_per_sec",
-          label: "Redo Size(MB/s)",
-          suffix: " MB/s",
-        },
-        { key: "parse_execute_ratio", label: "Parse/Execute Ratio" },
-        { key: "direct_path_io_per_sec", label: "Direct Path I/O(/s)" },
-=======
           label: "Buffer Cache Hit Ratio",
           suffix: " %",
         },
@@ -1046,7 +937,6 @@ export const renderDynamicChart = (
           label: "Direct Path I/O",
           suffix: " blocks/s",
         },
->>>>>>> dev
       ],
       6
     );
@@ -1054,10 +944,7 @@ export const renderDynamicChart = (
 
   // Graph ID 38: Direct Path I/O (개/초)
   // GraphRegistry: physical_reads_direct_per_sec, physical_writes_direct_per_sec, direct_io_ratio_pct
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 38) {
     return renderLine(
       graph,
@@ -1079,10 +966,7 @@ export const renderDynamicChart = (
 
   // Graph ID 39: SQL Parsing & Execution (개/초)
   // GraphRegistry: parser_request_per_sec, sql_execute_per_sec, sql_parse_execute_ratio
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 39) {
     return renderLine(
       graph,
@@ -1104,10 +988,7 @@ export const renderDynamicChart = (
 
   // Graph ID 40: Physical Reads vs Logical Reads (개/초)
   // GraphRegistry: physical_reads_per_diff_sec, logical_reads_per_sec, cache_hit_ratio_diff_pct, total_reads_per_sec
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 40) {
     return renderLine(
       graph,
@@ -1175,23 +1056,11 @@ export const renderDynamicChart = (
   // === STORAGE 카테고리 ===
   // Graph ID 45: Storage Health Dashboard
   // GraphRegistry: FRA_USAGE_PERCENT, FRA_FREE_GB, UNDO_USAGE_PCT, TEMP_USAGE_PCT, MAX_TS_NAME, MAX_TS_USAGE_PCT, TOTAL_DB_USAGE_PCT
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 45) {
     return renderMetricTiles(
       graph,
       [
-<<<<<<< HEAD
-        { key: "fra_usage_percent", label: "FRA Usage(%)", suffix: "%" },
-        { key: "fra_free_gb", label: "FRA Free(GB)", suffix: " GB" },
-        { key: "undo_usage_pct", label: "Undo Usage(%)", suffix: "%" },
-        { key: "temp_usage_pct", label: "Temp Usage(%)", suffix: "%" },
-        { key: "max_ts_name", label: "Max TS Name" },
-        { key: "max_ts_usage_pct", label: "Max TS Usage(%)", suffix: "%" },
-        { key: "total_db_usage_pct", label: "Total DB Usage(%)", suffix: "%" },
-=======
         { key: "fra_usage_percent", label: "FRA 사용률", suffix: "%" },
         { key: "fra_free_gb", label: "FRA 여유", suffix: " GB" },
         { key: "undo_usage_pct", label: "Undo 사용률", suffix: "%" },
@@ -1203,7 +1072,6 @@ export const renderDynamicChart = (
           suffix: "%",
         },
         { key: "total_db_usage_pct", label: "전체 DB 사용률 ", suffix: "%" },
->>>>>>> dev
       ],
       7
     );
@@ -1211,10 +1079,7 @@ export const renderDynamicChart = (
 
   // Graph ID 46: Temp Tablespace Active Usage (GB)
   // GraphRegistry: temp_active_usage_gb, temp_current_size_gb, temp_max_size_gb, temp_usage_percent, temp_usage_pct_of_max, temp_peak_usage_24h_gb
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 46) {
     return renderLine(
       graph,
@@ -1262,10 +1127,7 @@ export const renderDynamicChart = (
   // Graph ID 48: 테이블스페이스 증가 추세 (GB/일)
   // GraphRegistry: system_tablespace_name_inc, sysaux_tablespace_name_inc, undotbs1_tablespace_name_inc, users_tablespace_name_inc,
   //                system_used_space_gb_inc, sysaux_used_space_gb_inc, undotbs1_used_space_gb_inc, users_used_space_gb_inc
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 48) {
     return renderStack(
       graph,
@@ -1281,10 +1143,7 @@ export const renderDynamicChart = (
 
   // Graph ID 49: FRA 사용률 추세 (%)
   // GraphRegistry: space_limit_gb, space_used_gb, space_reclaimable_gb, usage_pct, hourly_growth_pct, time_to_95_pct_hours
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 49) {
     return renderLine(
       graph,
@@ -1312,10 +1171,7 @@ export const renderDynamicChart = (
 
   // Graph ID 50: Undo 사용률 추세 (%)
   // GraphRegistry: undo_tablespace_name, undo_usage_percent, long_transaction_count, long_transaction_undo_mb, undo_retention_sec
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 50) {
     return renderLine(
       graph,
@@ -1341,10 +1197,7 @@ export const renderDynamicChart = (
 
   // Graph ID 51: Total Database Usage Trend (%)
   // GraphRegistry: total_db_usage_percent
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
   if (graph.id === 51) {
     return renderLine(
       graph,
