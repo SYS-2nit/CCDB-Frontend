@@ -20,6 +20,8 @@ import {
   fetchUnreadAlertCount,
   fetchPendingAlerts,
   connectSSE,
+  acknowledgeEvent,
+  isEventRead,
   type EventResponse,
 } from "@/api/alerts";
 
@@ -519,6 +521,34 @@ const Header: React.FC = () => {
     loadAlerts();
   }, [showAlertPanel, memberId]);
 
+  // 알림 클릭 시 읽음 처리
+  const handleAlertClick = async (alert: EventResponse) => {
+    // 이미 읽음 상태면 처리하지 않음
+    if (isEventRead(alert)) {
+      return;
+    }
+
+    try {
+      // 읽음 처리 API 호출 (status는 변경되지 않음, acknowledgedAt만 설정)
+      await acknowledgeEvent(alert.id, memberId);
+      
+      // 로컬 상태 업데이트: 해당 알림의 acknowledgedAt 설정
+      setAlerts((prevAlerts) =>
+        prevAlerts.map((a) =>
+          a.id === alert.id
+            ? { ...a, acknowledgedAt: new Date().toISOString(), acknowledgedBy: memberId }
+            : a
+        )
+      );
+
+      // 안읽음 개수 갱신
+      loadUnreadCount();
+    } catch (error) {
+      console.error("[Header] 알림 읽음 처리 실패:", error);
+    }
+  };
+
+
   const formatClock = (date: Date) => {
     const hh = String(date.getHours()).padStart(2, "0");
     const mm = String(date.getMinutes()).padStart(2, "0");
@@ -795,13 +825,36 @@ const Header: React.FC = () => {
                     severityClass = "alert-item__icon--critical"; // 빨간색 (CRITICAL)
                   }
 
+                  // 읽음/안읽음 상태 확인
+                  const isRead = isEventRead(alert);
+                  const isResolved = alert.status === "CLOSED";
+
                   return (
-                    <div key={alert.id} className="alert-item">
+                    <div 
+                      key={alert.id} 
+                      className={`alert-item ${isRead ? "alert-item--read" : "alert-item--unread"}`}
+                      onClick={() => handleAlertClick(alert)}
+                      style={{ cursor: "pointer" }}
+                    >
                       <div className={`alert-item__icon ${severityClass}`}>
                         {icon}
                       </div>
-                      <div className="alert-item__text">
-                        <strong>{alert.message}</strong>
+                      <div className="alert-item__text" style={{ flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <strong>{alert.message}</strong>
+                          {isResolved && (
+                            <span style={{ 
+                              backgroundColor: "#28a745", 
+                              color: "white", 
+                              padding: "2px 6px", 
+                              borderRadius: "4px", 
+                              fontSize: "11px",
+                              fontWeight: "bold"
+                            }}>
+                              해결됨
+                            </span>
+                          )}
+                        </div>
                         <div className="alert-item__sub">
                           {formatTimeAgo(alert.createdAt)} · 인스턴스 ID: {alert.instanceId ?? "N/A"}
                         </div>

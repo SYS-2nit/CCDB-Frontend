@@ -3,7 +3,7 @@
   
   // 테이블 컬럼 너비 조정
   :global(.table-chart) {
-    table-layout: fixed;
+    // table-layout: fixed;
     
     th:nth-child(1), // 번호
     td:nth-child(1) {
@@ -26,42 +26,49 @@
       max-width: 80px;
     }
     
-    th:nth-child(4), // 심각도
+    th:nth-child(4), // 읽음
     td:nth-child(4) {
-      width: 100px;
-      min-width: 100px;
-      max-width: 100px;
+      width: 80px;
+      min-width: 80px;
+      max-width: 80px;
     }
     
-    th:nth-child(5), // 카테고리
+    th:nth-child(5), // 심각도
     td:nth-child(5) {
       width: 100px;
       min-width: 100px;
       max-width: 100px;
     }
     
-    th:nth-child(6), // 메시지
+    th:nth-child(6), // 카테고리
     td:nth-child(6) {
-      width: auto; // 나머지 공간 차지
-      min-width: 200px;
-    }
-    
-    th:nth-child(7), // 인스턴스 ID
-    td:nth-child(7) {
       width: 100px;
       min-width: 100px;
       max-width: 100px;
     }
     
-    th:nth-child(8), // 발생시간
+    th:nth-child(7), // 메시지
+    td:nth-child(7) {
+      width: auto; // 나머지 공간 차지
+      min-width: 200px;
+    }
+    
+    th:nth-child(8), // 인스턴스 ID
     td:nth-child(8) {
+      width: 100px;
+      min-width: 100px;
+      max-width: 100px;
+    }
+    
+    th:nth-child(9), // 발생시간
+    td:nth-child(9) {
       width: 150px;
       min-width: 150px;
       max-width: 150px;
     }
     
     // 메시지 컬럼은 텍스트가 길어도 줄바꿈 허용
-    td:nth-child(6) {
+    td:nth-child(7) {
       white-space: normal;
       word-break: break-word;
       text-align: left;

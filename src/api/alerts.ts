@@ -150,32 +150,60 @@ export interface ProgressHistoryCreateRequest {
   content: string;
 }
 
+// ==================== Utility Functions ====================
+
+/**
+ * 알림이 읽음 상태인지 확인
+ */
+export const isEventRead = (event: EventResponse): boolean => {
+  return event.acknowledgedAt !== null;
+};
+
+/**
+ * 알림이 해결 상태인지 확인
+ */
+export const isEventResolved = (event: EventResponse): boolean => {
+  return event.status === "CLOSED";
+};
+
 // ==================== API Functions ====================
 
 const ALERTS_ENDPOINT = "/api/alerts";
 
 /**
- * 미처리 알림 개수 조회
+ * 안읽음 알림 개수 조회 (acknowledgedAt이 null인 알림)
+ * 백엔드에서 acknowledgedAt 필터를 지원하지 않을 경우, 클라이언트에서 필터링
  */
 export const fetchUnreadAlertCount = async (
   memberId: number,
 ): Promise<number> => {
-  const response = await api.get<ApiResponse<Page<EventResponse>>>(
-    `${ALERTS_ENDPOINT}/events`,
-    {
-      params: {
-        memberId,
-        status: "PENDING",
-        page: 0,
-        size: 1,
+  try {
+    // 전체 알림 조회 후 클라이언트에서 필터링
+    // (백엔드에서 acknowledgedAt 필터를 지원하면 params에 추가 가능)
+    const response = await api.get<ApiResponse<Page<EventResponse>>>(
+      `${ALERTS_ENDPOINT}/events`,
+      {
+        params: {
+          memberId,
+          page: 0,
+          size: 1000, // 충분히 큰 값으로 설정 (또는 백엔드에서 카운트만 반환하는 API 사용)
+        },
       },
-    },
-  );
-  return response.data.data?.totalElements ?? 0;
+    );
+    
+    const allAlerts = response.data.data?.content ?? [];
+    // acknowledgedAt이 null인 알림만 카운트
+    const unreadCount = allAlerts.filter(alert => alert.acknowledgedAt === null).length;
+    return unreadCount;
+  } catch (error) {
+    console.error("[fetchUnreadAlertCount] 안읽음 알림 개수 조회 실패:", error);
+    return 0;
+  }
 };
 
 /**
- * 미처리 알림 목록 조회
+ * 미처리 알림 목록 조회 (PENDING 상태)
+ * 참고: 읽음/안읽음은 acknowledgedAt 필드로 판단
  */
 export const fetchPendingAlerts = async (
   memberId: number,
@@ -421,6 +449,18 @@ export const resolveEvent = async (
   const response = await api.post<ApiResponse<EventResponse>>(
     `${ALERTS_ENDPOINT}/events/${id}/resolve`,
     { memberId, message } as EventResolveRequest,
+  );
+  return response.data.data!;
+};
+
+/**
+ * 알림 이벤트 읽음 → 안읽음 되돌리기
+ */
+export const unacknowledgeEvent = async (
+  id: number,
+): Promise<EventResponse> => {
+  const response = await api.post<ApiResponse<EventResponse>>(
+    `${ALERTS_ENDPOINT}/events/${id}/unacknowledge`,
   );
   return response.data.data!;
 };

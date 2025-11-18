@@ -9,7 +9,10 @@ import {
   type AlertLevel,
   fetchEventHistories,
   addHistory,
-  resolveEvent,
+  unacknowledgeEvent,
+  acknowledgeEvent,
+  isEventRead,
+  isEventResolved,
   type ProgressHistoryResponse,
 } from "@/api/alerts";
 
@@ -35,8 +38,6 @@ const AlertTable: React.FC<AlertTableProps> = ({
   const [isListOpen, setIsListOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [histories, setHistories] = useState<ProgressHistoryResponse[]>([]);
-  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
-  const [selectedMessage, setSelectedMessage] = useState<string>("");
   const [historyContent, setHistoryContent] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const memberId = 3; // 실제 사용자 ID
@@ -100,17 +101,14 @@ const AlertTable: React.FC<AlertTableProps> = ({
     }
   };
 
-  // 처리 내역 추가 및 해결 처리
+  // 처리 내역 추가 (백엔드에서 자동으로 status를 CLOSED로 변경)
   const handleAddHistory = async () => {
     if (!historyContent.trim() || !selectedEventId) return;
 
     setIsSubmitting(true);
     try {
-      // 처리 내역 추가
+      // 처리 내역 추가 (백엔드에서 자동으로 status를 CLOSED로 변경하고 resolvedAt, resolvedBy 설정)
       await addHistory(selectedEventId, memberId, historyContent);
-      
-      // 알림 상태를 해결로 처리
-      await resolveEvent(selectedEventId, memberId, historyContent);
 
       // 처리내역 목록 새로고침
       const newHistories = await fetchEventHistories(selectedEventId);
@@ -119,7 +117,7 @@ const AlertTable: React.FC<AlertTableProps> = ({
       // 입력 내용 초기화
       setHistoryContent("");
 
-      // 알림 목록 새로고침
+      // 알림 목록 새로고침 (status가 CLOSED로 변경되었으므로)
       if (onRefresh) {
         onRefresh();
       }
@@ -131,11 +129,37 @@ const AlertTable: React.FC<AlertTableProps> = ({
     }
   };
 
+  // 읽음/안읽음 토글 처리
+  const handleToggleReadStatus = async (alert: EventResponse, e: React.MouseEvent) => {
+    e.stopPropagation(); // 행 클릭 이벤트 방지
+
+    const isRead = isEventRead(alert);
+
+    try {
+      if (isRead) {
+        // 읽음 → 안읽음
+        await unacknowledgeEvent(alert.id);
+      } else {
+        // 안읽음 → 읽음
+        await acknowledgeEvent(alert.id, memberId);
+      }
+
+      // 알림 목록 새로고침
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error) {
+      console.error("[AlertTable] 읽음 상태 변경 실패:", error);
+      alert("읽음 상태 변경에 실패했습니다.");
+    }
+  };
+
   // 컬럼 정의
   const columns = [
     { key: "number", label: "번호" },
     { key: "list", label: "처리 내역" },
     { key: "status", label: "상태" },
+    { key: "read", label: "읽음" },
     { key: "severity", label: "심각도" },
     { key: "category", label: "카테고리" },
     { key: "message", label: "메시지" },
@@ -162,7 +186,34 @@ const AlertTable: React.FC<AlertTableProps> = ({
       />
     </div>,
 
+    // 상태
     statusTextMap[alert.status],
+
+    // 읽음/안읽음 버튼
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <button
+        onClick={(e) => handleToggleReadStatus(alert, e)}
+        style={{
+          padding: "4px 12px",
+          fontSize: "12px",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+          cursor: "pointer",
+          backgroundColor: isEventRead(alert) ? "#e0e0e0" : "#fff",
+          color: isEventRead(alert) ? "#666" : "#ff4444",
+          fontWeight: isEventRead(alert) ? "normal" : "bold",
+          transition: "all 0.2s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = isEventRead(alert) ? "#d0d0d0" : "#fff5f5";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = isEventRead(alert) ? "#e0e0e0" : "#fff";
+        }}
+      >
+        {isEventRead(alert) ? "읽음" : "안읽음"}
+      </button>
+    </div>,
 
     // 심각도
     <div
@@ -181,21 +232,8 @@ const AlertTable: React.FC<AlertTableProps> = ({
     // 카테고리 (백엔드 값: CPU, MEMORY, SESSION, IO, STORAGE)
     alert.category ? categoryDisplayMap[alert.category] || alert.category : "-",
 
-    // 메시지 - 클릭 가능
-    <div
-      style={{
-        cursor: "pointer",
-        textDecoration: "underline",
-        color: "#007bff",
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        setSelectedMessage(alert.message);
-        setIsMessageModalOpen(true);
-      }}
-    >
-      {alert.message}
-    </div>,
+    // 메시지
+    alert.message,
     // 인스턴스 ID (중앙 정렬)
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
       {alert.instanceId ?? "N/A"}
@@ -422,51 +460,6 @@ const AlertTable: React.FC<AlertTableProps> = ({
         </div>
       )}
 
-      {/* 메시지 모달 */}
-      {isMessageModalOpen && (
-        <div className="modal-overlay light" onClick={() => {
-          setIsMessageModalOpen(false);
-          setSelectedMessage("");
-        }}>
-          <div 
-            className="modal light modal--lg" 
-            style={{ maxWidth: "800px", width: "95%" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* 헤더 */}
-            <div className="modal__header">
-              <h2>알림 메시지</h2>
-              <button 
-                className="modal__close" 
-                onClick={() => {
-                  setIsMessageModalOpen(false);
-                  setSelectedMessage("");
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* 바디 */}
-            <div className="modal__body">
-              <div
-                style={{
-                  padding: "16px",
-                  backgroundColor: "#f8f9fa",
-                  borderRadius: "8px",
-                  whiteSpace: "nowrap",
-                  overflowX: "auto",
-                  lineHeight: "1.6",
-                  color: "#333",
-                  fontSize: "14px",
-                }}
-              >
-                {selectedMessage}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

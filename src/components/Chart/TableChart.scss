@@ -20,7 +20,7 @@
   @include text-styles("label02");
   border: 1px solid $gray-100;
   text-align: left;
-  table-layout: fixed; 
+  // table-layout: fixed; 
 
   thead {
     background-color: $gray-50;
@@ -61,7 +61,7 @@
   }
 
   td {
-    padding: 8px 10px;
+    padding: 8px 36px;
     border-bottom: 1px solid $gray-100;
     color: $gray-800;
     @include text-styles("label02");

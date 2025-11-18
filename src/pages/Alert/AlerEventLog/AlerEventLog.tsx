@@ -7,6 +7,7 @@ import Select from "@/components/Select/Select";
 import DateInput from "@/components/Input/DateInput";
 import {
   fetchAlerts,
+  isEventRead,
   type EventResponse,
   type AlertStatus,
   type AlertLevel,
@@ -22,6 +23,7 @@ const AlerEventLog: React.FC = () => {
   const [endDate, setEndDate] = useState<string>("");
   const [severity, setSeverity] = useState<AlertLevel | "">("");
   const [status, setStatus] = useState<AlertStatus | "">("");
+  const [readStatus, setReadStatus] = useState<"all" | "read" | "unread">("all"); // 읽음/안읽음 필터
   const [keyword, setKeyword] = useState("");
 
   // 데이터 상태
@@ -36,6 +38,8 @@ const AlerEventLog: React.FC = () => {
   const loadAlerts = useCallback(async () => {
     setIsLoading(true);
     try {
+      // 클라이언트 사이드 필터링을 위해 전체 데이터를 가져옴
+      // (카테고리, 날짜, 읽음/안읽음 필터가 클라이언트 사이드에서 처리되므로)
       const params: {
         memberId: number;
         status?: AlertStatus;
@@ -44,8 +48,8 @@ const AlerEventLog: React.FC = () => {
         size: number;
       } = {
         memberId,
-        page,
-        size: pageSize,
+        page: 0, // 전체 데이터를 가져오기 위해 첫 페이지부터
+        size: 1000, // 충분히 큰 값으로 설정 (또는 백엔드에서 전체 데이터 조회 API 사용)
       };
 
       // 상태 필터 (전체가 아닐 때만)
@@ -58,12 +62,10 @@ const AlerEventLog: React.FC = () => {
         params.severity = severity as AlertLevel;
       }
 
-      // 카테고리와 날짜 필터는 백엔드 API에 파라미터가 없어서 일단 클라이언트 사이드 필터링
-      // 나중에 백엔드에서 지원하면 서버 사이드로 이동
-
+      // 전체 데이터 조회
       const result: Page<EventResponse> = await fetchAlerts(params);
       
-      // 클라이언트 사이드 필터링 (카테고리, 날짜)
+      // 클라이언트 사이드 필터링 (카테고리, 날짜, 읽음/안읽음)
       let filteredAlerts = result.content;
 
       // 카테고리 필터링
@@ -73,7 +75,14 @@ const AlerEventLog: React.FC = () => {
         );
       }
 
-      // 날짜 필터링 (백엔드에서 지원되면 서버 사이드로 이동)
+      // 읽음/안읽음 필터링
+      if (readStatus === "read") {
+        filteredAlerts = filteredAlerts.filter((alert) => isEventRead(alert));
+      } else if (readStatus === "unread") {
+        filteredAlerts = filteredAlerts.filter((alert) => !isEventRead(alert));
+      }
+
+      // 날짜 필터링
       if (startDate && endDate) {
         filteredAlerts = filteredAlerts.filter((alert) => {
           const alertDate = new Date(alert.createdAt);
@@ -100,22 +109,30 @@ const AlerEventLog: React.FC = () => {
         });
       }
 
-      // 클라이언트 사이드 필터링 (카테고리, 날짜)
-      // 주의: 서버에서 이미 페이지네이션된 데이터를 받으므로,
-      // 클라이언트 필터링은 현재 페이지의 데이터만 필터링합니다.
-      // 전체 필터링을 하려면 서버에서 전체 데이터를 받아야 합니다.
-      
-      // 일단 서버에서 받은 페이지네이션 정보 사용
-      setAlerts(filteredAlerts);
-      setTotalPages(result.totalPages);
-      setTotalElements(result.totalElements);
+      // 클라이언트 사이드 페이지네이션
+      const totalFiltered = filteredAlerts.length;
+      const totalPagesFiltered = Math.ceil(totalFiltered / pageSize);
+      const startIndex = page * pageSize;
+      const endIndex = startIndex + pageSize;
+      const paginatedAlerts = filteredAlerts.slice(startIndex, endIndex);
+
+      setAlerts(paginatedAlerts);
+      setTotalPages(totalPagesFiltered);
+      setTotalElements(totalFiltered);
     } catch (error) {
       console.error("[AlerEventLog] 알림 목록 조회 실패:", error);
       setAlerts([]);
+      setTotalPages(0);
+      setTotalElements(0);
     } finally {
       setIsLoading(false);
     }
-  }, [memberId, status, severity, page, category, startDate, endDate]);
+  }, [memberId, status, severity, page, category, startDate, endDate, readStatus, pageSize]);
+
+  // 필터 변경 시 페이지를 0으로 리셋
+  useEffect(() => {
+    setPage(0);
+  }, [category, startDate, endDate, severity, status, readStatus]);
 
   // 초기 로드 및 필터 변경 시 조회
   useEffect(() => {
@@ -135,6 +152,7 @@ const AlerEventLog: React.FC = () => {
     setEndDate("");
     setSeverity("");
     setStatus("");
+    setReadStatus("all");
     setKeyword("");
     setPage(0);
     // 초기화 후 자동으로 조회 (useEffect가 필터 변경을 감지하여 자동 조회)
@@ -153,6 +171,13 @@ const AlerEventLog: React.FC = () => {
     { label: "전체", value: "" },
     { label: "미처리", value: "PENDING" },
     { label: "처리 완료", value: "CLOSED" },
+  ];
+
+  // 읽음/안읽음 매핑
+  const readStatusOptions = [
+    { label: "전체", value: "all" },
+    { label: "읽음", value: "read" },
+    { label: "안읽음", value: "unread" },
   ];
 
   // 카테고리 매핑 (백엔드 값: CPU, MEMORY, SESSION, IO, STORAGE)
@@ -235,6 +260,18 @@ const AlerEventLog: React.FC = () => {
               setStatus(value ? (value as AlertStatus) : "");
             }}
             options={statusOptions}
+          />
+
+          {/* 읽음/안읽음 */}
+          <Select
+            size="sm"
+            label="읽음/안읽음"
+            placeholder="선택하세요."
+            value={readStatus}
+            onChange={(e) => {
+              setReadStatus(e.target.value as "all" | "read" | "unread");
+            }}
+            options={readStatusOptions}
           />
 
           {/* 초기화 버튼 */}
