@@ -20,32 +20,30 @@ interface ChartSettingProps {
 type ModeType = "category" | "resource";
 
 /** 타입별 고정 더미데이터 생성 함수 (모든 타입에 대해 0~10 범위의 더미데이터 생성) */
-const generateDummyDataByType = (
-  graphType: number | null
-): GraphDataResponse["data"] => {
+const generateDummyDataByType = (graphType: number | null): GraphDataResponse["data"] => {
   const dataPoints: GraphDataResponse["data"] = [];
-
+  
   // 타입별 고정된 패턴의 데이터 생성
   const type = graphType ?? 1;
-
+  
   // x축: 5개 데이터 포인트 (01.01 ~ 01.05)
   const dates = ["01.01", "01.02", "01.03", "01.04", "01.05"];
-
+  
   // y축: 0부터 10까지의 값 범위로 통일
   for (let i = 0; i < 5; i++) {
     const values: Record<string, unknown> = {};
-
+    
     // 모든 그래프 타입에 대해 0~10 범위의 더미데이터 생성
     if (type === 1) {
       // Line Chart - 2개 시리즈 (0~10 범위)
-      values["series1"] = 1 + i * 2; // 1, 3, 5, 7, 9
-      values["series2"] = 9 - i * 1.5; // 9, 7.5, 6, 4.5, 3
+      values["series1"] = 1 + (i * 2); // 1, 3, 5, 7, 9
+      values["series2"] = 9 - (i * 1.5); // 9, 7.5, 6, 4.5, 3
     } else if (type === 2) {
       // Stack Chart - 4개 시리즈 (0~10 범위)
-      values["series1"] = 1 + i * 0.5; // 1, 1.5, 2, 2.5, 3
-      values["series2"] = 0.5 + i * 0.4; // 0.5, 0.9, 1.3, 1.7, 2.1
-      values["series3"] = 0 + i * 0.3; // 0, 0.3, 0.6, 0.9, 1.2
-      values["series4"] = 0 + i * 0.2; // 0, 0.2, 0.4, 0.6, 0.8
+      values["series1"] = 1 + (i * 0.5); // 1, 1.5, 2, 2.5, 3
+      values["series2"] = 0.5 + (i * 0.4); // 0.5, 0.9, 1.3, 1.7, 2.1
+      values["series3"] = 0 + (i * 0.3); // 0, 0.3, 0.6, 0.9, 1.2
+      values["series4"] = 0 + (i * 0.2); // 0, 0.2, 0.4, 0.6, 0.8
     } else if (type === 3) {
       // Gauge Chart - 단일 값 (0~10 범위)
       values["value"] = 5;
@@ -56,9 +54,9 @@ const generateDummyDataByType = (
       values["value3"] = 2;
     } else if (type === 5) {
       // Timeline Chart - 3개 시리즈 (0~10 범위)
-      values["series1"] = 2 + i * 1.5; // 2, 3.5, 5, 6.5, 8
-      values["series2"] = 1 + i * 1; // 1, 2, 3, 4, 5
-      values["series3"] = 0 + i * 0.5; // 0, 0.5, 1, 1.5, 2
+      values["series1"] = 2 + (i * 1.5); // 2, 3.5, 5, 6.5, 8
+      values["series2"] = 1 + (i * 1); // 1, 2, 3, 4, 5
+      values["series3"] = 0 + (i * 0.5); // 0, 0.5, 1, 1.5, 2
     } else if (type === 7) {
       // Tile Chart - 4개 값 (0~10 범위)
       values["tile1"] = 7;
@@ -67,15 +65,15 @@ const generateDummyDataByType = (
       values["tile4"] = 1;
     } else {
       // 기본값 - Line Chart 형태 (0~10 범위)
-      values["value"] = 2 + i * 2; // 2, 4, 6, 8, 10
+      values["value"] = 2 + (i * 2); // 2, 4, 6, 8, 10
     }
-
+    
     dataPoints.push({
       timestamp: dates[i],
       values,
     });
   }
-
+  
   return dataPoints;
 };
 
@@ -83,19 +81,16 @@ const generateDummyDataByType = (
 const dummyDataCache = new Map<number, GraphDataResponse["data"]>();
 
 /** 더미데이터 생성 함수 (타입별로 캐싱하여 같은 타입은 항상 같은 데이터 반환) */
-const generateDummyData = (
-  graphName: string,
-  graphType: number | null
-): GraphDataResponse => {
+const generateDummyData = (graphName: string, graphType: number | null): GraphDataResponse => {
   const type = graphType ?? 1;
-
+  
   // 캐시에 없으면 생성
   if (!dummyDataCache.has(type)) {
     dummyDataCache.set(type, generateDummyDataByType(type));
   }
-
+  
   const cachedData = dummyDataCache.get(type)!;
-
+  
   return {
     id: 0,
     name: graphName,
@@ -113,7 +108,7 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [allGraphs, setAllGraphs] = useState<GraphDefinition[]>([]);
 
-  const { mode: dashboardMode } = useDashboardContext();
+  const { mode: dashboardMode, graphList } = useDashboardContext();
 
   /** 탭 목록 정의 */
   const categoryTabs = [
@@ -194,6 +189,12 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
     void loadAllGraphs();
   }, []);
 
+  /** 현재 커스텀 대시보드에 포함된 그래프 이름 목록 (Main Custom 탭 기준) */
+  const activeGraphNames = useMemo(
+    () => graphList.map((g) => g.name).filter(Boolean),
+    [graphList],
+  );
+
   /** 그래프별 더미데이터 가져오기 (항상 더미데이터 반환) */
   const getDummyDataForGraph = (graphName: string): GraphDataResponse => {
     const graphDefinition = allGraphs.find((g) => g.name === graphName);
@@ -252,19 +253,17 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
             currentGraphs.map((graph, i) => {
               // 더미데이터만 사용 (DB에서 데이터를 가져오지 않음)
               const dummyData = getDummyDataForGraph(graph);
-              const miniChart = getChartByTitle(
-                graph,
-                dummyData,
-                dashboardMode
-              );
-
+              const miniChart = getChartByTitle(graph, dummyData, dashboardMode);
+              const isActiveInCustom = activeGraphNames.includes(graph);
+              
               return (
                 <div key={graph} className="chart-setting__option-item">
                   <Checkbox
-                    checked={selectedOption === i}
-                    onChange={() =>
-                      setSelectedOption((prev) => (prev === i ? null : i))
-                    }
+                    // 커스텀 대시보드에 이미 올라가 있는 그래프는 항상 체크된 상태로 표시
+                    checked={isActiveInCustom}
+                    // 체크박스 클릭은 단순히 "이 그래프를 선택"하는 용도로만 사용
+                    // 실제 체크 상태는 activeGraphNames로 제어하므로 토글되지는 않음
+                    onChange={() => setSelectedOption(i)}
                     label={graph}
                     size="md"
                   />

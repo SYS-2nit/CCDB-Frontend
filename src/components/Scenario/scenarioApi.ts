@@ -1,3 +1,4 @@
+import api from "../../api/index";
 import type { ScenarioMeta, RunRequest, RunStatus } from "./types";
 import type { ApiResponse } from "../../api/types";
 
@@ -5,27 +6,19 @@ const BASE = "/api/diagnosis";
 
 export const scenarioApi = {
   list: async (): Promise<ScenarioMeta[]> => {
-    const r = await fetch(`${BASE}/scenarios`);
-    if (!r.ok) throw new Error(`list failed: ${r.status}`);
-    const j = (await r.json()) as ApiResponse<ScenarioMeta[]>;
-    return j.data;
+    const response = await api.get<ApiResponse<ScenarioMeta[]>>(
+      `${BASE}/scenarios`,
+    );
+    return response.data.data ?? [];
   },
   run: async (body: RunRequest): Promise<void> => {
-    const r = await fetch(`${BASE}/run`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (!r.ok) throw new Error(`run failed: ${r.status}`);
+    await api.put<ApiResponse<void>>(`${BASE}/run`, body);
   },
   stop: async (): Promise<void> => {
-    const r = await fetch(`${BASE}/stop`, { method: "POST" });
-    if (!r.ok) throw new Error(`stop failed: ${r.status}`);
+    await api.post<ApiResponse<void>>(`${BASE}/stop`);
   },
   status: async (): Promise<RunStatus> => {
-    const r = await fetch(`${BASE}/status`);
-    if (!r.ok) throw new Error(`status failed: ${r.status}`);
-    const j = (await r.json()) as ApiResponse<RunStatus>;
-    return j.data;
+    const response = await api.get<ApiResponse<RunStatus>>(`${BASE}/status`);
+    return response.data.data;
   },
 };

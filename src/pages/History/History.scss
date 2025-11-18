@@ -97,6 +97,18 @@
     @include text-styles("body02");
   }
 
+  /* 빈 상태 */
+  &__empty {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: $gray-500;
+    @include text-styles("body02");
+  }
+
   &__card {
     background: $gray-0;
     border-radius: 5px;
