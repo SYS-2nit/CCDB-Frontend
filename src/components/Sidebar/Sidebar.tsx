@@ -37,12 +37,12 @@ const Sidebar: React.FC = () => {
   // 대시보드 클릭 핸들러 - 대시보드 아이콘/텍스트 클릭 시
   const handleDashboardClick = (e: React.MouseEvent) => {
     // 화살표가 아닌 경우에만 페이지 이동
-    if ((e.target as HTMLElement).closest('.arrow')) {
+    if ((e.target as HTMLElement).closest(".arrow")) {
       return;
     }
     e.stopPropagation(); // 부모 클릭 이벤트 방지
     if (isCollapsed) setIsCollapsed(false);
-    
+
     // instanceId가 있으면 쿼리 파라미터로 추가, 없으면 없이 이동
     if (selectedInstanceId !== null) {
       navigate(`/dashboard?instanceId=${selectedInstanceId}`);
@@ -78,15 +78,20 @@ const Sidebar: React.FC = () => {
       <nav className="sidebar__nav">
         {/* 대시보드 */}
         <div className="sidebar__item--parent--arrow">
-          <div 
+          <div
             className={`sidebar__item--parent--left ${
-              location.pathname === "/dashboard" || location.pathname.startsWith("/dashboard?") ? "active" : ""
+              location.pathname === "/dashboard" ||
+              location.pathname.startsWith("/dashboard?")
+                ? "active"
+                : ""
             }`}
             onClick={handleDashboardClick}
           >
-            <img src={DashboardIcon} alt="dashboard" />
-            <span className="sidebar__item--title">대시보드</span>
-            <span 
+            <div className="sidebar__item--parent--arrow-left">
+              <img src={DashboardIcon} alt="dashboard" />
+              <span className="sidebar__item--title">대시보드</span>
+            </div>
+            <span
               className="arrow"
               onClick={(e) => {
                 e.stopPropagation();
@@ -119,8 +124,10 @@ const Sidebar: React.FC = () => {
           onClick={() => toggleMenu("sql")}
         >
           <div className="sidebar__item--parent--left">
-            <img src={SqlIcon} alt="sql" />
-            <span className="sidebar__item--title">SQL</span>
+            <div className="sidebar__item--parent--arrow-left">
+              <img src={SqlIcon} alt="sql" />
+              <span className="sidebar__item--title">SQL</span>
+            </div>
             <span className="arrow">
               {openMenu === "sql" ? (
                 <img src={ClickedTopArrowIcon} alt="clicked-top-arrow" />
@@ -148,8 +155,11 @@ const Sidebar: React.FC = () => {
           onClick={() => toggleMenu("alert")}
         >
           <div className="sidebar__item--parent--left">
-            <img src={AlertIcon} alt="alert" />
-            <span className="sidebar__item--title">알림</span>
+            <div className="sidebar__item--parent--arrow-left">
+              <img src={AlertIcon} alt="alert" />
+              <span className="sidebar__item--title">알림</span>
+            </div>
+
             <span className="arrow">
               {openMenu === "alert" ? (
                 <img src={ClickedTopArrowIcon} alt="clicked-top-arrow" />
