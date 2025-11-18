@@ -38,7 +38,8 @@
 .log-policy {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  height: 100%;
+  overflow: hidden;
 
   // 비었을 경우
   &-empty {
@@ -47,6 +48,37 @@
     background: $gray-0;
     color: $gray-500;
     @include text-styles("body02");
+    text-align: center;
+  }
+
+  // 스크롤 가능한 영역
+  &-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-right: 8px;
+
+    // 스크롤바 스타일
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $gray-100;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $gray-300;
+      border-radius: 4px;
+
+      &:hover {
+        background: $gray-400;
+      }
+    }
   }
 
   // 정책 전체 블록
@@ -54,6 +86,12 @@
     border-radius: 10px;
     padding: 20px;
     background: $gray-0;
+    border: 1px solid $gray-200;
+    transition: all 0.2s ease;
+
+    &.disabled {
+      opacity: 0.6;
+    }
 
     // 정책 제목 
     &-title {
@@ -61,14 +99,47 @@
       align-items: center;
       justify-content: space-between;
       color: $gray-900;
-      margin-bottom: 16px;
-      @include text-styles("title03");
+      margin-bottom: 0;
+      font-size: 1em;
 
       &-left {
         display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 12px;
+        flex: 1;
       }
+    }
+
+    // 펼치기/접기 버튼 (토글 스위치와 동일한 크기: 32px x 18px)
+    &-expand-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: $gray-600;
+      font-size: 8px;
+      width: 32px;
+      height: 18px;
+      min-width: 32px;
+      min-height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: color 0.2s ease;
+      flex-shrink: 0;
+      line-height: 1;
+
+      &:hover {
+        color: $main-600;
+      }
+    }
+
+    // 이벤트 영역
+    &-events {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     // 이벤트 리스트
@@ -76,21 +147,33 @@
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      gap: 20px;
+      gap: 12px;
       background: $gray-50;
       color: $gray-700;
       border-radius: 6px;
       padding: 12px 16px;
-      margin-bottom: 8px;
       @include text-styles("body02");
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
 
-      span {
-        flex: 1;
+      &:hover {
+        background: $gray-100;
+        border-color: $main-200;
+        transform: translateX(4px);
       }
 
-      // 삭제 버튼
-      .custom-btn {
+      // Switch 버튼 영역은 호버 효과 제외
+      > div:first-child {
         flex-shrink: 0;
+        pointer-events: auto;
+        display: flex;
+        align-items: center;
+      }
+
+      .log-policy-event-name {
+        flex: 1;
+        user-select: none;
       }
     }
   }

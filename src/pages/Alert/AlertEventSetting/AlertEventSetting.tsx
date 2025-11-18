@@ -4,13 +4,20 @@ import "./AlertEventSetting.scss";
 import Modal, { type FieldItem } from "@/components/Modal/Modal";
 import Button from "@/components/Button/Button";
 import Switch from "@/components/Toggle/Switch";
-import Pagination from "@/components/Pagination/Pagination";
 import type { EventCard } from "./EventSettingPanel/EventSettingPanel";
 import EventSettingPanel from "./EventSettingPanel/EventSettingPanel";
+import { useDashboardContext } from "@/state/DashboardContext";
 import {
   fetchNotificationSettings,
   updateNotificationSettings,
   testNotification,
+  fetchPolicies,
+  fetchEventsByPolicy,
+  togglePolicy,
+  toggleEvent,
+  deletePolicy,
+  type AlertPolicyResponse,
+  type AlertEventResponse,
 } from "@/api/alerts";
 
 type AlertTabType = "1" | "2";
@@ -19,9 +26,9 @@ interface Policy {
   id: number;
   name: string;
   events: EventCard[];
+  eventStates?: boolean[]; // 이벤트 상태 정보 (임시 저장용)
 }
 
-const ITEMS_PER_PAGE = 3;
 
 const AlertEventSetting: React.FC = () => {
   const memberId = 3; // 기본 사용자 ID
@@ -224,21 +231,176 @@ const AlertEventSetting: React.FC = () => {
       [stateKey]: value,
     }));
   };
+  const { selectedInstanceId } = useDashboardContext();
   const [isEventModal, setIsEventModal] = useState(false);
   const [activeTab, setActiveTab] = useState<AlertTabType>("1");
   const [openPanel, setOpenPanel] = useState<boolean>(true);
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [policyStates, setPolicyStates] = useState<boolean[]>([]);
   const [eventStates, setEventStates] = useState<boolean[][]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedEvent, setSelectedEvent] = useState<EventCard | null>(null);
+  const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
+  const [expandedPolicies, setExpandedPolicies] = useState<Set<number>>(new Set());
 
   const tabs = [
-    { id: "1", label: "기본" },
+    { id: "1", label: "정책 설정" },
     { id: "2", label: "설정 기록" },
   ] as const;
 
   const handleToggle = () => setOpenPanel((prev) => !prev);
+
+  // 비트마스크를 요일 배열로 변환
+  const bitmaskToDays = (bitmask: number | null): string[] => {
+    if (!bitmask) return [];
+    const dayMap: Record<number, string> = {
+      1: "월",
+      2: "화",
+      4: "수",
+      8: "목",
+      16: "금",
+      32: "토",
+      64: "일",
+    };
+    const days: string[] = [];
+    Object.entries(dayMap).forEach(([value, day]) => {
+      if (bitmask & Number(value)) {
+        days.push(day);
+      }
+    });
+    return days;
+  };
+
+  // DelayTime을 frequency 문자열로 변환
+  const delayTimeToFrequency = (delayTime: string | null): string => {
+    switch (delayTime) {
+      case "ONE_MINUTE":
+        return "ONE_MINUTE";
+      case "FIVE_MINUTES":
+        return "FIVE_MINUTES";
+      case "TEN_MINUTES":
+        return "TEN_MINUTES";
+      case "ONE_HOUR":
+        return "ONE_HOUR";
+      default:
+        return "ONE_MINUTE";
+    }
+  };
+
+  // AlertCategory를 resources 문자열로 변환
+  const categoryToResources = (category: string | null): string => {
+    switch (category) {
+      case "CPU":
+        return "CPU";
+      case "MEMORY":
+        return "Memory";
+      case "SESSION":
+        return "Session";
+      case "IO":
+        return "I/O";
+      case "STORAGE":
+        return "Storage";
+      default:
+        return "CPU";
+    }
+  };
+
+  // AlertEventResponse를 EventCard로 변환
+  const convertEventToCard = (event: AlertEventResponse): EventCard => {
+    return {
+      id: event.id,
+      name: event.metricName || event.name,
+      frequency: delayTimeToFrequency(event.delayTime),
+      resources: categoryToResources(event.category),
+      eventName: event.name,
+      graphId: event.graphId,
+      metricKey: event.metricKey,
+      metricName: event.metricName,
+      thresholdFormat: event.thresholdFormat,
+      days: bitmaskToDays(event.days),
+      startTime: event.startTime || "",
+      endTime: event.endTime || "",
+      levels: {
+        warning: event.warning,
+        danger: event.danger,
+        critical: event.critical,
+      },
+    };
+  };
+
+  // 정책 목록 및 이벤트 목록 조회
+  const loadPolicies = async () => {
+    if (!selectedInstanceId) {
+      setPolicies([]);
+      return;
+    }
+
+    setIsLoadingPolicies(true);
+    try {
+      console.log("[AlertEventSetting] 정책 목록 조회 시작:", {
+        memberId,
+        instanceId: selectedInstanceId,
+      });
+
+      // 정책 목록 조회
+      const policyList = await fetchPolicies(memberId, selectedInstanceId);
+      console.log("[AlertEventSetting] 정책 목록 조회 성공:", policyList);
+
+      // 각 정책의 이벤트 목록 조회
+      const policiesWithEvents = await Promise.all(
+        policyList.map(async (policy) => {
+          try {
+            const events = await fetchEventsByPolicy(policy.id);
+            console.log(
+              `[AlertEventSetting] 정책 ${policy.id}의 이벤트 목록:`,
+              events
+            );
+            return {
+              id: policy.id,
+              name: policy.name,
+              events: events.map(convertEventToCard),
+              isActive: policy.isActive,
+              eventStates: events.map((e) => e.state), // 이벤트 상태 저장
+            };
+          } catch (error) {
+            console.error(
+              `[AlertEventSetting] 정책 ${policy.id}의 이벤트 조회 실패:`,
+              error
+            );
+            return {
+              id: policy.id,
+              name: policy.name,
+              events: [],
+              isActive: policy.isActive,
+              eventStates: [],
+            };
+          }
+        })
+      );
+
+      setPolicies(policiesWithEvents);
+
+      // 정책 및 이벤트 상태 초기화
+      setPolicyStates(policiesWithEvents.map((p) => p.isActive));
+      setEventStates(policiesWithEvents.map((p) => p.eventStates || []));
+    } catch (error: any) {
+      console.error("[AlertEventSetting] 정책 목록 조회 실패:", error);
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "정책 목록을 불러오는데 실패했습니다.";
+      alert(`정책 목록 조회 실패: ${errorMessage}`);
+      setPolicies([]);
+    } finally {
+      setIsLoadingPolicies(false);
+    }
+  };
+
+  // 설정 기록 탭이 활성화될 때 정책 목록 조회
+  useEffect(() => {
+    if (activeTab === "2") {
+      loadPolicies();
+    }
+  }, [activeTab, selectedInstanceId, memberId]);
 
   /* 정책 / 이벤트 상태 초기화 */
   useEffect(() => {
@@ -261,56 +423,135 @@ const AlertEventSetting: React.FC = () => {
   }, [policies]);
 
   /* 정책 on/off */
-  const handlePolicyToggle = (policyIndex: number, checked: boolean) => {
-    setPolicyStates((prev) => {
-      const updated = [...prev];
-      updated[policyIndex] = checked;
-      return updated;
-    });
-    setEventStates((prev) => {
-      const updated = [...prev];
-      updated[policyIndex] = updated[policyIndex].map(() => checked);
-      return updated;
-    });
+  const handlePolicyToggle = async (
+    policyIndex: number,
+    checked: boolean
+  ) => {
+    const policy = policies[policyIndex];
+    if (!policy) return;
+
+    try {
+      // API 호출
+      await togglePolicy(policy.id);
+      console.log(
+        `[AlertEventSetting] 정책 ${policy.id} 토글 성공: ${checked}`
+      );
+
+      // 로컬 state 업데이트
+      setPolicyStates((prev) => {
+        const updated = [...prev];
+        updated[policyIndex] = checked;
+        return updated;
+      });
+      setEventStates((prev) => {
+        const updated = [...prev];
+        updated[policyIndex] = updated[policyIndex].map(() => checked);
+        return updated;
+      });
+    } catch (error: any) {
+      console.error(
+        `[AlertEventSetting] 정책 ${policy.id} 토글 실패:`,
+        error
+      );
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "정책 상태 변경에 실패했습니다.";
+      alert(`정책 상태 변경 실패: ${errorMessage}`);
+    }
   };
 
   /* 이벤트 on/off */
-  const handleEventToggle = (
+  const handleEventToggle = async (
     policyIndex: number,
     eventIndex: number,
     checked: boolean
   ) => {
-    setEventStates((prev) => {
-      const updated = [...prev];
-      updated[policyIndex][eventIndex] = checked;
+    const policy = policies[policyIndex];
+    const event = policy?.events[eventIndex];
+    if (!event) return;
 
-      const hasActive = updated[policyIndex].some(Boolean);
-      setPolicyStates((prevPolicy) => {
-        const newPolicy = [...prevPolicy];
-        newPolicy[policyIndex] = hasActive;
-        return newPolicy;
+    try {
+      // API 호출
+      await toggleEvent(event.id);
+      console.log(
+        `[AlertEventSetting] 이벤트 ${event.id} 토글 성공: ${checked}`
+      );
+
+      // 로컬 state 업데이트
+      setEventStates((prev) => {
+        const updated = [...prev];
+        updated[policyIndex][eventIndex] = checked;
+
+        const hasActive = updated[policyIndex].some(Boolean);
+        setPolicyStates((prevPolicy) => {
+          const newPolicy = [...prevPolicy];
+          newPolicy[policyIndex] = hasActive;
+          return newPolicy;
+        });
+        return updated;
       });
-      return updated;
+    } catch (error: any) {
+      console.error(
+        `[AlertEventSetting] 이벤트 ${event.id} 토글 실패:`,
+        error
+      );
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "이벤트 상태 변경에 실패했습니다.";
+      alert(`이벤트 상태 변경 실패: ${errorMessage}`);
+    }
+  };
+
+  /* 정책 펼치기/접기 토글 */
+  const handlePolicyExpand = (policyId: number) => {
+    setExpandedPolicies((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(policyId)) {
+        newSet.delete(policyId);
+      } else {
+        newSet.add(policyId);
+      }
+      return newSet;
     });
   };
 
-  /* 이벤트 클릭 시 상세 모달 */
+  /* 이벤트 클릭 시 상세 모달 (토글 버튼 제외) */
   const handleEventClick = (event: EventCard) => {
     setSelectedEvent(event);
     setIsEventModal(true);
   };
 
   /* 정책 삭제 */
-  const handleDeletePolicy = (policyIndex: number) => {
-    setPolicies((prev) => prev.filter((_, i) => i !== policyIndex));
-    setPolicyStates((prev) => prev.filter((_, i) => i !== policyIndex));
-    setEventStates((prev) => prev.filter((_, i) => i !== policyIndex));
+  const handleDeletePolicy = async (policyIndex: number) => {
+    const policy = policies[policyIndex];
+    if (!policy) return;
+
+    if (!confirm(`정책 "${policy.name}"을(를) 삭제하시겠습니까?`)) {
+      return;
+    }
+
+    try {
+      // API 호출
+      await deletePolicy(policy.id);
+      console.log(`[AlertEventSetting] 정책 ${policy.id} 삭제 성공`);
+
+      // 로컬 state 업데이트
+      setPolicies((prev) => prev.filter((_, i) => i !== policyIndex));
+      setPolicyStates((prev) => prev.filter((_, i) => i !== policyIndex));
+      setEventStates((prev) => prev.filter((_, i) => i !== policyIndex));
+    } catch (error: any) {
+      console.error(`[AlertEventSetting] 정책 ${policy.id} 삭제 실패:`, error);
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "정책 삭제에 실패했습니다.";
+      alert(`정책 삭제 실패: ${errorMessage}`);
+    }
   };
 
-  /* 페이지네이션 계산 */
-  const totalPages = Math.ceil(policies.length / ITEMS_PER_PAGE);
-  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedPolicies = policies.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+  // 페이지네이션 제거 - 전체 정책을 스크롤로 확인
 
   /* 이벤트 상세 모달 필드 */
   const eventFields: FieldItem[] = selectedEvent
@@ -387,80 +628,111 @@ const AlertEventSetting: React.FC = () => {
           isOpen={openPanel}
           onToggle={handleToggle}
           mode="default"
-          onPoliciesChange={(updatedPolicies) => setPolicies(updatedPolicies)}
+          onPoliciesChange={(updatedPolicies) => {
+            setPolicies(updatedPolicies);
+            // 정책 저장 후 설정 기록 탭으로 자동 전환
+            if (updatedPolicies.length > 0 && activeTab === "1") {
+              setActiveTab("2");
+              // 정책 목록 새로고침
+              setTimeout(() => {
+                loadPolicies();
+              }, 500);
+            }
+          }}
         />
       )}
 
       {/* 설정 기록 탭 */}
       {activeTab === "2" && (
         <div className="log-policy">
-          {policies.length === 0 ? (
+          {isLoadingPolicies ? (
+            <div className="log-policy-empty">정책 목록을 불러오는 중...</div>
+          ) : !selectedInstanceId ? (
+            <div className="log-policy-empty">인스턴스를 선택해주세요.</div>
+          ) : policies.length === 0 ? (
             <div className="log-policy-empty">저장된 정책이 없습니다.</div>
           ) : (
-            <>
-              {paginatedPolicies.map((policy, policyIndex) => {
-                const globalIndex = startIdx + policyIndex;
+            <div className="log-policy-scroll">
+              {policies.map((policy, policyIndex) => {
+                const isExpanded = expandedPolicies.has(policy.id);
                 return (
                   <div
                     key={policy.id}
                     className={`log-policy-container ${
-                      policyStates[globalIndex] ? "" : "disabled"
+                      policyStates[policyIndex] ? "" : "disabled"
                     }`}
                   >
                     {/* 정책 헤더 */}
                     <div className="log-policy-container-title">
                       <div className="log-policy-container-title-left">
-                        <Switch
-                          checked={policyStates[globalIndex] || false}
-                          onChange={(checked) =>
-                            handlePolicyToggle(globalIndex, checked)
-                          }
-                          size="sm"
-                        />
+                        <button
+                          className="log-policy-expand-btn"
+                          onClick={() => handlePolicyExpand(policy.id)}
+                          aria-label={isExpanded ? "접기" : "펼치기"}
+                        >
+                          {isExpanded ? "▼" : "▶"}
+                        </button>
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          <Switch
+                            checked={policyStates[policyIndex] || false}
+                            onChange={(checked) =>
+                              handlePolicyToggle(policyIndex, checked)
+                            }
+                            size="sm"
+                          />
+                        </div>
                         {policy.name}
                       </div>
                       <Button
                         text="삭제"
                         size="sm"
                         variant="error"
-                        onClick={() => handleDeletePolicy(globalIndex)}
+                        onClick={() => handleDeletePolicy(policyIndex)}
                       />
                     </div>
 
-                    {/* 이벤트 리스트 */}
-                    {policy.events.map((event, eventIndex) => (
-                      <div
-                        key={event.id}
-                        className="log-policy-container-content clickable"
-                        onClick={() => handleEventClick(event)}
-                      >
-                        <Switch
-                          checked={
-                            eventStates[globalIndex]?.[eventIndex] || false
-                          }
-                          onChange={(checked) =>
-                            handleEventToggle(globalIndex, eventIndex, checked)
-                          }
-                          size="sm"
-                        />
-                        <div>{event.name}</div>
+                    {/* 이벤트 리스트 (펼쳐진 경우에만 표시) */}
+                    {isExpanded && (
+                      <div className="log-policy-events">
+                        {policy.events.map((event, eventIndex) => (
+                          <div
+                            key={event.id}
+                            className="log-policy-container-content clickable"
+                            onClick={() => handleEventClick(event)}
+                          >
+                            <div
+                              onClick={(e) => e.stopPropagation()}
+                              onMouseDown={(e) => e.stopPropagation()}
+                            >
+                              <Switch
+                                checked={
+                                  eventStates[policyIndex]?.[eventIndex] ||
+                                  false
+                                }
+                                onChange={(checked) =>
+                                  handleEventToggle(
+                                    policyIndex,
+                                    eventIndex,
+                                    checked
+                                  )
+                                }
+                                size="sm"
+                              />
+                            </div>
+                            <div className="log-policy-event-name">
+                              {event.name}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 );
               })}
-
-              {/* 페이지네이션 */}
-              {policies.length > ITEMS_PER_PAGE && (
-                <div className="log-policy__pagination">
-                  <Pagination
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                  />
-                </div>
-              )}
-            </>
+            </div>
           )}
         </div>
       )}
@@ -640,7 +912,7 @@ const AlertEventSetting: React.FC = () => {
           }}
           fields={eventFields}
           confirmText="닫기"
-          cancelText="취소"
+          hideCancelButton
           theme="light"
         />
       )}

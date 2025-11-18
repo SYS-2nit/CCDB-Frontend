@@ -258,6 +258,33 @@
     color: $gray-900;
   }
 
+  &-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .alert-panel__event-log-btn {
+    padding: 6px 12px;
+    border: 1px solid $main-600;
+    border-radius: 6px;
+    background: $gray-0;
+    color: $main-600;
+    @include text-styles("body02");
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background: $main-600;
+      color: $gray-0;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
   .alert-panel__close {
     border: none;
     background: transparent;

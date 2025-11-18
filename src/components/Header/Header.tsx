@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Header.scss";
 import BedgeSuccessIcon from "@/assets/header/bedge-success.svg";
 import TimeIcon from "@/assets/header/time.svg";
@@ -39,6 +40,8 @@ const getErrorMessage = (error: unknown) => {
 };
 
 const Header: React.FC = () => {
+  const navigate = useNavigate();
+  
   // 다크모드 상태 로드 및 초기화
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -823,12 +826,23 @@ const Header: React.FC = () => {
           <div className="alert-panel" onClick={(e) => e.stopPropagation()}>
             <div className="alert-panel__header">
               <h3>알림 목록</h3>
-              <button
-                className="alert-panel__close"
-                onClick={() => setShowAlertPanel(false)}
-              >
-                ✕
-              </button>
+              <div className="alert-panel__header-actions">
+                <button
+                  className="alert-panel__event-log-btn"
+                  onClick={() => {
+                    setShowAlertPanel(false);
+                    navigate("/alert/event-log");
+                  }}
+                >
+                  이벤트 기록
+                </button>
+                <button
+                  className="alert-panel__close"
+                  onClick={() => setShowAlertPanel(false)}
+                >
+                  ✕
+                </button>
+              </div>
             </div>
             <div className="alert-panel__content">
               {isLoading ? (

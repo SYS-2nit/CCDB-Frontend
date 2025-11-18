@@ -47,6 +47,7 @@ interface ModalProps {
   onChange?: (label: string, value: string) => void;
   isTesting?: boolean;
   isSaving?: boolean;
+  hideCancelButton?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -64,6 +65,7 @@ const Modal: React.FC<ModalProps> = ({
   onChange,
   isTesting = false,
   isSaving = false,
+  hideCancelButton = false,
 }) => {
   const [inputs, setInputs] = useState<{
     [key: string]: string | string[] | boolean;
@@ -342,16 +344,18 @@ const Modal: React.FC<ModalProps> = ({
 
         {/* 푸터 */}
         <div className="modal__footer">
-          <Button
-            text={cancelText}
-            size="sm"
-            variant="white"
-            onClick={() => {
-              if (onReset) onReset();
-              else if (onClose) onClose();
-            }}
-            disabled={isTesting || isSaving}
-          />
+          {!hideCancelButton && cancelText && (
+            <Button
+              text={cancelText}
+              size="sm"
+              variant="white"
+              onClick={() => {
+                if (onReset) onReset();
+                else if (onClose) onClose();
+              }}
+              disabled={isTesting || isSaving}
+            />
+          )}
           <Button
             text={confirmText}
             size="sm"
