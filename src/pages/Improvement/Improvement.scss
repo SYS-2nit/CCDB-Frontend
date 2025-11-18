@@ -1,11 +1,13 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
 @use "@styles/variables" as *;
+@use "@styles/mixins" as *;
 
 .report-page {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 20px 24px;
-  gap: 16px;
+  gap: 10px;
 
   &__header {
     display: flex;
@@ -14,14 +16,11 @@
   }
 
   &__title {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
+    @include text-styles("heading04");
   }
 
   &__subtitle {
-    margin: 4px 0 0;
-    font-size: 13px;
+    @include text-styles("label02");
     color: $gray-500;
   }
 
@@ -29,14 +28,14 @@
     flex: 1;
     display: grid;
     grid-template-columns: 2fr 1.2fr;
-    gap: 16px;
+    gap: 10px;
     min-height: 0;
   }
 
   &__left {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
     overflow-y: auto;
     padding-right: 4px;
   }
@@ -50,69 +49,58 @@
 
 .report-section {
   background-color: $gray-0;
-  border-radius: 12px;
-  padding: 16px 18px;
+  border-radius: 5px;
+  padding: 20px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 
   &__title {
-    font-size: 14px;
-    font-weight: 600;
+    @include text-styles("heading04");
+    color: $gray-700;
     margin-bottom: 12px;
   }
 
   &__templates {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  &__block {
-    margin-top: 12px;
+    gap: 20px;
   }
 
   &__block-title {
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 8px;
+    @include text-styles("label02");
+    color: $gray-400;
+    margin: 10px 0px;
   }
 }
 
 .report-template-card {
-  border-radius: 12px;
-  padding: 12px 12px;
+  border-radius: 5px;
+  padding: 10px;
   border: 1px solid $gray-200;
   background-color: $gray-0;
   cursor: pointer;
   display: flex;
-  gap: 10px;
+  gap: 20px;
   align-items: flex-start;
-  transition: all 0.15s ease;
+  justify-content: space-between;
 
   &__icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: $gray-100;
-    font-size: 18px;
-  }
-
-  &__body {
-    flex: 1;
-    min-width: 0;
+    @include text-styles("heading01");
   }
 
   &__title {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 4px;
+    text-align: right;
+    @include text-styles("heading04");
+    color: $gray-700;
   }
 
   &__desc {
-    font-size: 11px;
-    color: $gray-500;
+    @include text-styles("label02");
+    color: $gray-400;
   }
 
   &--active {
@@ -134,20 +122,20 @@
   }
 
   &__label {
-    font-size: 12px;
-    color: $gray-600;
+    @include text-styles("label02");
+    color: $gray-500;
   }
 
   &__hint {
     margin-top: 6px;
-    font-size: 11px;
+    @include text-styles("label02");
     color: $gray-500;
   }
 
   &__error {
     margin-top: 6px;
-    font-size: 11px;
-    color: $red-500;
+    @include text-styles("label02");
+    color: $gray-500;
   }
 }
 
@@ -164,19 +152,19 @@
 }
 
 .report-metric-chip {
-  min-width: 150px;
-  padding: 16px 20px;
-  border-radius: 16px;
+  min-width: 140px;
+  padding: 10px;
+  border-radius: 5px;
   border: 1px solid $gray-200;
-  font-size: 14px;
-  font-weight: 500;
+  @include text-styles("body02");
+  color: $gray-500;
   background-color: $gray-0;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 10px;
   transition: all 0.15s ease;
 
   &__dot {
@@ -251,7 +239,7 @@
 }
 
 .report-section-card {
-  border-radius: 10px;
+  border-radius: 5px;
   padding: 16px 18px;
   border: 1px solid $gray-200;
   background-color: $gray-0;
@@ -260,18 +248,19 @@
   transition: all 0.15s ease;
 
   &__title {
-    font-size: 14px;
-    font-weight: 600;
+    @include text-styles("body02");
+    color: $gray-500;
     margin-bottom: 6px;
   }
 
   &__icon {
-    font-size: 22px;
+    @include text-styles("title02");
+    color: $gray-500;
     margin-bottom: 6px;
   }
 
   &__desc {
-    font-size: 11px;
+    @include text-styles("label02");
     color: $gray-500;
   }
 
@@ -283,7 +272,7 @@
 
 .report-preview {
   background-color: $gray-0;
-  border-radius: 16px;
+  border-radius: 5px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
   padding: 0;
   display: flex;
@@ -294,26 +283,25 @@
     align-items: center;
     gap: 12px;
     padding: 16px 20px;
-    border-radius: 16px 16px 0 0;
+    border-radius: 5px 5px 0 0;
     background-color: #111827; // 어두운 네이비 톤
     color: $gray-0;
   }
 
   &__header-icon {
-    width: 32px;
-    height: 32px;
+    width:48px;
+    height: 48px;
     border-radius: 10px;
     background-color: rgba(255, 255, 255, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 32px;
   }
 
   &__title {
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0;
+    @include text-styles("label02");
+    color: $gray-500;
   }
 
   &__subtitle {
@@ -325,7 +313,7 @@
   &__card {
     margin-top: 0;
     background-color: $gray-0;
-    border-radius: 0 0 16px 16px;
+    border-radius: 0 0 5px 5px;
     padding: 16px 20px;
     display: flex;
     flex-direction: column;
@@ -351,7 +339,7 @@
   &__row-icon {
     width: 32px;
     height: 32px;
-    border-radius: 10px;
+    border-radius: 5px;
     background-color: $gray-50;
     display: flex;
     align-items: center;
@@ -375,9 +363,10 @@
   }
 
   &__footer {
-    margin-top: auto;
     display: flex;
+    align-items: center;
     justify-content: flex-end;
+    padding: 20px;
   }
 
   &__tags {
@@ -388,7 +377,7 @@
 
   &__tag {
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: 5px;
     background-color: $gray-50;
     border: 1px solid $gray-200;
     font-size: 11px;
@@ -413,7 +402,7 @@
   &__checkbox {
     width: 14px;
     height: 14px;
-    border-radius: 4px;
+    border-radius: 3px;
     background-color: $main-500;
     display: flex;
     align-items: center;

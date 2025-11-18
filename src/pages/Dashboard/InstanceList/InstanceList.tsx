@@ -17,7 +17,7 @@ import {
   testInstanceForDatabase,
   type DatabaseInstanceListItem,
   type DatabaseTestResult,
-} from "@/api/databases";
+} from "@/api/Databases/databases";
 import { isAxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -35,32 +35,36 @@ type InstanceRow = DatabaseInstanceListItem;
 
 type StatusCounts = Record<Exclude<StatusTab, "all">, number>;
 
-  const columns: { key: string; label: string }[] = [
-    { key: "status", label: "상태" },
-    { key: "serverName", label: "서버명" },
-    { key: "ip", label: "IP" },
-    { key: "port", label: "포트" },
-    { key: "databaseName", label: "데이터베이스" },
-    { key: "sid", label: "SID" },
-    { key: "cpuUsage", label: "CPU 사용률" },
-    { key: "sessionCount", label: "Session" },
-    { key: "activeSessionCount", label: "Active Session" },
-    { key: "lockWait", label: "Lock Wait" },
-    { key: "pga", label: "PGA" },
-    { key: "sga", label: "SGA" },
-    { key: "actions", label: "작업" },
-  ];
+const columns: { key: string; label: string }[] = [
+  { key: "status", label: "상태" },
+  { key: "serverName", label: "서버명" },
+  { key: "ip", label: "IP" },
+  { key: "port", label: "포트" },
+  { key: "databaseName", label: "데이터베이스" },
+  { key: "sid", label: "SID" },
+  { key: "cpuUsage", label: "CPU 사용률" },
+  { key: "sessionCount", label: "Session" },
+  { key: "activeSessionCount", label: "Active Session" },
+  { key: "lockWait", label: "Lock Wait" },
+  { key: "pga", label: "PGA" },
+  { key: "sga", label: "SGA" },
+  { key: "actions", label: "작업" },
+];
 
 const loadSelectedDatabase = (): SelectedDatabaseInfo | null => {
   const stored = sessionStorage.getItem(SELECTED_DB_STORAGE_KEY);
   if (!stored) return null;
 
   try {
-    const parsed = JSON.parse(stored) as { id?: number | string; name?: string };
+    const parsed = JSON.parse(stored) as {
+      id?: number | string;
+      name?: string;
+    };
     if (parsed?.id === undefined || parsed.id === null) {
       return null;
     }
-    const numericId = typeof parsed.id === "number" ? parsed.id : Number(parsed.id);
+    const numericId =
+      typeof parsed.id === "number" ? parsed.id : Number(parsed.id);
     if (Number.isNaN(numericId)) return null;
     return {
       id: numericId,
@@ -155,44 +159,42 @@ const renderGaugeBar = (
 };
 
 const InstanceList: React.FC = () => {
-  const [selectedDatabase, setSelectedDatabase] = useState<SelectedDatabaseInfo | null>(
-    () => loadSelectedDatabase(),
-  );
+  const [selectedDatabase, setSelectedDatabase] =
+    useState<SelectedDatabaseInfo | null>(() => loadSelectedDatabase());
   const [instances, setInstances] = useState<InstanceRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState<StatusTab>("all");        
+  const [activeTab, setActiveTab] = useState<StatusTab>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createSid, setCreateSid] = useState("");
   const [isCreating, setIsCreating] = useState(false);
-  const [createTestResult, setCreateTestResult] = useState<DatabaseTestResult | null>(null);
+  const [createTestResult, setCreateTestResult] =
+    useState<DatabaseTestResult | null>(null);
   const [isCreateTesting, setIsCreateTesting] = useState(false);
   const [editTarget, setEditTarget] = useState<InstanceRow | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editSid, setEditSid] = useState("");
   const [isEditTesting, setIsEditTesting] = useState(false);
-  const [editTestResult, setEditTestResult] = useState<DatabaseTestResult | null>(null);
+  const [editTestResult, setEditTestResult] =
+    useState<DatabaseTestResult | null>(null);
   const [isEditSaving, setIsEditSaving] = useState(false);
   const navigate = useNavigate();
 
-  const loadInstances = useCallback(
-    async (databaseId: number) => {
-      setIsLoading(true);
-      try {
-        const data = await fetchInstancesByDatabase(databaseId);
-        setInstances(data);
-        setError(null);
-      } catch (err) {
-        setInstances([]);
-        setError(getErrorMessage(err));
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [],
-  );
+  const loadInstances = useCallback(async (databaseId: number) => {
+    setIsLoading(true);
+    try {
+      const data = await fetchInstancesByDatabase(databaseId);
+      setInstances(data);
+      setError(null);
+    } catch (err) {
+      setInstances([]);
+      setError(getErrorMessage(err));
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!selectedDatabase) {
@@ -235,30 +237,36 @@ const InstanceList: React.FC = () => {
   }, [instances]);
 
   const tabs = useMemo(
-    () => [
-      { id: "all", label: `전체(${instances.length})` },
-      { id: "normal", label: `무해(${statusCounts.normal})` },
-      { id: "warn", label: `주의(${statusCounts.warn})` },
-      { id: "danger", label: `위험(${statusCounts.danger})` },
-      { id: "error", label: `장애(${statusCounts.error})` },
-    ] as const,
-    [instances.length, statusCounts],
+    () =>
+      [
+        { id: "all", label: `전체(${instances.length})` },
+        { id: "normal", label: `무해(${statusCounts.normal})` },
+        { id: "warn", label: `주의(${statusCounts.warn})` },
+        { id: "danger", label: `위험(${statusCounts.danger})` },
+        { id: "error", label: `장애(${statusCounts.error})` },
+      ] as const,
+    [instances.length, statusCounts]
   );
 
   const filteredByStatus = useMemo(() => {
     if (activeTab === "all") return instances;
-    return instances.filter((item) => mapStatusToTab(item.status) === activeTab);
+    return instances.filter(
+      (item) => mapStatusToTab(item.status) === activeTab
+    );
   }, [instances, activeTab]);
 
   const filteredData = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return filteredByStatus;
     return filteredByStatus.filter((item) =>
-      (item.sid ?? "").toLowerCase().includes(term),
+      (item.sid ?? "").toLowerCase().includes(term)
     );
   }, [filteredByStatus, searchTerm]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredData.length / ROWS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredData.length / ROWS_PER_PAGE)
+  );
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -292,7 +300,9 @@ const InstanceList: React.FC = () => {
 
     setIsCreateTesting(true);
     try {
-      const result = await testInstanceForDatabase(selectedDatabase.id, { sid });
+      const result = await testInstanceForDatabase(selectedDatabase.id, {
+        sid,
+      });
       setCreateTestResult(result);
     } catch {
       setCreateTestResult({
@@ -335,7 +345,13 @@ const InstanceList: React.FC = () => {
     } finally {
       setIsCreating(false);
     }
-  }, [createSid, createTestResult, isCreating, loadInstances, selectedDatabase]);
+  }, [
+    createSid,
+    createTestResult,
+    isCreating,
+    loadInstances,
+    selectedDatabase,
+  ]);
 
   const openEditModal = useCallback(
     (item: InstanceRow) => {
@@ -350,7 +366,7 @@ const InstanceList: React.FC = () => {
       setIsEditSaving(false);
       setIsEditModalOpen(true);
     },
-    [selectedDatabase],
+    [selectedDatabase]
   );
 
   const handleEditTest = useCallback(async () => {
@@ -368,7 +384,9 @@ const InstanceList: React.FC = () => {
 
     setIsEditTesting(true);
     try {
-      const result = await testInstanceForDatabase(selectedDatabase.id, { sid });
+      const result = await testInstanceForDatabase(selectedDatabase.id, {
+        sid,
+      });
       setEditTestResult(result);
     } catch {
       setEditTestResult({
@@ -401,7 +419,9 @@ const InstanceList: React.FC = () => {
 
     setIsEditSaving(true);
     try {
-      await updateInstanceForDatabase(selectedDatabase.id, editTarget.id, { sid });
+      await updateInstanceForDatabase(selectedDatabase.id, editTarget.id, {
+        sid,
+      });
       setIsEditModalOpen(false);
       setEditTarget(null);
       setEditTestResult(null);
@@ -411,7 +431,14 @@ const InstanceList: React.FC = () => {
     } finally {
       setIsEditSaving(false);
     }
-  }, [editSid, editTarget, editTestResult, isEditSaving, loadInstances, selectedDatabase]);
+  }, [
+    editSid,
+    editTarget,
+    editTestResult,
+    isEditSaving,
+    loadInstances,
+    selectedDatabase,
+  ]);
 
   const handleDeleteInstance = useCallback(
     async (item: InstanceRow) => {
@@ -431,7 +458,7 @@ const InstanceList: React.FC = () => {
         alert(getErrorMessage(err));
       }
     },
-    [loadInstances, selectedDatabase],
+    [loadInstances, selectedDatabase]
   );
 
   const handleNavigateToDashboard = useCallback(
@@ -444,7 +471,10 @@ const InstanceList: React.FC = () => {
       try {
         sessionStorage.setItem(
           SELECTED_DB_STORAGE_KEY,
-          JSON.stringify({ id: selectedDatabase.id, name: selectedDatabase.name }),
+          JSON.stringify({
+            id: selectedDatabase.id,
+            name: selectedDatabase.name,
+          })
         );
       } catch (error) {
         console.warn("[InstanceList] 선택한 DB 저장 실패", error);
@@ -453,30 +483,39 @@ const InstanceList: React.FC = () => {
       try {
         sessionStorage.setItem(
           "selectedInstance",
-          JSON.stringify({ id: item.id, name: item.serverName ?? item.sid ?? `${item.id}` }),
+          JSON.stringify({
+            id: item.id,
+            name: item.serverName ?? item.sid ?? `${item.id}`,
+          })
         );
       } catch (error) {
-        console.warn("[InstanceList] 선택한 인스턴스를 저장하는 중 오류", error);
+        console.warn(
+          "[InstanceList] 선택한 인스턴스를 저장하는 중 오류",
+          error
+        );
       }
 
       window.dispatchEvent(
         new CustomEvent("dashboard:selected-instance", {
-          detail: { id: item.id, name: item.serverName ?? item.sid ?? `${item.id}` },
-        }),
+          detail: {
+            id: item.id,
+            name: item.serverName ?? item.sid ?? `${item.id}`,
+          },
+        })
       );
 
       navigate(`/dashboard?instanceId=${item.id}`);
     },
-    [navigate, selectedDatabase],
+    [navigate, selectedDatabase]
   );
 
   const paginatedData = useMemo(
     () =>
       filteredData.slice(
         (currentPage - 1) * ROWS_PER_PAGE,
-        currentPage * ROWS_PER_PAGE,
+        currentPage * ROWS_PER_PAGE
       ),
-    [filteredData, currentPage],
+    [filteredData, currentPage]
   );
 
   const rows = useMemo(
@@ -524,31 +563,18 @@ const InstanceList: React.FC = () => {
           </div>,
         ];
       }),
-    [paginatedData, handleDeleteInstance, openEditModal, handleNavigateToDashboard],
+    [
+      paginatedData,
+      handleDeleteInstance,
+      openEditModal,
+      handleNavigateToDashboard,
+    ]
   );
 
   return (
     <div className="instance-list">
       <div className="instance-list__header">
-        <div>
-          <h2>인스턴스 목록</h2>
-          {selectedDatabase ? (
-            <p className="instance-list__subtitle">
-              선택된 DB: {selectedDatabase.name ?? `ID ${selectedDatabase.id}`}
-            </p>
-          ) : (
-            <p className="instance-list__subtitle">선택된 DB가 없습니다. 인스턴스 맵에서 DB를 선택해주세요.</p>
-          )}
-        </div>
-        <div className="instance-list__header-actions">
-          <Button
-            text="+ 생성"
-            size="sm"
-            variant="primary"
-            disabled={!selectedDatabase || isLoading}
-            onClick={openCreateModal}
-          />
-        </div>
+        <div className="instance-list__header-actions"></div>
       </div>
 
       {!selectedDatabase ? (
@@ -557,83 +583,98 @@ const InstanceList: React.FC = () => {
         </div>
       ) : (
         <>
-      <TabMenu
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={(tab) => setActiveTab(tab as StatusTab)}
-      />
+          <TabMenu
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab as StatusTab)}
+          />
 
           <div className="instance-list__table-wrapper">
             <div className="instance-list__table-header">
-          <Input
-            size="sm"
-            variant="default"
-            placeholder="SID를 입력해주세요."
-            icon={SearchIcon}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+              <Input
+                size="sm"
+                variant="default"
+                placeholder="SID를 입력해주세요."
+                icon={SearchIcon}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Button
+                text="+ 생성"
+                size="sm"
+                variant="primary"
+                disabled={!selectedDatabase || isLoading}
+                onClick={openCreateModal}
+              />
+            </div>
 
-            {error && <div className="instance-list__status instance-list__status--error">{error}</div>}
+            {error && (
+              <div className="instance-list__status instance-list__status--error">
+                {error}
+              </div>
+            )}
             {isLoading ? (
               <div className="instance-list__status">로딩 중입니다...</div>
             ) : rows.length === 0 ? (
-              <div className="instance-list__status">표시할 인스턴스가 없습니다.</div>
+              <div className="instance-list__status">
+                표시할 인스턴스가 없습니다.
+              </div>
             ) : (
               <TableChart size="lg" columns={columns} rows={rows} />
             )}
 
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </>
       )}
 
       {isCreateModalOpen && (
-
-          <Modal
+        <Modal
           title="인스턴스 생성"
           cancelText={isCreateTesting ? "테스트 중" : "테스트"}
           confirmText={isCreating ? "생성 중" : "확인"}
-            onClose={() => {
+          onClose={() => {
             if (isCreating) return;
             setIsCreateModalOpen(false);
             setCreateSid("");
             setCreateTestResult(null);
-            }}
+          }}
           onConfirm={handleCreateInstance}
           onReset={handleCreateTest}
-            fields={[
-              {
+          fields={[
+            {
               label: "SID",
-                type: "textarea",
+              type: "textarea",
               placeholder: "SID를 입력해주세요.",
               value: createSid,
               onChange: (_label, val) => {
                 setCreateSid(val);
                 setCreateTestResult(null);
               },
-              },
-            ]}
-          >
+            },
+          ]}
+        >
           {createTestResult && (
-            <div className={`modal__test-result ${createTestResult.success ? "success" : "fail"}`}>
+            <div
+              className={`modal__test-result ${
+                createTestResult.success ? "success" : "fail"
+              }`}
+            >
               {createTestResult.success ? "✅ " : "❌ "}
               {createTestResult.success
                 ? createTestResult.message ?? "테스트에 성공했습니다."
                 : createTestResult.errorMessage ?? "테스트에 실패했습니다."}
-              </div>
-            )}
-          </Modal>
-        )}
+            </div>
+          )}
+        </Modal>
+      )}
 
       {isEditModalOpen && editTarget && (
-          <Modal
-
+        <Modal
           title="DB 수정"
           cancelText={isEditTesting ? "테스트 중" : "테스트"}
           confirmText={isEditSaving ? "저장 중" : "저장"}
@@ -645,11 +686,11 @@ const InstanceList: React.FC = () => {
           }}
           onConfirm={handleUpdateInstance}
           onReset={handleEditTest}
-            fields={[
-              {
+          fields={[
+            {
               label: "SID",
               type: "textarea",
-                placeholder: "SID를 입력해주세요.",
+              placeholder: "SID를 입력해주세요.",
               value: editSid,
               onChange: (_label, val) => {
                 setEditSid(val);
@@ -659,7 +700,11 @@ const InstanceList: React.FC = () => {
           ]}
         >
           {editTestResult && (
-            <div className={`modal__test-result ${editTestResult.success ? "success" : "fail"}`}>
+            <div
+              className={`modal__test-result ${
+                editTestResult.success ? "success" : "fail"
+              }`}
+            >
               {editTestResult.success ? "✅ " : "❌ "}
               {editTestResult.success
                 ? editTestResult.message ?? "테스트에 성공했습니다."

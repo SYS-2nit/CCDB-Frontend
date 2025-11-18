@@ -14,7 +14,12 @@ import {
   useDashboardContext,
   type DashboardMode,
 } from "@/state/DashboardContext";
-import { fetchDashboardData, fetchAllGraphs, type GraphDefinition, type GraphDataResponse } from "@/api/dashboard";
+import {
+  fetchDashboardData,
+  fetchAllGraphs,
+  type GraphDefinition,
+  type GraphDataResponse,
+} from "@/api/Dashboard/dashboard";
 import { isAxiosError } from "axios";
 import { useSearchParams } from "react-router-dom";
 
@@ -60,8 +65,12 @@ const Dashboard: React.FC<DashboardProps> = ({
   // 서버에서 받은 그래프 데이터를 그대로 사용 (이름 배열이 아닌 GraphDataResponse 배열)
   const [charts, setCharts] = useState<GraphDataResponse[]>([]);
 
-  const [settingTargetIndex, setSettingTargetIndex] = useState<number | null>(null);
-  const [categoryGraphs, setCategoryGraphs] = useState<Map<TabType, GraphDataResponse[]>>(new Map());
+  const [settingTargetIndex, setSettingTargetIndex] = useState<number | null>(
+    null
+  );
+  const [categoryGraphs, setCategoryGraphs] = useState<
+    Map<TabType, GraphDataResponse[]>
+  >(new Map());
   const lastLoadedTabRef = useRef<TabType | null>(null);
   // 서버에서 받은 그래프 데이터를 그대로 사용 (하드코딩된 chartData 제거)
   const {
@@ -127,15 +136,16 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const tabs = useMemo(
-    () => [
-      { id: "main", label: "Main Custom" },
-      { id: "cpu", label: "CPU" },
-      { id: "memory", label: "Memory" },
-      { id: "session", label: "Session" },
-      { id: "io", label: "I/O" },
-      { id: "storage", label: "Storage" },
-    ] as const,
-    [],
+    () =>
+      [
+        { id: "main", label: "Main Custom" },
+        { id: "cpu", label: "CPU" },
+        { id: "memory", label: "Memory" },
+        { id: "session", label: "Session" },
+        { id: "io", label: "I/O" },
+        { id: "storage", label: "Storage" },
+      ] as const,
+    []
   );
 
   useEffect(() => {
@@ -166,10 +176,11 @@ const Dashboard: React.FC<DashboardProps> = ({
     }
 
     // 캐시된 데이터 확인
-    const hasCachedData = activeTab === "main" 
-      ? graphList.length > 0 
-      : (categoryGraphs.get(activeTab)?.length ?? 0) > 0;
-    
+    const hasCachedData =
+      activeTab === "main"
+        ? graphList.length > 0
+        : (categoryGraphs.get(activeTab)?.length ?? 0) > 0;
+
     // 캐시된 데이터가 없으면 즉시 로딩 상태 표시 (렌더링 전에 설정)
     if (!hasCachedData) {
       setIsFetching(true);
@@ -179,7 +190,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
     // LIVE 이외 모드에서 그래프 포인트 수를 제한 (현재 시점 기준 최근 10개만 유지)
     const normalizeGraphsForMode = (
-      graphs: GraphDataResponse[] | undefined,
+      graphs: GraphDataResponse[] | undefined
     ): GraphDataResponse[] => {
       if (!graphs || graphs.length === 0) return [];
       // LIVE 모드는 백엔드에서 분 단위로 계속 받아오고, 별도 머지 로직이 있으므로 그대로 사용
@@ -192,8 +203,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           const tb = new Date(b.timestamp ?? 0).getTime();
           return ta - tb;
         });
-        const sliced =
-          sorted.length > limit ? sorted.slice(-limit) : sorted;
+        const sliced = sorted.length > limit ? sorted.slice(-limit) : sorted;
         return { ...graph, data: sliced };
       });
     };
@@ -209,7 +219,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         });
         if (cancelled) return;
         const normalizedGraphs = normalizeGraphsForMode(response?.graphs);
-        
+
         if (activeTab === "main") {
           setGraphs(normalizedGraphs);
           lastLoadedTabRef.current = activeTab;
@@ -245,7 +255,16 @@ const Dashboard: React.FC<DashboardProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [selectedInstanceId, mode, activeTab, refreshToken, setGraphs, clearGraphs, setIsFetching, setError]);
+  }, [
+    selectedInstanceId,
+    mode,
+    activeTab,
+    refreshToken,
+    setGraphs,
+    clearGraphs,
+    setIsFetching,
+    setError,
+  ]);
 
   // categoryGraphs가 업데이트된 후 lastLoadedTabRef 설정
   useEffect(() => {
@@ -272,10 +291,10 @@ const Dashboard: React.FC<DashboardProps> = ({
     // 기존 데이터에 새 데이터 포인트를 추가하는 함수
     const mergeGraphData = (
       existingGraphs: GraphDataResponse[],
-      newGraphs: GraphDataResponse[],
+      newGraphs: GraphDataResponse[]
     ): GraphDataResponse[] => {
       const existingMap = new Map(existingGraphs.map((g) => [g.id, g]));
-      
+
       return newGraphs.map((newGraph) => {
         const existing = existingMap.get(newGraph.id);
         if (!existing || !existing.data || existing.data.length === 0) {
@@ -284,12 +303,12 @@ const Dashboard: React.FC<DashboardProps> = ({
 
         // 기존 데이터의 마지막 타임스탬프 확인
         const existingTimestamps = new Set(
-          existing.data.map((d) => d.timestamp).filter(Boolean),
+          existing.data.map((d) => d.timestamp).filter(Boolean)
         );
 
         // 새로운 데이터 포인트만 필터링 (중복 제거)
         const newDataPoints = (newGraph.data ?? []).filter(
-          (point) => !existingTimestamps.has(point.timestamp),
+          (point) => !existingTimestamps.has(point.timestamp)
         );
 
         if (newDataPoints.length === 0) {
@@ -319,7 +338,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
     const loadDashboard = async () => {
       if (cancelled) return;
-      
+
       // 로딩 상태를 표시하지 않음 (백그라운드 업데이트)
       setError(null);
       try {
@@ -330,7 +349,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           category,
         });
         if (cancelled) return;
-        
+
         if (activeTab === "main") {
           setGraphs((prev) => {
             if (prev.length === 0) {
@@ -343,7 +362,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             const next = new Map(prev);
             const existing = next.get(activeTab) ?? [];
             const newGraphs = response?.graphs ?? [];
-            
+
             if (existing.length === 0) {
               next.set(activeTab, newGraphs);
             } else {
@@ -362,7 +381,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       const now = new Date();
       const seconds = now.getSeconds();
       const milliseconds = now.getMilliseconds();
-      
+
       // 02초에 데이터 호출하도록 설정
       let msUntilNextUpdate: number;
       if (seconds < 2) {
@@ -411,19 +430,19 @@ const Dashboard: React.FC<DashboardProps> = ({
   const handleDragEnd = ({ source, destination }: DropResult) => {
     if (!destination || destination.index === source.index) return;
     if (activeTab !== "main") return;
-    
+
     setCharts((prev) => {
       const reordered = [...prev];
       const [moved] = reordered.splice(source.index, 1);
       reordered.splice(destination.index, 0, moved);
-      
+
       // GraphDataResponse 배열에서 이름 배열로 변환
       const names = reordered.map((graph) => graph.name);
       reorderGraphsByNames(names);
       void saveWidgetOrder().finally(() => {
         triggerRefresh();
       });
-      
+
       return reordered;
     });
   };
@@ -499,68 +518,77 @@ const Dashboard: React.FC<DashboardProps> = ({
                   ))}
 
                 {activeTab !== "main" && (
-                    <>
-                      <div className="dashboard__row row-1">
-                        <div className="dashboard__status-wrap">
-                          <StatusCard label="정상" value={2} color="safe" />
-                          <StatusCard label="주의" value={5} color="warning" />
-                          <StatusCard label="위험" value={8} color="danger" />
-                          <StatusCard label="에러" value={1} color="critical" />
-                        </div>
-                        {charts[0] && (
-                          <ChartCard
+                  <>
+                    <div className="dashboard__row row-1">
+                      <div className="dashboard__status-wrap">
+                        <StatusCard label="정상" value={2} color="safe" />
+                        <StatusCard label="주의" value={5} color="warning" />
+                        <StatusCard label="위험" value={8} color="danger" />
+                        <StatusCard label="에러" value={1} color="critical" />
+                      </div>
+                      {charts[0] && (
+                        <ChartCard
                           title={charts[0].name}
-                            status="normal"
-                            onSettingClick={handleOpenSetting.bind(null, 0)}
-                            showDragIcon={false}
-                            showSettingIcon={false}
+                          status="normal"
+                          onSettingClick={handleOpenSetting.bind(null, 0)}
+                          showDragIcon={false}
+                          showSettingIcon={false}
                           graphData={charts[0]}
-                          />
-                        )}
-                      </div>
+                        />
+                      )}
+                    </div>
 
-                      <div className="dashboard__row row-2">
+                    <div className="dashboard__row row-2">
                       {charts.slice(1, 3).map((graph, index) => (
-                          <ChartCard
+                        <ChartCard
                           key={graph.id}
                           title={graph.name}
-                            status="normal"
-                            onSettingClick={handleOpenSetting.bind(null, index + 1)}
-                            showDragIcon={false}
-                            showSettingIcon={false}
+                          status="normal"
+                          onSettingClick={handleOpenSetting.bind(
+                            null,
+                            index + 1
+                          )}
+                          showDragIcon={false}
+                          showSettingIcon={false}
                           graphData={graph}
-                          />
-                        ))}
-                      </div>
+                        />
+                      ))}
+                    </div>
 
-                      <div className="dashboard__row row-3">
+                    <div className="dashboard__row row-3">
                       {charts.slice(3, 5).map((graph, index) => (
-                          <ChartCard
+                        <ChartCard
                           key={graph.id}
                           title={graph.name}
-                            status="normal"
-                            onSettingClick={handleOpenSetting.bind(null, index + 3)}
-                            showDragIcon={false}
-                            showSettingIcon={false}
+                          status="normal"
+                          onSettingClick={handleOpenSetting.bind(
+                            null,
+                            index + 3
+                          )}
+                          showDragIcon={false}
+                          showSettingIcon={false}
                           graphData={graph}
-                          />
-                        ))}
-                      </div>
+                        />
+                      ))}
+                    </div>
 
-                      <div className="dashboard__row row-4">
+                    <div className="dashboard__row row-4">
                       {charts.slice(5, 8).map((graph, index) => (
-                          <ChartCard
+                        <ChartCard
                           key={graph.id}
                           title={graph.name}
-                            status="normal"
-                            onSettingClick={handleOpenSetting.bind(null, index + 5)}
-                            showDragIcon={false}
-                            showSettingIcon={false}
+                          status="normal"
+                          onSettingClick={handleOpenSetting.bind(
+                            null,
+                            index + 5
+                          )}
+                          showDragIcon={false}
+                          showSettingIcon={false}
                           graphData={graph}
-                          />
-                        ))}
-                      </div>
-                    </>
+                        />
+                      ))}
+                    </div>
+                  </>
                 )}
 
                 {provided.placeholder}
@@ -577,27 +605,29 @@ const Dashboard: React.FC<DashboardProps> = ({
                 // 그래프 이름으로 GraphDefinition 찾기
                 try {
                   const allGraphs = await fetchAllGraphs();
-                  const foundGraph = allGraphs.find((g) => g.name === newChartTitle);
+                  const foundGraph = allGraphs.find(
+                    (g) => g.name === newChartTitle
+                  );
                   if (foundGraph) {
                     await handleGraphSwap(foundGraph);
                   } else {
                     // 그래프를 찾지 못한 경우 이름만으로 처리
-                    await handleGraphSwap({ 
-                      id: 0, 
+                    await handleGraphSwap({
+                      id: 0,
                       name: newChartTitle,
                       category: "CUSTOM",
                       type: 1,
-                      info: null
+                      info: null,
                     } as GraphDefinition);
                   }
                 } catch (error) {
                   console.error("그래프 정보 조회 실패:", error);
-                  await handleGraphSwap({ 
-                    id: 0, 
+                  await handleGraphSwap({
+                    id: 0,
                     name: newChartTitle,
                     category: "CUSTOM",
                     type: 1,
-                    info: null
+                    info: null,
                   } as GraphDefinition);
                 }
               }
