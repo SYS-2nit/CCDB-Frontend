@@ -192,3 +192,25 @@
     }
   }
 }
+
+// 사이드바 모달
+.sidebar-hover-modal {
+ background-color: var(--color-sidebar-bg);
+  color: $gray-100;
+  border-radius: 3px;
+  min-width: 140px;
+  position: fixed;
+  z-index: 10;
+}
+
+.sidebar-hover-item {
+  padding: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.sidebar-hover-item:hover {
+  color: $main-300;
+}
+
