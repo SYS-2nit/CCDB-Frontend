@@ -131,6 +131,38 @@
       background: $main-0;
     }
   }
+
+  /* 게이지바 */
+  .instance-gauge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 150px;
+
+    &__value {
+      min-width: 60px;
+      text-align: right;
+      @include text-styles("label02");
+      color: $gray-700;
+      font-weight: 500;
+    }
+
+    &__bar {
+      flex: 1;
+      height: 8px;
+      background: $gray-100;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    &__fill {
+      height: 100%;
+      border-radius: 4px;
+      background: $main-500;
+      transition: width 0.3s ease;
+    }
+  }
 }
 
 .table-chart {
