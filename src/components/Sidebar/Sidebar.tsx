@@ -11,8 +11,8 @@ import ImprovementIcon from "@/assets/sidebar/improvement.svg";
 import SettingIcon from "@/assets/sidebar/setting.svg";
 import HistoryIcon from "@/assets/sidebar/history.svg";
 import ProfileIcon from "@/assets/sidebar/profile.svg";
-import SidebarParentItem from "./SidebarParentItem";
-import SidebarItem from "./SidebarItem";
+import SidebarParentItem from "./components/SidebarParentItem";
+import SidebarItem from "./components/SidebarItem";
 import SidebarHoverModal from "./Modal/SidebarHoverModal";
 
 const menuRoutes: Record<string, string[]> = {

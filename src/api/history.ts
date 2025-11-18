@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "./index";
 import type { ApiResponse } from "./types";
 
@@ -7,6 +8,7 @@ export interface HistoryGraphDataPoint {
 }
 
 export interface HistoryGraphDataResponse {
+  category: any;
   id: number;
   name: string;
   description: string;
@@ -46,11 +48,11 @@ export interface HistoryGraphListParams {
  * 히스토리 데이터 조회
  */
 export const fetchHistoryData = async (
-  params: HistoryDataParams,
+  params: HistoryDataParams
 ): Promise<HistoryDataResponse> => {
   const searchParams = new URLSearchParams();
   searchParams.set("instanceId", String(params.instanceId));
-  
+
   if (params.startDateTime) {
     searchParams.set("startDateTime", params.startDateTime);
   }
@@ -73,7 +75,7 @@ export const fetchHistoryData = async (
   }
 
   const response = await api.get<ApiResponse<HistoryDataResponse>>(
-    `/api/history/data?${searchParams.toString()}`,
+    `/api/history/data?${searchParams.toString()}`
   );
 
   return response.data.data ?? { graphs: [] };
@@ -83,15 +85,14 @@ export const fetchHistoryData = async (
  * 카테고리별 그래프 목록 조회
  */
 export const fetchHistoryGraphList = async (
-  params: HistoryGraphListParams,
+  params: HistoryGraphListParams
 ): Promise<HistoryGraphListResponse> => {
   const searchParams = new URLSearchParams();
   searchParams.set("category", params.category);
 
   const response = await api.get<ApiResponse<HistoryGraphListResponse>>(
-    `/api/history/graphs?${searchParams.toString()}`,
+    `/api/history/graphs?${searchParams.toString()}`
   );
 
   return response.data.data ?? { graphs: [] };
 };
-
