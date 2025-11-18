@@ -1,71 +1,59 @@
-import TimeIcon from "@/assets/header/time.svg";
+import type { DashboardMode } from "@/state/DashboardContext";
 import { useTimeSection } from "../hooks/useTimeSection";
+import Button from "@/components/Button/Button";
+import PauseIcon from "@/assets/general/pause.svg";
+import StartIcon from "@/assets/general/start.svg";
 
-// LIVE/시간 범위 컴포넌트
 const TimeSection = () => {
-  const {
-    isLive,
-    progress,
-    displayText,
-    showDropdown,
-    toggleDropdown,
-    selectRange,
-  } = useTimeSection();
+  const { isLive, isPaused, togglePause, progress, displayText, selectRange } =
+    useTimeSection();
+
+  const ranges: {
+    label: string;
+    mode: DashboardMode;
+    minutes: number | null;
+  }[] = [
+    { label: "LIVE", mode: "LIVE", minutes: null },
+    { label: "10분", mode: "10분", minutes: 10 },
+    { label: "1시간", mode: "1시간", minutes: 60 },
+    { label: "1일", mode: "1일", minutes: 1440 },
+  ];
 
   return (
     <div className="header-time">
       <div className="header-time__info">
+        {/* Pause / Start Toggle Icon */}
         <img
-          src={TimeIcon}
-          alt="time"
-          className="header-time__icon"
-          onClick={toggleDropdown}
+          src={isPaused ? StartIcon : PauseIcon}
+          alt="Pause Icon"
+          className="header-time__pause"
+          onClick={togglePause}
+          style={{ cursor: "pointer" }}
         />
-        <span className="header-time__text">{displayText}</span>
-        {isLive && (
-          <span className="header-time__badge header-time__badge--live">
-            LIVE
-          </span>
-        )}
+
+        {/* 게이지 + 텍스트 */}
+        <div className="header-time__gage">
+          {isLive && (
+            <div
+              className="header-time__gage-fill"
+              style={{ width: `${progress}%` }}
+            />
+          )}
+
+          <span className="header-time__text">{displayText}</span>
+        </div>
+
+        {/* 버튼들 */}
+        {ranges.map((r) => (
+          <Button
+            size="xs"
+            variant="primary"
+            text={r.label}
+            key={r.label}
+            onClick={() => selectRange(r.mode, r.minutes)}
+          />
+        ))}
       </div>
-
-      {isLive && (
-        <div className="header-time__bar">
-          <div
-            className="header-time__progress"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-      )}
-
-      {showDropdown && (
-        <div className="header-time__dropdown">
-          <div
-            className="header-time__option"
-            onClick={() => selectRange("LIVE", null)}
-          >
-            실시간
-          </div>
-          <div
-            className="header-time__option"
-            onClick={() => selectRange("10분", 10)}
-          >
-            10분
-          </div>
-          <div
-            className="header-time__option"
-            onClick={() => selectRange("1시간", 60)}
-          >
-            1시간
-          </div>
-          <div
-            className="header-time__option"
-            onClick={() => selectRange("1일", 1440)}
-          >
-            1일
-          </div>
-        </div>
-      )}
     </div>
   );
 };

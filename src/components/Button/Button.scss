@@ -17,6 +17,12 @@
   }
 
   /* === 크기 === */
+  &--xs {
+    padding: 4px 8px;
+    border-radius: 1px;
+    @include text-styles("label02");
+  }
+
   &--sm {
     padding: 8px 12px;
     border-radius: 3px;

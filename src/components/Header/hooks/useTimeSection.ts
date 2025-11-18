@@ -1,68 +1,76 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
-import {
-  useDashboardContext,
-  type DashboardMode,
-} from "@/state/DashboardContext";
-import { formatClock, formatFullDateTime } from "../utils/timeFormatter";
+import { useDashboardContext } from "@/state/DashboardContext";
+import { formatClock, formatFullDateTimeMinutes } from "../utils/timeFormatter";
 
-// LIVE/기간 선택 Dropdown + UI 상태 관리
 export const useTimeSection = () => {
   const { mode, rangeMinutes, setMode, triggerRefresh } = useDashboardContext();
 
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [rangeStart, setRangeStart] = useState<Date | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [progress, setProgress] = useState(0);
 
-  // 현재 시간 타이머
+  const [pausedTime, setPausedTime] = useState<Date | null>(null);
+  const [pausedProgress, setPausedProgress] = useState<number | null>(null);
+
+  const isLive = mode === "LIVE";
+
+  /** LIVE 타이머 동작 */
   useEffect(() => {
+    if (!isLive) return;
+
+    if (isPaused) return;
+
     const timer = setInterval(() => {
       const now = new Date();
       setCurrentTime(now);
 
-      if (mode === "LIVE") {
-        const seconds = now.getSeconds();
-        const ms = now.getMilliseconds();
-        setProgress(((seconds * 1000 + ms) / 60000) * 100);
-      } else {
-        setProgress(0);
-      }
+      const seconds = now.getSeconds();
+      const ms = now.getMilliseconds();
+      setProgress(((seconds * 1000 + ms) / 60000) * 100);
     }, 100);
 
     return () => clearInterval(timer);
-  }, [mode]);
+  }, [mode, isPaused]);
 
-  // 범위 시작 계산
+  /** PAUSE → RESUME 시 기존 값 사용 */
   useEffect(() => {
-    if (mode === "LIVE" || !rangeMinutes) {
-      setRangeStart(null);
+    if (!isLive) return;
+
+    if (isPaused) {
+      setPausedTime(currentTime);
+      setPausedProgress(progress);
     } else {
-      setRangeStart(new Date(Date.now() - rangeMinutes * 60_000));
+      // resume → 저장된 시점에서 다시 시작
+      if (pausedTime) setCurrentTime(pausedTime);
+      if (pausedProgress !== null) setProgress(pausedProgress);
     }
-  }, [mode, rangeMinutes]);
+  }, [isPaused]);
 
-  const toggleDropdown = () => setShowDropdown((prev) => !prev);
-
-  const selectRange = (label: DashboardMode, minutes: number | null) => {
-    setMode(label, minutes);
-    triggerRefresh();
-    setShowDropdown(false);
+  const togglePause = () => {
+    if (!isLive) return;
+    setIsPaused((prev) => !prev);
   };
 
-  const isLive = mode === "LIVE";
-
+  /** Live 모드일 때 시간 표시 */
   const displayText = isLive
     ? formatClock(currentTime)
-    : `${
-        rangeStart ? formatFullDateTime(rangeStart) + " ~ " : ""
-      }${formatFullDateTime(currentTime)}`;
+    : `${formatFullDateTimeMinutes(
+        new Date(Date.now() - (rangeMinutes ?? 0) * 60000)
+      )} ~ ${formatFullDateTimeMinutes(currentTime)}`;
+
+  const selectRange = (label: any, minutes: number | null) => {
+    setMode(label, minutes);
+    triggerRefresh();
+    setIsPaused(false);
+  };
 
   return {
     isLive,
+    isPaused,
+    togglePause,
     progress,
     displayText,
-    showDropdown,
-    toggleDropdown,
     selectRange,
   };
 };

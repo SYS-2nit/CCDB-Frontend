@@ -115,12 +115,39 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+
+    &__pause {
+      cursor: pointer;
+    }
+
+    // 게이지 바 전체 영역
+    &__gage {
+      position: relative; 
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0px 10px;
+      overflow: hidden;
+
+      // 게이지 바 차는 영역
+      &-fill {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        background: $main-100;
+        z-index: 1; 
+      }
+    }
 
     &__info {
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 5px;
+      padding: 0px 10px;
+      border-radius: 3px;
+      border: 1px solid $gray-300;
     }
 
     &__icon {
@@ -132,6 +159,8 @@
     }
 
     &__text {
+      position: relative;
+      z-index: 2; 
       @include text-styles("label01");
       color: $gray-900;
     }
