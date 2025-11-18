@@ -14,6 +14,7 @@ import ProfileIcon from "@/assets/sidebar/profile.svg";
 import SidebarParentItem from "./components/SidebarParentItem";
 import SidebarItem from "./components/SidebarItem";
 import SidebarHoverModal from "./Modal/SidebarHoverModal";
+import { fetchMembers, type Member } from "@/api/Member/member";
 
 const menuRoutes: Record<string, string[]> = {
   dashboard: ["/dashboard/instance-map", "/dashboard/instance-list"],
@@ -34,11 +35,31 @@ const Sidebar: React.FC = () => {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  const [member, setMember] = useState<Member | null>(null);
+  const [loading, setLoading] = useState(true);
+
   // hover tooltip 관리
   const [hoverMenu, setHoverMenu] = useState<string | null>(null);
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
     null
   );
+
+  // 페이지 진입 시 사용자 정보 불러오기
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const members = await fetchMembers();
+
+        setMember(members[0]);
+      } catch (err) {
+        console.error("사용자 정보 로딩 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, []);
 
   /** 대시보드 자동 열림 */
   useEffect(() => {
@@ -61,6 +82,10 @@ const Sidebar: React.FC = () => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setHoverPos({ x: rect.right - 11, y: rect.top + 12 });
   };
+
+  // 로딩 중 UI
+  if (loading || !member)
+    return <div className="setting">사용자 정보를 불러오는 중...</div>;
 
   return (
     <aside className={`sidebar ${isCollapsed ? "sidebar--collapsed" : ""}`}>
@@ -219,8 +244,8 @@ const Sidebar: React.FC = () => {
           <img src={ProfileIcon} alt="user" />
           {!isCollapsed && (
             <div className="user-info">
-              <span className="sidebar__item--title">사용자</span>
-              <span className="user-email">user1@gmail.com</span>
+              <span className="sidebar__item--title">{member.username}</span>
+              <span className="user-email">{member.email}</span>
             </div>
           )}
         </div>
