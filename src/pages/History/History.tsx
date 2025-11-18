@@ -12,7 +12,7 @@ import {
   fetchHistoryGraphList,
   type HistoryGraphDataResponse,
   type HistoryGraphInfo,
-} from "@/api/history";
+} from "@/api/History/history";
 import { useDashboardContext } from "@/state/DashboardContext";
 import ChartCard from "@/components/Card/ChartCard";
 import Spinner from "@/components/Spinner/Spinner";

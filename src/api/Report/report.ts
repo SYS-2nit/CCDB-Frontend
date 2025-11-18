@@ -1,5 +1,5 @@
-import api from "./index";
-import type { ApiResponse } from "./types";
+import api from "../index";
+import type { ApiResponse } from "../types";
 
 // 보고서 타입
 export type ReportType = "DAILY" | "WEEKLY" | "MONTHLY" | "PERFORMANCE";
@@ -55,11 +55,11 @@ export interface ReportSummaryResponse {
  * 보고서 데이터 조회
  */
 export const fetchReportData = async (
-  request: ReportGenerateRequest,
+  request: ReportGenerateRequest
 ): Promise<ReportDataResponse[]> => {
   const response = await api.post<ApiResponse<ReportDataResponse[]>>(
     "/api/reports/data",
-    request,
+    request
   );
   return response.data.data ?? [];
 };
@@ -68,11 +68,11 @@ export const fetchReportData = async (
  * AI 요약 생성
  */
 export const generateReportSummary = async (
-  request: ReportGenerateRequest,
+  request: ReportGenerateRequest
 ): Promise<ReportSummaryResponse> => {
   const response = await api.post<ApiResponse<ReportSummaryResponse>>(
     "/api/reports/summary",
-    request,
+    request
   );
   return response.data.data ?? { summary: "", issues: [], recommendations: [] };
 };
@@ -81,11 +81,10 @@ export const generateReportSummary = async (
  * 보고서 생성 및 다운로드
  */
 export const generateReport = async (
-  request: ReportGenerateRequest,
+  request: ReportGenerateRequest
 ): Promise<Blob> => {
   const response = await api.post("/api/reports/generate", request, {
     responseType: "blob",
   });
   return response.data;
 };
-

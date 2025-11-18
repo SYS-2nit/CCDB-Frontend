@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import api from "./index";
-import type { ApiResponse } from "./types";
+import api from "../index";
+import type { ApiResponse } from "../types";
 
 export interface HistoryGraphDataPoint {
   timestamp: string;

@@ -5,7 +5,7 @@ import { ioChartRenderer } from "../chartRenderers/ioChartRenderer";
 import { storageChartRenderer } from "../chartRenderers/storageChartRenderer";
 import { memoryChartRenderer } from "../chartRenderers/memoryChartRenderer";
 import { sessionChartRenderer } from "../chartRenderers/sessionChartRenderer";
-import type { GraphDataResponse } from "@/api/dashboard";
+import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 /** 탭 타입 정의 */
 export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
@@ -39,21 +39,27 @@ const getCategoryByGraphId = (graphId: number): TabType | null => {
 export const getChartByTitle = (
   title: string,
   graphData?: GraphDataResponse | null,
-  mode: DashboardMode = "LIVE",
+  mode: DashboardMode = "LIVE"
 ): React.ReactNode => {
   if (!graphData) {
-    return React.createElement("div", { style: fallbackStyle }, "데이터가 없습니다.");
+    return React.createElement(
+      "div",
+      { style: fallbackStyle },
+      "데이터가 없습니다."
+    );
   }
 
   // Graph ID로 카테고리 판단
   const category = getCategoryByGraphId(graphData.id);
-  
+
   if (category === "cpu") return cpuChartRenderer(title, graphData, mode);
   if (category === "memory") return memoryChartRenderer(title, graphData, mode);
-  if (category === "session") return sessionChartRenderer(title, graphData, mode);
+  if (category === "session")
+    return sessionChartRenderer(title, graphData, mode);
   if (category === "io") return ioChartRenderer(title, graphData, mode);
-  if (category === "storage") return storageChartRenderer(title, graphData, mode);
-  
+  if (category === "storage")
+    return storageChartRenderer(title, graphData, mode);
+
   // Main/Custom 또는 매칭되지 않은 경우
   return mainChartRenderer(title, graphData, mode);
 };
