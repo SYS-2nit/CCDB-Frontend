@@ -6,7 +6,7 @@ import MetricGrid, { type MetricData } from "@/components/Card/MetricCard";
 import StackChart from "@/components/Chart/StackChart";
 import SuccessGreenIcon from "@/assets/general/succes-green.svg";
 import ErrorRedIcon from "@/assets/general/error-red.svg";
-import type { GraphDataResponse } from "@/api/dashboard";
+import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 
 const ensureNumber = (value: unknown): number | null => {
