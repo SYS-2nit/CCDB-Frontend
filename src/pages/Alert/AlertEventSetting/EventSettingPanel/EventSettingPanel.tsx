@@ -6,7 +6,6 @@ import Input from "@/components/Input/Input";
 import Select from "@/components/Select/Select";
 import DaysSelector from "@/components/Select/DaysSelector";
 import TimeInput from "@/components/Input/TimeInput";
-import RangeSliderGroup from "@/components/Slider/RangeSliderGroup";
 import ReceiveIcon from "@/assets/general/receive.svg";
 
 interface EventSettingPanelProps {
@@ -169,20 +168,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     }
   };
 
-  const updateLevel = (
-    eventIndex: number,
-    key: keyof EventCard["levels"],
-    value: number
-  ) => {
-    setInputForms((prev) =>
-      prev.map((ev, i) =>
-        i === eventIndex
-          ? { ...ev, levels: { ...ev.levels, [key]: value } }
-          : ev
-      )
-    );
-  };
-
   return (
     <div className="event-panel">
       {/* 정책 설정 헤더 + 수신 설정 버튼 한 줄 */}
@@ -320,10 +305,9 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                   </div>
 
                   <div className="event-panel__row slider-row">
-                    <RangeSliderGroup
-                      levels={event.levels}
-                      onChange={(key, value) => updateLevel(index, key, value)}
-                    />
+                    <Input label="주의" type="number" placeholder="0" />
+                    <Input label="위험" type="number" placeholder="0" />
+                    <Input label="치명" type="number" placeholder="0" />
                   </div>
                 </div>
               ))}

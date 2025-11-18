@@ -11,10 +11,14 @@ import type { DashboardMode } from "@/state/DashboardContext";
 
 const ensureNumber = (value: unknown): number | null => {
   if (value === null || value === undefined) return null;
-  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "number") {
+    // NaN, Infinity, -Infinity 모두 필터링
+    return Number.isFinite(value) ? value : null;
+  }
   if (typeof value === "string") {
     const parsed = Number(value);
-    return Number.isNaN(parsed) ? null : parsed;
+    // NaN, Infinity, -Infinity 모두 필터링
+    return Number.isFinite(parsed) ? parsed : null;
   }
   if (typeof value === "boolean") return value ? 1 : 0;
   return null;
@@ -78,21 +82,24 @@ const formatTime = (timestamp: string, mode: DashboardMode = "LIVE") => {
 
   // 모드에 따라 시간 포맷 변경
   switch (mode) {
-    case "LIVE":
+    case "LIVE": {
       // 24시간 형식으로 포맷팅 (HH:mm)
       const hours = String(date.getHours()).padStart(2, "0");
       const minutes = String(date.getMinutes()).padStart(2, "0");
       return `${hours}:${minutes}`;
-    case "10분":
+    }
+    case "10분": {
       // 10분 단위: 24시간 형식 (HH:mm)
       const hours10 = String(date.getHours()).padStart(2, "0");
       const minutes10 = String(date.getMinutes()).padStart(2, "0");
       return `${hours10}:${minutes10}`;
-    case "1시간":
+    }
+    case "1시간": {
       // 1시간 단위: 24시간 형식 (HH:mm)
       const hours1h = String(date.getHours()).padStart(2, "0");
       const minutes1h = String(date.getMinutes()).padStart(2, "0");
       return `${hours1h}:${minutes1h}`;
+    }
     case "1일":
       // 1일 단위: 월/일 시:분 형식
       return date.toLocaleString("ko-KR", {
@@ -102,11 +109,12 @@ const formatTime = (timestamp: string, mode: DashboardMode = "LIVE") => {
         hour: "2-digit",
         minute: "2-digit",
       });
-    default:
+    default: {
       // 24시간 형식으로 포맷팅 (HH:mm)
       const defaultHours = String(date.getHours()).padStart(2, "0");
       const defaultMinutes = String(date.getMinutes()).padStart(2, "0");
       return `${defaultHours}:${defaultMinutes}`;
+    }
   }
 };
 
@@ -132,7 +140,13 @@ const renderGauge = (graph: GraphDataResponse, valueKey: string) => {
 
 const renderMetricTiles = (
   graph: GraphDataResponse,
-  mappings: Array<{ key: string; label: string; suffix?: string }>,
+
+  mappings: Array<{
+    key: string;
+    label: string;
+    suffix?: string;
+    subtitleKeys?: string[]; // 서브 값으로 표시할 키 배열 (예: ["key1", "key2"])
+  }>,
   columns = 2
 ) => {
   const sorted = sortPoints(graph);
@@ -156,38 +170,57 @@ const renderMetricTiles = (
     return matched ?? null;
   };
 
-  const metrics: MetricData[] = mappings.map(({ key, label, suffix }) => {
-    const matchedKey = findMatchingKey(key);
-    if (!matchedKey) {
-      console.warn(
-        `컬럼 '${key}'를 찾을 수 없습니다. 사용 가능한 키:`,
-        availableKeys
-      );
+  const metrics: MetricData[] = mappings.map(
+    ({ key, label, suffix, subtitleKeys }) => {
+      const matchedKey = findMatchingKey(key);
+      if (!matchedKey) {
+        console.warn(
+          `컬럼 '${key}'를 찾을 수 없습니다. 사용 가능한 키:`,
+          availableKeys
+        );
+        return {
+          title: label,
+          value: "-",
+          subtitle: "",
+        };
+      }
+
+      const numeric = ensureNumber(latest.values?.[matchedKey]);
+      let display: string | number = "-";
+      if (numeric !== null) {
+        if (suffix === "%") {
+          display = `${numeric.toFixed(1)}%`;
+        } else {
+          display = numeric.toLocaleString();
+        }
+      } else if (typeof latest.values?.[matchedKey] === "string") {
+        display = String(latest.values?.[matchedKey]);
+      }
+
+      // 서브 값 생성
+      let subtitle = "";
+      if (subtitleKeys && subtitleKeys.length > 0) {
+        const subtitleValues = subtitleKeys
+          .map((subKey) => {
+            const matchedSubKey = findMatchingKey(subKey);
+            if (!matchedSubKey) return null;
+            const subNumeric = ensureNumber(latest.values?.[matchedSubKey]);
+            return subNumeric !== null ? subNumeric.toLocaleString() : null;
+          })
+          .filter((v): v is string => v !== null);
+
+        if (subtitleValues.length > 0) {
+          subtitle = subtitleValues.join(" / ");
+        }
+      }
+
       return {
         title: label,
-        value: "-",
-        subtitle: "",
+        value: display,
+        subtitle: subtitle,
       };
     }
-
-    const numeric = ensureNumber(latest.values?.[matchedKey]);
-    let display: string | number = "-";
-    if (numeric !== null) {
-      if (suffix === "%") {
-        display = `${numeric.toFixed(1)}%`;
-      } else {
-        display = numeric.toLocaleString();
-      }
-    } else if (typeof latest.values?.[matchedKey] === "string") {
-      display = String(latest.values?.[matchedKey]);
-    }
-
-    return {
-      title: label,
-      value: display,
-      subtitle: "",
-    };
-  });
+  );
 
   return <MetricGrid metrics={metrics} columns={columns} height={190} />;
 };
@@ -274,7 +307,12 @@ const renderLine = (
       return null; // 매칭 실패 시 null 반환
     }
     matchedKeys.push(matchedKey);
-    return sorted.map((point) => ensureNumber(point.values?.[matchedKey]) ?? 0);
+    // NaN, Infinity, -Infinity를 필터링하고 null을 0으로 변환
+    return sorted.map((point) => {
+      const num = ensureNumber(point.values?.[matchedKey]);
+      // null이거나 유효하지 않은 숫자는 0으로 변환 (또는 null로 유지하여 나중에 필터링)
+      return num !== null && Number.isFinite(num) ? num : 0;
+    });
   });
 
   // 모든 키가 매칭되지 않으면 빈 차트 표시
@@ -301,16 +339,19 @@ const renderLine = (
     );
   }
 
-  // null이 아닌 시리즈만 필터링
-  const validSeriesData = seriesData.filter(
-    (data): data is number[] => data !== null
-  );
+  // null이 아닌 시리즈만 필터링하고, 각 시리즈의 데이터에서 NaN/Infinity 제거
+  const validSeriesData = seriesData
+    .filter((data): data is number[] => data !== null)
+    .map((data) =>
+      // 각 시리즈 데이터에서 NaN, Infinity, -Infinity를 필터링하고 유효한 값만 유지
+      data.map((v) => (Number.isFinite(v) ? v : 0))
+    );
   const validLegends = config.legends.filter(
     (_, index) => seriesData[index] !== null
   );
 
   // y축 범위를 데이터에 맞게 자동 조정 (최소값은 0으로 고정)
-  const allValues = validSeriesData.flat();
+  const allValues = validSeriesData.flat().filter((v) => Number.isFinite(v));
   if (allValues.length === 0) {
     return (
       <div
@@ -327,9 +368,14 @@ const renderLine = (
       </div>
     );
   }
-  const minValue = Math.min(...allValues.filter((v) => Number.isFinite(v)));
-  const maxValue = Math.max(...allValues.filter((v) => Number.isFinite(v)));
+
+  const minValue = Math.min(...allValues);
+  const maxValue = Math.max(...allValues);
   const padding = (maxValue - minValue) * 0.1 || 1;
+
+  // maxValue가 유효하지 않으면 기본값 설정
+  const safeMaxValue = Number.isFinite(maxValue) ? maxValue : 100;
+  const safePadding = Number.isFinite(padding) ? padding : 10;
 
   return (
     <LineChart
@@ -338,7 +384,7 @@ const renderLine = (
       seriesData={validSeriesData}
       showLegend={validLegends.length > 1}
       yMin={0}
-      yMax={maxValue + padding}
+      yMax={safeMaxValue + safePadding}
     />
   );
 };
@@ -370,50 +416,6 @@ const renderStack = (
   );
 };
 
-const renderTopSql = (
-  graph: GraphDataResponse,
-  sqlIdKeys: string[],
-  valueKeys: string[]
-) => {
-  const sorted = sortPoints(graph);
-  if (sorted.length === 0) return null;
-  const latest = sorted[sorted.length - 1];
-
-  const labels: string[] = [];
-  const usage: number[] = [];
-
-  for (let i = 0; i < sqlIdKeys.length; i++) {
-    const sqlId = latest.values?.[sqlIdKeys[i]];
-    const value = ensureNumber(latest.values?.[valueKeys[i]]);
-
-    if (sqlId && value !== null && value > 0) {
-      labels.push(String(sqlId).substring(0, 20)); // SQL_ID를 20자로 제한
-      usage.push(value);
-    }
-  }
-
-  if (labels.length === 0) return null;
-
-  // totals를 계산 (usage의 최대값 기준으로 상대적 비교 가능하도록)
-  const maxUsage = Math.max(...usage);
-  const adjustedTotals = usage.map(() => maxUsage * 1.2 || 100);
-
-  return (
-    <StackChart
-      labels={labels}
-      usage={usage}
-      total={adjustedTotals}
-      colorRules={[{ min: 0, max: 100, color: "#3B82F6" }]}
-      tooltipFormatter={({ used, total, percent }) =>
-        `CPU Time (ms): ${used.toLocaleString()}ms / Max: ${total.toLocaleString()}ms (${percent.toFixed(
-          1
-        )}%)`
-      }
-      height={200}
-    />
-  );
-};
-
 export const renderDynamicChart = (
   title: string,
   graph: GraphDataResponse | null | undefined,
@@ -423,11 +425,12 @@ export const renderDynamicChart = (
 
   // Graph ID 8: 세션 한도/급증
   // GraphRegistry: session_usage_pct
+
   if (graph.id === 8) {
     return renderGauge(graph, "session_usage_pct");
   }
 
-  if (title.includes("PGA / SGA")) {
+  if (graph.id === 1) {
     return renderMetricTiles(graph, [
       { key: "workarea_spill_rate_pct", label: "Spill Rate %", suffix: "%" },
       { key: "spill_mb_per_min", label: "Spill MB/min" },
@@ -439,7 +442,7 @@ export const renderDynamicChart = (
     ]);
   }
 
-  if (title.includes("백그라운드 프로세스")) {
+  if (graph.id === 11) {
     return renderBackgroundMetrics(graph);
   }
 
@@ -475,6 +478,7 @@ export const renderDynamicChart = (
 
   // Graph ID 4: CPU 사용(호스트 vs DB CPU)
   // GraphRegistry: HOST_CPU_UTIL_PCT, CPU_SATURATION_PCT
+
   if (graph.id === 4) {
     return renderLine(
       graph,
@@ -486,7 +490,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("제한 근접")) {
+  if (graph.id === 12) {
     return renderLine(
       graph,
       {
@@ -501,7 +505,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("I/O 지연량")) {
+  if (graph.id === 5) {
     return renderLine(
       graph,
       {
@@ -516,7 +520,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("I/O 처리량")) {
+  if (graph.id === 6) {
     return renderLine(
       graph,
       {
@@ -529,6 +533,7 @@ export const renderDynamicChart = (
 
   // Graph ID 7: SGA 압박(FreeMB/Reloads)
   // GraphRegistry: LIBRARY_CACHE_HIT_PCT, DICTIONARY_CACHE_HIT_PCT, HARD_PARSE_RATIO_PCT
+
   if (graph.id === 7) {
     return renderMetricTiles(graph, [
       {
@@ -549,12 +554,13 @@ export const renderDynamicChart = (
     ]);
   }
 
-  if (title.includes("아카이브 로그")) {
+  if (graph.id === 9) {
     return renderGauge(graph, "fra_usage_pct");
   }
 
   // Graph ID 2: AAS
   // GraphRegistry: AAS_TOTAL, AAS_ONCPU_SESSIONS, CORE_BASELINE_SESSIONS
+
   if (graph.id === 2) {
     return renderLine(
       graph,
@@ -566,7 +572,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("핵심 테이블스페이스")) {
+  if (graph.id === 10) {
     return renderStack(
       graph,
       ["SYSTEM", "SYSAUX", "USERS", "UNDO", "TEMP"],
@@ -584,11 +590,16 @@ export const renderDynamicChart = (
   // Graph ID 13: CPU 활동 현황 타일
   // GraphRegistry: HOST_BUSY_CORES, HOST_TOTAL_CORES, HOST_CPU_UTIL_PCT, AAS_ONCPU_SESSIONS, CORE_BASELINE_SESSIONS,
   //                CPU_SATURATION_PCT, DB_OF_HOST_SHARE_PCT, RunQ_per_Core_LOAD_PROXY, TPS_PER_SEC, EXECS_PER_SEC
+
   if (graph.id === 13) {
     return renderMetricTiles(
       graph,
       [
-        { key: "host_cpu_util_pct", label: "Host CPU(%)", suffix: "%" },
+        {
+          key: "host_cpu_util_pct",
+          label: "Host CPU(%)",
+          suffix: "%",
+        },
         {
           key: "cpu_saturation_pct",
           label: "DB CPU Saturation(%)",
@@ -598,6 +609,7 @@ export const renderDynamicChart = (
           key: "db_of_host_share_pct",
           label: "DB Share of Host(%)",
           suffix: "%",
+          subtitleKeys: ["aas_oncpu_sessions", "host_busy_cores"],
         },
         {
           key: "runq_per_core_load_proxy",
@@ -605,9 +617,8 @@ export const renderDynamicChart = (
         },
         { key: "tps_per_sec", label: "TPS" },
         { key: "execs_per_sec", label: "EXEC/S" },
-        { key: "user_calls_per_sec", label: "USER CALLS/S" },
       ],
-      7
+      6
     );
   }
 
@@ -637,6 +648,7 @@ export const renderDynamicChart = (
 
   // Graph ID 14: DB CPU Saturation - AAS vs Core
   // GraphRegistry: AAS_ONCPU_SESSIONS, CORE_BASELINE_SESSIONS
+
   if (graph.id === 14) {
     return renderLine(
       graph,
@@ -650,6 +662,7 @@ export const renderDynamicChart = (
 
   // Graph ID 16: DB CPU Share of Host
   // GraphRegistry: DB_OF_HOST_SHARE_PCT, OTHER_PROCESSES_PCT
+
   if (graph.id === 16) {
     return renderLine(
       graph,
@@ -675,6 +688,7 @@ export const renderDynamicChart = (
 
   // Graph ID 17: Run Queue per Core - Scheduler Load
   // GraphRegistry: RunQ_per_Core_LOAD_PROXY, Load_threshold, load_threshold_min, load_threshold_max
+
   if (graph.id === 17) {
     return renderLine(
       graph,
@@ -696,35 +710,8 @@ export const renderDynamicChart = (
     );
   }
 
-  // Graph ID 20: Top SQL by CPU (Type 5 = Timeline)
-  // 타입이 5번이면 Timeline으로 렌더링, 아니면 기존 로직 유지
-  if (graph.id === 20) {
-    // 타입이 5번(Timeline)이면 mainChartRenderer로 위임
-    if (graph.type === 5) {
-      return null; // mainChartRenderer에서 처리하도록
-    }
-    // 타입이 5번이 아니면 기존 StackChart 방식 유지
-    return renderTopSql(
-      graph,
-      [
-        "top_sql_by_cpu_sql_id_01",
-        "top_sql_by_cpu_sql_id_02",
-        "top_sql_by_cpu_sql_id_03",
-        "top_sql_by_cpu_sql_id_04",
-        "top_sql_by_cpu_sql_id_05",
-      ],
-      [
-        "top_sql_by_cpu_value_01",
-        "top_sql_by_cpu_value_02",
-        "top_sql_by_cpu_value_03",
-        "top_sql_by_cpu_value_04",
-        "top_sql_by_cpu_value_05",
-      ]
-    );
-  }
-
   // === MEMORY 카테고리 ===
-  if (title.includes("PGA Execution Memory") && title.includes("Processes")) {
+  if (graph.id === 21) {
     return renderMetricTiles(
       graph,
       [
@@ -742,7 +729,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("SGA Efficiency") && title.includes("Memory Pools")) {
+  if (graph.id === 22) {
     return renderMetricTiles(
       graph,
       [
@@ -761,6 +748,7 @@ export const renderDynamicChart = (
 
   // Graph ID 23: PGA Utilization (%) – Trend
   // GraphRegistry: PGA_UTIL_PCT
+
   if (graph.id === 23) {
     return renderLine(
       graph,
@@ -774,6 +762,7 @@ export const renderDynamicChart = (
 
   // Graph ID 24: SGA Utilization (%) — Trend
   // GraphRegistry: SGA_UTIL_PCT
+
   if (graph.id === 24) {
     return renderLine(
       graph,
@@ -785,7 +774,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("Workarea Spill Rate") && title.includes("Trend")) {
+  if (graph.id === 25) {
     return renderLine(
       graph,
       {
@@ -796,10 +785,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (
-    title.includes("Library Cache Reloads per Second") &&
-    title.includes("Trend")
-  ) {
+  if (graph.id === 26) {
     return renderLine(
       graph,
       {
@@ -810,7 +796,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("Buffer Cache Miss Rate") && title.includes("Proxy")) {
+  if (graph.id === 27) {
     return renderLine(
       graph,
       {
@@ -822,10 +808,8 @@ export const renderDynamicChart = (
   }
 
   // === SESSION 카테고리 ===
-  if (
-    title.includes("Active vs Inactive Sessions") &&
-    title.includes("Trend")
-  ) {
+
+  if (graph.id === 29) {
     return renderLine(
       graph,
       {
@@ -836,7 +820,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("On-CPU vs Wait") && title.includes("AAS 분해")) {
+  if (graph.id === 30) {
     return renderLine(
       graph,
       {
@@ -847,10 +831,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (
-    title.includes("Lock Wait Sessions") &&
-    (title.includes("TX") || title.includes("TM"))
-  ) {
+  if (graph.id === 31) {
     return renderLine(
       graph,
       {
@@ -861,7 +842,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("TPS") && title.includes("Trend")) {
+  if (graph.id === 32) {
     return renderLine(
       graph,
       {
@@ -872,7 +853,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("Exec/s") && title.includes("Trend")) {
+  if (graph.id === 33) {
     return renderLine(
       graph,
       {
@@ -883,7 +864,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (title.includes("Logons/sec") || title.includes("Disconnects/sec")) {
+  if (graph.id === 34) {
     return renderLine(
       graph,
       {
@@ -894,10 +875,7 @@ export const renderDynamicChart = (
     );
   }
 
-  if (
-    title.includes("Session Activity") &&
-    title.includes("Resource Summary")
-  ) {
+  if (graph.id === 35) {
     return renderMetricTiles(
       graph,
       [
@@ -951,6 +929,7 @@ export const renderDynamicChart = (
 
   // Graph ID 38: Direct Path I/O (개/초)
   // GraphRegistry: physical_reads_direct_per_sec, physical_writes_direct_per_sec, direct_io_ratio_pct
+
   if (graph.id === 38) {
     return renderLine(
       graph,
@@ -972,6 +951,7 @@ export const renderDynamicChart = (
 
   // Graph ID 39: SQL Parsing & Execution (개/초)
   // GraphRegistry: parser_request_per_sec, sql_execute_per_sec, sql_parse_execute_ratio
+
   if (graph.id === 39) {
     return renderLine(
       graph,
@@ -993,6 +973,7 @@ export const renderDynamicChart = (
 
   // Graph ID 40: Physical Reads vs Logical Reads (개/초)
   // GraphRegistry: physical_reads_per_diff_sec, logical_reads_per_sec, cache_hit_ratio_diff_pct, total_reads_per_sec
+
   if (graph.id === 40) {
     return renderLine(
       graph,
@@ -1015,30 +996,20 @@ export const renderDynamicChart = (
   }
 
   // Graph ID 41: Average I/O Wait Time (ms)
-  // GraphRegistry: avg_wait_time_ms, p95_wait_time_ms, io_waits_per_sec, io_time_per_sec_ms
+  // GraphRegistry: avg_wait_time_ms, io_waits_per_sec, io_time_per_sec_ms
   if (graph.id === 41) {
     return renderLine(
       graph,
       {
-        keys: [
-          "avg_wait_time_ms",
-          "p95_wait_time_ms",
-          "io_waits_per_sec",
-          "io_time_per_sec_ms",
-        ],
-        legends: [
-          "Avg Wait Time (ms)",
-          "P95 Wait Time (ms)",
-          "I/O Waits (/s)",
-          "I/O Time (/s ms)",
-        ],
+        keys: ["avg_wait_time_ms", "io_waits_per_sec", "io_time_per_sec_ms"],
+        legends: ["Avg Wait Time (ms)", "I/O Waits (/s)", "I/O Time (/s ms)"],
       },
       mode
     );
   }
 
   // Graph ID 42: Redo Generation Rate (MB/초)
-  // GraphRegistry: redo_generation_mbps, redo_generation_mbps_total, redo_generation_24h_avg, log_switch_count_1min, log_switch_count_5min
+  // GraphRegistry: redo_generation_mbps, redo_generation_mbps_total,log_switch_count_1min
   if (graph.id === 42) {
     return renderLine(
       graph,
@@ -1046,25 +1017,31 @@ export const renderDynamicChart = (
         keys: [
           "redo_generation_mbps",
           "redo_generation_mbps_total",
-          "redo_generation_24h_avg",
           "log_switch_count_1min",
-          "log_switch_count_5min",
         ],
         legends: [
           "Redo Generation (MB/s)",
           "Redo Total (MB/s)",
-          "Redo 24h Avg (MB/s)",
           "Log Switch 1min",
-          "Log Switch 5min",
         ],
       },
       mode
     );
   }
 
+  //   // Graph ID 42: Redo Generation Rate (MB/초)
+  // // GraphRegistry: redo_generation_mbps, redo_generation_mbps_total,  log_switch_count_1min
+  // if (graph.id === 43 ) {
+  //   return renderLine(graph, {
+  //     keys: ["redo_generation_mbps", "redo_generation_mbps_total", "log_switch_count_1min"],
+  //     legends: ["Redo Generation (MB/s)", "Redo Total (MB/s)",  "Log Switch 1min"],
+  //   }, mode);
+  // }
+
   // === STORAGE 카테고리 ===
   // Graph ID 45: Storage Health Dashboard
   // GraphRegistry: FRA_USAGE_PERCENT, FRA_FREE_GB, UNDO_USAGE_PCT, TEMP_USAGE_PCT, MAX_TS_NAME, MAX_TS_USAGE_PCT, TOTAL_DB_USAGE_PCT
+
   if (graph.id === 45) {
     return renderMetricTiles(
       graph,
@@ -1083,6 +1060,7 @@ export const renderDynamicChart = (
 
   // Graph ID 46: Temp Tablespace Active Usage (GB)
   // GraphRegistry: temp_active_usage_gb, temp_current_size_gb, temp_max_size_gb, temp_usage_percent, temp_usage_pct_of_max, temp_peak_usage_24h_gb
+
   if (graph.id === 46) {
     return renderLine(
       graph,
@@ -1130,6 +1108,7 @@ export const renderDynamicChart = (
   // Graph ID 48: 테이블스페이스 증가 추세 (GB/일)
   // GraphRegistry: system_tablespace_name_inc, sysaux_tablespace_name_inc, undotbs1_tablespace_name_inc, users_tablespace_name_inc,
   //                system_used_space_gb_inc, sysaux_used_space_gb_inc, undotbs1_used_space_gb_inc, users_used_space_gb_inc
+
   if (graph.id === 48) {
     return renderStack(
       graph,
@@ -1145,6 +1124,7 @@ export const renderDynamicChart = (
 
   // Graph ID 49: FRA 사용률 추세 (%)
   // GraphRegistry: space_limit_gb, space_used_gb, space_reclaimable_gb, usage_pct, hourly_growth_pct, time_to_95_pct_hours
+
   if (graph.id === 49) {
     return renderLine(
       graph,
@@ -1172,6 +1152,7 @@ export const renderDynamicChart = (
 
   // Graph ID 50: Undo 사용률 추세 (%)
   // GraphRegistry: undo_tablespace_name, undo_usage_percent, long_transaction_count, long_transaction_undo_mb, undo_retention_sec
+
   if (graph.id === 50) {
     return renderLine(
       graph,
@@ -1197,6 +1178,7 @@ export const renderDynamicChart = (
 
   // Graph ID 51: Total Database Usage Trend (%)
   // GraphRegistry: total_db_usage_percent
+
   if (graph.id === 51) {
     return renderLine(
       graph,

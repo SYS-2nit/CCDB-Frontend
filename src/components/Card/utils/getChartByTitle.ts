@@ -10,78 +10,6 @@ import type { DashboardMode } from "@/state/DashboardContext";
 /** 탭 타입 정의 */
 export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 
-/** 각 탭별 차트 목록 */
-export const chartData: Record<TabType, string[]> = {
-  main: [
-    "세션 한도/급증",
-    "PGA / SGA 압박률",
-    "SGA 압박(FreeMB/Reloads)",
-    "AAS",
-    "Wait Class 분포",
-    "Wait Class 분포 (Sessions)",
-    "CPU 사용(호스트 vs DB CPU)",
-    "CPU 상태 (%)",
-    "I/O 지연량",
-    "I/O 지연량 (ms)",
-    "I/O 처리량",
-    "I/O 처리량 (MB/s)",
-    "아카이브 로그 적체/목적지 FULL",
-    "핵심 테이블스페이스 여유율",
-    "백그라운드 프로세스 상태",
-    "제한 근접 파라미터 상태 (%)",
-  ],
-  cpu: [
-    "CPU 활동 현황 타일(수정)",
-    "Foreground vs Background CPU 추이 (AAS)",
-    "Host CPU Utilization (%)",
-    "DB CPU Saturation - AAS vs Core (Load)",
-    "DB CPU Share of Host (%)",
-    "CPU Cost per Commit/Execution (ms)",
-    "Run Queue per Core - Scheduler Load (%)",
-    "Top SQL by CPU (Last 10 min)",
-  ],
-  memory: [
-    "SGA Efficiency & Memory Pools",
-    "PGA Execution Memory & Processes",
-    "SGA Utilization (%)",
-    "PGA Utilization (%)",
-    "Workarea Spill Rate (%)",
-    "Library Cache Reloads per Second",
-    "Buffer Cache Miss Rate (%) - Proxy",
-    "Top SQL by Shared Pool Memory",
-  ],
-  session: [
-    "Session Activity & Resource Summary",
-    "Active vs Inactive Sessions",
-    "Lock Wait Sessions — TX vs TM vs Total",
-    "TPS",
-    "On-CPU vs Wait (AAS 분해)",
-    "Exec/s",
-    "Logons/sec & Disconnects/sec",
-    "Top Blocker Sessions — Snapshot Top 5",
-  ],
-  io: [
-    "I/O Performance Dashboard",
-    "Physical Reads vs Logical Reads",
-    "Average I/O Wait Time (ms)",
-    "데이터파일별 I/O 통계 (Top 5)",
-    "Direct Path I/O",
-    "Redo Generation Rate",
-    "DBWR Checkpoint Activity",
-    "SQL Parsing & Execution",
-  ],
-  storage: [
-    "Storage Health Dashboard",
-    "FRA 사용률 추세 (%)",
-    "Undo 사용률 추세 (%)",
-    "Total Database Usage Trend (%)",
-    "테이블스페이스 사용률 추세 (%)",
-    "테이블스페이스 증가 추세 (GB)",
-    "Temp Tablespace Active Usage (GB)",
-    "대용량 세그먼트 Top 5",
-  ],
-};
-
 const fallbackStyle: React.CSSProperties = {
   width: "100%",
   height: "100%",
@@ -91,18 +19,47 @@ const fallbackStyle: React.CSSProperties = {
   color: "#9ca3af",
 };
 
-// title을 기반으로 적절한 렌더러를 자동 반환
+// Graph ID 범위로 카테고리 판단 (ID 기반 검증만 사용)
+const getCategoryByGraphId = (graphId: number): TabType | null => {
+  // CPU: 13-20
+  if (graphId >= 13 && graphId <= 20) return "cpu";
+  // Memory: 21-28
+  if (graphId >= 21 && graphId <= 28) return "memory";
+  // Session: 29-36
+  if (graphId >= 29 && graphId <= 36) return "session";
+  // I/O: 37-44 또는 41-48 (백엔드에 따라 다를 수 있음)
+  if (graphId >= 37 && graphId <= 48) return "io";
+  // Storage: 45-52 또는 49-56 (백엔드에 따라 다를 수 있음)
+  if (graphId >= 49 && graphId <= 56) return "storage";
+  // Main/Custom: 그 외의 ID들
+  return "main";
+};
+
+// graphData의 ID를 기반으로 적절한 렌더러를 자동 반환 (이름 기반 검증 제거)
 export const getChartByTitle = (
   title: string,
   graphData?: GraphDataResponse | null,
-  mode: DashboardMode = "LIVE",
+  mode: DashboardMode = "LIVE"
 ): React.ReactNode => {
-  if (chartData.main.includes(title)) return mainChartRenderer(title, graphData, mode);
-  if (chartData.cpu.includes(title)) return cpuChartRenderer(title, graphData, mode);
-  if (chartData.memory.includes(title)) return memoryChartRenderer(title, graphData, mode);
-  if (chartData.session.includes(title)) return sessionChartRenderer(title, graphData, mode);
-  if (chartData.io.includes(title)) return ioChartRenderer(title, graphData, mode);
-  if (chartData.storage.includes(title)) return storageChartRenderer(title, graphData, mode);
+  if (!graphData) {
+    return React.createElement(
+      "div",
+      { style: fallbackStyle },
+      "데이터가 없습니다."
+    );
+  }
 
-  return React.createElement("div", { style: fallbackStyle }, "데이터가 없습니다.");
+  // Graph ID로 카테고리 판단
+  const category = getCategoryByGraphId(graphData.id);
+
+  if (category === "cpu") return cpuChartRenderer(title, graphData, mode);
+  if (category === "memory") return memoryChartRenderer(title, graphData, mode);
+  if (category === "session")
+    return sessionChartRenderer(title, graphData, mode);
+  if (category === "io") return ioChartRenderer(title, graphData, mode);
+  if (category === "storage")
+    return storageChartRenderer(title, graphData, mode);
+
+  // Main/Custom 또는 매칭되지 않은 경우
+  return mainChartRenderer(title, graphData, mode);
 };

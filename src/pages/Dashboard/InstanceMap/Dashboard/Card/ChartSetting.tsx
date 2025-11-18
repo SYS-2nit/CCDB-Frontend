@@ -5,7 +5,11 @@ import { chartData, type TabType } from "../data/chartData";
 import { getChartByTitle } from "@/components/Card/utils/getChartByTitle";
 import Button from "@/components/Button/Button";
 import Checkbox from "@/components/Checkbox/Checkbox";
-import { fetchAllGraphs, type GraphDataResponse, type GraphDefinition } from "@/api/dashboard";
+import {
+  fetchAllGraphs,
+  type GraphDataResponse,
+  type GraphDefinition,
+} from "@/api/dashboard";
 import { useDashboardContext } from "@/state/DashboardContext";
 
 interface ChartSettingProps {
@@ -103,8 +107,8 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [allGraphs, setAllGraphs] = useState<GraphDefinition[]>([]);
-  
-  const { mode: dashboardMode } = useDashboardContext();
+
+  const { mode: dashboardMode, graphList } = useDashboardContext();
 
   /** 탭 목록 정의 */
   const categoryTabs = [
@@ -185,6 +189,12 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
     void loadAllGraphs();
   }, []);
 
+  /** 현재 커스텀 대시보드에 포함된 그래프 이름 목록 (Main Custom 탭 기준) */
+  const activeGraphNames = useMemo(
+    () => graphList.map((g) => g.name).filter(Boolean),
+    [graphList],
+  );
+
   /** 그래프별 더미데이터 가져오기 (항상 더미데이터 반환) */
   const getDummyDataForGraph = (graphName: string): GraphDataResponse => {
     const graphDefinition = allGraphs.find((g) => g.name === graphName);
@@ -197,7 +207,7 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
     <aside className="chart-setting">
       {/* 헤더 */}
       <div className="chart-setting__header">
-        <span className="chart-setting__header--title">차트 설정</span>
+        <span className="chart-setting__header--title">차트 변경</span>
       </div>
 
       {/* 본문 */}
@@ -244,14 +254,16 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
               // 더미데이터만 사용 (DB에서 데이터를 가져오지 않음)
               const dummyData = getDummyDataForGraph(graph);
               const miniChart = getChartByTitle(graph, dummyData, dashboardMode);
+              const isActiveInCustom = activeGraphNames.includes(graph);
               
               return (
                 <div key={graph} className="chart-setting__option-item">
                   <Checkbox
-                    checked={selectedOption === i}
-                    onChange={() =>
-                      setSelectedOption((prev) => (prev === i ? null : i))
-                    }
+                    // 커스텀 대시보드에 이미 올라가 있는 그래프는 항상 체크된 상태로 표시
+                    checked={isActiveInCustom}
+                    // 체크박스 클릭은 단순히 "이 그래프를 선택"하는 용도로만 사용
+                    // 실제 체크 상태는 activeGraphNames로 제어하므로 토글되지는 않음
+                    onChange={() => setSelectedOption(i)}
                     label={graph}
                     size="md"
                   />

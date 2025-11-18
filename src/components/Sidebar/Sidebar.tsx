@@ -186,7 +186,7 @@ const Sidebar: React.FC = () => {
           {!isCollapsed && <span className="sidebar__item--title">진단</span>}
         </NavLink>
 
-        {/* 개선 */}
+        {/* 보고서 */}
         <NavLink
           to="/improvement"
           className={({ isActive }) =>
@@ -198,7 +198,7 @@ const Sidebar: React.FC = () => {
             alt="improvement"
             onClick={() => setIsCollapsed(false)}
           />
-          {!isCollapsed && <span className="sidebar__item--title">개선</span>}
+          {!isCollapsed && <span className="sidebar__item--title">보고서</span>}
         </NavLink>
 
         {/* 히스토리 */}
