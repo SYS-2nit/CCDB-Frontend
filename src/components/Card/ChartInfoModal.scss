@@ -10,10 +10,8 @@
     padding: 10px;
     min-width: 300px;
     z-index: 2;
-    color: $gray-500;
-    background-color: $gray-0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-
+    color: $gray-0;
+    background-color: var(--color-sidebar-bg);
   @include text-styles("label02");
 
   animation: fadeIn 0.15s ease-out;
