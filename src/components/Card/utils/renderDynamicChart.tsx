@@ -40,7 +40,6 @@ const sortPoints = (graph: GraphDataResponse) => {
  */
 const formatTime = (timestamp: string, mode: DashboardMode = "LIVE") => {
   if (!timestamp) return timestamp;
-  
   // 백엔드에서 보낸 timestamp는 "2025-01-11T23:59:00" 형식 (타임존 없음)
   // 또는 배열 형식: ["2025", "01", "11", "23", "59", "00"]
   // 이를 Asia/Seoul 타임존으로 해석하기 위해 타임존을 명시적으로 추가
@@ -67,7 +66,6 @@ const formatTime = (timestamp: string, mode: DashboardMode = "LIVE") => {
       // 이미 타임존 정보가 있는 경우
       date = new Date(timestamp);
     }
-    
     if (Number.isNaN(date.getTime())) {
       console.warn(`[formatTime] Invalid timestamp: ${timestamp}`);
       return timestamp;
@@ -154,7 +152,6 @@ const renderMetricTiles = (
 
   // 서버에서 받은 실제 키 목록 (대소문자 포함)
   const availableKeys = Object.keys(latest.values ?? {});
-  
   // 하드코딩된 키를 서버의 실제 키로 매칭 (대소문자 무시)
   const findMatchingKey = (requestedKey: string): string | null => {
     const lowerRequested = requestedKey.toLowerCase();
@@ -319,6 +316,7 @@ const renderLine = (
       </div>
     );
   }
+
   const minValue = Math.min(...allValues);
   const maxValue = Math.max(...allValues);
   const padding = (maxValue - minValue) * 0.1 || 1;
@@ -365,6 +363,7 @@ const renderStack = (
     />
   );
 };
+
 
 export const renderDynamicChart = (
   title: string,
