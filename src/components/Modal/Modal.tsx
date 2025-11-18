@@ -45,6 +45,8 @@ interface ModalProps {
   size?: "sm" | "md" | "lg";
   value?: "0";
   onChange?: (label: string, value: string) => void;
+  isTesting?: boolean;
+  isSaving?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -60,6 +62,8 @@ const Modal: React.FC<ModalProps> = ({
   children,
   size = "md",
   onChange,
+  isTesting = false,
+  isSaving = false,
 }) => {
   const [inputs, setInputs] = useState<{
     [key: string]: string | string[] | boolean;
@@ -73,8 +77,15 @@ const Modal: React.FC<ModalProps> = ({
   }, []);
 
   useEffect(() => {
-    setInputs({});
-  }, [resetTrigger]);
+    // fields의 초기값으로 inputs 초기화
+    const initialInputs: { [key: string]: string | string[] | boolean } = {};
+    fields.forEach((field) => {
+      if (field.value !== undefined) {
+        initialInputs[field.label] = field.value;
+      }
+    });
+    setInputs(initialInputs);
+  }, [resetTrigger, fields]);
 
   const handleChange = (label: string, value: string | string[] | boolean) => {
     setInputs((prev) => ({ ...prev, [label]: value }));
@@ -161,10 +172,19 @@ const Modal: React.FC<ModalProps> = ({
                       case "select":
                         return (
                           <select
-                            value={(inputs[field.label] as string) || ""}
-                            onChange={(e) =>
-                              handleChange(field.label, e.target.value)
+                            value={
+                              field.value !== undefined
+                                ? (field.value as string)
+                                : (inputs[field.label] as string) || ""
                             }
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (field.onChange) {
+                                field.onChange(field.label, value);
+                              } else {
+                                handleChange(field.label, value);
+                              }
+                            }}
                           >
                             <option value="">선택하세요</option>
                             {field.options?.map((opt, idx) => (
@@ -330,12 +350,14 @@ const Modal: React.FC<ModalProps> = ({
               if (onReset) onReset();
               else if (onClose) onClose();
             }}
+            disabled={isTesting || isSaving}
           />
           <Button
             text={confirmText}
             size="sm"
             variant="primary"
             onClick={onConfirm}
+            disabled={isTesting || isSaving}
           />
         </div>
       </div>

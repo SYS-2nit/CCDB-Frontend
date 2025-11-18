@@ -353,6 +353,124 @@ export const fetchActiveEventsByInstance = async (
 };
 
 /**
+ * 알림 메트릭 템플릿 응답 타입
+ */
+export interface AlertMetricTemplateResponse {
+  id: number;
+  category: string; // 백엔드에서 String으로 반환 (예: "CPU", "MEMORY")
+  graphId: number;
+  graphName: string | null;
+  metricKey: string;
+  metricName: string;
+  thresholdFormat: ThresholdFormat;
+  defaultWarning: number | null;
+  defaultDanger: number | null;
+  defaultCritical: number | null;
+  description: string | null;
+  isActive: boolean;
+}
+
+/**
+ * 카테고리별 알림 메트릭 템플릿 목록 조회
+ */
+export const fetchMetricTemplatesByCategory = async (
+  category: AlertCategory,
+): Promise<AlertMetricTemplateResponse[]> => {
+  const response = await api.get<ApiResponse<AlertMetricTemplateResponse[]>>(
+    `${ALERTS_ENDPOINT}/templates`,
+    {
+      params: {
+        category,
+      },
+      // 캐시 방지: 항상 최신 데이터 조회
+      headers: {
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+      },
+    },
+  );
+  console.log(`[fetchMetricTemplatesByCategory] 카테고리 ${category} 조회 결과:`, response.data.data);
+  return response.data.data ?? [];
+};
+
+/**
+ * 알림 설정 응답 타입
+ */
+export interface NotificationSettingsResponse {
+  email: string | null;
+  slackAddress: string | null;
+  warningChannel: string | null;
+  dangerChannel: string | null;
+  criticalChannel: string | null;
+}
+
+/**
+ * 알림 설정 업데이트 요청 타입
+ */
+export interface NotificationSettingsUpdateRequest {
+  email?: string | null;
+  slackAddress?: string | null;
+  warningChannel?: "email" | "slack" | null;
+  dangerChannel?: "email" | "slack" | null;
+  criticalChannel?: "email" | "slack" | null;
+}
+
+/**
+ * 알림 테스트 요청 타입
+ */
+export interface NotificationTestRequest {
+  channels?: string[];
+}
+
+/**
+ * 회원 알림 설정 조회
+ */
+export const fetchNotificationSettings = async (
+  memberId: number,
+): Promise<NotificationSettingsResponse> => {
+  console.log(`[fetchNotificationSettings] memberId=${memberId} 조회 시작`);
+  try {
+    const response = await api.get<ApiResponse<NotificationSettingsResponse>>(
+      `/api/members/${memberId}/notification-settings`,
+    );
+    console.log(`[fetchNotificationSettings] 응답:`, response.data);
+    return response.data.data!;
+  } catch (error: any) {
+    console.error(`[fetchNotificationSettings] 에러:`, error);
+    console.error(`[fetchNotificationSettings] 응답 데이터:`, error?.response?.data);
+    throw error;
+  }
+};
+
+/**
+ * 회원 알림 설정 저장
+ */
+export const updateNotificationSettings = async (
+  memberId: number,
+  payload: NotificationSettingsUpdateRequest,
+): Promise<NotificationSettingsResponse> => {
+  const response = await api.put<ApiResponse<NotificationSettingsResponse>>(
+    `/api/members/${memberId}/notification-settings`,
+    payload,
+  );
+  return response.data.data!;
+};
+
+/**
+ * 알림 테스트 전송
+ */
+export const testNotification = async (
+  memberId: number,
+  payload: NotificationTestRequest,
+): Promise<string> => {
+  const response = await api.post<ApiResponse<string>>(
+    `/api/members/${memberId}/notification-settings/test`,
+    payload,
+  );
+  return response.data.data!;
+};
+
+/**
  * 알림 정책 생성
  */
 export const createPolicy = async (
