@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./ChartSetting.scss";
 import SearchIcon from "@/assets/general/search.svg";
-import { fetchAllGraphs, type GraphDefinition } from "@/api/dashboard";
+import {
+  fetchAllGraphs,
+  type GraphDefinition,
+} from "@/api/Dashboard/dashboard";
 
 interface ChartSettingProps {
   onClose: () => void;
@@ -112,7 +115,7 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
   return (
     <aside className="chart-setting">
       <div className="chart-setting__header">
-        <span className="chart-setting__header--title">차트 변경</span>
+        <span className="chart-setting__header--title">차트 설정</span>
         <span className="chart-setting__header--subtitle">
           위치 {position + 1}번 그래프를 변경합니다.
         </span>

@@ -22,12 +22,12 @@ const OracleDBModel: React.FC<OracleDBModelProps> = ({
   showInfoCard = false,
 }) => {
   const layers = [
-    { color: "#B9E9FF", y: 0.8 },
-    { color: "#63BFFF", y: 0.4 },
-    { color: "#1F76FF", y: 0 },
+    { color: "#7FA4FA", y: 0.82 },
+    { color: "#7FA4FA", y: 0.41 },
+    { color: "#7FA4FA", y: 0 },
   ];
 
-  const scaleValue = isZoomed ? 3.2 : 2.6;
+  const scaleValue = isZoomed ? 3.0 : 1;
 
   return (
     <group onClick={onClick} scale={scaleValue}>

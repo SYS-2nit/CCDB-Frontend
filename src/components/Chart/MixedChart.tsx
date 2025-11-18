@@ -1,6 +1,10 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import {
+  formatNumberWithUnit,
+  formatTooltipNumber,
+} from "@/utils/numberFormatter";
 
 interface MixedChartProps {
   categories?: string[];
@@ -19,16 +23,23 @@ const MixedChart: React.FC<MixedChartProps> = ({
   yaxisRightTitle = "",
   height = 150,
 }) => {
+  // LineChart와 동일하게 데이터 안전화: NaN, Infinity, -Infinity 제거
+  const sanitize = (data: number[] = []): number[] =>
+    data.map((v) => (Number.isFinite(v) ? v : 0));
+
+  const safeColumnData = sanitize(columnData);
+  const safeLineData = sanitize(lineData);
+
   const series = [
     {
       name: yaxisLeftTitle,
       type: "column",
-      data: columnData,
+      data: safeColumnData,
     },
     {
       name: yaxisRightTitle,
       type: "line",
-      data: lineData,
+      data: safeLineData,
     },
   ];
 
@@ -38,6 +49,18 @@ const MixedChart: React.FC<MixedChartProps> = ({
       stacked: false,
       toolbar: { show: false },
       background: "transparent",
+      // LineChart와 동일한 줌/선택 옵션
+      zoom: {
+        enabled: true,
+        type: "x",
+      },
+      selection: {
+        enabled: true,
+        xaxis: {
+          min: undefined,
+          max: undefined,
+        },
+      },
     },
     stroke: {
       width: [0, 3],
@@ -65,18 +88,43 @@ const MixedChart: React.FC<MixedChartProps> = ({
         style: { fontSize: "11px", colors: "#777" },
       },
     },
+    // y축도 LineChart 기준에 맞춰 숫자 포맷 적용
     yaxis: [
       {
-        title: { text: undefined },
+        title: {
+          text: yaxisLeftTitle || undefined,
+          style: {
+            fontSize: "12px",
+            color: "#555",
+            fontWeight: 500,
+          },
+        },
         labels: {
-          style: { colors: "#3B82F6", fontSize: "11px" },
+          show: true,
+          formatter: (val) => formatNumberWithUnit(Number(val)),
+          style: {
+            fontSize: "11px",
+            colors: "#3B82F6",
+          },
         },
       },
       {
         opposite: true,
-        title: { text: undefined },
+        title: {
+          text: yaxisRightTitle || undefined,
+          style: {
+            fontSize: "12px",
+            color: "#555",
+            fontWeight: 500,
+          },
+        },
         labels: {
-          style: { colors: "#22C55E", fontSize: "11px" },
+          show: true,
+          formatter: (val) => formatNumberWithUnit(Number(val)),
+          style: {
+            fontSize: "11px",
+            colors: "#22C55E",
+          },
         },
       },
     ],
@@ -87,7 +135,7 @@ const MixedChart: React.FC<MixedChartProps> = ({
       y: {
         formatter: (val, { seriesIndex, w }) => {
           const name = w.config.series?.[seriesIndex]?.name || "";
-          return `${name}: ${val?.toLocaleString?.() ?? ""}`;
+          return `${name}: ${formatTooltipNumber(Number(val))}`;
         },
         title: { formatter: () => "" },
       },

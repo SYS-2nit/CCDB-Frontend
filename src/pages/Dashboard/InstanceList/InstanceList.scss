@@ -8,7 +8,12 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
   &__subtitle {
     margin-top: 4px;
@@ -38,7 +43,7 @@
   }
 
   &__status {
-    padding: 32px 0;
+    padding: 10px 0;
     text-align: center;
     color: $gray-400;
     @include text-styles("body02");
@@ -123,6 +128,38 @@
 
     tr:hover td {
       background: $main-0;
+    }
+  }
+
+  /* 게이지바 */
+  .instance-gauge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 150px;
+
+    &__value {
+      min-width: 60px;
+      text-align: right;
+      @include text-styles("label02");
+      color: $gray-700;
+      font-weight: 500;
+    }
+
+    &__bar {
+      flex: 1;
+      height: 8px;
+      background: $gray-100;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    &__fill {
+      height: 100%;
+      border-radius: 4px;
+      background: $main-500;
+      transition: width 0.3s ease;
     }
   }
 }

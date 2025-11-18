@@ -11,6 +11,7 @@ interface DateInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   min?: string;
   max?: string;
+  type?: "date" | "month";
 }
 
 const DateInput: React.FC<DateInputProps> = ({
@@ -22,12 +23,13 @@ const DateInput: React.FC<DateInputProps> = ({
   onChange,
   min,
   max,
+  type = "date",
 }) => {
   return (
     <div className="date-input">
       {label && <label className="date-input__label">{label}</label>}
       <input
-        type="date"
+        type={type}
         value={value}
         onChange={onChange}
         disabled={disabled}

@@ -50,7 +50,7 @@
 
     &-title {
       color: $gray-700;
-      @include text-styles("body02");
+      @include text-styles("heading02");
     }
   }
 
@@ -83,6 +83,18 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+  }
+
+  /* 빈 상태 */
+  &__empty {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: $gray-500;
+    @include text-styles("body02");
   }
 
   /* 빈 상태 */

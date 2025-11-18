@@ -15,7 +15,7 @@ import {
   type DatabaseCreatePayload,
   type DatabaseDeletePayload,
   type DatabaseTestPayload,
-} from "@/api/databases";
+} from "@/api/Databases/databases";
 
 type DatabaseListItem = {
   id: number;
@@ -435,7 +435,7 @@ const List: React.FC<ListProps> = ({
           ]}
         >
           {isTesting && (
-            <div className="modal__test-result">연결 테스트 중입니다...</div>
+            <div className="modal__test-result">⏳ 연결 테스트 중입니다...</div>
           )}
           {!isTesting && testFeedback && (
             <div className={`modal__test-result ${testFeedback.status}`}>

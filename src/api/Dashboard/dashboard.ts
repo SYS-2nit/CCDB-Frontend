@@ -1,5 +1,5 @@
-import api from "./index";
-import type { ApiResponse } from "./types";
+import api from "../index";
+import type { ApiResponse } from "../types";
 
 export interface GraphDataPoint {
   timestamp: string;
@@ -43,7 +43,7 @@ export interface GraphDefinition {
 
 export const fetchDashboardData = async (
   params: DashboardDataParams,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ): Promise<DashboardDataResponse> => {
   const searchParams = new URLSearchParams();
   searchParams.set("instanceId", String(params.instanceId));
@@ -52,14 +52,14 @@ export const fetchDashboardData = async (
 
   const response = await api.get<ApiResponse<DashboardDataResponse>>(
     `/api/dashboards/data?${searchParams.toString()}`,
-    { signal }, // AbortSignal 전달
+    { signal } // AbortSignal 전달
   );
 
   return response.data.data ?? { graphs: [] };
 };
 
 export const saveMemberWidgets = async (
-  payload: MemberWidgetSaveRequest,
+  payload: MemberWidgetSaveRequest
 ): Promise<void> => {
   await api.post<ApiResponse<string>>("/api/dashboards/widgets", payload);
 };

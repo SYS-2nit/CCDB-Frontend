@@ -12,7 +12,7 @@ import {
   fetchHistoryGraphList,
   type HistoryGraphDataResponse,
   type HistoryGraphInfo,
-} from "@/api/history";
+} from "@/api/History/history";
 import { useDashboardContext } from "@/state/DashboardContext";
 import ChartCard from "@/components/Card/ChartCard";
 import Spinner from "@/components/Spinner/Spinner";
@@ -49,6 +49,7 @@ const History: React.FC = () => {
 
   // 탭 옵션
   const TAB_ITEMS = [
+    { id: "CUSTOM", label: "Custom" },
     { id: "CPU", label: "CPU" },
     { id: "MEMORY", label: "Memory" },
     { id: "SESSION", label: "Session" },

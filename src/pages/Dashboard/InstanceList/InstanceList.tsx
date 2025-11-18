@@ -17,7 +17,7 @@ import {
   testInstanceForDatabase,
   type DatabaseInstanceListItem,
   type DatabaseTestResult,
-} from "@/api/databases";
+} from "@/api/Databases/databases";
 import { isAxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -97,7 +97,7 @@ const mapStatusToTab = (status?: string | null): StatusTab => {
       return "warn";
     case "위험":
       return "danger";
-    case "치명":
+    case "장애":
       return "error";
     default:
       return "warn";
@@ -110,7 +110,7 @@ const getStatusClass = (status?: string | null) => {
       return "normal";
     case "위험":
       return "danger";
-    case "치명":
+    case "장애":
       return "error";
     case "주의":
     default:
@@ -123,6 +123,39 @@ const formatValue = (value?: string | number | null) => {
     return "-";
   }
   return String(value);
+};
+
+// 게이지바 렌더링 헬퍼 함수
+const renderGaugeBar = (
+  value: string | number | null | undefined,
+  isPercentage: boolean = false,
+  maxValue: number = 100,
+) => {
+  if (value === undefined || value === null || value === "") {
+    return <span>-</span>;
+  }
+
+  const numValue = typeof value === "string" ? parseFloat(value) : value;
+  if (Number.isNaN(numValue)) {
+    return <span>-</span>;
+  }
+
+  const percentage = Math.min(100, Math.max(0, (numValue / maxValue) * 100));
+  const displayValue = isPercentage
+    ? `${percentage.toFixed(1)}%`
+    : numValue.toLocaleString();
+
+  return (
+    <div className="instance-gauge">
+      <span className="instance-gauge__value">{displayValue}</span>
+      <div className="instance-gauge__bar">
+        <div
+          className="instance-gauge__fill"
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
+  );
 };
 
 const InstanceList: React.FC = () => {
@@ -207,10 +240,10 @@ const InstanceList: React.FC = () => {
     () =>
       [
         { id: "all", label: `전체(${instances.length})` },
-        { id: "normal", label: `정상(${statusCounts.normal})` },
+        { id: "normal", label: `무해(${statusCounts.normal})` },
         { id: "warn", label: `주의(${statusCounts.warn})` },
         { id: "danger", label: `위험(${statusCounts.danger})` },
-        { id: "error", label: `치명(${statusCounts.error})` },
+        { id: "error", label: `장애(${statusCounts.error})` },
       ] as const,
     [instances.length, statusCounts]
   );
@@ -508,12 +541,12 @@ const InstanceList: React.FC = () => {
           formatValue(item.port),
           formatValue(item.databaseName),
           formatValue(item.sid),
-          formatValue(item.cpuUsage),
-          formatValue(item.sessionCount),
-          formatValue(item.activeSessionCount),
-          formatValue(item.lockWait),
-          formatValue(item.pga),
-          formatValue(item.sga),
+          renderGaugeBar(item.cpuUsage, true, 100), // CPU: 퍼센트
+          renderGaugeBar(item.sessionCount, false, 1000), // Session: 숫자값
+          renderGaugeBar(item.activeSessionCount, false, 1000), // Active Session: 숫자값
+          renderGaugeBar(item.lockWait, false, 100), // Lock Wait: 숫자값
+          renderGaugeBar(item.pga, true, 100), // PGA: 퍼센트
+          renderGaugeBar(item.sga, true, 100), // SGA: 퍼센트
           <div key={`actions-${item.id}`} className="table-actions">
             <img
               src={EditIcon}
@@ -540,6 +573,10 @@ const InstanceList: React.FC = () => {
 
   return (
     <div className="instance-list">
+      <div className="instance-list__header">
+        <div className="instance-list__header-actions"></div>
+      </div>
+
       {!selectedDatabase ? (
         <div className="instance-list__empty">
           인스턴스 맵에서 DB를 선택하면 목록이 표시됩니다.
@@ -562,15 +599,13 @@ const InstanceList: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <div className="instance-list__header-actions">
-                <Button
-                  text="+ 생성"
-                  size="sm"
-                  variant="primary"
-                  disabled={!selectedDatabase || isLoading}
-                  onClick={openCreateModal}
-                />
-              </div>
+              <Button
+                text="+ 생성"
+                size="sm"
+                variant="primary"
+                disabled={!selectedDatabase || isLoading}
+                onClick={openCreateModal}
+              />
             </div>
 
             {error && (
@@ -582,7 +617,7 @@ const InstanceList: React.FC = () => {
               <div className="instance-list__status">로딩 중입니다...</div>
             ) : rows.length === 0 ? (
               <div className="instance-list__status">
-                검색된 인스턴스가 없습니다.
+                표시할 인스턴스가 없습니다.
               </div>
             ) : (
               <TableChart size="lg" columns={columns} rows={rows} />

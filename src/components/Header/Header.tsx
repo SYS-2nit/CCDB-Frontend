@@ -579,24 +579,6 @@ const Header: React.FC = () => {
     }
   };
 
-
-  const formatClock = (date: Date) => {
-    const hh = String(date.getHours()).padStart(2, "0");
-    const mm = String(date.getMinutes()).padStart(2, "0");
-    const ss = String(date.getSeconds()).padStart(2, "0");
-    return `${hh}시 ${mm}분 ${ss}초`;
-  };
-
-  const formatFullDateTime = (date: Date) => {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    const hh = String(date.getHours()).padStart(2, "0");
-    const mi = String(date.getMinutes()).padStart(2, "0");
-    const ss = String(date.getSeconds()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
-  };
-
   // 시간 포맷 유틸리티 함수 (N분 전, N시간 전 형식)
   const formatTimeAgo = (createdAt: string): string => {
     const now = new Date();
@@ -619,7 +601,26 @@ const Header: React.FC = () => {
     }
   };
 
-  const handleInstanceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const formatClock = (date: Date) => {
+    const hh = String(date.getHours()).padStart(2, "0");
+    const mm = String(date.getMinutes()).padStart(2, "0");
+    const ss = String(date.getSeconds()).padStart(2, "0");
+    return `${hh}시 ${mm}분 ${ss}초`;
+  };
+
+  const formatFullDateTime = (date: Date) => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const mi = String(date.getMinutes()).padStart(2, "0");
+    const ss = String(date.getSeconds()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+  };
+
+  const handleInstanceChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const value = Number(event.target.value);
     const next = instances.find((opt) => opt.id === value) ?? null;
     selectInstance(next ?? null);
@@ -817,7 +818,6 @@ const Header: React.FC = () => {
         </div>
       </header>
 
-      {/* 알림 패널 */}
       {showAlertPanel && (
         <div
           className="alert-panel__overlay"

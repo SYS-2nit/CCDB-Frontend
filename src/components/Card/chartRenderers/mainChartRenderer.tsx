@@ -7,7 +7,7 @@ import DonutChart from "@/components/Chart/DonutChart";
 import TableChart from "@/components/Chart/TableChart";
 import MixedChart from "@/components/Chart/MixedChart";
 import MetricGrid from "@/components/Card/MetricCard";
-import type { GraphDataResponse } from "@/api/dashboard";
+import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 
 const ensureNumber = (value: unknown): number | null => {
@@ -93,14 +93,13 @@ const formatColumnName = (key: string): string => {
     cache_hit_ratio_diff_pct: "Cache Hit Ratio Diff (%)",
     total_reads_per_sec: "Total Reads (/s)",
     avg_wait_time_ms: "Avg Wait Time (ms)",
-    p95_wait_time_ms: "P95 Wait Time (ms)",
+    // p95_wait_time_ms: "P95 Wait Time (ms)",
     io_waits_per_sec: "I/O Waits (/s)",
     io_time_per_sec_ms: "I/O Time (/s ms)",
     redo_generation_mbps: "Redo Generation (MB/s)",
     redo_generation_mbps_total: "Redo Total (MB/s)",
-    redo_generation_24h_avg: "Redo 24h Avg (MB/s)",
     log_switch_count_1min: "Log Switch 1min",
-    log_switch_count_5min: "Log Switch 5min",
+    // log_switch_count_5min: "Log Switch 5min",
 
     // Session 관련
     sessions_limit_util_pct: "Session Util (%)",
@@ -181,11 +180,12 @@ const formatTimeByMode = (timestamp: string, mode: DashboardMode = "LIVE") => {
   if (Number.isNaN(date.getTime())) return timestamp;
 
   switch (mode) {
-    case "LIVE":
+    case "LIVE": {
       // 24시간 형식으로 포맷팅 (HH:mm)
       const hours = String(date.getHours()).padStart(2, "0");
       const minutes = String(date.getMinutes()).padStart(2, "0");
       return `${hours}:${minutes}`;
+    }
     case "10분":
     case "1시간":
       return date.toLocaleTimeString("ko-KR", {
@@ -199,11 +199,12 @@ const formatTimeByMode = (timestamp: string, mode: DashboardMode = "LIVE") => {
         hour: "2-digit",
         minute: "2-digit",
       });
-    default:
+    default: {
       // 24시간 형식으로 포맷팅 (HH:mm)
       const defaultHours = String(date.getHours()).padStart(2, "0");
       const defaultMinutes = String(date.getMinutes()).padStart(2, "0");
       return `${defaultHours}:${defaultMinutes}`;
+    }
   }
 };
 

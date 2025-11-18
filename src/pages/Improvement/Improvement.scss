@@ -1,0 +1,415 @@
+@use "sass:map";
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+@use "@styles/mixins" as *;
+
+.report-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 10px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  &__title {
+    @include text-styles("heading04");
+  }
+
+  &__subtitle {
+    @include text-styles("label02");
+    color: $gray-500;
+  }
+
+  &__layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 2fr 1.2fr;
+    gap: 10px;
+    min-height: 0;
+  }
+
+  &__left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  &__right {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+}
+
+.report-section {
+  background-color: $gray-0;
+  border-radius: 5px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+
+  &__title {
+    @include text-styles("heading04");
+    color: $gray-700;
+    margin-bottom: 12px;
+  }
+
+  &__templates {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  &__block-title {
+    @include text-styles("label02");
+    color: $gray-400;
+    margin: 10px 0px;
+  }
+}
+
+.report-template-card {
+  border-radius: 5px;
+  padding: 10px;
+  border: 1px solid $gray-200;
+  background-color: $gray-0;
+  cursor: pointer;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  &__icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include text-styles("heading01");
+  }
+
+  &__title {
+    text-align: right;
+    @include text-styles("heading04");
+    color: $gray-700;
+  }
+
+  &__desc {
+    @include text-styles("label02");
+    color: $gray-400;
+  }
+
+  &--active {
+    border-color: $main-500;
+    box-shadow: 0 0 0 1px rgba($main-500, 0.2);
+    background-color: $main-100;
+  }
+}
+
+.report-period {
+  display: flex;
+  gap: 12px;
+
+  &__field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__label {
+    @include text-styles("label02");
+    color: $gray-500;
+  }
+
+  &__hint {
+    margin-top: 6px;
+    @include text-styles("label02");
+    color: $gray-500;
+  }
+
+  &__error {
+    margin-top: 6px;
+    @include text-styles("label02");
+    color: $gray-500;
+  }
+}
+
+// 보고서 기간 입력 필드는 흰색 배경 + 연한 테두리로 통일
+.report-period .date-input__field {
+  background-color: $gray-0;
+  border: 1px solid $gray-200;
+}
+
+.report-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.report-metric-chip {
+  min-width: 140px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid $gray-200;
+  @include text-styles("body02");
+  color: $gray-500;
+  background-color: $gray-0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.15s ease;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: $gray-300;
+  }
+
+  &--active {
+    // 보고서 구성 선택 카드와 동일한 파란 계열 배경 사용
+    background-color: $main-100;
+    color: $gray-800;
+  }
+}
+
+// 카테고리별 색상
+// 카테고리별 색상 (프로젝트 공통 팔레트 사용)
+.report-metric-chip--CPU {
+  &.report-metric-chip--active {
+    border-color: $main-400;
+  }
+  &.report-metric-chip--active .report-metric-chip__dot {
+    background-color: $main-400;
+  }
+}
+.report-metric-chip--MEMORY {
+  &.report-metric-chip--active {
+    border-color: $green-400;
+  }
+  &.report-metric-chip--active .report-metric-chip__dot {
+    background-color: $green-400;
+  }
+}
+.report-metric-chip--SESSION {
+  &.report-metric-chip--active {
+    border-color: $yellow-400;
+  }
+  &.report-metric-chip--active .report-metric-chip__dot {
+    background-color: $yellow-400;
+  }
+}
+.report-metric-chip--IO {
+  &.report-metric-chip--active {
+    border-color: $purple-400;
+  }
+  &.report-metric-chip--active .report-metric-chip__dot {
+    background-color: $purple-400;
+  }
+}
+.report-metric-chip--STORAGE {
+  &.report-metric-chip--active {
+    border-color: $red-400;
+  }
+  &.report-metric-chip--active .report-metric-chip__dot {
+    background-color: $red-400;
+  }
+}
+.report-metric-chip--PERF_IMPROVE {
+  &.report-metric-chip--active {
+    border-color: $main-500;
+  }
+  &.report-metric-chip--active .report-metric-chip__dot {
+    background-color: $main-500;
+  }
+}
+
+.report-sections {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.report-section-card {
+  border-radius: 5px;
+  padding: 16px 18px;
+  border: 1px solid $gray-200;
+  background-color: $gray-0;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+
+  &__title {
+    @include text-styles("body02");
+    color: $gray-500;
+    margin-bottom: 6px;
+  }
+
+  &__icon {
+    @include text-styles("title02");
+    color: $gray-500;
+    margin-bottom: 6px;
+  }
+
+  &__desc {
+    @include text-styles("label02");
+    color: $gray-500;
+  }
+
+  &--active {
+    border-color: $main-500;
+    background-color: $main-100;
+  }
+}
+
+.report-preview {
+  background-color: $gray-0;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 5px 5px 0 0;
+    background-color: #111827; // 어두운 네이비 톤
+    color: $gray-0;
+  }
+
+  &__header-icon {
+    width:48px;
+    height: 48px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+  }
+
+  &__title {
+    @include text-styles("label02");
+    color: $gray-500;
+  }
+
+  &__subtitle {
+    font-size: 12px;
+    color: $gray-300;
+    margin-top: 4px;
+  }
+
+  &__card {
+    margin-top: 0;
+    background-color: $gray-0;
+    border-radius: 0 0 5px 5px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__row {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+
+    &--period {
+      margin-top: 4px;
+    }
+
+    &--hint {
+      margin-top: 6px;
+      font-size: 11px;
+      color: $gray-300;
+    }
+  }
+
+  &__row-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 5px;
+    background-color: $gray-50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  &__row-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__label {
+    color: $gray-600;
+  }
+
+  &__value {
+    white-space: pre-line;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 20px;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  &__tag {
+    padding: 4px 10px;
+    border-radius: 5px;
+    background-color: $gray-50;
+    border: 1px solid $gray-200;
+    font-size: 11px;
+  }
+
+  &__checklist {
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__checkitem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  &__checkbox {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    background-color: $main-500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: $gray-0;
+  }
+}
+
+

@@ -1,18 +1,13 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
-import {
-  formatNumberWithUnit,
-  formatTooltipNumber,
-} from "@/utils/numberFormatter";
-import dayjs from "dayjs";
+import { formatNumberWithUnit, formatTooltipNumber } from "@/utils/numberFormatter";
 
 interface LineChartProps {
   legends?: string[];
   showLegend?: boolean;
   seriesData?: number[][];
   categories?: string[];
-  date?: string;
   yaxisTitle?: string;
   height?: number | string;
   yMin?: number;
@@ -24,7 +19,6 @@ const LineChart: React.FC<LineChartProps> = ({
   showLegend = false,
   seriesData = [],
   categories = [],
-  date,
   yaxisTitle = "",
   height = 190,
   yMin,
@@ -41,22 +35,14 @@ const LineChart: React.FC<LineChartProps> = ({
     "#6366F1",
   ];
 
-  /** 날짜 포맷 함수 */
-  const formatDate = (dateString?: string, time?: string) => {
-    if (!dateString || typeof dateString !== "string") return time || "";
-
-    const combined = `${dateString} ${time}`;
-    const d = dayjs(combined);
-
-    if (!d.isValid()) return time || "";
-
-    return d.format("MM-DD HH:mm");
+  // 데이터 검증: NaN, Infinity, -Infinity를 필터링
+  const sanitizeData = (data: number[]): number[] => {
+    return data.map((v) => (Number.isFinite(v) ? v : 0));
   };
 
-  /** ApexCharts Series 구성 */
   const series = legends.map((name, i) => ({
     name,
-    data: seriesData[i] || [],
+    data: sanitizeData(seriesData[i] || []),
   }));
 
   /** Apex 옵션 */
@@ -66,6 +52,17 @@ const LineChart: React.FC<LineChartProps> = ({
       toolbar: { show: false },
       background: "transparent",
       animations: { enabled: true },
+      zoom: {
+        enabled: true,
+        type: "x",
+      },
+      selection: {
+        enabled: true,
+        xaxis: {
+          min: undefined,
+          max: undefined,
+        },
+      },
     },
     stroke: {
       curve: "smooth",
@@ -82,9 +79,6 @@ const LineChart: React.FC<LineChartProps> = ({
     xaxis: {
       categories,
       labels: {
-        formatter: (value: string) => {
-          return formatDate(date, value);
-        },
         rotate: -45,
         style: {
           colors: "#777",
@@ -108,14 +102,22 @@ const LineChart: React.FC<LineChartProps> = ({
         },
       },
       labels: {
+        show: true,
         formatter: (val) => formatNumberWithUnit(Number(val)),
         style: {
           fontSize: "11px",
           colors: "#777",
         },
       },
-      min: yMin ?? 0,
-      max: yMax ?? undefined,
+      axisBorder: {
+        show: true,
+        color: "rgba(0,0,0,0.1)",
+      },
+      axisTicks: {
+        show: false,
+      },
+      min: yMin !== undefined && Number.isFinite(yMin) ? yMin : 0,
+      max: yMax !== undefined && Number.isFinite(yMax) ? yMax : undefined,
     },
 
     dataLabels: { enabled: false },
@@ -136,13 +138,7 @@ const LineChart: React.FC<LineChartProps> = ({
   };
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        overflow: "hidden",
-      }}
-    >
+    <div style={{ width: "100%", height: "100%", maxWidth: "100%", overflow: "hidden" }}>
       <ReactApexChart
         options={options}
         series={series}
