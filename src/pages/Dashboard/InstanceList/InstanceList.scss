@@ -8,7 +8,6 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
 
   &__header {
     display: flex;
@@ -30,11 +29,11 @@
 
   &__table-wrapper {
     background: $gray-0;
-    padding: 16px;
+    padding: 10px;
     border-radius: 5px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
   }
 
   &__table-header {
@@ -44,7 +43,7 @@
   }
 
   &__status {
-    padding: 32px 0;
+    padding: 10px 0;
     text-align: center;
     color: $gray-400;
     @include text-styles("body02");

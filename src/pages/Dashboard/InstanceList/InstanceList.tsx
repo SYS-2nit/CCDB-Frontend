@@ -541,27 +541,7 @@ const InstanceList: React.FC = () => {
   return (
     <div className="instance-list">
       <div className="instance-list__header">
-        <div>
-          <h2>인스턴스 목록</h2>
-          {selectedDatabase ? (
-            <p className="instance-list__subtitle">
-              선택된 DB: {selectedDatabase.name ?? `ID ${selectedDatabase.id}`}
-            </p>
-          ) : (
-            <p className="instance-list__subtitle">
-              선택된 DB가 없습니다. 인스턴스 맵에서 DB를 선택해주세요.
-            </p>
-          )}
-        </div>
-        <div className="instance-list__header-actions">
-          <Button
-            text="+ 생성"
-            size="sm"
-            variant="primary"
-            disabled={!selectedDatabase || isLoading}
-            onClick={openCreateModal}
-          />
-        </div>
+        <div className="instance-list__header-actions"></div>
       </div>
 
       {!selectedDatabase ? (
@@ -585,6 +565,13 @@ const InstanceList: React.FC = () => {
                 icon={SearchIcon}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Button
+                text="+ 생성"
+                size="sm"
+                variant="primary"
+                disabled={!selectedDatabase || isLoading}
+                onClick={openCreateModal}
               />
             </div>
 
