@@ -1,3 +1,5 @@
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useMemo, useState } from "react";
 import "./List.scss";
 import DatabaseItem from "./Item";
@@ -9,10 +11,11 @@ import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import SearchIcon from "@/assets/general/search.svg";
 import { isAxiosError } from "axios";
-import type {
-  DatabaseCreatePayload,
-  DatabaseDeletePayload,
-  DatabaseTestPayload,
+import {
+  fetchInstancesByDatabase,
+  type DatabaseCreatePayload,
+  type DatabaseDeletePayload,
+  type DatabaseTestPayload,
 } from "@/api/databases";
 
 type DatabaseListItem = {
@@ -48,7 +51,7 @@ type ListProps = {
   selectedDatabaseId?: number | null;
   onAddDatabase: (payload: DatabaseCreatePayload) => Promise<void>;
   onTestDatabase: (
-    payload: DatabaseTestPayload,
+    payload: DatabaseTestPayload
   ) => Promise<{ success: boolean; message?: string; errorMessage?: string }>;
   onDeleteDatabase?: (payload: DatabaseDeletePayload) => Promise<void>;
   onDatabaseSelect?: (database: DatabaseListItem | null) => void;
@@ -97,21 +100,41 @@ const List: React.FC<ListProps> = ({
   const [isTesting, setIsTesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
+  const [hoveredDbId, setHoveredDbId] = useState<number | null>(null);
+  const [instanceList, setInstanceList] = useState<any[]>([]);
 
+  // DB hover 시 해당 DB의 인스턴스 가져오는 함수
+  const handleDbHover = async (dbId: number) => {
+    setHoveredDbId(dbId);
+    try {
+      const data = await fetchInstancesByDatabase(dbId);
+      setInstanceList(data);
+    } catch (err) {
+      console.log("인스턴스 목록 조회 오류:", err);
+    }
+  };
+
+  // DB hover out 시 팝업 닫기
+  const handleDbLeave = () => {
+    setHoveredDbId(null);
+  };
+
+  // DB 필터
   const filteredDatabases = useMemo(
     () =>
       databases.filter((db) =>
-        db.name.toLowerCase().includes(searchTerm.toLowerCase()),
+        db.name.toLowerCase().includes(searchTerm.toLowerCase())
       ),
-    [databases, searchTerm],
+    [databases, searchTerm]
   );
 
+  // DB 선택
   const selectedDatabase = useMemo(
     () =>
       selectedDatabaseId == null
         ? null
         : databases.find((db) => db.id === selectedDatabaseId) ?? null,
-    [databases, selectedDatabaseId],
+    [databases, selectedDatabaseId]
   );
 
   useEffect(() => {
@@ -249,7 +272,7 @@ const List: React.FC<ListProps> = ({
   return (
     <div className="db-list">
       <div className="db-list-header">
-        데이터베이스 목록 ({filteredDatabases.length})
+        목록 ({filteredDatabases.length})
         <img
           src={isCollapsed ? ArrowFillBottomIcon : ArrowFillTopIcon}
           alt="toggle"
@@ -278,22 +301,47 @@ const List: React.FC<ListProps> = ({
                 {error}
               </div>
             ) : filteredDatabases.length === 0 ? (
-              <div className="db-list__status">등록된 데이터베이스가 없습니다.</div>
+              <div className="db-list__status">
+                등록된 데이터베이스가 없습니다.
+              </div>
             ) : (
               filteredDatabases.map((db) => (
-                <DatabaseItem
+                <div
                   key={db.id}
-                  name={db.name}
-                  updatedAt={db.updatedAt ?? undefined}
-                  selected={db.id === selectedDatabaseId}
-                  onSelect={(checked) =>
-                    onDatabaseSelect?.(checked ? db : null)
-                  }
-                  onClick={() => {
-                    onDatabaseSelect?.(db);
-                    navigate("/dashboard/instance-list");
-                  }}
-                />
+                  className="db-item-wrapper"
+                  onMouseEnter={() => handleDbHover(db.id)}
+                  onMouseLeave={handleDbLeave}
+                >
+                  <DatabaseItem
+                    name={db.name}
+                    updatedAt={db.updatedAt ?? undefined}
+                    selected={db.id === selectedDatabaseId}
+                    onSelect={(checked) =>
+                      onDatabaseSelect?.(checked ? db : null)
+                    }
+                    onClick={() => {
+                      onDatabaseSelect?.(db);
+                      navigate("/dashboard/instance-list");
+                    }}
+                  />
+
+                  {/* 오른쪽에 뜨는 인스턴스 팝업 */}
+                  {hoveredDbId === db.id && instanceList.length > 0 && (
+                    <div className="instance-popup">
+                      {instanceList.map((instance) => (
+                        <div
+                          key={instance.id}
+                          className="instance-popup-item"
+                          onClick={() =>
+                            navigate(`/dashboard?instanceId=${instance.id}`)
+                          }
+                        >
+                          {instance.sid}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))
             )}
           </div>

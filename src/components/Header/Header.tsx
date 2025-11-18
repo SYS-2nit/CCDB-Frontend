@@ -560,7 +560,7 @@ const Header: React.FC = () => {
                 <div key={i} className="alert-item">
                   <div className="alert-item__icon">⚠️</div>
                   <div className="alert-item__text">
-                    <strong>그래프 이름</strong> 에 에러 메시지 요약이
+                    <strong>그래프 이름</strong> 에 치명 메시지 요약이
                     발견되었습니다.
                     <div className="alert-item__sub">N분 전 · DB명</div>
                   </div>

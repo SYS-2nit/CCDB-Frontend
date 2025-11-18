@@ -10,7 +10,6 @@ import MetricGrid from "@/components/Card/MetricCard";
 import type { GraphDataResponse } from "@/api/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 
-           
 const ensureNumber = (value: unknown): number | null => {
   if (value === null || value === undefined) return null;
   if (typeof value === "number") return Number.isFinite(value) ? value : null;

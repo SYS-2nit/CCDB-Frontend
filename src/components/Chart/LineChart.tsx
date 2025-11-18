@@ -8,6 +8,7 @@ interface LineChartProps {
   showLegend?: boolean;
   seriesData?: number[][];
   categories?: string[];
+  date?: string;
   yaxisTitle?: string;
   height?: number | string;
   yMin?: number;
@@ -17,10 +18,9 @@ interface LineChartProps {
 const LineChart: React.FC<LineChartProps> = ({
   legends = ["Series 1"],
   showLegend = false,
-  seriesData = [
-    Array.from({ length: 5 }, () => Math.floor(Math.random() * 20) + 5),
-  ],
-  categories = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"],
+  seriesData = [],
+  categories = [],
+  date,
   yaxisTitle = "",
   height = 190,
   yMin,
@@ -47,6 +47,7 @@ const LineChart: React.FC<LineChartProps> = ({
     data: sanitizeData(seriesData[i] || []),
   }));
 
+  /** Apex 옵션 */
   const options: ApexOptions = {
     chart: {
       type: "line",
@@ -76,17 +77,25 @@ const LineChart: React.FC<LineChartProps> = ({
       strokeDashArray: 3,
       padding: { top: 10, right: 5, bottom: 0, left: 10 },
     },
+
+    /** X축 포맷 */
     xaxis: {
       categories,
       labels: {
+        formatter: (value: string) => {
+          return formatDate(date, value);
+        },
+        rotate: -45,
         style: {
           colors: "#777",
-          fontSize: "11px",
+          fontSize: "10px",
         },
       },
       axisTicks: { show: false },
       axisBorder: { show: false },
     },
+
+    /** Y축 */
     yaxis: {
       show: true,
       showAlways: true,
@@ -97,9 +106,6 @@ const LineChart: React.FC<LineChartProps> = ({
           color: "#555",
           fontWeight: 500,
         },
-        rotate: -90,
-        offsetX: 0,
-        offsetY: 0,
       },
       labels: {
         show: true,
@@ -119,23 +125,20 @@ const LineChart: React.FC<LineChartProps> = ({
       min: yMin !== undefined && Number.isFinite(yMin) ? yMin : 0,
       max: yMax !== undefined && Number.isFinite(yMax) ? yMax : undefined,
     },
+
     dataLabels: { enabled: false },
+
     legend: {
       show: showLegend,
       position: "bottom",
       fontSize: "11px",
       itemMargin: { horizontal: 8 },
-      onItemClick: {
-        toggleDataSeries: true,
-      },
-      onItemHover: {
-        highlightDataSeries: true,
-      },
     },
+
     tooltip: {
       theme: "light",
-      style: {
-        fontSize: "12px",
+      y: {
+        formatter: (val) => formatTooltipNumber(Number(val)),
       },
       y: {
         formatter: (val) => formatTooltipNumber(Number(val)),

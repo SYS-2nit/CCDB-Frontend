@@ -207,7 +207,7 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
     <aside className="chart-setting">
       {/* 헤더 */}
       <div className="chart-setting__header">
-        <span className="chart-setting__header--title">차트 설정</span>
+        <span className="chart-setting__header--title">차트 변경</span>
       </div>
 
       {/* 본문 */}
