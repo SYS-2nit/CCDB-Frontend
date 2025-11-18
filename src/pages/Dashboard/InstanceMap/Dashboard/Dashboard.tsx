@@ -77,7 +77,6 @@ const Dashboard: React.FC<DashboardProps> = ({
     clearGraphs,
     isWidgetOrderDirty,
     saveWidgetOrder,
-    isFetching,
     setIsFetching,
     setError,
     triggerRefresh,
@@ -210,7 +209,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         });
         if (cancelled) return;
         const normalizedGraphs = normalizeGraphsForMode(response?.graphs);
-
+        
         if (activeTab === "main") {
           setGraphs(normalizedGraphs);
           lastLoadedTabRef.current = activeTab;

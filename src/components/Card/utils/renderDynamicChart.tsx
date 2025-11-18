@@ -366,50 +366,6 @@ const renderStack = (
   );
 };
 
-const renderTopSql = (
-  graph: GraphDataResponse,
-  sqlIdKeys: string[],
-  valueKeys: string[],
-) => {
-  const sorted = sortPoints(graph);
-  if (sorted.length === 0) return null;
-  const latest = sorted[sorted.length - 1];
-
-  const labels: string[] = [];
-  const usage: number[] = [];
-
-  for (let i = 0; i < sqlIdKeys.length; i++) {
-    const sqlId = latest.values?.[sqlIdKeys[i]];
-    const value = ensureNumber(latest.values?.[valueKeys[i]]);
-    
-    if (sqlId && value !== null && value > 0) {
-      labels.push(String(sqlId).substring(0, 20)); // SQL_ID를 20자로 제한
-      usage.push(value);
-    }
-  }
-
-  if (labels.length === 0) return null;
-
-  // totals를 계산 (usage의 최대값 기준으로 상대적 비교 가능하도록)
-  const maxUsage = Math.max(...usage);
-  const adjustedTotals = usage.map(() => maxUsage * 1.2 || 100);
-
-  return (
-    <StackChart
-      labels={labels}
-      usage={usage}
-      total={adjustedTotals}
-      colorRules={[
-        { min: 0, max: 100, color: "#3B82F6" },
-      ]}
-      tooltipFormatter={({ used, total, percent }) =>
-        `CPU Time (ms): ${used.toLocaleString()}ms / Max: ${total.toLocaleString()}ms (${percent.toFixed(1)}%)`
-      }
-      height={200}
-    />
-  );
-};
-
 export const renderDynamicChart = (
   title: string,
   graph: GraphDataResponse | null | undefined,

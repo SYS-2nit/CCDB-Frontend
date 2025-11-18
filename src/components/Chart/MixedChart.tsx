@@ -53,7 +53,6 @@ const MixedChart: React.FC<MixedChartProps> = ({
       zoom: {
         enabled: true,
         type: "x",
-        autoSelected: "selection",
       },
       selection: {
         enabled: true,

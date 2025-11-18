@@ -57,7 +57,6 @@ const LineChart: React.FC<LineChartProps> = ({
       zoom: {
         enabled: true,
         type: "x",
-        autoSelected: "selection",
       },
       selection: {
         enabled: true,
@@ -82,9 +81,6 @@ const LineChart: React.FC<LineChartProps> = ({
     xaxis: {
       categories,
       labels: {
-        formatter: (value: string) => {
-          return formatDate(date, value);
-        },
         rotate: -45,
         style: {
           colors: "#777",
@@ -137,9 +133,6 @@ const LineChart: React.FC<LineChartProps> = ({
 
     tooltip: {
       theme: "light",
-      y: {
-        formatter: (val) => formatTooltipNumber(Number(val)),
-      },
       y: {
         formatter: (val) => formatTooltipNumber(Number(val)),
       },
