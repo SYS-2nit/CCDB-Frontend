@@ -6,12 +6,17 @@ import { useState } from "react";
 
 const Header = () => {
   const [showAlertPanel, setShowAlertPanel] = useState(false);
+  const [unreadCount] = useState<number>(0);
 
   return (
     <>
       <header className="header">
         <HeaderLeft />
-        <HeaderRight onAlertOpen={() => setShowAlertPanel(true)} />
+        {/* <HeaderRight onAlertOpen={() => setShowAlertPanel(true)} /> */}
+        <HeaderRight
+          unreadCount={unreadCount}
+          onAlertOpen={() => setShowAlertPanel(true)}
+        />
       </header>
 
       {showAlertPanel && (
