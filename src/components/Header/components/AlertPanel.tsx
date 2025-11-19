@@ -39,7 +39,7 @@ const AlertPanel = ({
       <div className="alert-panel" onClick={(e) => e.stopPropagation()}>
         <div className="alert-panel__header">
           <h3>알림 목록</h3>
-          <div className="alert-panel__header-actions">
+          <div className="alert-panel__header-actions" style={{ marginLeft: "30px" }}>
             <button
               className="alert-panel__event-log-btn"
               onClick={() => {
