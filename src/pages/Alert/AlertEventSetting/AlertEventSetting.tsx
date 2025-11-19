@@ -42,9 +42,9 @@ const AlertEventSetting: React.FC = () => {
   }>({
     email: "",
     slackAddress: "",
-    warningChannel: "",
-    dangerChannel: "",
-    criticalChannel: "",
+    warningChannel: "전체",
+    dangerChannel: "전체",
+    criticalChannel: "전체",
   });
   const [isLoadingSettings, setIsLoadingSettings] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -89,9 +89,9 @@ const AlertEventSetting: React.FC = () => {
       const loadedSettings = {
         email: settings.email || "",
         slackAddress: settings.slackAddress || "",
-        warningChannel: settings.warningChannel || "",
-        dangerChannel: settings.dangerChannel || "",
-        criticalChannel: settings.criticalChannel || "",
+        warningChannel: settings.warningChannel === "all" ? "전체" : (settings.warningChannel || "전체"),
+        dangerChannel: settings.dangerChannel === "all" ? "전체" : (settings.dangerChannel || "전체"),
+        criticalChannel: settings.criticalChannel === "all" ? "전체" : (settings.criticalChannel || "전체"),
       };
       // 상태를 항상 최신 DB 값으로 초기화
       setNotificationSettings(loadedSettings);
@@ -115,12 +115,26 @@ const AlertEventSetting: React.FC = () => {
     if (!originalSettings) return;
     try {
       console.log("[AlertEventSetting] 원본 값으로 복원 시작:", originalSettings);
+      // 채널 값 변환: "전체" → "all", 빈 문자열/undefined → null, 그 외 → 그대로
+      const convertChannel = (value: string): "email" | "slack" | "all" | null => {
+        if (!value || value.trim() === "" || value === "선택하세요") {
+          return null;
+        }
+        if (value === "전체") {
+          return "all";
+        }
+        if (value === "email" || value === "slack") {
+          return value;
+        }
+        return null;
+      };
+
       await updateNotificationSettings(memberId, {
         email: originalSettings.email || null,
         slackAddress: originalSettings.slackAddress || null,
-        warningChannel: (originalSettings.warningChannel as "email" | "slack") || null,
-        dangerChannel: (originalSettings.dangerChannel as "email" | "slack") || null,
-        criticalChannel: (originalSettings.criticalChannel as "email" | "slack") || null,
+        warningChannel: convertChannel(originalSettings.warningChannel),
+        dangerChannel: convertChannel(originalSettings.dangerChannel),
+        criticalChannel: convertChannel(originalSettings.criticalChannel),
       });
       console.log("[AlertEventSetting] 원본 값으로 복원 완료");
       // 상태도 원본으로 복원
@@ -133,12 +147,26 @@ const AlertEventSetting: React.FC = () => {
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
+      // 채널 값 변환: "전체" → "all", 빈 문자열/undefined → null, 그 외 → 그대로
+      const convertChannel = (value: string): "email" | "slack" | "all" | null => {
+        if (!value || value.trim() === "" || value === "선택하세요") {
+          return null;
+        }
+        if (value === "전체") {
+          return "all";
+        }
+        if (value === "email" || value === "slack") {
+          return value;
+        }
+        return null;
+      };
+
       await updateNotificationSettings(memberId, {
         email: notificationSettings.email || null,
         slackAddress: notificationSettings.slackAddress || null,
-        warningChannel: (notificationSettings.warningChannel as "email" | "slack") || null,
-        dangerChannel: (notificationSettings.dangerChannel as "email" | "slack") || null,
-        criticalChannel: (notificationSettings.criticalChannel as "email" | "slack") || null,
+        warningChannel: convertChannel(notificationSettings.warningChannel),
+        dangerChannel: convertChannel(notificationSettings.dangerChannel),
+        criticalChannel: convertChannel(notificationSettings.criticalChannel),
       });
       // 저장 성공 시 원본 값 업데이트 (복원할 필요 없음)
       setOriginalSettings({
@@ -162,7 +190,7 @@ const AlertEventSetting: React.FC = () => {
   const handleTestNotification = async () => {
     setIsTesting(true);
     try {
-      // 입력값 검증
+      // 입력값 검증 - Email 또는 Slack 주소 중 하나라도 입력되어 있으면 테스트 가능
       const channels: string[] = [];
       if (notificationSettings.email) channels.push("email");
       if (notificationSettings.slackAddress) channels.push("slack");
@@ -174,15 +202,29 @@ const AlertEventSetting: React.FC = () => {
         return;
       }
 
+      // 채널 값 변환: "전체" → "all", 빈 문자열/undefined → null, 그 외 → 그대로
+      const convertChannel = (value: string): "email" | "slack" | "all" | null => {
+        if (!value || value.trim() === "" || value === "선택하세요") {
+          return null;
+        }
+        if (value === "전체") {
+          return "all";
+        }
+        if (value === "email" || value === "slack") {
+          return value;
+        }
+        return null;
+      };
+
       // 테스트 전에 임시 저장 (입력한 값으로 DB 업데이트)
       // 백엔드 API가 DB의 값을 사용하므로 테스트를 위해 임시 저장 필요
       console.log("[AlertEventSetting] 테스트를 위한 임시 저장 시작:", notificationSettings);
       await updateNotificationSettings(memberId, {
         email: notificationSettings.email || null,
         slackAddress: notificationSettings.slackAddress || null,
-        warningChannel: (notificationSettings.warningChannel as "email" | "slack") || null,
-        dangerChannel: (notificationSettings.dangerChannel as "email" | "slack") || null,
-        criticalChannel: (notificationSettings.criticalChannel as "email" | "slack") || null,
+        warningChannel: convertChannel(notificationSettings.warningChannel),
+        dangerChannel: convertChannel(notificationSettings.dangerChannel),
+        criticalChannel: convertChannel(notificationSettings.criticalChannel),
       });
       console.log("[AlertEventSetting] 테스트를 위한 임시 저장 완료");
       setHasTested(true); // 테스트 실행 표시
@@ -195,12 +237,26 @@ const AlertEventSetting: React.FC = () => {
       // 테스트 후 원본 값으로 즉시 복원 (저장하지 않음)
       if (originalSettings) {
         console.log("[AlertEventSetting] 테스트 완료 - 원본 값으로 즉시 복원");
+        // 채널 값 변환: "전체" → "all", 빈 문자열/undefined → null, 그 외 → 그대로
+        const convertChannel = (value: string): "email" | "slack" | "all" | null => {
+          if (!value || value.trim() === "" || value === "선택하세요") {
+            return null;
+          }
+          if (value === "전체") {
+            return "all";
+          }
+          if (value === "email" || value === "slack") {
+            return value;
+          }
+          return null;
+        };
+
         await updateNotificationSettings(memberId, {
           email: originalSettings.email || null,
           slackAddress: originalSettings.slackAddress || null,
-          warningChannel: (originalSettings.warningChannel as "email" | "slack") || null,
-          dangerChannel: (originalSettings.dangerChannel as "email" | "slack") || null,
-          criticalChannel: (originalSettings.criticalChannel as "email" | "slack") || null,
+          warningChannel: convertChannel(originalSettings.warningChannel),
+          dangerChannel: convertChannel(originalSettings.dangerChannel),
+          criticalChannel: convertChannel(originalSettings.criticalChannel),
         });
         console.log("[AlertEventSetting] 원본 값으로 복원 완료");
         // 상태는 그대로 유지 (사용자가 입력한 값)
@@ -765,7 +821,7 @@ const AlertEventSetting: React.FC = () => {
               label: "Critical",
               type: "select",
               placeholder: "주요 알림 채널을 선택해주세요.",
-              options: ["slack", "email"],
+              options: ["전체", "slack", "email"],
               value: notificationSettings.criticalChannel,
               onChange: handleFieldChange,
             },
@@ -773,7 +829,7 @@ const AlertEventSetting: React.FC = () => {
               label: "Warning",
               type: "select",
               placeholder: "주요 알림 채널을 선택해주세요.",
-              options: ["slack", "email"],
+              options: ["전체", "slack", "email"],
               value: notificationSettings.warningChannel,
               onChange: handleFieldChange,
             },
@@ -781,7 +837,7 @@ const AlertEventSetting: React.FC = () => {
               label: "Danger",
               type: "select",
               placeholder: "주요 알림 채널을 선택해주세요.",
-              options: ["slack", "email"],
+              options: ["전체", "slack", "email"],
               value: notificationSettings.dangerChannel,
               onChange: handleFieldChange,
             },

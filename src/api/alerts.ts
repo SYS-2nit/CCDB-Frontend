@@ -410,9 +410,9 @@ export interface NotificationSettingsResponse {
 export interface NotificationSettingsUpdateRequest {
   email?: string | null;
   slackAddress?: string | null;
-  warningChannel?: "email" | "slack" | null;
-  dangerChannel?: "email" | "slack" | null;
-  criticalChannel?: "email" | "slack" | null;
+  warningChannel?: "email" | "slack" | "all" | null;
+  dangerChannel?: "email" | "slack" | "all" | null;
+  criticalChannel?: "email" | "slack" | "all" | null;
 }
 
 /**

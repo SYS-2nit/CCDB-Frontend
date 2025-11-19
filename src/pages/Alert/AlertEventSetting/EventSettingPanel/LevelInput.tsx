@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { ThresholdFormat } from "@/api/alerts";
 import "./LevelInput.scss";
 
@@ -21,6 +21,18 @@ const LevelInput: React.FC<LevelInputProps> = ({
   onChange,
   onValidationError,
 }) => {
+  // 입력 중에는 문자열로 관리 (빈 값 허용)
+  const [inputValue, setInputValue] = useState<string>(value.toString());
+  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // 외부에서 value가 변경되면 inputValue도 업데이트 (포커스가 없을 때만)
+  useEffect(() => {
+    if (!isFocused) {
+      setInputValue(value.toString());
+    }
+  }, [value, isFocused]);
+
   // 메트릭 포맷에 따른 단위 표시
   const getUnit = (format: ThresholdFormat): string => {
     switch (format) {
@@ -63,30 +75,78 @@ const LevelInput: React.FC<LevelInputProps> = ({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    if (inputValue === "") {
-      onChange(0);
+    const newValue = e.target.value;
+    
+    // 입력 중에는 검증하지 않고 문자열 그대로 저장
+    // 숫자가 아니거나 빈 값도 허용 (사용자가 지우고 입력할 수 있도록)
+    if (newValue === "" || newValue === "-") {
+      setInputValue(newValue);
       return;
     }
-    const numValue = Number(inputValue);
+
+    // 숫자만 허용 (소수점 포함)
+    const numValue = Number(newValue);
     if (isNaN(numValue)) {
+      // 숫자가 아니면 이전 값 유지
       return;
     }
-    if (min !== undefined && numValue < min) {
+
+    // 입력 중에는 검증하지 않고 그대로 표시
+    setInputValue(newValue);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    
+    // 포커스 아웃 시에만 검증 및 값 설정
+    const trimmedValue = inputValue.trim();
+    
+    // 빈 값이면 최소값 또는 0으로 설정
+    if (trimmedValue === "" || trimmedValue === "-") {
+      const defaultValue = min !== undefined ? min : 0;
+      setInputValue(defaultValue.toString());
+      onChange(defaultValue);
+      return;
+    }
+
+    const numValue = Number(trimmedValue);
+    
+    // NaN이면 이전 값으로 복원
+    if (isNaN(numValue)) {
+      setInputValue(value.toString());
+      return;
+    }
+
+    // 최종 검증 및 값 조정
+    let finalValue = numValue;
+
+    if (min !== undefined && finalValue < min) {
       if (onValidationError) {
         onValidationError(`${label} 값은 ${min}${unit}보다 작을 수 없습니다.`);
       }
-      onChange(min);
-      return;
+      finalValue = min;
     }
-    if (max !== undefined && numValue > max) {
+
+    if (max !== undefined && finalValue > max) {
       if (onValidationError) {
         onValidationError(`${label} 값은 ${max}${unit}을 초과할 수 없습니다.`);
       }
-      onChange(max);
-      return;
+      finalValue = max;
     }
-    onChange(numValue);
+
+    // 최종 값 설정
+    setInputValue(finalValue.toString());
+    onChange(finalValue);
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    // 포커스 시 전체 선택 (사용자가 쉽게 지우고 입력할 수 있도록)
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.select();
+      }
+    }, 0);
   };
 
   return (
@@ -103,13 +163,15 @@ const LevelInput: React.FC<LevelInputProps> = ({
         </button>
         <div className="level-input__value-container">
           <input
-            type="number"
+            ref={inputRef}
+            type="text"
             className="level-input__input"
-            value={value}
+            value={inputValue}
             onChange={handleInputChange}
-            min={min}
-            max={max}
-            step={step}
+            onBlur={handleBlur}
+            onFocus={handleFocus}
+            inputMode="numeric"
+            pattern="[0-9]*"
           />
           <span className="level-input__unit">{unit}</span>
         </div>
