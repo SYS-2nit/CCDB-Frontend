@@ -12,12 +12,11 @@ import {
   fetchHistoryGraphList,
   type HistoryGraphDataResponse,
   type HistoryGraphInfo,
-} from "@/api/History/history";
+} from "@/api/history/history";
 import { useDashboardContext } from "@/state/DashboardContext";
 import ChartCard from "@/components/Card/ChartCard";
 import Spinner from "@/components/Spinner/Spinner";
 import TabMenu from "@/components/Tabs/TabMenu";
-import { chartData } from "@/pages/Dashboard/InstanceMap/Dashboard/data/chartData";
 
 interface FilterItem {
   key: string;
@@ -55,6 +54,7 @@ const History: React.FC = () => {
     { id: "SESSION", label: "Session" },
     { id: "IO", label: "I/O" },
     { id: "STORAGE", label: "Storage" },
+
   ] as const;
 
   // 내부 activeTab = 소문자로 관리 (chartData key와 동일)
@@ -62,10 +62,21 @@ const History: React.FC = () => {
     "cpu" | "memory" | "session" | "io" | "storage"
   >("cpu"); // 기본 CPU
 
-  // chartData 기반 필터링
-  const filteredGraphs = historyGraphs.filter((graph) =>
-    chartData[activeTab]?.includes(graph.name)
-  );
+  // GraphId 기반 카테고리 필터링
+  const getCategoryByGraphId = (graphId: number): "cpu" | "memory" | "session" | "io" | "storage" | "custom"| "main" | null => {
+    if (graphId >= 1 && graphId <= 12) return "custom";
+    if (graphId >= 13 && graphId <= 20) return "cpu";
+    if (graphId >= 21 && graphId <= 28) return "memory";
+    if (graphId >= 29 && graphId <= 36) return "session";
+    if (graphId >= 37 && graphId <= 44) return "io";
+    if (graphId >= 45 && graphId <= 52) return "storage";
+    return "main";
+  };
+
+  const filteredGraphs = historyGraphs.filter((graph) => {
+    const category = getCategoryByGraphId(graph.id);
+    return category === activeTab;
+  });
 
   /** 공통 필터 업데이트 */
   const updateFilter = useCallback(
