@@ -20,6 +20,7 @@ import {
 } from "@/api/Databases/databases";
 import { isAxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
+import { useSelectedInstanceStore } from "@/state/useInstanceStore";
 
 const SELECTED_DB_STORAGE_KEY = "selectedDatabase";
 const ROWS_PER_PAGE = 10;
@@ -81,11 +82,7 @@ const getErrorMessage = (error: unknown) => {
     const data = error.response?.data as { message?: string } | undefined;
     return data?.message ?? error.message;
   }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
+  if (error instanceof Error) return error.message;
   return "알 수 없는 오류가 발생했습니다.";
 };
 
@@ -125,11 +122,10 @@ const formatValue = (value?: string | number | null) => {
   return String(value);
 };
 
-// 게이지바 렌더링 헬퍼 함수
 const renderGaugeBar = (
   value: string | number | null | undefined,
   isPercentage: boolean = false,
-  maxValue: number = 100,
+  maxValue: number = 100
 ) => {
   if (value === undefined || value === null || value === "") {
     return <span>-</span>;
@@ -161,18 +157,21 @@ const renderGaugeBar = (
 const InstanceList: React.FC = () => {
   const [selectedDatabase, setSelectedDatabase] =
     useState<SelectedDatabaseInfo | null>(() => loadSelectedDatabase());
+
   const [instances, setInstances] = useState<InstanceRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<StatusTab>("all");
   const [currentPage, setCurrentPage] = useState(1);
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createSid, setCreateSid] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [createTestResult, setCreateTestResult] =
     useState<DatabaseTestResult | null>(null);
   const [isCreateTesting, setIsCreateTesting] = useState(false);
+
   const [editTarget, setEditTarget] = useState<InstanceRow | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editSid, setEditSid] = useState("");
@@ -180,7 +179,10 @@ const InstanceList: React.FC = () => {
   const [editTestResult, setEditTestResult] =
     useState<DatabaseTestResult | null>(null);
   const [isEditSaving, setIsEditSaving] = useState(false);
+
   const navigate = useNavigate();
+
+  const { setInstance } = useSelectedInstanceStore();
 
   const loadInstances = useCallback(async (databaseId: number) => {
     setIsLoading(true);
@@ -229,9 +231,7 @@ const InstanceList: React.FC = () => {
 
     return instances.reduce((acc, item) => {
       const tab = mapStatusToTab(item.status);
-      if (tab !== "all") {
-        acc[tab] += 1;
-      }
+      if (tab !== "all") acc[tab] += 1;
       return acc;
     }, initial);
   }, [instances]);
@@ -461,12 +461,18 @@ const InstanceList: React.FC = () => {
     [loadInstances, selectedDatabase]
   );
 
+  // 전역 setInstance
   const handleNavigateToDashboard = useCallback(
     (item: InstanceRow) => {
       if (!selectedDatabase) {
         alert("DB를 먼저 선택해주세요.");
         return;
       }
+
+      const name = item.serverName ?? item.sid ?? `${item.id}`;
+
+      // 전역 상태 저장
+      setInstance(item.id, name);
 
       try {
         sessionStorage.setItem(
@@ -476,8 +482,8 @@ const InstanceList: React.FC = () => {
             name: selectedDatabase.name,
           })
         );
-      } catch (error) {
-        console.warn("[InstanceList] 선택한 DB 저장 실패", error);
+      } catch {
+        /* empty */
       }
 
       try {
@@ -485,28 +491,25 @@ const InstanceList: React.FC = () => {
           "selectedInstance",
           JSON.stringify({
             id: item.id,
-            name: item.serverName ?? item.sid ?? `${item.id}`,
+            name,
           })
         );
-      } catch (error) {
-        console.warn(
-          "[InstanceList] 선택한 인스턴스를 저장하는 중 오류",
-          error
-        );
+      } catch {
+        /* empty */
       }
 
       window.dispatchEvent(
         new CustomEvent("dashboard:selected-instance", {
           detail: {
             id: item.id,
-            name: item.serverName ?? item.sid ?? `${item.id}`,
+            name,
           },
         })
       );
 
       navigate(`/dashboard?instanceId=${item.id}`);
     },
-    [navigate, selectedDatabase]
+    [navigate, selectedDatabase, setInstance]
   );
 
   const paginatedData = useMemo(
@@ -530,6 +533,7 @@ const InstanceList: React.FC = () => {
             className={`status status--${statusClass}`}
             title={statusLabel}
           />,
+
           <span
             key={`server-${item.id}`}
             className="link"
@@ -537,16 +541,19 @@ const InstanceList: React.FC = () => {
           >
             {formatValue(item.serverName)}
           </span>,
+
           formatValue(item.ip),
           formatValue(item.port),
           formatValue(item.databaseName),
           formatValue(item.sid),
-          renderGaugeBar(item.cpuUsage, true, 100), // CPU: 퍼센트
-          renderGaugeBar(item.sessionCount, false, 1000), // Session: 숫자값
-          renderGaugeBar(item.activeSessionCount, false, 1000), // Active Session: 숫자값
-          renderGaugeBar(item.lockWait, false, 100), // Lock Wait: 숫자값
-          renderGaugeBar(item.pga, true, 100), // PGA: 퍼센트
-          renderGaugeBar(item.sga, true, 100), // SGA: 퍼센트
+
+          renderGaugeBar(item.cpuUsage, true, 100),
+          renderGaugeBar(item.sessionCount, false, 1000),
+          renderGaugeBar(item.activeSessionCount, false, 1000),
+          renderGaugeBar(item.lockWait, false, 100),
+          renderGaugeBar(item.pga, true, 100),
+          renderGaugeBar(item.sga, true, 100),
+
           <div key={`actions-${item.id}`} className="table-actions">
             <img
               src={EditIcon}
@@ -599,6 +606,7 @@ const InstanceList: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+
               <Button
                 text="+ 생성"
                 size="sm"
@@ -613,6 +621,7 @@ const InstanceList: React.FC = () => {
                 {error}
               </div>
             )}
+
             {isLoading ? (
               <div className="instance-list__status">로딩 중입니다...</div>
             ) : rows.length === 0 ? (
