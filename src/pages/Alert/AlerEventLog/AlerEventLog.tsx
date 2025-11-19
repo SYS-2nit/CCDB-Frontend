@@ -8,6 +8,7 @@ import DateInput from "@/components/Input/DateInput";
 import {
   fetchAlerts,
   isEventRead,
+  exportAlertsToPDF,
   type EventResponse,
   type AlertStatus,
   type AlertLevel,
@@ -28,7 +29,9 @@ const AlerEventLog: React.FC = () => {
 
   // 데이터 상태
   const [alerts, setAlerts] = useState<EventResponse[]>([]);
+  const [allFilteredAlerts, setAllFilteredAlerts] = useState<EventResponse[]>([]); // 필터링된 전체 데이터 (PDF용)
   const [isLoading, setIsLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -53,13 +56,13 @@ const AlerEventLog: React.FC = () => {
       };
 
       // 상태 필터 (전체가 아닐 때만)
-      if (status && status !== "") {
-        params.status = status as AlertStatus;
+      if (status) {
+        params.status = status;
       }
 
       // 심각도 필터 (전체가 아닐 때만)
-      if (severity && severity !== "") {
-        params.severity = severity as AlertLevel;
+      if (severity) {
+        params.severity = severity;
       }
 
       // 전체 데이터 조회
@@ -117,11 +120,13 @@ const AlerEventLog: React.FC = () => {
       const paginatedAlerts = filteredAlerts.slice(startIndex, endIndex);
 
       setAlerts(paginatedAlerts);
+      setAllFilteredAlerts(filteredAlerts); // 필터링된 전체 데이터 저장 (PDF용)
       setTotalPages(totalPagesFiltered);
       setTotalElements(totalFiltered);
     } catch (error) {
       console.error("[AlerEventLog] 알림 목록 조회 실패:", error);
       setAlerts([]);
+      setAllFilteredAlerts([]);
       setTotalPages(0);
       setTotalElements(0);
     } finally {
@@ -189,6 +194,93 @@ const AlerEventLog: React.FC = () => {
     { label: "I/O", value: "IO" },
     { label: "Storage", value: "STORAGE" },
   ];
+
+  // 매핑 객체들은 백엔드에서 PDF 생성 시 사용됨 (프론트엔드에서는 현재 미사용)
+
+  // PDF 다운로드 핸들러
+  const handleDownloadPDF = async () => {
+    if (allFilteredAlerts.length === 0) {
+      alert("다운로드할 데이터가 없습니다.");
+      return;
+    }
+
+    try {
+      setIsDownloading(true);
+
+      // 조회된 데이터의 날짜 범위 계산 (시작일/종료일이 없을 경우)
+      let finalStartDate = startDate;
+      let finalEndDate = endDate;
+
+      if (!finalStartDate || !finalEndDate) {
+        const dates = allFilteredAlerts
+          .map((alert) => new Date(alert.createdAt))
+          .sort((a, b) => a.getTime() - b.getTime());
+
+        if (dates.length > 0) {
+          if (!finalStartDate) {
+            const earliestDate = dates[0];
+            finalStartDate = `${earliestDate.getFullYear()}-${String(
+              earliestDate.getMonth() + 1
+            ).padStart(2, "0")}-${String(earliestDate.getDate()).padStart(
+              2,
+              "0"
+            )}`;
+          }
+          if (!finalEndDate) {
+            const latestDate = dates[dates.length - 1];
+            finalEndDate = `${latestDate.getFullYear()}-${String(
+              latestDate.getMonth() + 1
+            ).padStart(2, "0")}-${String(latestDate.getDate()).padStart(
+              2,
+              "0"
+            )}`;
+          }
+        }
+      }
+
+      // 필터 조건 수집
+      const filters = {
+        category: category || undefined,
+        startDate: finalStartDate || undefined,
+        endDate: finalEndDate || undefined,
+        severity: severity || undefined,
+        status: status || undefined,
+        readStatus: readStatus !== "all" ? readStatus : undefined,
+      };
+
+      // 백엔드에서 PDF 생성 요청
+      const blob = await exportAlertsToPDF({
+        memberId,
+        filters,
+        includeGraphs: true,
+        graphTimeRange: 5, // 발생 시간 전후 5분
+      });
+
+      // 파일 다운로드
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      // 파일명 생성: 이벤트기록_20250119_20250120.pdf
+      const dateStr = finalStartDate
+        ? finalStartDate.replace(/-/g, "")
+        : "전체";
+      const endDateStr = finalEndDate
+        ? `_${finalEndDate.replace(/-/g, "")}`
+        : "";
+      link.download = `이벤트기록_${dateStr}${endDateStr}.pdf`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("[AlerEventLog] PDF 다운로드 실패:", error);
+      alert("PDF 다운로드에 실패했습니다.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <div className="alert-log">
@@ -291,7 +383,23 @@ const AlerEventLog: React.FC = () => {
             조회 결과 ({totalElements}건)
           </span>
           <div className="alert-log__table-icons">
-            <img src={DownloadIcon} alt="Download Icon" />
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isDownloading || totalElements === 0}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: isDownloading || totalElements === 0 ? "not-allowed" : "pointer",
+                opacity: isDownloading || totalElements === 0 ? 0.5 : 1,
+                padding: "4px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              title={isDownloading ? "다운로드 중..." : "PDF 다운로드"}
+            >
+              <img src={DownloadIcon} alt="Download Icon" />
+            </button>
           </div>
         </div>
               <AlertTable

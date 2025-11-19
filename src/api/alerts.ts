@@ -254,6 +254,39 @@ export const fetchAlerts = async (
 };
 
 /**
+ * PDF 다운로드를 위한 알림 이벤트 필터 요청 타입
+ */
+export interface AlertExportPDFRequest {
+  memberId: number;
+  filters: {
+    category?: string;
+    startDate?: string;
+    endDate?: string;
+    severity?: AlertLevel;
+    status?: AlertStatus;
+    readStatus?: "all" | "read" | "unread";
+  };
+  includeGraphs: boolean;
+  graphTimeRange: number; // 발생 시간 전후 분 단위 (기본 5분)
+}
+
+/**
+ * 이벤트 기록 PDF 다운로드
+ */
+export const exportAlertsToPDF = async (
+  request: AlertExportPDFRequest,
+): Promise<Blob> => {
+  const response = await api.post(
+    `${ALERTS_ENDPOINT}/events/export-pdf`,
+    request,
+    {
+      responseType: "blob",
+    },
+  );
+  return response.data;
+};
+
+/**
  * 알림 이벤트 상세 조회
  */
 export const fetchEventDetail = async (
