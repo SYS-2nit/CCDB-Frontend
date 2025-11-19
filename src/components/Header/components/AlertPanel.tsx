@@ -13,6 +13,7 @@ interface AlertPanelProps {
   isLoading: boolean;
   onAlertClick: (alert: EventResponse) => Promise<void>;
   formatTimeAgo: (createdAt: string) => string;
+  memberId: number;
 }
 
 const AlertPanel = ({
@@ -21,8 +22,74 @@ const AlertPanel = ({
   isLoading,
   onAlertClick,
   formatTimeAgo,
+  memberId,
 }: AlertPanelProps) => {
   const navigate = useNavigate();
+
+  // 알림 클릭 시 히스토리 페이지로 이동
+  const handleAlertClickWithHistory = async (alert: EventResponse) => {
+    try {
+      // 1. 알림 읽음 처리 (실패해도 페이지 이동은 진행)
+      try {
+        await acknowledgeEvent(alert.id, memberId);
+      } catch (error) {
+        console.error("[AlertPanel] 알림 읽음 처리 실패:", error);
+        // 읽음 처리 실패해도 페이지 이동은 진행
+      }
+
+      // 2. 시간 계산 (알림 발생 시간 기준 전후 5분)
+      const alertTime = new Date(alert.createdAt);
+      const now = new Date();
+      
+      // 시작일: 알림 시간 - 5분
+      const startTime = new Date(alertTime);
+      startTime.setMinutes(startTime.getMinutes() - 5);
+      
+      // 종료일: min(알림 시간 + 5분, 현재 시간)
+      const endTime = new Date(alertTime);
+      endTime.setMinutes(endTime.getMinutes() + 5);
+      const finalEndTime = endTime > now ? now : endTime;
+
+      // datetime-local 형식으로 변환 (YYYY-MM-DDTHH:mm)
+      const formatDateTimeLocal = (date: Date): string => {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const dd = String(date.getDate()).padStart(2, "0");
+        const hh = String(date.getHours()).padStart(2, "0");
+        const mi = String(date.getMinutes()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+      };
+
+      // 3. 카테고리 매핑 (AlertCategory → History 카테고리)
+      const categoryMap: Record<string, string> = {
+        CPU: "CPU",
+        MEMORY: "MEMORY",
+        SESSION: "SESSION",
+        IO: "IO",
+        STORAGE: "STORAGE",
+      };
+      const historyCategory = alert.category ? categoryMap[alert.category] || "CPU" : "CPU";
+
+      // 4. URL 파라미터 생성
+      const params = new URLSearchParams({
+        start: formatDateTimeLocal(startTime),
+        end: formatDateTimeLocal(finalEndTime),
+        category: historyCategory,
+        duration: "1분", // 5분 범위이므로 1분 단위로 설정
+        instanceId: String(alert.instanceId || ""),
+        alertEventId: String(alert.alertEventId || ""), // 알림 이벤트 ID
+        severity: String(alert.severity), // 알림 심각도
+      });
+
+      // 5. 히스토리 페이지로 이동
+      onClose();
+      navigate(`/history?${params.toString()}`);
+    } catch (error) {
+      console.error("[AlertPanel] 히스토리 페이지 이동 실패:", error);
+      // 에러 발생 시 기본 알림 클릭 처리
+      await onAlertClick(alert);
+    }
+  };
 
   const formatFullDateTime = (date: Date) => {
     const yyyy = date.getFullYear();
@@ -83,7 +150,7 @@ const AlertPanel = ({
                   className={`alert-item ${
                     isRead ? "alert-item--read" : "alert-item--unread"
                   }`}
-                  onClick={() => onAlertClick(alert)}
+                  onClick={() => handleAlertClickWithHistory(alert)}
                   style={{ cursor: "pointer" }}
                 >
                   <div className={`alert-item__icon ${severityClass}`}>

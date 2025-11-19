@@ -34,6 +34,7 @@ const Header: React.FC = () => {
           isLoading={isLoading}
           onAlertClick={handleAlertClick}
           formatTimeAgo={formatTimeAgo}
+          memberId={memberId}
         />
       )}
     </>
