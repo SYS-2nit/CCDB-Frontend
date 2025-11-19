@@ -1,7 +1,10 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
-import { formatNumberWithUnit, formatTooltipNumber } from "@/utils/numberFormatter";
+import {
+  formatNumberWithUnit,
+  formatTooltipNumber,
+} from "@/utils/numberFormatter";
 
 interface LineChartProps {
   legends?: string[];
@@ -20,7 +23,7 @@ const LineChart: React.FC<LineChartProps> = ({
   seriesData = [],
   categories = [],
   yaxisTitle = "",
-  height = 190,
+  height = 180,
   yMin,
   yMax,
 }) => {
@@ -72,7 +75,6 @@ const LineChart: React.FC<LineChartProps> = ({
     grid: {
       borderColor: "rgba(0,0,0,0.08)",
       strokeDashArray: 3,
-      padding: { top: 10, right: 5, bottom: 0, left: 10 },
     },
 
     /** X축 포맷 */
@@ -138,7 +140,14 @@ const LineChart: React.FC<LineChartProps> = ({
   };
 
   return (
-    <div style={{ width: "100%", height: "100%", maxWidth: "100%", overflow: "hidden" }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        maxWidth: "100%",
+        overflow: "hidden",
+      }}
+    >
       <ReactApexChart
         options={options}
         series={series}

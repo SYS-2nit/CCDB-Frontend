@@ -10,6 +10,7 @@ interface Props {
   toggleMenu: (menu: string) => void;
   isCollapsed: boolean;
   onClick?: (e: React.MouseEvent) => void;
+  onParentClick?: () => void;
   children?: React.ReactNode;
 }
 
@@ -21,8 +22,14 @@ const SidebarParentItem: React.FC<Props> = ({
   toggleMenu,
   isCollapsed,
   onClick,
+  onParentClick,
   children,
 }) => {
+  const handleLabelClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onParentClick) onParentClick();
+  };
+
   return (
     <div className="sidebar__item--parent--arrow">
       <div
@@ -34,7 +41,9 @@ const SidebarParentItem: React.FC<Props> = ({
         <div className="sidebar__item--parent--arrow-left">
           <img src={icon} alt={label} />
           {!isCollapsed && (
-            <span className="sidebar__item--title">{label}</span>
+            <span className="sidebar__item--title" onClick={handleLabelClick}>
+              {label}
+            </span>
           )}
         </div>
 

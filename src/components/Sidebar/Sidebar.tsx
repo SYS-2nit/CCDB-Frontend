@@ -146,8 +146,7 @@ const Sidebar: React.FC = () => {
         <div
           onMouseEnter={(e) => handleHover(e, "dashboard")}
           onMouseLeave={() => isCollapsed && setHoverMenu(null)}
-          onClick={handleDashboardClick}
-          style={{ cursor: "pointer" }} // 클릭 가능 표시
+          style={{ cursor: "pointer" }}
         >
           <SidebarParentItem
             icon={DashboardIcon}
@@ -156,6 +155,7 @@ const Sidebar: React.FC = () => {
             openMenu={openMenu}
             toggleMenu={toggleMenu}
             isCollapsed={isCollapsed}
+            onParentClick={handleDashboardClick}
           >
             <div className="sidebar__submenu">
               <NavLink

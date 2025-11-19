@@ -44,16 +44,14 @@ const ChartCard: React.FC<ChartCardProps> = ({
     mode: contextMode,
   } = useDashboardContext();
 
-  // modal visible state
   const [showInfo, setShowInfo] = useState(false);
 
   const data = graphData ?? graphsByName[title];
   const mode = propMode ?? contextMode;
 
-  // modal 위치 고정 (모든 카드 동일 좌표)
-  const modalPos = { x: 0, y: 0 };
+  // 모달 고정 위치
+  const modalPos = { x: -300, y: 0 };
 
-  // Info hover handlers
   const handleInfoEnter = () => {
     setShowInfoModal(true);
   };
@@ -61,6 +59,10 @@ const ChartCard: React.FC<ChartCardProps> = ({
   const handleInfoLeave = () => {
     setShowInfoModal(false);
   };
+
+  // Description 가공
+  const formattedDescription =
+    graphData?.description?.split("\n").join("<br />") ?? "";
 
   let bodyContent: React.ReactNode;
 
@@ -91,22 +93,22 @@ const ChartCard: React.FC<ChartCardProps> = ({
         </div>
 
         <div className="chart-card__right">
-          {/* Info hover */}
           <div
             onMouseEnter={handleInfoEnter}
             onMouseLeave={handleInfoLeave}
             style={{ position: "relative" }}
           >
             <img src={InfoIcon} alt="info" />
+
             {showInfoModal && graphData?.description && (
               <ChartInfoModal
-                pos={{ x: -300, y: 0 }}
-                description={graphData.description}
+                pos={modalPos}
+                description={formattedDescription}
                 onMouseEnter={() => setShowInfoModal(true)}
                 onMouseLeave={() => setShowInfoModal(false)}
               />
             )}
-            {/* Setting click */}
+
             {showSettingIcon && (
               <img
                 src={SettingIcon}
@@ -121,11 +123,11 @@ const ChartCard: React.FC<ChartCardProps> = ({
 
       <div className="chart-card__body">{bodyContent}</div>
 
-      {/* INFO 모달 */}
+      {/* Info Modal for click */}
       {showInfo && data?.description && (
         <ChartInfoModal
           pos={modalPos}
-          description={data.description}
+          description={formattedDescription}
           onMouseEnter={() => setShowInfo(false)}
           onMouseLeave={() => setShowInfo(true)}
         />
