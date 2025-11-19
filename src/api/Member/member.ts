@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "..";
 
 export interface Member {
   id: number;
@@ -21,12 +21,12 @@ export interface UpdateMemberRequest {
 
 // 전체 회원 조회 API
 export const fetchMembers = async (): Promise<Member[]> => {
-  const res = await axios.get("/api/members");
+  const res = await api.get("/api/members");
   return res.data.data;
 };
 
 // 회원 수정 API
 export const updateMember = async (id: number, body: UpdateMemberRequest) => {
-  const res = await axios.put(`/api/members/${id}`, body);
+  const res = await api.put(`/api/members/${id}`, body);
   return res.data;
 };
