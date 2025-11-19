@@ -69,13 +69,8 @@ export const fetchAllGraphs = async (): Promise<GraphDefinition[]> => {
   const response = await api.get<ApiResponse<GraphDefinition[]>>("/api/graphs");
   const data = response.data.data ?? [];
 
-  // 줄바꿈 (\n → <br />)
   return data.map((graph) => ({
     ...graph,
-    info: graph.info
-      ? graph.info
-          .replace(/\n<br>\n/g, "<br /><br />") // 기존 섞여있는 패턴 정리
-          .replace(/\n/g, "<br />") // 모든 \n을 <br />로 변환
-      : null,
+    info: graph.info,
   }));
 };

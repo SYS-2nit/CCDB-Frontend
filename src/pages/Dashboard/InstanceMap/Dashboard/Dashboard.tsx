@@ -71,6 +71,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
 
   const [charts, setCharts] = useState<GraphDataResponse[]>([]);
+  const [layout, setLayout] = useState<any[]>([]); // ⭐ layout은 state에 고정
   const [settingTargetIndex, setSettingTargetIndex] = useState<number | null>(
     null
   );
@@ -125,7 +126,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   /* -------------------------------------------------------
-      데이터 로드 (기존 로직 그대로 유지)
+      데이터 로드
   -------------------------------------------------------- */
   useEffect(() => {
     if (!selectedInstanceId) {
@@ -214,34 +215,40 @@ const Dashboard: React.FC<DashboardProps> = ({
     setIsFetching,
   ]);
 
-  /* update charts when switching tabs */
+  /* -------------------------------------------------------
+      charts & layout 동기화
+  -------------------------------------------------------- */
   useEffect(() => {
-    if (activeTab === "main") setCharts(graphList);
-    else setCharts(categoryGraphs.get(activeTab) ?? []);
+    const newCharts =
+      activeTab === "main" ? graphList : categoryGraphs.get(activeTab) ?? [];
+    setCharts(newCharts);
+
+    // layout과 charts 동기화
+    setLayout(() => {
+      return newCharts.map((c, index) => ({
+        i: String(c.id),
+        x: index % 3,
+        y: Math.floor(index / 3),
+        w: 1,
+        h: 1,
+      }));
+    });
   }, [activeTab, graphList, categoryGraphs]);
 
   /* -------------------------------------------------------
-      react-grid-layout용 레이아웃 생성
+      react-grid-layout drag → layout + charts 순서 업데이트
   -------------------------------------------------------- */
-  const layout = useMemo(() => {
-    return charts.map((c, i) => ({
-      i: String(c.id),
-      x: i % 3,
-      y: Math.floor(i / 3),
-      w: 1,
-      h: 1,
-    }));
-  }, [charts]);
+  const handleLayoutChange = (currentLayout: any[]) => {
+    setLayout(currentLayout);
 
-  const handleLayoutChange = (newLayout: any[]) => {
-    const orderedIds = newLayout
+    const sortedIds = [...currentLayout]
       .sort((a, b) => a.y - b.y || a.x - b.x)
       .map((l) => l.i);
 
     const newOrderNames: string[] = [];
 
-    orderedIds.forEach((id) => {
-      const match = charts.find((c) => String(c.id) === String(id));
+    sortedIds.forEach((id) => {
+      const match = charts.find((c) => String(c.id) === id);
       if (match) newOrderNames.push(match.name);
     });
 
@@ -269,9 +276,16 @@ const Dashboard: React.FC<DashboardProps> = ({
     setIsSettingOpen(false);
   };
 
-  /* -------------------------------------------------------
-      렌더링
-  -------------------------------------------------------- */
+  const colsConfig = {
+    xxl: 3,
+    xl: 3,
+    lg: 3,
+    md: 3,
+    sm: 1,
+    xs: 1,
+    xxs: 1,
+  };
+
   const visibleTabs = singleTabMode
     ? [{ id: initialTab, label: initialTab }]
     : [
@@ -282,16 +296,6 @@ const Dashboard: React.FC<DashboardProps> = ({
         { id: "io", label: "I/O" },
         { id: "storage", label: "Storage" },
       ];
-
-  const colsConfig = {
-    xxl: 3,
-    xl: 3,
-    lg: 3,
-    md: 3,
-    sm: 1,
-    xs: 1,
-    xxs: 1,
-  };
 
   return (
     <div
@@ -306,28 +310,34 @@ const Dashboard: React.FC<DashboardProps> = ({
       )}
 
       <div className="dashboard__content">
-        {/** --------------------------------------------------
-              메인 탭 → react-grid-layout 적용
-        ---------------------------------------------------*/}
+        {/* ======================= MAIN TAB ========================= */}
         {activeTab === "main" && (
           <div className="dashboard__grid dashboard__grid--main">
             <ResponsiveGridLayout
               className="dashboard-grid-layout"
               cols={colsConfig}
-              rowHeight={290}
+              layouts={{
+                xxl: layout,
+                xl: layout,
+                lg: layout,
+                md: layout,
+                sm: layout,
+                xs: layout,
+                xxs: layout,
+              }}
               margin={[10, 10]}
-              layouts={{ lg: layout }}
+              rowHeight={290}
               onLayoutChange={handleLayoutChange}
               compactType="vertical"
-              containerPadding={[0, 0]}
             >
-              {charts.map((graph, index) => (
+              {charts.map((graph) => (
                 <div key={String(graph.id)}>
                   <ChartCard
                     title={graph.name}
                     status="normal"
                     onSettingClick={() => {
-                      setSettingTargetIndex(index);
+                      const idx = charts.findIndex((c) => c.id === graph.id);
+                      setSettingTargetIndex(idx);
                       setIsSettingOpen(true);
                     }}
                     showDragIcon
@@ -340,9 +350,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           </div>
         )}
 
-        {/** --------------------------------------------------
-              다른 탭 → 기존 UI 유지
-        ---------------------------------------------------*/}
+        {/* ======================= OTHER TABS ========================= */}
         {activeTab !== "main" && (
           <>
             <div className="dashboard__row row-1">

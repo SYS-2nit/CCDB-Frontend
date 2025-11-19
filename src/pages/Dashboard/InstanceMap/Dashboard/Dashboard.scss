@@ -5,9 +5,6 @@
 
 .dashboard {
   position: relative; 
-  gap: 10px;
-  width: 100%;
-  height: 100%; 
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -28,7 +25,6 @@
   transition: transform 0.3s ease;
 
   &--main {
-
     .dashboard-grid-layout {
       width: 100%;
       height: 100%;
@@ -55,7 +51,7 @@
     // placeholder (드래그 중 공간)
     .react-grid-placeholder {
       background: $main-100;
-      border-radius: 6px;
+      border-radius: 5px;
     }
   }
 
