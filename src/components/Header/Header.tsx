@@ -10,7 +10,7 @@ const Header: React.FC = () => {
   const [showAlertPanel, setShowAlertPanel] = useState(false);
   const memberId = 3; // 기본 사용자 ID
 
-  const { unreadCount, alerts, isLoading, handleAlertClick } = useAlerts({
+  const { unreadCount, alerts, isLoading, handleAlertClick, loadUnreadCount } = useAlerts({
     memberId,
     showPanel: showAlertPanel,
   });
@@ -35,6 +35,7 @@ const Header: React.FC = () => {
           onAlertClick={handleAlertClick}
           formatTimeAgo={formatTimeAgo}
           memberId={memberId}
+          loadUnreadCount={loadUnreadCount}
         />
       )}
     </>

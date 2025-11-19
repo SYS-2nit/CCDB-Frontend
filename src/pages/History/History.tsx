@@ -48,9 +48,10 @@ const History: React.FC = () => {
   const [graphTimeUnits, setGraphTimeUnits] = useState<
     Map<number, "1m" | "10m" | "1h" | "1d">
   >(new Map());
-  const [isInitialized, setIsInitialized] = useState(false);
   const [alertGraphId, setAlertGraphId] = useState<number | null>(null);
   const [alertSeverity, setAlertSeverity] = useState<number | null>(null);
+  const [lastProcessedParams, setLastProcessedParams] = useState<string>("");
+  const [shouldAutoSearch, setShouldAutoSearch] = useState(false);
 
   // 탭 옵션
   const TAB_ITEMS = [
@@ -68,16 +69,25 @@ const History: React.FC = () => {
     "cpu" | "memory" | "session" | "io" | "storage"
   >("cpu"); // 기본 CPU
 
-  // URL 파라미터에서 초기 필터 설정 (알림 클릭 시 자동 설정)
+  // URL 파라미터에서 필터 설정 (알림 클릭 시 자동 설정, 변경될 때마다 처리)
   useEffect(() => {
-    if (isInitialized) return; // 이미 초기화되었으면 스킵
-
     const urlStart = searchParams.get("start");
     const urlEnd = searchParams.get("end");
     const urlCategory = searchParams.get("category");
     const urlDuration = searchParams.get("duration");
     const urlAlertEventId = searchParams.get("alertEventId");
     const urlSeverity = searchParams.get("severity");
+
+    // 현재 파라미터를 문자열로 만들어서 이전과 비교
+    const currentParams = `${urlStart}|${urlEnd}|${urlCategory}|${urlDuration}|${urlAlertEventId}|${urlSeverity}`;
+    
+    // 파라미터가 변경되지 않았으면 스킵
+    if (currentParams === lastProcessedParams) return;
+
+    // 파라미터가 없으면 스킵 (초기 로드 시)
+    if (!urlStart && !urlEnd && !urlCategory && !urlDuration && !urlAlertEventId && !urlSeverity) {
+      return;
+    }
 
     // AlertEvent 조회하여 graphId 얻기
     if (urlAlertEventId) {
@@ -86,16 +96,23 @@ const History: React.FC = () => {
           const alertEvent = await fetchEventRuleDetail(Number(urlAlertEventId));
           if (alertEvent.graphId) {
             setAlertGraphId(alertEvent.graphId);
+          } else {
+            setAlertGraphId(null);
           }
         } catch (error) {
           console.error("[History] AlertEvent 조회 실패:", error);
+          setAlertGraphId(null);
         }
       };
       void loadAlertEvent();
+    } else {
+      setAlertGraphId(null);
     }
 
     if (urlSeverity) {
       setAlertSeverity(Number(urlSeverity));
+    } else {
+      setAlertSeverity(null);
     }
 
     // URL 파라미터가 있으면 필터 설정
@@ -124,9 +141,13 @@ const History: React.FC = () => {
       }
 
       setFilters(newFilters);
-      setIsInitialized(true);
+      setLastProcessedParams(currentParams);
+      // 필터가 변경되면 기존 그래프 데이터 초기화 (새로운 검색을 위해)
+      setHistoryGraphs([]);
+      // 자동 검색 플래그 설정
+      setShouldAutoSearch(true);
 
-      // URL 파라미터 정리 (한 번만 사용)
+      // URL 파라미터 정리 (처리 후 제거) - 즉시 실행하여 재실행 방지
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete("start");
       newSearchParams.delete("end");
@@ -137,9 +158,9 @@ const History: React.FC = () => {
       newSearchParams.delete("severity");
       setSearchParams(newSearchParams, { replace: true });
     } else {
-      setIsInitialized(true);
+      setLastProcessedParams(currentParams);
     }
-  }, [searchParams, setSearchParams, isInitialized]);
+  }, [searchParams, setSearchParams, lastProcessedParams]);
 
   // GraphId 기반 카테고리 필터링
   const getCategoryByGraphId = (graphId: number): "cpu" | "memory" | "session" | "io" | "storage" | "custom"| "main" | null => {
@@ -287,22 +308,25 @@ const History: React.FC = () => {
     }
   }, [selectedInstanceId, filters, searchParams]);
 
-  // 필터가 설정되고 초기화가 완료되면 자동 검색 실행 (URL 파라미터로 들어온 경우)
+  // 필터가 설정되면 자동 검색 실행 (URL 파라미터로 들어온 경우)
   useEffect(() => {
-    if (!isInitialized) return;
-    
-    // 필터에 시작일/종료일이 있고, 아직 데이터가 없으면 자동 검색
-    const hasStartOrEnd = filters.some(f => f.key === "start" || f.key === "end");
-    const hasCategory = filters.some(f => f.key === "category");
-    
-    if ((hasStartOrEnd || hasCategory) && historyGraphs.length === 0 && !isLoading) {
-      // 약간의 지연을 두어 필터 설정이 완전히 완료된 후 검색 실행
-      const timer = setTimeout(() => {
-        handleSearch();
-      }, 100);
-      return () => clearTimeout(timer);
+    // 자동 검색 플래그가 있고, 필터가 설정되어 있고, 로딩 중이 아니면 검색 실행
+    if (shouldAutoSearch && !isLoading) {
+      const hasStartOrEnd = filters.some(f => f.key === "start" || f.key === "end");
+      const hasCategory = filters.some(f => f.key === "category");
+      
+      if (hasStartOrEnd || hasCategory) {
+        // 약간의 지연을 두어 필터 설정이 완전히 완료된 후 검색 실행
+        const timer = setTimeout(() => {
+          handleSearch();
+          setShouldAutoSearch(false); // 검색 실행 후 플래그 해제
+        }, 200);
+        return () => clearTimeout(timer);
+      } else {
+        setShouldAutoSearch(false); // 필터가 없으면 플래그 해제
+      }
     }
-  }, [isInitialized, filters, historyGraphs.length, isLoading, handleSearch]);
+  }, [shouldAutoSearch, filters, isLoading, handleSearch]);
 
   /** 필터 제거 */
   const removeFilter = (key: string) => {

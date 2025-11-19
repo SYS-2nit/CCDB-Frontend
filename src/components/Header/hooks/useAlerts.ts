@@ -173,6 +173,7 @@ export const useAlerts = ({ memberId, showPanel }: UseAlertsOptions) => {
     alerts,
     isLoading,
     handleAlertClick,
+    loadUnreadCount, // 알림 개수 갱신 함수 노출
   };
 };
 
