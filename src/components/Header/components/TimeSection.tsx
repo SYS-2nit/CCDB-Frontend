@@ -5,8 +5,7 @@ import PauseIcon from "@/assets/general/pause.svg";
 import StartIcon from "@/assets/general/start.svg";
 
 const TimeSection = () => {
-  const { isLive, isPaused, togglePause, progress, displayText, selectRange } =
-    useTimeSection();
+  const { isPaused, togglePause, displayText, selectRange } = useTimeSection();
 
   const ranges: {
     label: string;
@@ -33,13 +32,6 @@ const TimeSection = () => {
 
         {/* 게이지 + 텍스트 */}
         <div className="header-time__gage">
-          {isLive && (
-            <div
-              className="header-time__gage-fill"
-              style={{ width: `${progress}%` }}
-            />
-          )}
-
           <span className="header-time__text">{displayText}</span>
         </div>
 
