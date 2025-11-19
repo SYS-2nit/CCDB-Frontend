@@ -312,7 +312,13 @@ const Dashboard: React.FC<DashboardProps> = ({
       <div className="dashboard__content">
         {/* ======================= MAIN TAB ========================= */}
         {activeTab === "main" && (
-          <div className="dashboard__grid dashboard__grid--main">
+          <div
+            className={
+              activeTab === "main"
+                ? "dashboard__grid dashboard__grid--main"
+                : "dashboard__grid dashboard__grid--other"
+            }
+          >
             <ResponsiveGridLayout
               className="dashboard-grid-layout"
               cols={colsConfig}
@@ -351,84 +357,86 @@ const Dashboard: React.FC<DashboardProps> = ({
         )}
 
         {/* ======================= OTHER TABS ========================= */}
+
         {activeTab !== "main" && (
           <>
-            <div className="dashboard__row row-1">
-              <div className="dashboard__status-wrap">
-                <StatusCard label="정상" value={2} color="safe" />
-                <StatusCard label="주의" value={5} color="warning" />
-                <StatusCard label="위험" value={8} color="danger" />
-                <StatusCard label="에러" value={1} color="critical" />
+            <div className="dashboard__grid--other">
+              <div className="dashboard__row row-1">
+                <div className="dashboard__status-wrap">
+                  <StatusCard label="정상" value={2} color="safe" />
+                  <StatusCard label="주의" value={5} color="warning" />
+                  <StatusCard label="위험" value={8} color="danger" />
+                  <StatusCard label="에러" value={1} color="critical" />
+                </div>
+
+                {charts[0] && (
+                  <ChartCard
+                    title={charts[0].name}
+                    status="normal"
+                    onSettingClick={() => {
+                      setSettingTargetIndex(0);
+                      setIsSettingOpen(true);
+                    }}
+                    showDragIcon={false}
+                    showSettingIcon={false}
+                    graphData={charts[0]}
+                  />
+                )}
               </div>
 
-              {charts[0] && (
-                <ChartCard
-                  title={charts[0].name}
-                  status="normal"
-                  onSettingClick={() => {
-                    setSettingTargetIndex(0);
-                    setIsSettingOpen(true);
-                  }}
-                  showDragIcon={false}
-                  showSettingIcon={false}
-                  graphData={charts[0]}
-                />
-              )}
-            </div>
+              <div className="dashboard__row row-2">
+                {charts.slice(1, 3).map((graph, i) => (
+                  <ChartCard
+                    key={graph.id}
+                    title={graph.name}
+                    status="normal"
+                    onSettingClick={() => {
+                      setSettingTargetIndex(i + 1);
+                      setIsSettingOpen(true);
+                    }}
+                    showDragIcon={false}
+                    showSettingIcon={false}
+                    graphData={graph}
+                  />
+                ))}
+              </div>
 
-            <div className="dashboard__row row-2">
-              {charts.slice(1, 3).map((graph, i) => (
-                <ChartCard
-                  key={graph.id}
-                  title={graph.name}
-                  status="normal"
-                  onSettingClick={() => {
-                    setSettingTargetIndex(i + 1);
-                    setIsSettingOpen(true);
-                  }}
-                  showDragIcon={false}
-                  showSettingIcon={false}
-                  graphData={graph}
-                />
-              ))}
-            </div>
+              <div className="dashboard__row row-3">
+                {charts.slice(3, 5).map((graph, i) => (
+                  <ChartCard
+                    key={graph.id}
+                    title={graph.name}
+                    status="normal"
+                    onSettingClick={() => {
+                      setSettingTargetIndex(i + 3);
+                      setIsSettingOpen(true);
+                    }}
+                    showDragIcon={false}
+                    showSettingIcon={false}
+                    graphData={graph}
+                  />
+                ))}
+              </div>
 
-            <div className="dashboard__row row-3">
-              {charts.slice(3, 5).map((graph, i) => (
-                <ChartCard
-                  key={graph.id}
-                  title={graph.name}
-                  status="normal"
-                  onSettingClick={() => {
-                    setSettingTargetIndex(i + 3);
-                    setIsSettingOpen(true);
-                  }}
-                  showDragIcon={false}
-                  showSettingIcon={false}
-                  graphData={graph}
-                />
-              ))}
-            </div>
-
-            <div className="dashboard__row row-4">
-              {charts.slice(5, 8).map((graph, i) => (
-                <ChartCard
-                  key={graph.id}
-                  title={graph.name}
-                  status="normal"
-                  onSettingClick={() => {
-                    setSettingTargetIndex(i + 5);
-                    setIsSettingOpen(true);
-                  }}
-                  showDragIcon={false}
-                  showSettingIcon={false}
-                  graphData={graph}
-                />
-              ))}
+              <div className="dashboard__row row-4">
+                {charts.slice(5, 8).map((graph, i) => (
+                  <ChartCard
+                    key={graph.id}
+                    title={graph.name}
+                    status="normal"
+                    onSettingClick={() => {
+                      setSettingTargetIndex(i + 5);
+                      setIsSettingOpen(true);
+                    }}
+                    showDragIcon={false}
+                    showSettingIcon={false}
+                    graphData={graph}
+                  />
+                ))}
+              </div>
             </div>
           </>
         )}
-
         {isSettingOpen && settingTargetIndex !== null && (
           <ChartSetting
             onClose={() => setIsSettingOpen(false)}
