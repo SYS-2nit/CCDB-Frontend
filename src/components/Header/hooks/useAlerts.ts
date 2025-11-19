@@ -61,10 +61,10 @@ export const useAlerts = ({ memberId, showPanel }: UseAlertsOptions) => {
     [memberId, loadUnreadCount]
   );
 
-  // 알림 개수 조회 (초기 + 30초마다)
+  // 알림 개수 조회 (초기 + 10초마다)
   useEffect(() => {
     loadUnreadCount();
-    const intervalId = setInterval(loadUnreadCount, 30000);
+    const intervalId = setInterval(loadUnreadCount, 10000);
     return () => clearInterval(intervalId);
   }, [loadUnreadCount]);
 
