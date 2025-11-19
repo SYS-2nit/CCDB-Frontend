@@ -14,9 +14,9 @@ import ProfileIcon from "@/assets/sidebar/profile.svg";
 import SidebarParentItem from "./components/SidebarParentItem";
 import SidebarItem from "./components/SidebarItem";
 import SidebarHoverModal from "./Modal/SidebarHoverModal";
-
 import { fetchMembers, type Member } from "@/api/Member/member";
 import UserListModal from "./Modal/UserListModal";
+import { useSelectedInstanceStore } from "@/state/useInstanceStore";
 
 const menuRoutes: Record<string, string[]> = {
   dashboard: ["/dashboard/instance-map", "/dashboard/instance-list"],
@@ -36,8 +36,16 @@ const Sidebar: React.FC = () => {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  const { selectedInstanceId } = useSelectedInstanceStore();
+
+  // 대시보드 클릭 시 바로 이동
+  const handleDashboardClick = () => {
+    const targetId = selectedInstanceId ?? 1; // fallback 1 (원한다면 null 체크 후 alert로 변경 가능)
+    navigate(`/dashboard?instanceId=${targetId}`);
+  };
+
   /** -------------------------
-   *  🔥 사용자 정보 상태
+   *  사용자 정보 상태
    *  ------------------------- */
   const [currentUser, setCurrentUser] = useState<Member | null>(null); // 단일 사용자
   const [members, setMembers] = useState<Member[]>([]); // 전체 목록
@@ -135,10 +143,11 @@ const Sidebar: React.FC = () => {
 
       {/* Navigation */}
       <nav className="sidebar__nav">
-        {/* 대시보드 */}
         <div
           onMouseEnter={(e) => handleHover(e, "dashboard")}
           onMouseLeave={() => isCollapsed && setHoverMenu(null)}
+          onClick={handleDashboardClick}
+          style={{ cursor: "pointer" }} // 클릭 가능 표시
         >
           <SidebarParentItem
             icon={DashboardIcon}
