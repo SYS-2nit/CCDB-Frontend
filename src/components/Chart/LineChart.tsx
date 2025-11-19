@@ -1,7 +1,10 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
-import { formatNumberWithUnit, formatTooltipNumber } from "@/utils/numberFormatter";
+import {
+  formatNumberWithUnit,
+  formatTooltipNumber,
+} from "@/utils/numberFormatter";
 
 interface LineChartProps {
   legends?: string[];
@@ -72,7 +75,13 @@ const LineChart: React.FC<LineChartProps> = ({
     grid: {
       borderColor: "rgba(0,0,0,0.08)",
       strokeDashArray: 3,
-      padding: { top: 10, right: 5, bottom: 0, left: 10 },
+      padding: {
+        top:
+          yMin !== undefined && yMax !== undefined && yMax - yMin < 1 ? 0 : 10, // 수정: 작은 범위일 때 top padding 제거
+        right: 5,
+        bottom: 0,
+        left: 10,
+      },
     },
 
     /** X축 포맷 */
@@ -86,7 +95,7 @@ const LineChart: React.FC<LineChartProps> = ({
         },
       },
       axisTicks: { show: false },
-      axisBorder: { show: false },
+      axisBorder: { show: true }, // 최온유가 x축 경계 너무 안보여서수정함
     },
 
     /** Y축 */
@@ -103,7 +112,17 @@ const LineChart: React.FC<LineChartProps> = ({
       },
       labels: {
         show: true,
-        formatter: (val) => formatNumberWithUnit(Number(val)),
+        formatter: (val) => {
+          const num = Number(val);
+          if (!Number.isFinite(num)) return "0";
+          // 작은 범위일 때 소수점 표시
+          if (yMin !== undefined && yMax !== undefined && yMax - yMin < 1) {
+            // 소수점 1자리로 고정
+            const rounded = Math.round(num * 10) / 10;
+            return rounded.toFixed(1);
+          }
+          return formatNumberWithUnit(num);
+        },
         style: {
           fontSize: "11px",
           colors: "#777",
@@ -111,22 +130,36 @@ const LineChart: React.FC<LineChartProps> = ({
       },
       axisBorder: {
         show: true,
-        color: "rgba(0,0,0,0.1)",
+        color: "rgba(0,0,0,0,1)",
       },
       axisTicks: {
         show: false,
       },
       min: yMin !== undefined && Number.isFinite(yMin) ? yMin : 0,
       max: yMax !== undefined && Number.isFinite(yMax) ? yMax : undefined,
+      // 작은 범위일 때 틱 간격 제어 (수정)
+      // 작은 범위일 때 틱 간격 제어 (수정)
+      ...(yMin !== undefined && yMax !== undefined && yMax - yMin < 1
+        ? {
+            tickAmount: 5,
+            forceNiceScale: false,
+            floating: false,
+            decimalsInFloat: 2, // 추가: 소수점 자릿수 제한
+          }
+        : {}),
     },
 
     dataLabels: { enabled: false },
 
     legend: {
       show: showLegend,
-      position: "bottom",
+      showForSingleSeries: true, // 추가: 단일 시리즈일 때도 범례 표시
+      position: "right",
       fontSize: "11px",
       itemMargin: { horizontal: 8 },
+      markers: {
+        size: 4,
+      },
     },
 
     tooltip: {
@@ -138,7 +171,14 @@ const LineChart: React.FC<LineChartProps> = ({
   };
 
   return (
-    <div style={{ width: "100%", height: "100%", maxWidth: "100%", overflow: "hidden" }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        maxWidth: "100%",
+        overflow: "hidden",
+      }}
+    >
       <ReactApexChart
         options={options}
         series={series}

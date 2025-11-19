@@ -24,6 +24,8 @@ interface StackChartProps {
   yaxisTitle?: string;
   colorRules?: ColorRule[];
   height?: number | string;
+  xMin?: number; // x축,y축 설정 변경
+  xMax?: number; // x축,y축 설정 변경
 }
 
 const StackChart: React.FC<StackChartProps> = ({
@@ -39,6 +41,8 @@ const StackChart: React.FC<StackChartProps> = ({
   ],
   height = 150,
   yaxisTitle,
+  xMin, // x축,y축 설정 변경
+  xMax, // x축,y축 설정 변경
 }) => {
   const _labels = labels.slice(0, stackCount);
   const _usage = usage.slice(0, stackCount);
@@ -78,7 +82,9 @@ const StackChart: React.FC<StackChartProps> = ({
     dataLabels: { enabled: false },
     xaxis: {
       categories: _labels,
-      max: 100,
+      // max: 100,
+      max: xMax ?? 100, // x축,y축 설정 변경
+      min: xMin ?? 0, // x축,y축 설정 변경
       title: yaxisTitle
         ? {
             text: yaxisTitle,

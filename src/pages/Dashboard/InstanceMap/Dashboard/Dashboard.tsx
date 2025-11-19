@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { chartData } from "./data/chartData";
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
 import ChartSetting from "@/pages/Dashboard/InstanceMap/Dashboard/Card/ChartSetting";
@@ -208,6 +209,23 @@ const Dashboard: React.FC<DashboardProps> = ({
       });
     };
 
+    // chartData.ts의 순서에 맞춰 그래프 정렬
+    const orderGraphsByTab = (
+      graphs: GraphDataResponse[]
+    ): GraphDataResponse[] => {
+      if (!graphs || graphs.length === 0) return [];
+      if (activeTab === "main") {
+        return graphs; // 메인 탭은 정렬하지 않음 (드래그 앤 드롭 유지)
+      }
+      const order = chartData[activeTab] ?? [];
+      const graphMap = new Map(graphs.map((g) => [g.name, g]));
+      const sorted = order
+        .map((name) => graphMap.get(name))
+        .filter((g): g is GraphDataResponse => g !== undefined);
+      const remaining = graphs.filter((g) => !order.includes(g.name));
+      return [...sorted, ...remaining];
+    };
+
     const loadDashboard = async () => {
       setError(null);
       try {
@@ -219,14 +237,15 @@ const Dashboard: React.FC<DashboardProps> = ({
         });
         if (cancelled) return;
         const normalizedGraphs = normalizeGraphsForMode(response?.graphs);
+        const orderedGraphs = orderGraphsByTab(normalizedGraphs);
 
         if (activeTab === "main") {
-          setGraphs(normalizedGraphs);
+          setGraphs(orderedGraphs);
           lastLoadedTabRef.current = activeTab;
         } else {
           setCategoryGraphs((prev) => {
             const next = new Map(prev);
-            next.set(activeTab, normalizedGraphs);
+            next.set(activeTab, orderedGraphs);
             return next;
           });
         }
@@ -350,23 +369,24 @@ const Dashboard: React.FC<DashboardProps> = ({
         });
         if (cancelled) return;
 
+        const orderedNewGraphs = orderGraphsByTab(response?.graphs ?? []);
+
         if (activeTab === "main") {
           setGraphs((prev) => {
             if (prev.length === 0) {
-              return response?.graphs ?? [];
+              return orderedNewGraphs;
             }
-            return mergeGraphData(prev, response?.graphs ?? []);
+            return mergeGraphData(prev, orderedNewGraphs);
           });
         } else {
           setCategoryGraphs((prev) => {
             const next = new Map(prev);
             const existing = next.get(activeTab) ?? [];
-            const newGraphs = response?.graphs ?? [];
 
             if (existing.length === 0) {
-              next.set(activeTab, newGraphs);
+              next.set(activeTab, orderedNewGraphs);
             } else {
-              next.set(activeTab, mergeGraphData(existing, newGraphs));
+              next.set(activeTab, mergeGraphData(existing, orderedNewGraphs));
             }
             return next;
           });

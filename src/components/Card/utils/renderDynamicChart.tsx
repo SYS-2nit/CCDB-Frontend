@@ -4,10 +4,61 @@ import LineChart from "@/components/Chart/LineChart";
 import GaugeChart from "@/components/Chart/GaugeChart";
 import MetricGrid, { type MetricData } from "@/components/Card/MetricCard";
 import StackChart from "@/components/Chart/StackChart";
+import MixedChart from "@/components/Chart/MixedChart";
 import SuccessGreenIcon from "@/assets/general/succes-green.svg";
 import ErrorRedIcon from "@/assets/general/error-red.svg";
 import type { GraphDataResponse } from "@/api/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
+
+// 그래프 ID별 축 범위 설정 (필요할 때만 추가)
+const GRAPH_AXIS_RANGES: Record<
+  number,
+  { yMin?: number; yMax?: number; xMin?: number; xMax?: number }
+> = {
+  2: { yMin: 0, yMax: 2 },
+  3: { yMin: 0, yMax: 1 },
+  5: { yMin: 0, yMax: 1 },
+  15: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
+  16: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
+  14: { yMin: 0, yMax: 0.5 }, // x축,y축 설정 변경
+  17: { yMin: 0, yMax: 2 }, // x축,y축 설정 변경
+  18: { yMin: 0, yMax: 50 }, // x축,y축 설정 변경
+  19: { yMin: 0, yMax: 0.5 }, // x축,y축 설정 변경
+  20: { xMin: 0, xMax: 500 }, // x축,y축 설정 변경 ----- 막대
+  // Memory
+  23: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
+  24: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
+  25: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
+  26: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
+  27: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
+  28: { xMin: 0, xMax: 400000 }, // x축,y축 설정 변경 ----- 막대
+  // Session
+  29: { yMin: 0, yMax: 20 }, // x축,y축 설정 변경
+  30: { yMin: 0, yMax: 2 }, // x축,y축 설정 변경
+  31: { yMin: 0, yMax: 10 }, // x축,y축 설정 변경
+  32: { yMin: 0, yMax: 3 }, // x축,y축 설정 변경
+  33: { yMin: 0, yMax: 500 }, // x축,y축 설정 변경
+  34: { yMin: 0, yMax: 10 }, // x축,y축 설정 변경
+  36: { xMin: 0, xMax: 10 }, // x축,y축 설정 변경 ----- 막대
+
+  // I/O
+  38: { yMin: 0, yMax: 5 }, // x축,y축 설정 변경
+  39: { yMin: 0, yMax: 30 }, // x축,y축 설정 변경 ----------- sql_parse_execute_ration 만 남기면 0~30으로 변경
+  40: { yMin: 0, yMax: 5000 }, // x축,y축 설정 변경
+  41: { yMin: 0, yMax: 5 }, // x축,y축 설정 변경
+  42: { yMin: 0, yMax: 0.1 }, // x축,y축 설정 변경
+  43: { yMin: 0, yMax: 10 }, // x축,y축 설정 변경
+  // 44: { xMin: 0, xMax: 10 }, // x축,y축 설정 변경 -- 막대
+
+  // Storage
+  46: { yMin: 0, yMax: 0.1 }, // x축,y축 설정 변경
+  47: { yMin: 0, yMax: 5 }, // x축,y축 설정 변경
+  48: { yMin: 0, yMax: 2 }, // x축,y축 설정 변경
+  49: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
+  50: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
+  51: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
+  // 52: { xMin: 0, xMax: 10 }, // x축,y축 설정 변경 ----------- GB -> MB 변경 시 0~1500 으로 변경 -- 막대
+}; // x축,y축 설정 변경
 
 const ensureNumber = (value: unknown): number | null => {
   if (value === null || value === undefined) return null;
@@ -146,6 +197,12 @@ const renderMetricTiles = (
     label: string;
     suffix?: string;
     subtitleKeys?: string[]; // 서브 값으로 표시할 키 배열 (예: ["key1", "key2"])
+    decimals?: number; // 추가: 메인 값 소수점 자릿수
+    divisor?: number; // 추가: 메인 값에 적용할 나눌 값
+    subtitleDivisor?: number; // 추가: 서브타이틀 값에 적용할 나눌 값
+    subtitleDecimals?: number; // 추가: 서브타이틀 값 소수점 자릿수
+    subtitleSuffix?: string; // 추가: 서브타이틀 값 뒤에 붙일 단위 (예: "MB")
+    subtitleFirstSuffix?: string; // 추가: 서브타이틀 첫 번째 값 뒤에 붙일 단위 (예: "active")
   }>,
   columns = 2
 ) => {
@@ -171,29 +228,77 @@ const renderMetricTiles = (
   };
 
   const metrics: MetricData[] = mappings.map(
-    ({ key, label, suffix, subtitleKeys }) => {
-      const matchedKey = findMatchingKey(key);
-      if (!matchedKey) {
-        console.warn(
-          `컬럼 '${key}'를 찾을 수 없습니다. 사용 가능한 키:`,
-          availableKeys
+    ({
+      key,
+      label,
+      suffix,
+      subtitleKeys,
+      decimals,
+      divisor,
+      subtitleDivisor,
+      subtitleDecimals,
+      subtitleSuffix,
+      subtitleFirstSuffix,
+    }) => {
+      // decimals 추가
+      // Shared Pool 사용률 계산 (특별 처리)
+      let numeric: number | null = null;
+      let matchedKey: string | null = null;
+      if (key === "shared_pool_usage_pct_calc") {
+        const sharedPoolBytes = ensureNumber(
+          latest.values?.[findMatchingKey("shared_pool_bytes") ?? ""]
         );
-        return {
-          title: label,
-          value: "-",
-          subtitle: "",
-        };
+        const sharedPoolFreeBytes = ensureNumber(
+          latest.values?.[findMatchingKey("shared_pool_free_bytes") ?? ""]
+        );
+        if (
+          sharedPoolBytes !== null &&
+          sharedPoolFreeBytes !== null &&
+          sharedPoolBytes > 0
+        ) {
+          numeric =
+            ((sharedPoolBytes - sharedPoolFreeBytes) / sharedPoolBytes) * 100;
+        }
+      } else {
+        matchedKey = findMatchingKey(key);
+        if (!matchedKey) {
+          console.warn(
+            `컬럼 '${key}'를 찾을 수 없습니다. 사용 가능한 키:`,
+            availableKeys
+          );
+          return {
+            title: label,
+            value: "-",
+            subtitle: "",
+          };
+        }
+        numeric = ensureNumber(latest.values?.[matchedKey]);
       }
 
-      const numeric = ensureNumber(latest.values?.[matchedKey]);
+      const finalNumeric =
+        divisor && numeric !== null ? numeric / divisor : numeric; // 추가
       let display: string | number = "-";
-      if (numeric !== null) {
-        if (suffix === "%") {
-          display = `${numeric.toFixed(1)}%`;
+      if (finalNumeric !== null) {
+        // numeric → finalNumeric
+        if (decimals !== undefined) {
+          const fixed = finalNumeric.toFixed(decimals);
+          const trimmed = parseFloat(fixed).toString(); // 불필요한 0 제거
+          display = suffix ? `${trimmed}${suffix}` : trimmed;
+        } else if (suffix === "%") {
+          display = `${finalNumeric.toFixed(1)}%`; // numeric → finalNumeric
+        } else if (suffix) {
+          display = `${finalNumeric.toLocaleString()} ${suffix}`; // numeric → finalNumeric
         } else {
-          display = numeric.toLocaleString();
+          display = finalNumeric.toLocaleString(); // numeric → finalNumeric
         }
-      } else if (typeof latest.values?.[matchedKey] === "string") {
+      }
+      // 문자열 처리 추가
+
+      if (
+        display === "-" &&
+        matchedKey &&
+        typeof latest.values?.[matchedKey] === "string"
+      ) {
         display = String(latest.values?.[matchedKey]);
       }
 
@@ -202,15 +307,65 @@ const renderMetricTiles = (
       if (subtitleKeys && subtitleKeys.length > 0) {
         const subtitleValues = subtitleKeys
           .map((subKey) => {
-            const matchedSubKey = findMatchingKey(subKey);
-            if (!matchedSubKey) return null;
-            const subNumeric = ensureNumber(latest.values?.[matchedSubKey]);
-            return subNumeric !== null ? subNumeric.toLocaleString() : null;
+            // Shared Pool 사용량 계산 (특별 처리)
+            let subNumeric: number | null = null;
+            if (subKey === "shared_pool_usage_bytes_calc") {
+              const sharedPoolBytes = ensureNumber(
+                latest.values?.[findMatchingKey("shared_pool_bytes") ?? ""]
+              );
+              const sharedPoolFreeBytes = ensureNumber(
+                latest.values?.[findMatchingKey("shared_pool_free_bytes") ?? ""]
+              );
+              if (sharedPoolBytes !== null && sharedPoolFreeBytes !== null) {
+                subNumeric = sharedPoolBytes - sharedPoolFreeBytes;
+              }
+            } else {
+              const matchedSubKey = findMatchingKey(subKey);
+              if (!matchedSubKey) return null;
+              const rawValue = latest.values?.[matchedSubKey];
+              subNumeric = ensureNumber(rawValue);
+
+              // 문자열인 경우 그대로 반환
+              if (subNumeric === null && typeof rawValue === "string") {
+                return rawValue;
+              }
+            }
+
+            const finalSubNumeric =
+              subtitleDivisor && subNumeric !== null
+                ? subNumeric / subtitleDivisor
+                : subNumeric;
+            if (finalSubNumeric === null) return null;
+            let formattedValue: string;
+            if (subtitleDecimals !== undefined) {
+              const fixed = finalSubNumeric.toFixed(subtitleDecimals);
+              formattedValue = parseFloat(fixed).toString(); // 불필요한 0 제거
+            } else {
+              formattedValue = finalSubNumeric.toLocaleString();
+            }
+            return formattedValue;
           })
           .filter((v): v is string => v !== null);
 
         if (subtitleValues.length > 0) {
-          subtitle = subtitleValues.join(" / ");
+          // subtitleFirstSuffix가 있으면 각 값에 개별 suffix 적용
+          if (subtitleFirstSuffix) {
+            const formattedValues = subtitleValues.map((val, index) => {
+              if (index === 0 && subtitleFirstSuffix) {
+                return `${val} ${subtitleFirstSuffix}`;
+              } else if (index === 1 && subtitleSuffix) {
+                return `${val} ${subtitleSuffix}`;
+              }
+              return val;
+            });
+            subtitle = formattedValues.join(" / ");
+          } else {
+            // 기존 방식: 모든 값 뒤에 subtitleSuffix 붙이기
+            subtitle = subtitleValues.join(" / ");
+            if (subtitleSuffix) {
+              subtitle += ` ${subtitleSuffix}`;
+            }
+          }
         }
       }
 
@@ -382,9 +537,19 @@ const renderLine = (
       legends={validLegends}
       categories={categories}
       seriesData={validSeriesData}
-      showLegend={validLegends.length > 1}
-      yMin={0}
-      yMax={safeMaxValue + safePadding}
+      showLegend={validLegends.length >= 1}
+      height={190} // 추가
+      // yMin={0}
+      // yMax={safeMaxValue + safePadding}
+      yMin={GRAPH_AXIS_RANGES[graph.id]?.yMin ?? 0} // x축,y축 설정 변경
+      yMax={(() => {
+        // x축,y축 설정 변경
+        const configuredYMax = GRAPH_AXIS_RANGES[graph.id]?.yMax;
+        const calculatedYMax = safeMaxValue + safePadding;
+        return configuredYMax !== undefined
+          ? Math.max(configuredYMax, calculatedYMax)
+          : calculatedYMax;
+      })()} // x축,y축 설정 변경
     />
   );
 };
@@ -401,11 +566,27 @@ const renderStack = (
   const usage = keys.map((key) => ensureNumber(latest.values?.[key]) ?? 0);
   const totals = keys.map(() => 100);
 
+  const axisRange = GRAPH_AXIS_RANGES[graph.id]; // x축,y축 설정 변경
+  // return (
+  //   <StackChart
+  //     labels={labels}
+  //     usage={usage}
+  //     total={totals}
+  //     colorRules={[
+  //       { min: 0, max: 69, color: "#22C55E" },
+  //       { min: 70, max: 84, color: "#FACC15" },
+  //       { min: 85, max: 100, color: "#EF4444" },
+  //     ]}
+  //     height={200}
+  //   />
+  // );
   return (
     <StackChart
       labels={labels}
       usage={usage}
       total={totals}
+      xMin={axisRange?.xMin} // x축,y축 설정 변경
+      xMax={axisRange?.xMax} // x축,y축 설정 변경
       colorRules={[
         { min: 0, max: 69, color: "#22C55E" },
         { min: 70, max: 84, color: "#FACC15" },
@@ -597,26 +778,32 @@ export const renderDynamicChart = (
       [
         {
           key: "host_cpu_util_pct",
-          label: "Host CPU(%)",
-          suffix: "%",
+          label: "호스트 CPU 사용률",
+          suffix: " %",
+          decimals: 2,
+          subtitleSuffix: " cores",
+          subtitleKeys: ["host_busy_cores", "host_total_cores"],
         },
         {
           key: "cpu_saturation_pct",
-          label: "DB CPU Saturation(%)",
-          suffix: "%",
+          label: "DB CPU 포화도\n(DB CPU 작업량 / DB 할당 CPU)",
+          suffix: " %",
+          decimals: 2,
         },
         {
           key: "db_of_host_share_pct",
-          label: "DB Share of Host(%)",
-          suffix: "%",
-          subtitleKeys: ["aas_oncpu_sessions", "host_busy_cores"],
+          label: "DB CPU 점유율\n(DB CPU 작업량 / Host CPU 사용량)",
+          suffix: " %",
+          decimals: 2,
         },
         {
           key: "runq_per_core_load_proxy",
-          label: "Run Queue per Core(process)",
+          label: "RunQ\n(코어 당 대기 작업 수)",
+          suffix: " /Core",
+          decimals: 2,
         },
-        { key: "tps_per_sec", label: "TPS" },
-        { key: "execs_per_sec", label: "EXEC/S" },
+        { key: "tps_per_sec", label: "TPS", suffix: " /s", decimals: 2 },
+        { key: "execs_per_sec", label: "EXEC/S", suffix: " /s", decimals: 2 },
       ],
       6
     );
@@ -653,8 +840,8 @@ export const renderDynamicChart = (
     return renderLine(
       graph,
       {
-        keys: ["aas_oncpu_sessions", "core_baseline_sessions"],
-        legends: ["AAS On-CPU Sessions", "Core Baseline Sessions"],
+        keys: ["aas_oncpu_sessions" /*"core_baseline_sessions"*/],
+        legends: ["AAS On-CPU" /*"Core Baseline Sessions"*/],
       },
       mode
     );
@@ -695,15 +882,15 @@ export const renderDynamicChart = (
       {
         keys: [
           "runq_per_core_load_proxy",
-          "load_threshold",
-          "load_threshold_min",
-          "load_threshold_max",
+          //"load_threshold",
+          //"load_threshold_min",
+          //"load_threshold_max",
         ],
         legends: [
           "Run Queue per Core",
-          "Load Threshold",
-          "Load Threshold Min",
-          "Load Threshold Max",
+          // "Load Threshold",
+          // "Load Threshold Min",
+          // "Load Threshold Max",
         ],
       },
       mode
@@ -715,10 +902,22 @@ export const renderDynamicChart = (
     return renderMetricTiles(
       graph,
       [
-        { key: "pga_used_bytes", label: "PGA Used (bytes)" },
-        { key: "pga_target_bytes", label: "PGA Target (bytes)" },
-        { key: "pga_util_pct", label: "PGA Util (%)", suffix: "%" },
-        { key: "memory_sort_pct", label: "Memory Sort (%)", suffix: "%" },
+        {
+          key: "pga_used_bytes",
+          label: "PGA 사용량",
+          suffix: "MB",
+          divisor: 1_048_576,
+          decimals: 1,
+        },
+        {
+          key: "pga_target_bytes",
+          label: "PGA 할당량",
+          suffix: "MB",
+          divisor: 1_048_576,
+          decimals: 1,
+        },
+        { key: "pga_util_pct", label: "PGA 사용률", suffix: "%" },
+        { key: "memory_sort_pct", label: "Memory Sort", suffix: "%" },
         { key: "dedicated_sess_cnt", label: "Dedicated" },
         { key: "parallel_proc_cnt", label: "Parallel" },
         { key: "shared_server_proc_cnt", label: "Shared" },
@@ -733,14 +932,57 @@ export const renderDynamicChart = (
     return renderMetricTiles(
       graph,
       [
-        { key: "sga_util_pct", label: "SGA Usage", suffix: "%" },
-        { key: "shared_pool_free_pct", label: "Shared Pool", suffix: "%" },
-        { key: "library_cache_mb", label: "Lib.Cache", suffix: " MB" },
-        { key: "dictionary_cache_mb", label: "Dic.Cache", suffix: " MB" },
-        { key: "large_pool_mb", label: "Large Pool", suffix: " MB" },
-        { key: "java_pool_mb", label: "Java Pool", suffix: " MB" },
-        { key: "log_buffer_mb", label: "Log Buffer", suffix: " MB" },
-        { key: "buffer_cache_mb", label: "Buffer Cache", suffix: " MB" },
+        {
+          key: "sga_util_pct",
+          label: "SGA 사용률",
+          suffix: "%",
+          decimals: 2,
+          subtitleDivisor: 1_073_741_824,
+          subtitleDecimals: 2,
+          subtitleSuffix: "GB",
+          subtitleKeys: ["sga_used_bytes", "sga_total_bytes"],
+        },
+        {
+          key: "shared_pool_usage_pct_calc",
+          label: "Shared Pool",
+          suffix: "%",
+          decimals: 2,
+          subtitleKeys: ["shared_pool_usage_bytes_calc", "shared_pool_bytes"],
+          subtitleDivisor: 1_048_576,
+          subtitleDecimals: 2,
+          subtitleSuffix: "MB",
+        },
+        {
+          key: "library_cache_mb",
+          label: "Libary Cache",
+          suffix: " MB",
+          decimals: 2,
+        },
+        {
+          key: "dictionary_cache_mb",
+          label: "Dictionary Cache",
+          suffix: " MB",
+          decimals: 2,
+        },
+        {
+          key: "large_pool_mb",
+          label: "Large Pool",
+          suffix: " MB",
+          decimals: 2,
+        },
+        { key: "java_pool_mb", label: "Java Pool", suffix: " MB", decimals: 2 },
+        {
+          key: "log_buffer_mb",
+          label: "Log Buffer",
+          suffix: " MB",
+          decimals: 2,
+        },
+        {
+          key: "buffer_cache_mb",
+          label: "Buffer Cache",
+          suffix: " MB",
+          decimals: 2,
+        },
       ],
       4
     );
@@ -879,19 +1121,29 @@ export const renderDynamicChart = (
     return renderMetricTiles(
       graph,
       [
-        { key: "active_user_sessions_now", label: "Active / Total Users" },
+        {
+          key: "active_user_sessions_now",
+          label: "활성 사용자 세션",
+          subtitleSuffix: "Total",
+          subtitleFirstSuffix: "Active",
+          subtitleKeys: ["active_user_sessions_now", "total_user_sessions_now"],
+        },
         {
           key: "sessions_limit_util_pct",
-          label: "Sessions Limit Util(%)",
+          label: "전체 세션 사용률",
           suffix: "%",
+          subtitleSuffix: "Sessions",
+          subtitleKeys: ["sessions_used_current", "sessions_limit"], // 추가
         },
         {
           key: "processes_limit_util_pct",
-          label: "Processes Limit Util(%)",
+          label: "프로세스 사용률",
           suffix: "%",
+          subtitleSuffix: "Process",
+          subtitleKeys: ["processes_current", "processes_limit"], // 추가
         },
-        { key: "blockers_now", label: "Blockers(session)" },
-        { key: "blocked_now", label: "Blocked(session)" },
+        { key: "blockers_now", label: "Blockers" },
+        { key: "blocked_now", label: "Blocked" },
       ],
       5
     );
@@ -906,22 +1158,39 @@ export const renderDynamicChart = (
       [
         {
           key: "cache_hit_ratio_pct",
-          label: "Cache Hit Ratio(%)",
-          suffix: "%",
+          label: "Buffer Cache Hit Ratio",
+          suffix: " %",
+          decimals: 2,
         },
         {
           key: "avg_io_wait_time_ms",
-          label: "Avg I/O Wait Time(ms)",
+          label: "평균 I/O 대기",
           suffix: " ms",
+          decimals: 2,
         },
-        { key: "physical_reads_per_sec", label: "Physical Reads(/s)" },
+        {
+          key: "physical_reads_per_sec",
+          label: "Physical Reads",
+          suffix: " blocks/s",
+          decimals: 2,
+        },
         {
           key: "redo_size_mb_per_sec",
-          label: "Redo Size(MB/s)",
+          label: "Redo 생성량",
           suffix: " MB/s",
+          decimals: 2,
         },
-        { key: "parse_execute_ratio", label: "Parse/Execute Ratio" },
-        { key: "direct_path_io_per_sec", label: "Direct Path I/O(/s)" },
+        {
+          key: "parse_execute_ratio",
+          label: "파스/실행 비율",
+          suffix: " %",
+          decimals: 2,
+        },
+        {
+          key: "direct_path_io_per_sec",
+          label: "Direct Path I/O",
+          suffix: " blocks/s",
+        },
       ],
       6
     );
@@ -937,12 +1206,12 @@ export const renderDynamicChart = (
         keys: [
           "physical_reads_direct_per_sec",
           "physical_writes_direct_per_sec",
-          "direct_io_ratio_pct",
+          // "direct_io_ratio_pct",
         ],
         legends: [
           "Physical Reads Direct (/s)",
           "Physical Writes Direct (/s)",
-          "Direct I/O Ratio (%)",
+          // "Direct I/O Ratio (%)",
         ],
       },
       mode
@@ -957,13 +1226,13 @@ export const renderDynamicChart = (
       graph,
       {
         keys: [
-          "parser_request_per_sec",
-          "sql_execute_per_sec",
+          // "parser_request_per_sec",
+          // "sql_execute_per_sec",
           "sql_parse_execute_ratio",
         ],
         legends: [
-          "Parser Request (/s)",
-          "SQL Execute (/s)",
+          // "Parser Request (/s)",
+          // "SQL Execute (/s)",
           "Parse/Execute Ratio",
         ],
       },
@@ -981,14 +1250,14 @@ export const renderDynamicChart = (
         keys: [
           "physical_reads_per_diff_sec",
           "logical_reads_per_sec",
-          "cache_hit_ratio_diff_pct",
-          "total_reads_per_sec",
+          // "cache_hit_ratio_diff_pct",
+          // "total_reads_per_sec",
         ],
         legends: [
           "Physical Reads (/s)",
           "Logical Reads (/s)",
-          "Cache Hit Ratio Diff (%)",
-          "Total Reads (/s)",
+          // "Cache Hit Ratio Diff (%)",
+          // "Total Reads (/s)",
         ],
       },
       mode
@@ -1001,8 +1270,10 @@ export const renderDynamicChart = (
     return renderLine(
       graph,
       {
-        keys: ["avg_wait_time_ms", "io_waits_per_sec", "io_time_per_sec_ms"],
-        legends: ["Avg Wait Time (ms)", "I/O Waits (/s)", "I/O Time (/s ms)"],
+        keys: ["avg_wait_time_ms" /*"io_waits_per_sec", "io_time_per_sec_ms"*/],
+        legends: [
+          "Avg Wait Time (ms)" /*"I/O Waits (/s)", "I/O Time (/s ms)"*/,
+        ],
       },
       mode
     );
@@ -1016,13 +1287,13 @@ export const renderDynamicChart = (
       {
         keys: [
           "redo_generation_mbps",
-          "redo_generation_mbps_total",
-          "log_switch_count_1min",
+          // "redo_generation_mbps_total",
+          // "log_switch_count_1min",
         ],
         legends: [
           "Redo Generation (MB/s)",
-          "Redo Total (MB/s)",
-          "Log Switch 1min",
+          // "Redo Total (MB/s)",
+          // "Log Switch 1min",
         ],
       },
       mode
@@ -1046,13 +1317,43 @@ export const renderDynamicChart = (
     return renderMetricTiles(
       graph,
       [
-        { key: "fra_usage_percent", label: "FRA Usage(%)", suffix: "%" },
-        { key: "fra_free_gb", label: "FRA Free(GB)", suffix: " GB" },
-        { key: "undo_usage_pct", label: "Undo Usage(%)", suffix: "%" },
-        { key: "temp_usage_pct", label: "Temp Usage(%)", suffix: "%" },
-        { key: "max_ts_name", label: "Max TS Name" },
-        { key: "max_ts_usage_pct", label: "Max TS Usage(%)", suffix: "%" },
-        { key: "total_db_usage_pct", label: "Total DB Usage(%)", suffix: "%" },
+        {
+          key: "fra_usage_percent",
+          label: "FRA 사용률",
+          suffix: "%",
+          decimals: 2,
+          subtitleKeys: [""],
+        },
+        { key: "fra_free_gb", label: "FRA 여유", suffix: " GB", decimals: 2 },
+        {
+          key: "undo_usage_pct",
+          label: "Undo 사용률",
+          suffix: "%",
+          decimals: 2,
+        },
+        {
+          key: "temp_usage_pct",
+          label: "Temp 사용률",
+          suffix: "%",
+          decimals: 2,
+        },
+        // {
+        //   key: "max_ts_name",
+        //   label: "최대 사용 테이블 스페이스",
+        // },
+        {
+          key: "max_ts_usage_pct",
+          label: "최대 사용 테이블 스페이스 사용률",
+          suffix: "%",
+          decimals: 2,
+          subtitleKeys: ["max_ts_name"],
+        },
+        {
+          key: "total_db_usage_pct",
+          label: "전체 DB 사용률 ",
+          suffix: "%",
+          decimals: 2,
+        },
       ],
       7
     );
@@ -1066,20 +1367,20 @@ export const renderDynamicChart = (
       graph,
       {
         keys: [
-          "temp_active_usage_gb",
-          "temp_current_size_gb",
-          "temp_max_size_gb",
+          // "temp_active_usage_gb",
+          // "temp_current_size_gb",
+          // "temp_max_size_gb",
           "temp_usage_percent",
-          "temp_usage_pct_of_max",
-          "temp_peak_usage_24h_gb",
+          // "temp_usage_pct_of_max",
+          // "temp_peak_usage_24h_gb",
         ],
         legends: [
-          "Active Usage (GB)",
-          "Current Size (GB)",
-          "Max Size (GB)",
+          // "Active Usage (GB)",
+          // "Current Size (GB)",
+          // "Max Size (GB)",
           "Usage (%)",
-          "Usage of Max (%)",
-          "Peak 24h (GB)",
+          // "Usage of Max (%)",
+          // "Peak 24h (GB)",
         ],
       },
       mode
@@ -1130,20 +1431,20 @@ export const renderDynamicChart = (
       graph,
       {
         keys: [
-          "space_limit_gb",
-          "space_used_gb",
-          "space_reclaimable_gb",
+          // "space_limit_gb",
+          // "space_used_gb",
+          // "space_reclaimable_gb",
           "usage_pct",
-          "hourly_growth_pct",
-          "time_to_95_pct_hours",
+          // "hourly_growth_pct",
+          // "time_to_95_pct_hours",
         ],
         legends: [
-          "Space Limit (GB)",
-          "Space Used (GB)",
-          "Space Reclaimable (GB)",
+          // "Space Limit (GB)",
+          // "Space Used (GB)",
+          // "Space Reclaimable (GB)",
           "Usage (%)",
-          "Hourly Growth (%)",
-          "Time to 95% (hours)",
+          // "Hourly Growth (%)",
+          // "Time to 95% (hours)",
         ],
       },
       mode
@@ -1158,18 +1459,18 @@ export const renderDynamicChart = (
       graph,
       {
         keys: [
-          "undo_tablespace_name",
+          // "undo_tablespace_name",
           "undo_usage_percent",
-          "long_transaction_count",
-          "long_transaction_undo_mb",
-          "undo_retention_sec",
+          // "long_transaction_count",
+          // "long_transaction_undo_mb",
+          // "undo_retention_sec",
         ],
         legends: [
-          "Undo TS Name",
+          // "Undo TS Name",
           "Undo Usage (%)",
-          "Long Transaction Count",
-          "Long Transaction Undo (MB)",
-          "Undo Retention (sec)",
+          // "Long Transaction Count",
+          // "Long Transaction Undo (MB)",
+          // "Undo Retention (sec)",
         ],
       },
       mode
@@ -1187,6 +1488,194 @@ export const renderDynamicChart = (
         legends: ["Total Usage (%)"],
       },
       mode
+    );
+  }
+
+  if (graph.id === 20) {
+    const sorted = sortPoints(graph);
+    if (sorted.length === 0) return null;
+    const latest = sorted[sorted.length - 1];
+    const availableKeys = Object.keys(latest.values ?? {});
+
+    // SQL_ID 키들 찾기 (값을 labels로 사용)
+    const sqlIdKeys = availableKeys
+      .filter((k) => k.toLowerCase().startsWith("top_sql_by_cpu_sql_id_"))
+      .sort();
+    const labels = sqlIdKeys.map((k) => String(latest.values?.[k] ?? ""));
+
+    // VALUE 키들 찾기 (keys로 사용)
+    const valueKeys = availableKeys
+      .filter((k) => k.toLowerCase().startsWith("top_sql_by_cpu_value_"))
+      .sort();
+
+    return renderStack(graph, labels, valueKeys);
+  }
+
+  if (graph.id === 28) {
+    const sorted = sortPoints(graph);
+    if (sorted.length === 0) return null;
+    const latest = sorted[sorted.length - 1];
+    const availableKeys = Object.keys(latest.values ?? {});
+
+    // SQL_ID 키들 찾기 (값을 labels로 사용)
+    const sqlIdKeys = availableKeys
+      .filter((k) =>
+        k.toLowerCase().startsWith("top_sql_by_shared_pool_sql_id_")
+      )
+      .sort();
+    const labels = sqlIdKeys.map((k) => String(latest.values?.[k] ?? ""));
+
+    // VALUE 키들 찾기 (keys로 사용)
+    const valueKeys = availableKeys
+      .filter((k) =>
+        k.toLowerCase().startsWith("top_sql_by_shared_pool_value_")
+      )
+      .sort();
+
+    return renderStack(graph, labels, valueKeys);
+  }
+
+  if (graph.id === 36) {
+    const sorted = sortPoints(graph);
+    // if (sorted.length === 0) return null;
+    if (sorted.length === 0) {
+      return (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#9ca3af",
+          }}
+        >
+          현재 블락당한 세션이 없습니다.
+        </div>
+      );
+    }
+    const latest = sorted[sorted.length - 1];
+    const availableKeys = Object.keys(latest.values ?? {});
+
+    // SQL_ID 키들 찾기 (값을 labels로 사용)
+    const sqlIdKeys = availableKeys
+      .filter(
+        (k) => k.toLowerCase().startsWith("top_blocker_session_sid_") // TOP_BLOCKER_SESSION_SID_05, TOP_BLOCKER_SESSION_VICTIMS_01
+      )
+      .sort();
+    const labels = sqlIdKeys.map((k) => String(latest.values?.[k] ?? ""));
+
+    // labels가 모두 빈 문자열이거나 0.0인지 체크
+    if (
+      labels.every((label) => {
+        const trimmed = label.trim();
+        return trimmed === "" || parseFloat(trimmed) === 0;
+      })
+    ) {
+      return (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#9ca3af",
+          }}
+        >
+          현재 블락당한 세션이 없습니다.
+        </div>
+      );
+    }
+
+    // VALUE 키들 찾기 (keys로 사용)
+    const valueKeys = availableKeys
+      .filter((k) => k.toLowerCase().startsWith("top_blocker_session_victims_"))
+      .sort();
+
+    return renderStack(graph, labels, valueKeys);
+  }
+
+  if (graph.id === 44) {
+    const sorted = sortPoints(graph);
+    if (sorted.length === 0) return null;
+    const latest = sorted[sorted.length - 1];
+    const availableKeys = Object.keys(latest.values ?? {});
+
+    // labels를 가져올 키들 찾기 (endsWith 사용)
+    const labelKeys = availableKeys
+      .filter((k) => k.toLowerCase().endsWith("_data_tablespace_name"))
+      .sort();
+    const labels = labelKeys.map((k) => String(latest.values?.[k] ?? ""));
+
+    // values를 가져올 키들 찾기 (endsWith 사용)
+    const valueKeys = availableKeys
+      .filter((k) => k.toLowerCase().endsWith("_data_io_share_pct"))
+      .sort();
+
+    return renderStack(graph, labels, valueKeys);
+  }
+  // 5_tablespace_name_seg,1_size_gb_seg
+  if (graph.id === 52) {
+    const sorted = sortPoints(graph);
+    if (sorted.length === 0) return null;
+    const latest = sorted[sorted.length - 1];
+    const availableKeys = Object.keys(latest.values ?? {});
+
+    // labels를 가져올 키들 찾기 (endsWith 사용)
+    const labelKeys = availableKeys
+      .filter((k) => k.toLowerCase().endsWith("_tablespace_name_seg"))
+      .sort();
+    const labels = labelKeys.map((k) => String(latest.values?.[k] ?? ""));
+
+    // values를 가져올 키들 찾기 (endsWith 사용)
+    const valueKeys = availableKeys
+      .filter((k) => k.toLowerCase().endsWith("_size_gb_seg"))
+      .sort();
+
+    return renderStack(graph, labels, valueKeys);
+  }
+
+  // Graph ID 43: DBWR Checkpoint Activity
+  if (graph.id === 43) {
+    const sorted = sortPoints(graph);
+    if (sorted.length === 0) return null;
+
+    const availableKeys = Object.keys(sorted[0].values ?? {});
+
+    // dbwr_write_count_per_min을 찾기
+    const dbwrKey = availableKeys.find((k) =>
+      k.toLowerCase().includes("dbwr_write_count_per_min")
+    );
+
+    // 두 번째 키 찾기 (필요한 지표에 따라 변경)
+    const secondKey =
+      availableKeys.find(
+        (k) =>
+          k !== dbwrKey &&
+          k.toLowerCase().includes("dbwr_write_volume_mb_per_min") // 예시
+      ) || availableKeys[1]; // 없으면 두 번째 키 사용
+
+    if (!dbwrKey || !secondKey) {
+      return mainChartRenderer(title, graph, mode); // 키를 찾지 못하면 기본 처리
+    }
+
+    const categories = sorted.map((point) => formatTime(point.timestamp, mode));
+    const columnData = sorted.map(
+      (point) => ensureNumber(point.values?.[dbwrKey]) ?? 0
+    );
+    const lineData = sorted.map(
+      (point) => ensureNumber(point.values?.[secondKey]) ?? 0
+    );
+
+    return (
+      <MixedChart
+        categories={categories}
+        columnData={columnData}
+        lineData={lineData}
+        yaxisLeftTitle="DBWR Write Count (/min)"
+        yaxisRightTitle={secondKey}
+      />
     );
   }
 
