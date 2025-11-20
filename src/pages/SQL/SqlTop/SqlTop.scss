@@ -64,11 +64,12 @@
       overflow: hidden;
 
       &-block {
-        flex-direction: row;
+        flex-direction: column;
         background: $gray-0;
         padding: 10px;
         width: 50%;
         border-radius: 5px;
+        display: flex;
       
         &-header {
           gap: 10px;
@@ -76,6 +77,7 @@
           align-items: center;
           justify-content: space-between;
           margin-bottom: 10px;
+          min-height: 40px;
           color: $gray-700;
           @include text-styles("body02");
 
@@ -83,7 +85,6 @@
             gap: 10px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
 
             &-greenCircle {
               width: 10px;
@@ -99,6 +100,11 @@
               background-color: $main-600;
               border-radius: 50%;
             }
+          }
+
+          &-right {
+            display: flex;
+            align-items: center;
           }
         }
 

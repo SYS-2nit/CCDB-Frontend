@@ -115,6 +115,7 @@ const SqlTop = () => {
             <div className="sql-top__table-block-header-left">
               기준 데이터 ({startDate})
             </div>
+            <div className="sql-top__table-block-header-right"></div>
           </div>
 
           {baseList.length === 0 ? (
@@ -158,14 +159,15 @@ const SqlTop = () => {
             <div className="sql-top__table-block-header-left">
               비교 데이터 ({compareDate})
             </div>
-
-            <Button
-              text="비교하기"
-              size="sm"
-              variant="primary"
-              disabled={!selectedBase || !selectedCompare}
-              onClick={fetchCompareDetails}
-            />
+            <div className="sql-top__table-block-header-right">
+              <Button
+                text="비교하기"
+                size="sm"
+                variant="primary"
+                disabled={!selectedBase || !selectedCompare}
+                onClick={fetchCompareDetails}
+              />
+            </div>
           </div>
 
           {compareList.length === 0 ? (
