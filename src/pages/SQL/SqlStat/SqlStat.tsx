@@ -52,8 +52,8 @@ const SqlStat: React.FC = () => {
     end: "",
   });
 
-  // 필터
-  const [filter, setFilter] = useState("");
+  // 필터 (그래프와 테이블 모두 적용)
+  const [filter, setFilter] = useState("elapsed");
   const [interval, setInterval] = useState(30);
 
   // 페이지네이션
@@ -122,7 +122,7 @@ const SqlStat: React.FC = () => {
         keyword: "",
         minExecCount: 1,
         maxExecCount: 10000,
-        orderBy: filter,
+        orderBy: filter || "elapsed",
         direction: "DESC",
       });
 
@@ -165,10 +165,11 @@ const SqlStat: React.FC = () => {
     setTableData(rawTableData.slice(start, end));
   }, [currentPage, rawTableData]);
 
-  /** 필터 변경 시 그래프만 재조회 */
+  /** 필터 변경 시 그래프와 테이블 모두 재조회 */
   useEffect(() => {
     if (dateRange.start && dateRange.end) {
       fetchGraph();
+      fetchTable();
     }
   }, [filter]);
 
