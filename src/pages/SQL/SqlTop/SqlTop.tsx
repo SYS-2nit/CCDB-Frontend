@@ -94,18 +94,21 @@ const SqlTop = () => {
 
       {/* 라인차트 */}
       <div className="sql-top__summary">
-        {isChartLoading ? (
-          <Spinner message="차트 데이터 불러오는 중..." />
-        ) : baseValues.length === 0 && compareValues.length === 0 ? (
-          <div className="sql-stat__chart-null">검색 결과가 없습니다.</div>
-        ) : (
-          <LineChart
-            legends={["기준", "비교"]}
-            seriesData={[baseValues, compareValues]}
-            categories={timeline}
-            height={300}
-          />
-        )}
+        <div className="sql-stat__stat__summary-chart">
+          Summary Chart
+          {isChartLoading ? (
+            <Spinner message="차트 데이터 불러오는 중..." />
+          ) : baseValues.length === 0 && compareValues.length === 0 ? (
+            <div className="sql-stat__chart-null">검색 결과가 없습니다.</div>
+          ) : (
+            <LineChart
+              legends={["기준", "비교"]}
+              seriesData={[baseValues, compareValues]}
+              categories={timeline}
+              height={300}
+            />
+          )}
+        </div>
       </div>
 
       {/* 테이블 */}
@@ -114,7 +117,7 @@ const SqlTop = () => {
         <div className="sql-top__table-block">
           <div className="sql-top__table-block-header">
             <div className="sql-top__table-block-header-left">
-              기준 데이터 ({startDate})
+              기준 날짜 ({startDate || "YYYY-MM-DD"})
             </div>
             <div className="sql-top__table-block-header-right"></div>
           </div>
@@ -160,7 +163,7 @@ const SqlTop = () => {
         <div className="sql-top__table-block">
           <div className="sql-top__table-block-header">
             <div className="sql-top__table-block-header-left">
-              비교 데이터 ({compareDate})
+              비교 날짜 ({compareDate || "YYYY-MM-DD"})
             </div>
             <div className="sql-top__table-block-header-right">
               <Button

@@ -266,13 +266,33 @@ const SqlStat: React.FC = () => {
       {row.sql}
     </span>,
 
-    <BarGauge value={row.elapsed} max={50000000} showPercentage={false} isTime={true} />,
-    <BarGauge value={row.avg} max={50000000} showPercentage={false} isTime={true} />,
-    <BarGauge value={row.wait} max={50000000} showPercentage={false} isTime={true} />,
+    <BarGauge
+      value={row.elapsed}
+      max={50000000}
+      showPercentage={false}
+      isTime={true}
+    />,
+    <BarGauge
+      value={row.avg}
+      max={50000000}
+      showPercentage={false}
+      isTime={true}
+    />,
+    <BarGauge
+      value={row.wait}
+      max={50000000}
+      showPercentage={false}
+      isTime={true}
+    />,
     <BarGauge value={row.execution} max={50000000} showPercentage={false} />,
     <BarGauge value={row.buffer} max={50000000} showPercentage={false} />,
     <BarGauge value={row.disk} max={50000000} showPercentage={false} />,
-    <BarGauge value={row.cpu} max={50000000} showPercentage={false} isTime={true} />,
+    <BarGauge
+      value={row.cpu}
+      max={50000000}
+      showPercentage={false}
+      isTime={true}
+    />,
   ]);
 
   return (
@@ -340,7 +360,9 @@ const SqlStat: React.FC = () => {
         <div className="sql-stat__stat__summary-chart">
           Summary Chart
           {isGraphLoading ? (
-            <Spinner message="차트 데이터 불러오는 중..." />
+            <div className="sql-stat__spinner-wrapper">
+              <Spinner message="차트 데이터 불러오는 중..." />
+            </div>
           ) : graphData.values.length === 0 ? (
             <div className="sql-stat__chart-null">검색 결과가 없습니다.</div>
           ) : (
@@ -379,27 +401,31 @@ const SqlStat: React.FC = () => {
 
       {/* 테이블 */}
       <div className="sql-stat__table">
-        조회 결과
-        {isTableLoading ? (
-          <Spinner message="테이블 데이터 불러오는 중..." />
-        ) : noResult || sortedData.length === 0 ? (
-          <div className="sql-stat__table-null">검색 결과가 없습니다.</div>
-        ) : (
-          <>
-            <TableChart
-              columns={columns}
-              rows={rows}
-              sortable
-              sortConfig={sortConfig}
-              onSort={(key) => handleSort(key as keyof TableData)}
-            />
-            <Pagination
-              totalPages={totalPages}
-              currentPage={currentPage}
-              onPageChange={(page) => setCurrentPage(page)}
-            />
-          </>
-        )}
+        <div className="sql-stat__table-header">조회 결과</div>
+        <div className="sql-stat__table-content">
+          {isTableLoading ? (
+            <div className="sql-stat__spinner-wrapper">
+              <Spinner message="테이블 데이터 불러오는 중..." />
+            </div>
+          ) : noResult || sortedData.length === 0 ? (
+            <div className="sql-stat__table-null">검색 결과가 없습니다.</div>
+          ) : (
+            <div className="sql-stat__table-wrapper">
+              <TableChart
+                columns={columns}
+                rows={rows}
+                sortable
+                sortConfig={sortConfig}
+                onSort={(key) => handleSort(key as keyof TableData)}
+              />
+              <Pagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 상세 Drawer */}
