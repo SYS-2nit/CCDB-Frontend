@@ -36,6 +36,7 @@ export const useSqlTop = () => {
   const [timeline, setTimeline] = useState<string[]>([]);
   const [baseValues, setBaseValues] = useState<number[]>([]);
   const [compareValues, setCompareValues] = useState<number[]>([]);
+  const [isChartLoading, setIsChartLoading] = useState(false);
 
   /* 상세 */
   const [detailData, setDetailData] = useState<any>(null);
@@ -72,29 +73,34 @@ export const useSqlTop = () => {
 
   /* 기간 그래프 */
   const loadPeriodGraph = async () => {
-    const base = await fetchPeriodData({
-      startDate,
-      endDate: startDate,
-      metric: filter,
-      intervalMinutes: interval,
-      instanceId: 1,
-    });
+    setIsChartLoading(true);
+    try {
+      const base = await fetchPeriodData({
+        startDate,
+        endDate: startDate,
+        metric: filter,
+        intervalMinutes: interval,
+        instanceId: 1,
+      });
 
-    const compare = await fetchPeriodData({
-      startDate: compareDate,
-      endDate: compareDate,
-      metric: filter,
-      intervalMinutes: interval,
-      instanceId: 1,
-    });
+      const compare = await fetchPeriodData({
+        startDate: compareDate,
+        endDate: compareDate,
+        metric: filter,
+        intervalMinutes: interval,
+        instanceId: 1,
+      });
 
-    const t = buildTimeline(startDate, compareDate, interval);
+      const t = buildTimeline(startDate, compareDate, interval);
 
-    setTimeline(t);
-    setBasePeriod(base);
-    setComparePeriod(compare);
-    setBaseValues(mapValuesToTimeline(t, base));
-    setCompareValues(mapValuesToTimeline(t, compare));
+      setTimeline(t);
+      setBasePeriod(base);
+      setComparePeriod(compare);
+      setBaseValues(mapValuesToTimeline(t, base));
+      setCompareValues(mapValuesToTimeline(t, compare));
+    } finally {
+      setIsChartLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -181,6 +187,7 @@ export const useSqlTop = () => {
     timeline,
     baseValues,
     compareValues,
+    isChartLoading,
     selectedBase,
     selectedCompare,
     setSelectedBase,

@@ -40,6 +40,8 @@ const formatToMonthDayTime = (raw: string) => {
   return `${mm}-${dd} ${HH}:${MM}`;
 };
 
+const PAGE_SIZE = 10;
+
 const SqlStat: React.FC = () => {
   // 상세 데이터
   const [detailData, setDetailData] = useState<SqlDetailData | null>(null);
@@ -53,15 +55,21 @@ const SqlStat: React.FC = () => {
   // 필터
   const [filter, setFilter] = useState("");
   const [interval, setInterval] = useState(30);
-  const [currentPage, setCurrentPage] = useState(1);
 
+  // 페이지네이션
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // 그래프 데이터
   const [graphData, setGraphData] = useState({
     labels: [] as string[],
     values: [] as number[],
   });
 
+  // 테이블 전체 데이터 (원본)
+  const [rawTableData, setRawTableData] = useState<TableData[]>([]);
+  // 현재 페이지 데이터
   const [tableData, setTableData] = useState<TableData[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [noResult, setNoResult] = useState(false);
 
@@ -73,7 +81,7 @@ const SqlStat: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   /* 통합 조회 API */
-  const fetchStats = async (page = 1) => {
+  const fetchStats = async () => {
     if (!dateRange.start || !dateRange.end) return;
 
     try {
@@ -96,7 +104,7 @@ const SqlStat: React.FC = () => {
         values: graph.buckets.map((b: any) => b.value),
       });
 
-      /** Table */
+      /** Table - 클라이언트 사이드 페이지네이션 사용 (전체 데이터 조회) */
       const data = await getSqlStats({
         instanceId: 1,
         startDate: dateRange.start,
@@ -106,13 +114,12 @@ const SqlStat: React.FC = () => {
         maxExecCount: 10000,
         orderBy: filter,
         direction: "DESC",
-        page: page - 1,
-        size: 8,
       });
 
-      // Response 자체가 없거나 content가 없을 경우 처리
+      // 빈 데이터 처리
       if (!data || !data.content || data.content.length === 0) {
         setNoResult(true);
+        setRawTableData([]);
         setTableData([]);
         setTotalPages(1);
         return;
@@ -131,9 +138,9 @@ const SqlStat: React.FC = () => {
         cpu: item.cpuUsDelta,
       }));
 
-      setTableData(mapped);
-      setTotalPages(data.totalPages);
-      setCurrentPage(page);
+      setRawTableData(mapped);
+      setTotalPages(Math.ceil(mapped.length / PAGE_SIZE));
+      setCurrentPage(1); // 데이터 로드 시 1페이지로 리셋
     } catch (err) {
       console.error("SQL 통계 로드 실패:", err);
     } finally {
@@ -141,14 +148,16 @@ const SqlStat: React.FC = () => {
     }
   };
 
-  /** 페이지 변경 */
+  /** currentPage 또는 rawTableData 변경 시 page 데이터 새로 계산 */
   useEffect(() => {
-    fetchStats(currentPage);
-  }, [currentPage]);
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    setTableData(rawTableData.slice(start, end));
+  }, [currentPage, rawTableData]);
 
   /** 날짜/필터/interval 변경 시 재조회 */
   useEffect(() => {
-    fetchStats(1);
+    fetchStats();
   }, [dateRange, filter, interval]);
 
   /* 정렬 */
@@ -194,7 +203,6 @@ const SqlStat: React.FC = () => {
           intervalMinutes: interval,
         });
 
-        /** ★ SqlDetailItem → SqlDetailData 변환 (중요!!) */
         const detail: SqlDetailData = {
           date: `${dateRange.start} ~ ${dateRange.end}`,
           ...raw,
@@ -297,22 +305,24 @@ const SqlStat: React.FC = () => {
       {/* 테이블 */}
       <div className="sql-stat__table">
         조회 결과
-        {noResult || tableData.length === 0 ? (
+        {noResult || sortedData.length === 0 ? (
           <div className="sql-stat__table-null">검색 결과가 없습니다.</div>
         ) : (
-          <TableChart
-            columns={columns}
-            rows={rows}
-            sortable
-            sortConfig={sortConfig}
-            onSort={(key) => handleSort(key as keyof TableData)}
-          />
+          <>
+            <TableChart
+              columns={columns}
+              rows={rows}
+              sortable
+              sortConfig={sortConfig}
+              onSort={(key) => handleSort(key as keyof TableData)}
+            />
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </>
         )}
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={(page) => fetchStats(page)}
-        />
       </div>
 
       {/* 상세 Drawer */}

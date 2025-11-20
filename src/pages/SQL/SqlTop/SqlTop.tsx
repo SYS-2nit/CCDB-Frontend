@@ -7,6 +7,7 @@ import BarGauge from "@/components/Chart/BarGauge";
 import SqlDetailDrawer from "../Modal/SqlDetailDrawer";
 import Select from "@/components/Select/Select";
 import Checkbox from "@/components/Checkbox/Checkbox";
+import Spinner from "@/components/Spinner/Spinner";
 import { useSqlTop } from "./hooks/useSqlTop";
 
 const SqlTop = () => {
@@ -25,6 +26,7 @@ const SqlTop = () => {
     timeline,
     baseValues,
     compareValues,
+    isChartLoading,
     selectedBase,
     selectedCompare,
     setSelectedBase,
@@ -92,11 +94,15 @@ const SqlTop = () => {
 
       {/* 라인차트 */}
       <div className="sql-top__summary">
-        <LineChart
-          legends={["기준", "비교"]}
-          seriesData={[baseValues, compareValues]}
-          categories={timeline}
-        />
+        {isChartLoading ? (
+          <Spinner message="차트 데이터 불러오는 중..." />
+        ) : (
+          <LineChart
+            legends={["기준", "비교"]}
+            seriesData={[baseValues, compareValues]}
+            categories={timeline}
+          />
+        )}
       </div>
 
       {/* 테이블 */}
