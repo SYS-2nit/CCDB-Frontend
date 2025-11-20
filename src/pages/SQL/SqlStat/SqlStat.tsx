@@ -41,21 +41,16 @@ const formatToMonthDayTime = (raw: string) => {
 };
 
 const SqlStat: React.FC = () => {
-  /* 기본 날짜 범위 */
-  const getDefaultDateRange = () => {
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-
-    const toString = (d: Date) => d.toISOString().split("T")[0];
-    return { start: toString(yesterday), end: toString(today) };
-  };
-
-  /* 상세 데이터 */
+  // 상세 데이터
   const [detailData, setDetailData] = useState<SqlDetailData | null>(null);
 
-  /* 상태값 */
-  const [dateRange, setDateRange] = useState(getDefaultDateRange());
+  // 날짜
+  const [dateRange, setDateRange] = useState({
+    start: "",
+    end: "",
+  });
+
+  // 필터
   const [filter, setFilter] = useState("");
   const [interval, setInterval] = useState(30);
   const [currentPage, setCurrentPage] = useState(1);
@@ -115,9 +110,11 @@ const SqlStat: React.FC = () => {
         size: 8,
       });
 
-      if (data.content.length === 0) {
+      // Response 자체가 없거나 content가 없을 경우 처리
+      if (!data || !data.content || data.content.length === 0) {
         setNoResult(true);
         setTableData([]);
+        setTotalPages(1);
         return;
       }
 
@@ -286,9 +283,7 @@ const SqlStat: React.FC = () => {
         <div className="sql-stat__stat__summary-chart">
           Summary Chart
           {graphData.values.length === 0 ? (
-            <div className="sql-stat__chart-null">
-              그래프 데이터가 없습니다.
-            </div>
+            <div className="sql-stat__chart-null">검색 결과가 없습니다.</div>
           ) : (
             <LineChart
               legends={[`${filter} Trend`]}
@@ -302,7 +297,7 @@ const SqlStat: React.FC = () => {
       {/* 테이블 */}
       <div className="sql-stat__table">
         조회 결과
-        {noResult ? (
+        {noResult || tableData.length === 0 ? (
           <div className="sql-stat__table-null">검색 결과가 없습니다.</div>
         ) : (
           <TableChart

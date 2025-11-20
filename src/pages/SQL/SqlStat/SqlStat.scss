@@ -46,14 +46,12 @@
   // 차트 영역
   &__chart-null {
     width: 100%;
-    padding: 40px 0;
+    padding: 40px 20px;
     text-align: center;
-    color: #999;
-    font-size: 15px;
-    border: 1px dashed #dcdcdc;
-    border-radius: 8px;
+    border: 1px dashed $gray-100;
     margin-top: 10px;
-    background: #fafafa;
+    color: $gray-500;
+    background: $gray-50;
   }
 
     &__summary {
