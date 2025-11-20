@@ -115,6 +115,9 @@ const StackChart: React.FC<StackChartProps> = ({
     },
     tooltip: {
       theme: "light",
+      style: {
+        fontSize: "10px", // 툴팁 폰트 크기 조정 (기본값보다 작게)
+      },
       y: {
         formatter: (_, { dataPointIndex }) => {
           const idx = dataPointIndex;

@@ -53,12 +53,115 @@ const GRAPH_AXIS_RANGES: Record<
   // Storage
   46: { yMin: 0, yMax: 0.1 }, // x축,y축 설정 변경
   47: { yMin: 0, yMax: 5 }, // x축,y축 설정 변경
-  48: { yMin: 0, yMax: 2 }, // x축,y축 설정 변경
+  48: { xMin: 0, xMax: 2 }, // x축,y축 설정 변경
   49: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   50: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   51: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   // 52: { xMin: 0, xMax: 10 }, // x축,y축 설정 변경 ----------- GB -> MB 변경 시 0~1500 으로 변경 -- 막대
 }; // x축,y축 설정 변경
+
+// 그래프 ID별 제목 suffix 포맷터 (필요할 때만 추가)
+export const GRAPH_TITLE_SUFFIX_FORMATTERS: Record<
+  number,
+  (graph: GraphDataResponse) => string | null
+> = {
+  46: (graph: GraphDataResponse) => {
+    const sorted = sortPoints(graph);
+    if (sorted.length === 0) return null;
+    const latest = sorted[sorted.length - 1];
+
+    // 서버에서 받은 키 찾기 (대소문자 무시)
+    const findValue = (keys: string[]): number | null => {
+      for (const key of keys) {
+        const value = latest.values?.[key];
+        if (value !== null && value !== undefined) {
+          const num = typeof value === "number" ? value : Number(value);
+          return Number.isFinite(num) ? num : null;
+        }
+      }
+      return null;
+    };
+
+    const activeUsage = findValue([
+      "TEMP_ACTIVE_USAGE_GB",
+      "temp_active_usage_gb",
+    ]);
+    const currentSize = findValue([
+      "TEMP_CURRENT_SIZE_GB",
+      "temp_current_size_gb",
+    ]);
+    const maxSize = findValue(["TEMP_MAX_SIZE_GB", "temp_max_size_gb"]);
+    const usagePercent = findValue([
+      "TEMP_USAGE_PERCENT",
+      "temp_usage_percent",
+    ]);
+    const usagePctOfMax = findValue([
+      "TEMP_USAGE_PCT_OF_MAX",
+      "temp_usage_pct_of_max",
+    ]);
+
+    const formatNumber = (val: number | null): string => {
+      if (val === null) return "-";
+      return val.toFixed(1);
+    };
+
+    const parts: string[] = [];
+    if (activeUsage !== null) parts.push(`${formatNumber(activeUsage)}GB`);
+    if (currentSize !== null) parts.push(`${formatNumber(currentSize)}GB`);
+    if (maxSize !== null) parts.push(`${formatNumber(maxSize)}GB`);
+
+    const percentageParts: string[] = [];
+    if (usagePercent !== null)
+      percentageParts.push(`할당대비 ${Math.round(usagePercent)}%`);
+    if (usagePctOfMax !== null)
+      percentageParts.push(`최대대비 ${Math.round(usagePctOfMax)}%`);
+
+    if (parts.length === 0) return null;
+
+    const mainInfo = parts.join(" / ");
+    const percentageInfo =
+      percentageParts.length > 0 ? ` (${percentageParts.join(", ")})` : "";
+
+    return `${mainInfo}${percentageInfo}`;
+  },
+  49: (graph: GraphDataResponse) => {
+    const sorted = sortPoints(graph);
+    if (sorted.length === 0) return null;
+    const latest = sorted[sorted.length - 1];
+
+    // 서버에서 받은 키 찾기 (대소문자 무시)
+    const findValue = (keys: string[]): number | null => {
+      for (const key of keys) {
+        const value = latest.values?.[key];
+        if (value !== null && value !== undefined) {
+          const num = typeof value === "number" ? value : Number(value);
+          return Number.isFinite(num) ? num : null;
+        }
+      }
+      return null;
+    };
+
+    const spaceLimitGB = findValue(["SPACE_LIMIT_GB", "space_limit_gb"]);
+    const spaceUsedGB = findValue(["SPACE_USED_GB", "space_used_gb"]);
+
+    // 값이 없으면 null 반환
+    if (spaceLimitGB === null && spaceUsedGB === null) return null;
+
+    // 정수로 포맷팅 (소수점 제거)
+    const formatInteger = (val: number | null): string => {
+      if (val === null) return "-";
+      return Math.round(val).toString();
+    };
+
+    const parts: string[] = [];
+    if (spaceUsedGB !== null) parts.push(`${formatInteger(spaceUsedGB)} GB`);
+    if (spaceLimitGB !== null) parts.push(`${formatInteger(spaceLimitGB)} GB`);
+
+    if (parts.length === 0) return null;
+
+    return parts.join(" / ");
+  },
+};
 
 const ensureNumber = (value: unknown): number | null => {
   if (value === null || value === undefined) return null;
@@ -557,7 +660,11 @@ const renderLine = (
 const renderStack = (
   graph: GraphDataResponse,
   labels: string[],
-  keys: string[]
+  keys: string[],
+  tooltipFormatter?: (
+    data: { used: number; total: number; percent: number },
+    index: number
+  ) => string
 ) => {
   const sorted = sortPoints(graph);
   if (sorted.length === 0) return null;
@@ -587,6 +694,7 @@ const renderStack = (
       total={totals}
       xMin={axisRange?.xMin} // x축,y축 설정 변경
       xMax={axisRange?.xMax} // x축,y축 설정 변경
+      tooltipFormatter={tooltipFormatter}
       colorRules={[
         { min: 0, max: 69, color: "#22C55E" },
         { min: 70, max: 84, color: "#FACC15" },
@@ -1411,16 +1519,61 @@ export const renderDynamicChart = (
   //                system_used_space_gb_inc, sysaux_used_space_gb_inc, undotbs1_used_space_gb_inc, users_used_space_gb_inc
 
   if (graph.id === 48) {
-    return renderStack(
-      graph,
-      ["SYSTEM", "SYSAUX", "UNDOTBS1", "USERS"],
-      [
-        "system_used_space_gb_inc",
-        "sysaux_used_space_gb_inc",
-        "undotbs1_used_space_gb_inc",
-        "users_used_space_gb_inc",
-      ]
-    );
+    const sorted = sortPoints(graph);
+    if (sorted.length === 0) return null;
+    const latest = sorted[sorted.length - 1];
+    const availableKeys = Object.keys(latest.values ?? {});
+
+    // labels를 가져올 키들 찾기 (endsWith 사용)
+    const labelKeys = availableKeys
+      .filter((k) => k.toLowerCase().endsWith("_tablespace_name_inc"))
+      .sort();
+    const labels = labelKeys.map((k) => String(latest.values?.[k] ?? ""));
+
+    // values를 가져올 키들 찾기 (endsWith 사용)
+    const valueKeys = availableKeys
+      .filter((k) => k.toLowerCase().endsWith("_used_space_gb_inc"))
+      .sort();
+
+    // labelKeys와 valueKeys를 매칭하여 함께 정렬
+    const pairs = labelKeys
+      .map((labelKey, index) => {
+        // 같은 숫자 접두사를 가진 valueKey 찾기
+        const labelPrefix = labelKey.match(/^(.+)_tablespace_name_inc$/)?.[1];
+        const valueKey = valueKeys.find(
+          (vk) =>
+            vk.toLowerCase() ===
+            `${labelPrefix}_used_space_gb_inc`.toLowerCase()
+        );
+        return {
+          labelKey,
+          valueKey: valueKey || "",
+          value: ensureNumber(latest.values?.[valueKey || ""]) ?? 0,
+          label: String(latest.values?.[labelKey] ?? ""),
+        };
+      })
+      .filter((pair) => pair.valueKey); // valueKey가 있는 것만 필터링
+
+    // 값 기준으로 내림차순 정렬 (높은 값이 위로)
+    pairs.sort((a, b) => b.value - a.value);
+
+    // 정렬 후 labels와 valueKeys 분리
+    const sortedLabels = pairs.map((pair) => pair.label);
+    const sortedValueKeys = pairs.map((pair) => pair.valueKey);
+
+    // tooltipFormatter 생성
+    const tooltipFormatter = ({
+      used,
+    }: {
+      used: number;
+      total: number;
+      percent: number;
+    }) => {
+      // 소수점 둘째자리까지 반올림하고 " %" 붙이기
+      return `${used.toFixed(2)} GB`;
+    };
+
+    return renderStack(graph, sortedLabels, sortedValueKeys, tooltipFormatter);
   }
 
   // Graph ID 49: FRA 사용률 추세 (%)
@@ -1508,7 +1661,16 @@ export const renderDynamicChart = (
       .filter((k) => k.toLowerCase().startsWith("top_sql_by_cpu_value_"))
       .sort();
 
-    return renderStack(graph, labels, valueKeys);
+    // tooltipFormatter 생성
+    const tooltipFormatter = (
+      { used }: { used: number; total: number; percent: number },
+      index: number
+    ) => {
+      // 소수점 둘째자리까지 반올림하고 " ms" 붙이기
+      return `${used.toFixed(2)} ms`;
+    };
+
+    return renderStack(graph, labels, valueKeys, tooltipFormatter);
   }
 
   if (graph.id === 28) {
@@ -1532,7 +1694,20 @@ export const renderDynamicChart = (
       )
       .sort();
 
-    return renderStack(graph, labels, valueKeys);
+    // tooltipFormatter 생성
+    const tooltipFormatter = ({
+      used,
+    }: {
+      used: number;
+      total: number;
+      percent: number;
+    }) => {
+      // 1,048,576으로 나누고 소수점 둘째자리까지 반올림
+      const mbValue = used / 1_048_576;
+      return `${mbValue.toFixed(3)} MB`;
+    };
+
+    return renderStack(graph, labels, valueKeys, tooltipFormatter);
   }
 
   if (graph.id === 36) {
@@ -1613,7 +1788,45 @@ export const renderDynamicChart = (
       .filter((k) => k.toLowerCase().endsWith("_data_io_share_pct"))
       .sort();
 
-    return renderStack(graph, labels, valueKeys);
+    // tooltipFormatter 생성
+    const tooltipFormatter = (
+      { used }: { used: number; total: number; percent: number },
+      index: number
+    ) => {
+      // 해당 index의 labelKey에서 숫자 추출 (예: "1_data_tablespace_name" -> "1")
+      const labelKey = labelKeys[index];
+      if (!labelKey) return "";
+
+      // 숫자 부분 추출 (키의 시작 부분에서 숫자만)
+      const match = labelKey.match(/^(\d+)_/);
+      if (!match) return "";
+
+      const numberPrefix = match[1];
+
+      // 같은 숫자로 시작하는 file_name 키 찾기
+      const fileNameKey = availableKeys.find(
+        (k) =>
+          k.toLowerCase() === `${numberPrefix}_data_file_name`.toLowerCase()
+      );
+
+      // io_share_pct 값 (used가 이미 해당 값)
+      const ioSharePct = used;
+
+      // file_name 값 가져오기
+      const fileName = fileNameKey
+        ? String(latest.values?.[fileNameKey] ?? "")
+        : "";
+
+      // 파일 경로에서 파일명만 추출 (마지막 '/' 이후 부분)
+      const fileNameOnly = fileName
+        ? fileName.split("/").pop() || fileName
+        : "";
+
+      // 포맷팅: (35.3 %) , 파일 이름 : undotbs01.dbf
+      return `(${ioSharePct.toFixed(1)} %) , 파일 이름 : ${fileNameOnly}`;
+    };
+
+    return renderStack(graph, labels, valueKeys, tooltipFormatter);
   }
   // 5_tablespace_name_seg,1_size_gb_seg
   if (graph.id === 52) {
@@ -1665,7 +1878,10 @@ export const renderDynamicChart = (
       (point) => ensureNumber(point.values?.[dbwrKey]) ?? 0
     );
     const lineData = sorted.map(
-      (point) => ensureNumber(point.values?.[secondKey]) ?? 0
+      (point) => {
+        const value = ensureNumber(point.values?.[secondKey]) ?? 0;
+        return parseFloat(value.toFixed(2)); // 소수점 2자리까지 반올림
+      }
     );
 
     return (

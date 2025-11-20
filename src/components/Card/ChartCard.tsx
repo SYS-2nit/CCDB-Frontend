@@ -7,7 +7,10 @@ import InfoIcon from "@/assets/general/info.svg";
 import DragIcon from "@/assets/general/drag.svg";
 import { getChartByTitle } from "./utils/getChartByTitle";
 import { useDashboardContext, type DashboardMode } from "@/state/DashboardContext";
-import { renderDynamicChart } from "./utils/renderDynamicChart";
+import {
+  renderDynamicChart,
+  GRAPH_TITLE_SUFFIX_FORMATTERS,
+} from "./utils/renderDynamicChart";
 import type { GraphDataResponse } from "@/api/dashboard";
 
 interface ChartCardProps {
@@ -62,12 +65,34 @@ const ChartCard: React.FC<ChartCardProps> = ({
     bodyContent = getChartByTitle(title, graphData, mode);
   }
 
+  // 그래프별 제목 suffix 가져오기 (최소 수정)
+  const titleSuffix =
+    graphData &&
+    graphData.id &&
+    GRAPH_TITLE_SUFFIX_FORMATTERS[graphData.id]
+      ? GRAPH_TITLE_SUFFIX_FORMATTERS[graphData.id](graphData)
+      : null;
+
   return (
     <div className={`chart-card ${status}`}>
       <div className="chart-card__header">
         <div className="chart-card__left">
           {showDragIcon && <img src={DragIcon} alt="Drag" />}
-          <span className="chart-card__title">{title}</span>
+          <span className="chart-card__title">
+            {title}
+            {titleSuffix && (
+              <span
+                style={{
+                  fontSize: "11px",
+                  color: "#666",
+                  marginLeft: "12px",
+                  fontWeight: "normal",
+                }}
+              >
+                {titleSuffix}
+              </span>
+            )}
+          </span>
           <img src={StatusIcon} alt={status} />
         </div>
         <div className="chart-card__right">
