@@ -16,11 +16,8 @@ import { buildTimeline, mapValuesToTimeline } from "../components/timeline";
 // 상태 + 데이터 로직 담당 Custom Hook
 export const useSqlTop = () => {
   /* 날짜 */
-  const today = new Date().toISOString().split("T")[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-
-  const [startDate, setStartDate] = useState(today);
-  const [compareDate, setCompareDate] = useState(yesterday);
+  const [startDate, setStartDate] = useState("");
+  const [compareDate, setCompareDate] = useState("");
 
   /* 필터 & Interval */
   const [filter, setFilter] = useState("");
@@ -68,7 +65,12 @@ export const useSqlTop = () => {
   };
 
   useEffect(() => {
-    loadCompareList();
+    if (startDate && compareDate && filter) {
+      loadCompareList();
+    } else {
+      setBaseList([]);
+      setCompareList([]);
+    }
   }, [startDate, compareDate, filter, interval]);
 
   /* 기간 그래프 */
@@ -104,7 +106,13 @@ export const useSqlTop = () => {
   };
 
   useEffect(() => {
-    loadPeriodGraph();
+    if (startDate && compareDate && filter) {
+      loadPeriodGraph();
+    } else {
+      setTimeline([]);
+      setBaseValues([]);
+      setCompareValues([]);
+    }
   }, [startDate, compareDate, filter, interval]);
 
   /* 상세 */

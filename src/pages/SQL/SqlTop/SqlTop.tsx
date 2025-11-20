@@ -96,6 +96,8 @@ const SqlTop = () => {
       <div className="sql-top__summary">
         {isChartLoading ? (
           <Spinner message="차트 데이터 불러오는 중..." />
+        ) : baseValues.length === 0 && compareValues.length === 0 ? (
+          <div className="sql-stat__chart-null">검색 결과가 없습니다.</div>
         ) : (
           <LineChart
             legends={["기준", "비교"]}
@@ -115,35 +117,39 @@ const SqlTop = () => {
             </div>
           </div>
 
-          <TableChart
-            columns={[
-              { key: "check", label: "check" },
-              { key: "rankChanged", label: "rank changed" },
-              { key: "ratio", label: "ratio" },
-              { key: "exec", label: metricLabel },
-              { key: "hash", label: "SQL ID" },
-              { key: "query", label: "query" },
-            ]}
-            rows={baseList.map((row) => [
-              <Checkbox
-                size="sm"
-                checked={selectedBase === row.sqlId}
-                onChange={() =>
-                  setSelectedBase(selectedBase === row.sqlId ? null : row.sqlId)
-                }
-              />,
-              row.rankChanged,
-              <BarGauge value={row.ratio} />,
-              row.exec,
-              row.sqlId,
-              <span
-                className="sql-top__query-link"
-                onClick={() => handleBaseRowClick(row)}
-              >
-                {row.query}
-              </span>,
-            ])}
-          />
+          {baseList.length === 0 ? (
+            <div className="sql-stat__table-null">검색 결과가 없습니다.</div>
+          ) : (
+            <TableChart
+              columns={[
+                { key: "check", label: "check" },
+                { key: "rankChanged", label: "rank changed" },
+                { key: "ratio", label: "ratio" },
+                { key: "exec", label: metricLabel },
+                { key: "hash", label: "SQL ID" },
+                { key: "query", label: "query" },
+              ]}
+              rows={baseList.map((row) => [
+                <Checkbox
+                  size="sm"
+                  checked={selectedBase === row.sqlId}
+                  onChange={() =>
+                    setSelectedBase(selectedBase === row.sqlId ? null : row.sqlId)
+                  }
+                />,
+                row.rankChanged,
+                <BarGauge value={row.ratio} />,
+                row.exec,
+                row.sqlId,
+                <span
+                  className="sql-top__query-link"
+                  onClick={() => handleBaseRowClick(row)}
+                >
+                  {row.query}
+                </span>,
+              ])}
+            />
+          )}
         </div>
 
         {/* 비교 table */}
@@ -162,35 +168,39 @@ const SqlTop = () => {
             />
           </div>
 
-          <TableChart
-            columns={[
-              { key: "check", label: "check" },
-              { key: "ratio", label: "ratio" },
-              { key: "exec", label: metricLabel },
-              { key: "hash", label: "SQL ID" },
-              { key: "query", label: "query" },
-            ]}
-            rows={compareList.map((row) => [
-              <Checkbox
-                size="sm"
-                checked={selectedCompare === row.sqlId}
-                onChange={() =>
-                  setSelectedCompare(
-                    selectedCompare === row.sqlId ? null : row.sqlId
-                  )
-                }
-              />,
-              <BarGauge value={row.ratio} />,
-              row.exec,
-              row.sqlId,
-              <span
-                className="sql-top__query-link"
-                onClick={() => handleCompareRowClick(row)}
-              >
-                {row.query}
-              </span>,
-            ])}
-          />
+          {compareList.length === 0 ? (
+            <div className="sql-stat__table-null">검색 결과가 없습니다.</div>
+          ) : (
+            <TableChart
+              columns={[
+                { key: "check", label: "check" },
+                { key: "ratio", label: "ratio" },
+                { key: "exec", label: metricLabel },
+                { key: "hash", label: "SQL ID" },
+                { key: "query", label: "query" },
+              ]}
+              rows={compareList.map((row) => [
+                <Checkbox
+                  size="sm"
+                  checked={selectedCompare === row.sqlId}
+                  onChange={() =>
+                    setSelectedCompare(
+                      selectedCompare === row.sqlId ? null : row.sqlId
+                    )
+                  }
+                />,
+                <BarGauge value={row.ratio} />,
+                row.exec,
+                row.sqlId,
+                <span
+                  className="sql-top__query-link"
+                  onClick={() => handleCompareRowClick(row)}
+                >
+                  {row.query}
+                </span>,
+              ])}
+            />
+          )}
         </div>
       </div>
 
