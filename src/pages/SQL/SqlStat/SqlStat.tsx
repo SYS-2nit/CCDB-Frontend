@@ -394,6 +394,7 @@ const SqlStat: React.FC = () => {
                 }
                 return true;
               }}
+              height={300}
             />
           )}
         </div>
