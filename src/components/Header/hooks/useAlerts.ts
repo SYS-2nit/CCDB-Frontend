@@ -9,11 +9,10 @@ import {
 } from "@/api/alerts";
 
 interface UseAlertsOptions {
-  memberId: number;
   showPanel: boolean;
 }
 
-export const useAlerts = ({ memberId, showPanel }: UseAlertsOptions) => {
+export const useAlerts = ({ showPanel }: UseAlertsOptions) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [alerts, setAlerts] = useState<EventResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,12 +20,12 @@ export const useAlerts = ({ memberId, showPanel }: UseAlertsOptions) => {
   // 알림 개수 갱신
   const loadUnreadCount = useCallback(async () => {
     try {
-      const count = await fetchUnreadAlertCount(memberId);
+      const count = await fetchUnreadAlertCount();
       setUnreadCount(count);
     } catch (error) {
       console.error("[useAlerts] 알림 개수 조회 실패:", error);
     }
-  }, [memberId]);
+  }, []);
 
   // 알림 목록 갱신 (안읽음만)
   const loadAlertsList = useCallback(async () => {
@@ -34,7 +33,7 @@ export const useAlerts = ({ memberId, showPanel }: UseAlertsOptions) => {
 
     setIsLoading(true);
     try {
-      const result = await fetchPendingAlerts(memberId, 0, 20);
+      const result = await fetchPendingAlerts(0, 20);
       const unreadAlerts = result.content.filter((alert) => !isEventRead(alert));
       setAlerts(unreadAlerts);
     } catch (error) {
@@ -43,7 +42,7 @@ export const useAlerts = ({ memberId, showPanel }: UseAlertsOptions) => {
     } finally {
       setIsLoading(false);
     }
-  }, [showPanel, memberId]);
+  }, [showPanel]);
 
   // 알림 클릭 시 읽음 처리
   const handleAlertClick = useCallback(
@@ -51,14 +50,14 @@ export const useAlerts = ({ memberId, showPanel }: UseAlertsOptions) => {
       if (isEventRead(alert)) return;
 
       try {
-        await acknowledgeEvent(alert.id, memberId);
+        await acknowledgeEvent(alert.id);
         setAlerts((prev) => prev.filter((a) => a.id !== alert.id));
         loadUnreadCount();
       } catch (error) {
         console.error("[useAlerts] 알림 읽음 처리 실패:", error);
       }
     },
-    [memberId, loadUnreadCount]
+    [loadUnreadCount]
   );
 
   // 알림 개수 조회 (초기 + 10초마다)
@@ -75,7 +74,7 @@ export const useAlerts = ({ memberId, showPanel }: UseAlertsOptions) => {
 
     const connectToSSE = () => {
       try {
-        eventSource = connectSSE(memberId);
+        eventSource = connectSSE();
 
         eventSource.addEventListener("connected", () => {
           console.log("[useAlerts] SSE 연결 성공");
@@ -134,7 +133,7 @@ export const useAlerts = ({ memberId, showPanel }: UseAlertsOptions) => {
         console.log("[useAlerts] SSE 연결 종료");
       }
     };
-  }, [memberId, showPanel, loadUnreadCount]);
+  }, [showPanel, loadUnreadCount]);
 
   // 패널 열릴 때 알림 목록 조회
   useEffect(() => {

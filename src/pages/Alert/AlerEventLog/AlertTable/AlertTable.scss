@@ -1,78 +1,99 @@
-.alert-table__wrapper {
+// 이벤트 기록 페이지 전용 - 고유한 클래스명으로 격리
+// 다른 페이지의 table-chart 스타일과 충돌하지 않도록 독립적으로 관리
+.alert-event-log-table {
   width: 100%;
   
-  // 테이블 컬럼 너비 조정
-  :global(.table-chart) {
-    // table-layout: fixed;
+  // :global() 없이 직접 선택자 사용 - 이 클래스 안에서만 table-chart 스타일 적용
+  .table-chart__wrapper {
+    width: 100%;
     
-    th:nth-child(1), // 번호
-    td:nth-child(1) {
-      width: 60px;
-      min-width: 60px;
-      max-width: 60px;
-    }
-    
-    th:nth-child(2), // 처리 내역
-    td:nth-child(2) {
-      width: 100px;
-      min-width: 100px;
-      max-width: 100px;
-    }
-    
-    th:nth-child(3), // 상태
-    td:nth-child(3) {
-      width: 80px;
-      min-width: 80px;
-      max-width: 80px;
-    }
-    
-    th:nth-child(4), // 읽음
-    td:nth-child(4) {
-      width: 80px;
-      min-width: 80px;
-      max-width: 80px;
-    }
-    
-    th:nth-child(5), // 심각도
-    td:nth-child(5) {
-      width: 100px;
-      min-width: 100px;
-      max-width: 100px;
-    }
-    
-    th:nth-child(6), // 카테고리
-    td:nth-child(6) {
-      width: 100px;
-      min-width: 100px;
-      max-width: 100px;
-    }
-    
-    th:nth-child(7), // 메시지
-    td:nth-child(7) {
-      width: auto; // 나머지 공간 차지
-      min-width: 200px;
-    }
-    
-    th:nth-child(8), // 인스턴스 ID
-    td:nth-child(8) {
-      width: 100px;
-      min-width: 100px;
-      max-width: 100px;
-    }
-    
-    th:nth-child(9), // 발생시간
-    td:nth-child(9) {
-      width: 150px;
-      min-width: 150px;
-      max-width: 150px;
-    }
-    
-    // 메시지 컬럼은 텍스트가 길어도 줄바꿈 허용
-    td:nth-child(7) {
-      white-space: normal;
-      word-break: break-word;
-      text-align: left;
-      padding: 8px 12px;
+    .table-chart {
+      // table-layout: fixed;
+      
+      // 기본 설정 - 텍스트 잘림 방지
+      th, td {
+        overflow: visible;
+        text-overflow: clip;
+      }
+      
+      th:nth-child(1), // 번호
+      td:nth-child(1) {
+        width: 60px;
+        min-width: 60px;
+        max-width: 60px;
+        white-space: nowrap;
+      }
+      
+      th:nth-child(2), // 처리 내역
+      td:nth-child(2) {
+        width: 140px;
+        min-width: 140px;
+        max-width: 140px;
+        white-space: nowrap;
+      }
+      
+      th:nth-child(3), // 상태
+      td:nth-child(3) {
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+        white-space: nowrap;
+      }
+      
+      th:nth-child(4), // 읽음
+      td:nth-child(4) {
+        width: 110px;
+        min-width: 110px;
+        max-width: 110px;
+        white-space: nowrap;
+      }
+      
+      th:nth-child(5), // 심각도
+      td:nth-child(5) {
+        width: 130px;
+        min-width: 130px;
+        max-width: 130px;
+        white-space: nowrap;
+      }
+      
+      th:nth-child(6), // 카테고리
+      td:nth-child(6) {
+        width: 130px;
+        min-width: 130px;
+        max-width: 130px;
+        white-space: nowrap;
+      }
+      
+      th:nth-child(7), // 메시지
+      td:nth-child(7) {
+        width: auto; // 나머지 공간 차지
+        min-width: 250px;
+        white-space: normal; // 메시지만 줄바꿈 허용
+        word-break: break-word;
+        text-align: center;
+        padding: 8px 12px;
+      }
+      
+      th:nth-child(8), // 인스턴스 ID
+      td:nth-child(8) {
+        width: 100px;
+        min-width: 100px;
+        max-width: 100px;
+        white-space: nowrap;
+      }
+      
+      th:nth-child(9), // 발생시간
+      td:nth-child(9) {
+        width: 160px;
+        min-width: 160px;
+        max-width: 160px;
+        white-space: nowrap;
+      }
     }
   }
+}
+
+// 기존 클래스명 유지 (하위 호환성)
+.alert-table__wrapper {
+  width: 100%;
 }

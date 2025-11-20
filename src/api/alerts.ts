@@ -102,7 +102,7 @@ export interface Page<T> {
 // ==================== Request Types ====================
 
 export interface AlertPolicyCreateRequest {
-  memberId: number;
+  // memberId 제거 - 백엔드가 기본값 1 사용
   instanceId: number;
   name: string;
   description?: string | null;
@@ -174,9 +174,7 @@ const ALERTS_ENDPOINT = "/api/alerts";
  * 안읽음 알림 개수 조회 (acknowledgedAt이 null인 알림)
  * 백엔드에서 acknowledgedAt 필터를 지원하지 않을 경우, 클라이언트에서 필터링
  */
-export const fetchUnreadAlertCount = async (
-  memberId: number,
-): Promise<number> => {
+export const fetchUnreadAlertCount = async (): Promise<number> => {
   try {
     // 전체 알림 조회 후 클라이언트에서 필터링
     // (백엔드에서 acknowledgedAt 필터를 지원하면 params에 추가 가능)
@@ -184,7 +182,7 @@ export const fetchUnreadAlertCount = async (
       `${ALERTS_ENDPOINT}/events`,
       {
         params: {
-          memberId,
+          // memberId 제거 - 백엔드가 기본값 1 사용
           page: 0,
           size: 1000, // 충분히 큰 값으로 설정 (또는 백엔드에서 카운트만 반환하는 API 사용)
         },
@@ -206,7 +204,6 @@ export const fetchUnreadAlertCount = async (
  * 참고: 읽음/안읽음은 acknowledgedAt 필드로 판단
  */
 export const fetchPendingAlerts = async (
-  memberId: number,
   page: number = 0,
   size: number = 20,
 ): Promise<Page<EventResponse>> => {
@@ -214,7 +211,7 @@ export const fetchPendingAlerts = async (
     `${ALERTS_ENDPOINT}/events`,
     {
       params: {
-        memberId,
+        // memberId 제거 - 백엔드가 기본값 1 사용
         status: "PENDING",
         page,
         size,
@@ -257,7 +254,7 @@ export const fetchAlerts = async (
  * PDF 다운로드를 위한 알림 이벤트 필터 요청 타입
  */
 export interface AlertExportPDFRequest {
-  memberId: number;
+  // memberId 제거 - 백엔드가 기본값 1 사용
   filters: {
     category?: string;
     startDate?: string;
@@ -313,9 +310,9 @@ export const fetchEventHistories = async (
 /**
  * SSE 실시간 알림 연결
  */
-export const connectSSE = (userId: number): EventSource => {
+export const connectSSE = (): EventSource => {
   const baseURL = import.meta.env.VITE_API_BASE_URL || "";
-  const url = `${baseURL}${ALERTS_ENDPOINT}/sse/stream?userId=${userId}`;
+  const url = `${baseURL}${ALERTS_ENDPOINT}/sse/stream`; // userId 쿼리 파라미터 제거 - 백엔드가 기본값 1 사용
   return new EventSource(url);
 };
 
@@ -323,11 +320,10 @@ export const connectSSE = (userId: number): EventSource => {
  * 알림 정책 목록 조회
  */
 export const fetchPolicies = async (
-  memberId?: number,
   instanceId?: number,
 ): Promise<AlertPolicyResponse[]> => {
   const params: Record<string, number> = {};
-  if (memberId !== undefined) params.memberId = memberId;
+  // memberId 제거 - 백엔드가 기본값 1 사용
   if (instanceId !== undefined) params.instanceId = instanceId;
 
   const response = await api.get<ApiResponse<AlertPolicyResponse[]>>(
@@ -458,13 +454,13 @@ export interface NotificationTestRequest {
 /**
  * 회원 알림 설정 조회
  */
-export const fetchNotificationSettings = async (
-  memberId: number,
-): Promise<NotificationSettingsResponse> => {
-  console.log(`[fetchNotificationSettings] memberId=${memberId} 조회 시작`);
+export const fetchNotificationSettings = async (): Promise<NotificationSettingsResponse> => {
+  console.log(`[fetchNotificationSettings] 조회 시작`);
   try {
+    // URL에서 memberId 제거 - 백엔드가 기본값 1 사용
+    // 백엔드 API가 /api/members/notification-settings 형태로 변경되어야 함
     const response = await api.get<ApiResponse<NotificationSettingsResponse>>(
-      `/api/members/${memberId}/notification-settings`,
+      `/api/members/notification-settings`,
     );
     console.log(`[fetchNotificationSettings] 응답:`, response.data);
     return response.data.data!;
@@ -479,11 +475,12 @@ export const fetchNotificationSettings = async (
  * 회원 알림 설정 저장
  */
 export const updateNotificationSettings = async (
-  memberId: number,
   payload: NotificationSettingsUpdateRequest,
 ): Promise<NotificationSettingsResponse> => {
+  // URL에서 memberId 제거 - 백엔드가 기본값 1 사용
+  // 백엔드 API가 /api/members/notification-settings 형태로 변경되어야 함
   const response = await api.put<ApiResponse<NotificationSettingsResponse>>(
-    `/api/members/${memberId}/notification-settings`,
+    `/api/members/notification-settings`,
     payload,
   );
   return response.data.data!;
@@ -493,11 +490,12 @@ export const updateNotificationSettings = async (
  * 알림 테스트 전송
  */
 export const testNotification = async (
-  memberId: number,
   payload: NotificationTestRequest,
 ): Promise<string> => {
+  // URL에서 memberId 제거 - 백엔드가 기본값 1 사용
+  // 백엔드 API가 /api/members/notification-settings/test 형태로 변경되어야 함
   const response = await api.post<ApiResponse<string>>(
-    `/api/members/${memberId}/notification-settings/test`,
+    `/api/members/notification-settings/test`,
     payload,
   );
   return response.data.data!;
@@ -579,12 +577,11 @@ export const toggleEvent = async (
  */
 export const acknowledgeEvent = async (
   id: number,
-  memberId: number,
   message?: string,
 ): Promise<EventResponse> => {
   const response = await api.post<ApiResponse<EventResponse>>(
     `${ALERTS_ENDPOINT}/events/${id}/acknowledge`,
-    { memberId, message } as EventAcknowledgeRequest,
+    { message } as Omit<EventAcknowledgeRequest, "memberId">, // memberId 제거 - 백엔드가 기본값 1 사용
   );
   return response.data.data!;
 };
@@ -594,12 +591,11 @@ export const acknowledgeEvent = async (
  */
 export const resolveEvent = async (
   id: number,
-  memberId: number,
   message?: string,
 ): Promise<EventResponse> => {
   const response = await api.post<ApiResponse<EventResponse>>(
     `${ALERTS_ENDPOINT}/events/${id}/resolve`,
-    { memberId, message } as EventResolveRequest,
+    { message } as Omit<EventResolveRequest, "memberId">, // memberId 제거 - 백엔드가 기본값 1 사용
   );
   return response.data.data!;
 };
@@ -621,12 +617,11 @@ export const unacknowledgeEvent = async (
  */
 export const addHistory = async (
   eventId: number,
-  memberId: number,
   content: string,
 ): Promise<ProgressHistoryResponse> => {
   const response = await api.post<ApiResponse<ProgressHistoryResponse>>(
     `${ALERTS_ENDPOINT}/events/${eventId}/history`,
-    { memberId, content } as ProgressHistoryCreateRequest,
+    { content } as Omit<ProgressHistoryCreateRequest, "memberId">, // memberId 제거 - 백엔드가 기본값 1 사용
   );
   return response.data.data!;
 };

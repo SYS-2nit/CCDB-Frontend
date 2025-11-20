@@ -251,7 +251,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     }
 
     try {
-      const memberId = 3; // TODO: 실제 사용자 ID로 변경
+      // memberId 제거 - 백엔드가 기본값 1 사용
 
       // frequency를 DelayTime으로 변환
       const frequencyToDelayTime = (frequency: string): DelayTime => {
@@ -332,7 +332,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
 
       // 정책 생성 요청
       const policyRequest: AlertPolicyCreateRequest = {
-        memberId,
+        // memberId 제거 - 백엔드가 기본값 1 사용
         instanceId: selectedInstanceId,
         name: policyName.trim(),
         description: null,

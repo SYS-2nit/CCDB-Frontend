@@ -40,7 +40,7 @@ const AlertTable: React.FC<AlertTableProps> = ({
   const [histories, setHistories] = useState<ProgressHistoryResponse[]>([]);
   const [historyContent, setHistoryContent] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const memberId = 3; // 실제 사용자 ID
+  // memberId 제거 - 백엔드가 기본값 1 사용
 
   // 심각도 DOT 컴포넌트
   const SeverityDot: React.FC<{ severity: AlertLevel }> = ({ severity }) => {
@@ -108,7 +108,7 @@ const AlertTable: React.FC<AlertTableProps> = ({
     setIsSubmitting(true);
     try {
       // 처리 내역 추가 (백엔드에서 자동으로 status를 CLOSED로 변경하고 resolvedAt, resolvedBy 설정)
-      await addHistory(selectedEventId, memberId, historyContent);
+      await addHistory(selectedEventId, historyContent);
 
       // 처리내역 목록 새로고침
       const newHistories = await fetchEventHistories(selectedEventId);
@@ -142,7 +142,7 @@ const AlertTable: React.FC<AlertTableProps> = ({
         await unacknowledgeEvent(alert.id);
       } else {
         // 안읽음 → 읽음
-        await acknowledgeEvent(alert.id, memberId);
+        await acknowledgeEvent(alert.id);
       }
 
       // 알림 목록 새로고침
@@ -280,7 +280,7 @@ const AlertTable: React.FC<AlertTableProps> = ({
   }));
 
   return (
-    <div className="alert-table__wrapper" style={{ display: "flex", flexDirection: "column", minHeight: "650px" }}>
+    <div className="alert-table__wrapper alert-event-log-table" style={{ display: "flex", flexDirection: "column", minHeight: "650px" }}>
       <div style={{ flex: 1, minHeight: "550px", display: "flex", flexDirection: "column" }}>
         <div style={{ flex: 1, overflow: "auto" }}>
           <TableChart columns={columns} rows={rows} size="md" />

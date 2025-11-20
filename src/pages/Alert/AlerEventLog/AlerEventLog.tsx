@@ -16,7 +16,7 @@ import {
 } from "@/api/alerts";
 
 const AlerEventLog: React.FC = () => {
-  const memberId = 3; // 기본 사용자 ID
+  // memberId 제거 - 백엔드가 기본값 1 사용
 
   // 필터 상태
   const [category, setCategory] = useState("");
@@ -44,13 +44,12 @@ const AlerEventLog: React.FC = () => {
       // 클라이언트 사이드 필터링을 위해 전체 데이터를 가져옴
       // (카테고리, 날짜, 읽음/안읽음 필터가 클라이언트 사이드에서 처리되므로)
       const params: {
-        memberId: number;
         status?: AlertStatus;
         severity?: AlertLevel;
         page: number;
         size: number;
       } = {
-        memberId,
+        // memberId 제거 - 백엔드가 기본값 1 사용
         page: 0, // 전체 데이터를 가져오기 위해 첫 페이지부터
         size: 1000, // 충분히 큰 값으로 설정 (또는 백엔드에서 전체 데이터 조회 API 사용)
       };
@@ -132,7 +131,7 @@ const AlerEventLog: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [memberId, status, severity, page, category, startDate, endDate, readStatus, pageSize]);
+  }, [status, severity, page, category, startDate, endDate, readStatus, pageSize]);
 
   // 필터 변경 시 페이지를 0으로 리셋
   useEffect(() => {
@@ -250,7 +249,7 @@ const AlerEventLog: React.FC = () => {
 
       // 백엔드에서 PDF 생성 요청
       const blob = await exportAlertsToPDF({
-        memberId,
+        // memberId 제거 - 백엔드가 기본값 1 사용
         filters,
         includeGraphs: true,
         graphTimeRange: 5, // 발생 시간 전후 5분

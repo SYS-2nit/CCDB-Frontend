@@ -13,7 +13,6 @@ interface AlertPanelProps {
   isLoading: boolean;
   onAlertClick: (alert: EventResponse) => Promise<void>;
   formatTimeAgo: (createdAt: string) => string;
-  memberId: number;
   loadUnreadCount: () => Promise<void>;
 }
 
@@ -23,7 +22,6 @@ const AlertPanel = ({
   isLoading,
   onAlertClick,
   formatTimeAgo,
-  memberId,
   loadUnreadCount,
 }: AlertPanelProps) => {
   const navigate = useNavigate();
@@ -33,7 +31,7 @@ const AlertPanel = ({
     try {
       // 1. 알림 읽음 처리 (실패해도 페이지 이동은 진행)
       try {
-        await acknowledgeEvent(alert.id, memberId);
+        await acknowledgeEvent(alert.id);
         // 알림 읽음 처리 후 즉시 개수 갱신
         await loadUnreadCount();
       } catch (error) {

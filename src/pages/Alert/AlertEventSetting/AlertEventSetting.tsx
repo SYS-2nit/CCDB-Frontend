@@ -31,7 +31,7 @@ interface Policy {
 
 
 const AlertEventSetting: React.FC = () => {
-  const memberId = 3; // 기본 사용자 ID
+  // memberId 제거 - 백엔드가 기본값 1 사용
   const [isReceiveModal, setIsReceiveModal] = useState(false);
   const [notificationSettings, setNotificationSettings] = useState<{
     email: string;
@@ -82,9 +82,9 @@ const AlertEventSetting: React.FC = () => {
   const loadNotificationSettings = async () => {
     setIsLoadingSettings(true);
     try {
-      console.log(`[AlertEventSetting] 알림 설정 조회 시작: memberId=${memberId}`);
+      console.log(`[AlertEventSetting] 알림 설정 조회 시작`);
       // 항상 DB에서 최신 값 조회
-      const settings = await fetchNotificationSettings(memberId);
+      const settings = await fetchNotificationSettings();
       console.log("[AlertEventSetting] 알림 설정 조회 성공:", settings);
       const loadedSettings = {
         email: settings.email || "",
@@ -129,7 +129,7 @@ const AlertEventSetting: React.FC = () => {
         return null;
       };
 
-      await updateNotificationSettings(memberId, {
+      await updateNotificationSettings({
         email: originalSettings.email || null,
         slackAddress: originalSettings.slackAddress || null,
         warningChannel: convertChannel(originalSettings.warningChannel),
@@ -161,7 +161,7 @@ const AlertEventSetting: React.FC = () => {
         return null;
       };
 
-      await updateNotificationSettings(memberId, {
+      await updateNotificationSettings({
         email: notificationSettings.email || null,
         slackAddress: notificationSettings.slackAddress || null,
         warningChannel: convertChannel(notificationSettings.warningChannel),
@@ -219,7 +219,7 @@ const AlertEventSetting: React.FC = () => {
       // 테스트 전에 임시 저장 (입력한 값으로 DB 업데이트)
       // 백엔드 API가 DB의 값을 사용하므로 테스트를 위해 임시 저장 필요
       console.log("[AlertEventSetting] 테스트를 위한 임시 저장 시작:", notificationSettings);
-      await updateNotificationSettings(memberId, {
+      await updateNotificationSettings({
         email: notificationSettings.email || null,
         slackAddress: notificationSettings.slackAddress || null,
         warningChannel: convertChannel(notificationSettings.warningChannel),
@@ -230,7 +230,7 @@ const AlertEventSetting: React.FC = () => {
       setHasTested(true); // 테스트 실행 표시
 
       // 저장된 값으로 테스트 실행
-      const result = await testNotification(memberId, { channels });
+      const result = await testNotification({ channels });
       setTestResult(result || "테스트 알림이 전송되었습니다.");
       setIsTestResultModalOpen(true);
       
@@ -251,7 +251,7 @@ const AlertEventSetting: React.FC = () => {
           return null;
         };
 
-        await updateNotificationSettings(memberId, {
+        await updateNotificationSettings({
           email: originalSettings.email || null,
           slackAddress: originalSettings.slackAddress || null,
           warningChannel: convertChannel(originalSettings.warningChannel),
@@ -393,12 +393,11 @@ const AlertEventSetting: React.FC = () => {
     setIsLoadingPolicies(true);
     try {
       console.log("[AlertEventSetting] 정책 목록 조회 시작:", {
-        memberId,
         instanceId: selectedInstanceId,
       });
 
       // 정책 목록 조회
-      const policyList = await fetchPolicies(memberId, selectedInstanceId);
+      const policyList = await fetchPolicies(selectedInstanceId);
       console.log("[AlertEventSetting] 정책 목록 조회 성공:", policyList);
 
       // 각 정책의 이벤트 목록 조회
@@ -456,7 +455,7 @@ const AlertEventSetting: React.FC = () => {
     if (activeTab === "2") {
       loadPolicies();
     }
-  }, [activeTab, selectedInstanceId, memberId]);
+  }, [activeTab, selectedInstanceId]);
 
   /* 정책 / 이벤트 상태 초기화 */
   useEffect(() => {
