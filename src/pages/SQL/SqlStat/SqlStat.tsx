@@ -27,8 +27,12 @@ interface TableData {
   disk: number;
 }
 
-// X축 변환함수
-const formatToMonthDayTime = (raw: string) => {
+// X축 변환함수 (기간에 따라 자동 조정)
+const formatToMonthDayTime = (
+  raw: string,
+  startDate: string,
+  endDate: string
+) => {
   const d = new Date(raw);
   if (isNaN(d.getTime())) return raw;
 
@@ -37,6 +41,24 @@ const formatToMonthDayTime = (raw: string) => {
   const HH = String(d.getHours()).padStart(2, "0");
   const MM = String(d.getMinutes()).padStart(2, "0");
 
+  // 기간 계산 (일 단위)
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffDays = Math.ceil(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (diffDays >= 7) {
+      // 일주일 이상: 일 시간 분 표시 (MM-DD HH:MM)
+      return `${mm}-${dd} ${HH}:${MM}`;
+    } else if (diffDays >= 2) {
+      // 이틀 이상 ~ 일주일 미만: 일 시간 표시 (MM-DD HH:00)
+      return `${mm}-${dd} ${HH}:00`;
+    }
+  }
+
+  // 하루 이하: 분 단위까지 표시
   return `${mm}-${dd} ${HH}:${MM}`;
 };
 
@@ -53,7 +75,7 @@ const SqlStat: React.FC = () => {
   });
 
   // 필터 (그래프와 테이블 모두 적용)
-  const [filter, setFilter] = useState("elapsed");
+  const [filter, setFilter] = useState("");
   const [interval, setInterval] = useState(30);
 
   // 페이지네이션
@@ -64,6 +86,7 @@ const SqlStat: React.FC = () => {
   const [graphData, setGraphData] = useState({
     labels: [] as string[],
     values: [] as number[],
+    originalTimes: [] as string[], // tooltip용 원본 시간 데이터
   });
 
   // 테이블 전체 데이터 (원본)
@@ -95,11 +118,18 @@ const SqlStat: React.FC = () => {
         intervalMinutes: interval,
       });
 
+      // 원본 시간 데이터 저장 (tooltip용)
+      const originalTimes = graph.buckets.map((b: any) => b.timeLabel);
+
+      // X축 레이블 생성 (포맷팅) - 모든 데이터에 대해 포맷팅
+      const formattedLabels = graph.buckets.map((b: any) =>
+        formatToMonthDayTime(b.timeLabel, dateRange.start, dateRange.end)
+      );
+
       setGraphData({
-        labels: graph.buckets.map((b: any) =>
-          formatToMonthDayTime(b.timeLabel)
-        ),
+        labels: formattedLabels, // 모든 레이블 저장 (필터링은 LineChart에서 처리)
         values: graph.buckets.map((b: any) => b.value),
+        originalTimes: originalTimes, // tooltip에는 원본 시간 사용
       });
     } catch (err) {
       console.error("그래프 데이터 로드 실패:", err);
@@ -236,13 +266,13 @@ const SqlStat: React.FC = () => {
       {row.sql}
     </span>,
 
-    <BarGauge value={row.elapsed} max={50000000} />,
-    <BarGauge value={row.avg} max={50000000} />,
-    <BarGauge value={row.wait} max={50000000} />,
-    <BarGauge value={row.execution} max={50000000} />,
-    <BarGauge value={row.buffer} max={50000000} />,
-    <BarGauge value={row.disk} max={50000000} />,
-    <BarGauge value={row.cpu} max={50000000} />,
+    <BarGauge value={row.elapsed} max={50000000} showPercentage={false} isTime={true} />,
+    <BarGauge value={row.avg} max={50000000} showPercentage={false} isTime={true} />,
+    <BarGauge value={row.wait} max={50000000} showPercentage={false} isTime={true} />,
+    <BarGauge value={row.execution} max={50000000} showPercentage={false} />,
+    <BarGauge value={row.buffer} max={50000000} showPercentage={false} />,
+    <BarGauge value={row.disk} max={50000000} showPercentage={false} />,
+    <BarGauge value={row.cpu} max={50000000} showPercentage={false} isTime={true} />,
   ]);
 
   return (
@@ -318,6 +348,30 @@ const SqlStat: React.FC = () => {
               legends={[`${filter} Trend`]}
               seriesData={[graphData.values]}
               categories={graphData.labels}
+              originalTimes={graphData.originalTimes}
+              xAxisFilter={(_index, time) => {
+                if (!dateRange.start || !dateRange.end) return true;
+
+                const start = new Date(dateRange.start);
+                const end = new Date(dateRange.end);
+                const diffDays = Math.ceil(
+                  (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+                );
+
+                if (diffDays < 2) {
+                  // 하루 이하: 모든 레이블 표시
+                  return true;
+                } else if (diffDays >= 2) {
+                  // 이틀 이상: 3시간 단위로 필터링 (0시, 3시, 6시, 9시, 12시, 15시, 18시, 21시)
+                  const d = new Date(time);
+                  const hour = d.getHours();
+                  const minute = d.getMinutes();
+                  // 정확히 0, 3, 6, 9, 12, 15, 18, 21시이고 분이 0인 경우만 표시
+                  const allowedHours = [0, 3, 6, 9, 12, 15, 18, 21];
+                  return allowedHours.includes(hour) && minute === 0;
+                }
+                return true;
+              }}
             />
           )}
         </div>
