@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   fetchUnreadAlertCount,
-  fetchPendingAlerts,
+  fetchAlerts,
   connectSSE,
   acknowledgeEvent,
   isEventRead,
@@ -27,13 +27,14 @@ export const useAlerts = ({ showPanel }: UseAlertsOptions) => {
     }
   }, []);
 
-  // 알림 목록 갱신 (안읽음만)
+  // 알림 목록 갱신 (안읽음만 - 처리완료와 관계없이)
   const loadAlertsList = useCallback(async () => {
     if (!showPanel) return;
 
     setIsLoading(true);
     try {
-      const result = await fetchPendingAlerts(0, 20);
+      // status 필터 없이 모든 알림 조회 후 클라이언트에서 안읽음만 필터링
+      const result = await fetchAlerts({ page: 0, size: 20 });
       const unreadAlerts = result.content.filter((alert) => !isEventRead(alert));
       setAlerts(unreadAlerts);
     } catch (error) {

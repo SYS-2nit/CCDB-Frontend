@@ -144,7 +144,6 @@ const AlertPanel = ({
 
               // 읽음/안읽음 상태 확인
               const isRead = isEventRead(alert);
-              const isResolved = alert.status === "CLOSED";
 
               return (
                 <div
@@ -163,20 +162,6 @@ const AlertPanel = ({
                       style={{ display: "flex", alignItems: "center", gap: "8px" }}
                     >
                       <strong>{alert.message}</strong>
-                      {isResolved && (
-                        <span
-                          style={{
-                            backgroundColor: "#28a745",
-                            color: "white",
-                            padding: "2px 6px",
-                            borderRadius: "4px",
-                            fontSize: "11px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          해결됨
-                        </span>
-                      )}
                     </div>
                     <div className="alert-item__sub">
                       {formatTimeAgo(alert.createdAt)} · 인스턴스 ID:{" "}

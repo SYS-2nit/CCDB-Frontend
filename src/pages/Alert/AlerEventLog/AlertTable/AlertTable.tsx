@@ -117,6 +117,21 @@ const AlertTable: React.FC<AlertTableProps> = ({
       // 입력 내용 초기화
       setHistoryContent("");
 
+      // 현재 알림이 안읽음 상태인지 확인
+      const currentAlert = alerts.find(a => a.id === selectedEventId);
+      if (currentAlert && !isEventRead(currentAlert)) {
+        // 안읽음 상태면 읽음 처리
+        await acknowledgeEvent(selectedEventId);
+        
+        // Header에 알림 상태 변경 이벤트 발생
+        window.dispatchEvent(new CustomEvent("alert:read-status-changed", {
+          detail: {
+            eventId: selectedEventId,
+            isRead: true, // 읽음으로 변경
+          }
+        }));
+      }
+
       // 알림 목록 새로고침 (status가 CLOSED로 변경되었으므로)
       if (onRefresh) {
         onRefresh();
