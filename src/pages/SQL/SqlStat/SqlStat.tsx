@@ -70,7 +70,8 @@ const SqlStat: React.FC = () => {
   const [rawTableData, setRawTableData] = useState<TableData[]>([]);
   // 현재 페이지 데이터
   const [tableData, setTableData] = useState<TableData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isGraphLoading, setIsGraphLoading] = useState(false);
+  const [isTableLoading, setIsTableLoading] = useState(false);
   const [noResult, setNoResult] = useState(false);
 
   const [sortConfig, setSortConfig] = useState<{
@@ -80,15 +81,12 @@ const SqlStat: React.FC = () => {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  /* 통합 조회 API */
-  const fetchStats = async () => {
+  /* 그래프 데이터 조회 API */
+  const fetchGraph = async () => {
     if (!dateRange.start || !dateRange.end) return;
 
+    setIsGraphLoading(true);
     try {
-      setIsLoading(true);
-      setNoResult(false);
-
-      /** Graph */
       const graph = await getSqlGraph({
         instanceId: 1,
         startDate: dateRange.start,
@@ -103,8 +101,20 @@ const SqlStat: React.FC = () => {
         ),
         values: graph.buckets.map((b: any) => b.value),
       });
+    } catch (err) {
+      console.error("그래프 데이터 로드 실패:", err);
+    } finally {
+      setIsGraphLoading(false);
+    }
+  };
 
-      /** Table - 클라이언트 사이드 페이지네이션 사용 (전체 데이터 조회) */
+  /* 테이블 데이터 조회 API */
+  const fetchTable = async () => {
+    if (!dateRange.start || !dateRange.end) return;
+
+    setNoResult(false);
+    setIsTableLoading(true);
+    try {
       const data = await getSqlStats({
         instanceId: 1,
         startDate: dateRange.start,
@@ -142,9 +152,9 @@ const SqlStat: React.FC = () => {
       setTotalPages(Math.ceil(mapped.length / PAGE_SIZE));
       setCurrentPage(1); // 데이터 로드 시 1페이지로 리셋
     } catch (err) {
-      console.error("SQL 통계 로드 실패:", err);
+      console.error("테이블 데이터 로드 실패:", err);
     } finally {
-      setIsLoading(false);
+      setIsTableLoading(false);
     }
   };
 
@@ -155,10 +165,20 @@ const SqlStat: React.FC = () => {
     setTableData(rawTableData.slice(start, end));
   }, [currentPage, rawTableData]);
 
-  /** 날짜/필터/interval 변경 시 재조회 */
+  /** 필터 변경 시 그래프만 재조회 */
   useEffect(() => {
-    fetchStats();
-  }, [dateRange, filter, interval]);
+    if (dateRange.start && dateRange.end) {
+      fetchGraph();
+    }
+  }, [filter]);
+
+  /** 날짜/interval 변경 시 그래프와 테이블 모두 재조회 */
+  useEffect(() => {
+    if (dateRange.start && dateRange.end) {
+      fetchGraph();
+      fetchTable();
+    }
+  }, [dateRange, interval]);
 
   /* 정렬 */
   const handleSort = (key: keyof TableData) => {
@@ -224,8 +244,6 @@ const SqlStat: React.FC = () => {
     <BarGauge value={row.cpu} max={50000000} />,
   ]);
 
-  if (isLoading) return <Spinner message="데이터 불러오는 중..." />;
-
   return (
     <div className="sql-stat">
       {/* 검색 영역 */}
@@ -290,7 +308,9 @@ const SqlStat: React.FC = () => {
       <div className="sql-stat__summary">
         <div className="sql-stat__stat__summary-chart">
           Summary Chart
-          {graphData.values.length === 0 ? (
+          {isGraphLoading ? (
+            <Spinner message="차트 데이터 불러오는 중..." />
+          ) : graphData.values.length === 0 ? (
             <div className="sql-stat__chart-null">검색 결과가 없습니다.</div>
           ) : (
             <LineChart
@@ -305,7 +325,9 @@ const SqlStat: React.FC = () => {
       {/* 테이블 */}
       <div className="sql-stat__table">
         조회 결과
-        {noResult || sortedData.length === 0 ? (
+        {isTableLoading ? (
+          <Spinner message="테이블 데이터 불러오는 중..." />
+        ) : noResult || sortedData.length === 0 ? (
           <div className="sql-stat__table-null">검색 결과가 없습니다.</div>
         ) : (
           <>
