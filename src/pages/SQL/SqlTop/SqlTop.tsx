@@ -103,6 +103,7 @@ const SqlTop = () => {
             legends={["기준", "비교"]}
             seriesData={[baseValues, compareValues]}
             categories={timeline}
+            height={300}
           />
         )}
       </div>
@@ -135,7 +136,9 @@ const SqlTop = () => {
                   size="sm"
                   checked={selectedBase === row.sqlId}
                   onChange={() =>
-                    setSelectedBase(selectedBase === row.sqlId ? null : row.sqlId)
+                    setSelectedBase(
+                      selectedBase === row.sqlId ? null : row.sqlId
+                    )
                   }
                 />,
                 row.rankChanged,
