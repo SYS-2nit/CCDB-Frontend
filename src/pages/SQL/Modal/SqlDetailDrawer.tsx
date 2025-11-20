@@ -143,7 +143,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
 
       <div className="sql-drawer">
         <div className="sql-drawer__header">
-          <h3>SQL Detail</h3>
+          <h3>SQL 상세 정보</h3>
           <button className="close-btn" onClick={onClose}>
             ✕
           </button>

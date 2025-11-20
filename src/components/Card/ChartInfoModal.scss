@@ -8,11 +8,23 @@
     top: 40px;        
     right: 48px;           
     padding: 10px;
+    height: auto;
     min-width: 300px;
     z-index: 2;
     color: $gray-0;
     background-color: var(--color-sidebar-bg);
-  @include text-styles("label02");
+    @include text-styles("label02");
+
+    // 상하 스크롤 
+    max-height: 300px;
+    overflow-y: auto;
+
+    // 스크롤바 숨김 
+    -ms-overflow-style: none;  
+    scrollbar-width: none;      
+    &::-webkit-scrollbar {     
+      display: none;
+    }
 
   animation: fadeIn 0.15s ease-out;
 }
