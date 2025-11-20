@@ -1,0 +1,17 @@
+.sidebar-hover-modal {
+  background: white;
+  padding: 10px 0;
+  border-radius: 5px;
+  min-width: 140px;
+}
+
+.sidebar-hover-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  @include text-styles("label02");
+}
+
+.sidebar-hover-item:hover {
+  background-color: $gray-300;
+}

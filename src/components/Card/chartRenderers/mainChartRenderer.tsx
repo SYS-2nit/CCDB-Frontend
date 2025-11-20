@@ -7,7 +7,7 @@ import DonutChart from "@/components/Chart/DonutChart";
 import TableChart from "@/components/Chart/TableChart";
 import MixedChart from "@/components/Chart/MixedChart";
 import MetricGrid from "@/components/Card/MetricCard";
-import type { GraphDataResponse } from "@/api/dashboard";
+import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 
 const ensureNumber = (value: unknown): number | null => {
@@ -24,7 +24,7 @@ const ensureNumber = (value: unknown): number | null => {
 const formatColumnName = (key: string): string => {
   // 대소문자 무시 매칭을 위한 정규화
   const normalizedKey = key.toLowerCase();
-  
+
   const map: Record<string, string> = {
     // CPU 관련
     host_cpu_util_pct: "Host CPU Util (%)",
@@ -43,10 +43,10 @@ const formatColumnName = (key: string): string => {
     aas_wait_sessions: "AAS Wait Sessions",
     core_baseline_sessions: "Core Baseline Sessions",
     other_processes_pct: "Other Processes (%)",
-    
+
     // AAS 관련
     aas_total: "AAS Total",
-    
+
     // Wait Class 관련
     wait_class_aas_user_io: "User I/O",
     wait_class_aas_commit: "Commit",
@@ -55,7 +55,7 @@ const formatColumnName = (key: string): string => {
     wait_class_aas_network: "Network",
     wait_class_aas_cluster: "Cluster",
     wait_class_aas_other: "Other",
-    
+
     // Memory 관련
     workarea_spill_rate_pct: "Spill Rate %",
     spill_mb_per_min: "Spill MB/min",
@@ -69,7 +69,7 @@ const formatColumnName = (key: string): string => {
     buffer_miss_pct: "Buffer Cache Miss (%)",
     shared_pool_free_bytes: "Shared Pool Free (bytes)",
     shared_pool_free_pct: "Shared Pool Free (%)",
-    
+
     // I/O 관련
     single_block_read_latency_ms: "Single Read (ms)",
     direct_path_read_latency_ms: "Direct Read (ms)",
@@ -100,7 +100,7 @@ const formatColumnName = (key: string): string => {
     redo_generation_mbps_total: "Redo Total (MB/s)",
     log_switch_count_1min: "Log Switch 1min",
     // log_switch_count_5min: "Log Switch 5min",
-    
+
     // Session 관련
     sessions_limit_util_pct: "Session Util (%)",
     session_usage_pct: "Session Usage (%)",
@@ -116,7 +116,7 @@ const formatColumnName = (key: string): string => {
     execs_per_sec: "Exec/s",
     logons_per_sec: "Logons/s",
     disconnects_per_sec: "Disconnects/s",
-    
+
     // Storage 관련
     fra_usage_pct: "FRA Usage (%)",
     fra_usage_percent: "FRA Usage (%)",
@@ -169,24 +169,16 @@ const renderEmptyChart = (type?: number) => {
   };
 
   if (type === 7) {
-    return (
-      <div style={style}>
-        표시할 메트릭이 없습니다.
-      </div>
-    );
+    return <div style={style}>표시할 메트릭이 없습니다.</div>;
   }
 
-  return (
-    <div style={style}>
-      데이터가 없습니다.
-    </div>
-  );
+  return <div style={style}>데이터가 없습니다.</div>;
 };
 
 const formatTimeByMode = (timestamp: string, mode: DashboardMode = "LIVE") => {
   const date = new Date(timestamp);
   if (Number.isNaN(date.getTime())) return timestamp;
-  
+
   switch (mode) {
     case "LIVE": {
       // 24시간 형식으로 포맷팅 (HH:mm)
@@ -216,7 +208,10 @@ const formatTimeByMode = (timestamp: string, mode: DashboardMode = "LIVE") => {
   }
 };
 
-const renderLineChart = (graphData: GraphDataResponse, mode: DashboardMode = "LIVE") => {
+const renderLineChart = (
+  graphData: GraphDataResponse,
+  mode: DashboardMode = "LIVE"
+) => {
   const sorted = [...(graphData.data ?? [])].sort((a, b) => {
     const ta = new Date(a.timestamp ?? 0).getTime();
     const tb = new Date(b.timestamp ?? 0).getTime();
@@ -228,17 +223,19 @@ const renderLineChart = (graphData: GraphDataResponse, mode: DashboardMode = "LI
   const keys = Object.keys(sorted[0].values ?? {});
   if (!keys.length) return renderEmptyChart(graphData.type);
 
-  const categories = sorted.map((point) => formatTimeByMode(point.timestamp ?? "", mode));
+  const categories = sorted.map((point) =>
+    formatTimeByMode(point.timestamp ?? "", mode)
+  );
 
   const legends = keys.map(formatColumnName);
   const seriesData = keys.map((key) =>
-    sorted.map((point) => ensureNumber(point.values?.[key]) ?? 0),
+    sorted.map((point) => ensureNumber(point.values?.[key]) ?? 0)
   );
 
   // y축 범위를 데이터에 맞게 자동 조정 (최소값은 0으로 고정)
   const allValues = seriesData.flat();
-  const minValue = Math.min(...allValues.filter(v => Number.isFinite(v)));
-  const maxValue = Math.max(...allValues.filter(v => Number.isFinite(v)));
+  const minValue = Math.min(...allValues.filter((v) => Number.isFinite(v)));
+  const maxValue = Math.max(...allValues.filter((v) => Number.isFinite(v)));
   const padding = (maxValue - minValue) * 0.1 || 1;
 
   return (
@@ -266,7 +263,9 @@ const renderGauge = (graphData: GraphDataResponse) => {
   // 가장 최근 데이터 (정렬 후 첫 번째)
   const latest = sorted[0];
   const keys = Object.keys(latest.values ?? {});
-  const numericKey = keys.find((key) => ensureNumber(latest.values?.[key]) !== null);
+  const numericKey = keys.find(
+    (key) => ensureNumber(latest.values?.[key]) !== null
+  );
 
   if (!numericKey) return renderEmptyChart(graphData.type);
 
@@ -297,8 +296,8 @@ const renderMetricCard = (graphData: GraphDataResponse) => {
             ? value.toLocaleString()
             : value.toFixed(2)
           : typeof raw === "string"
-            ? raw
-            : "-",
+          ? raw
+          : "-",
     };
   });
 
@@ -341,7 +340,10 @@ const renderStack = (graphData: GraphDataResponse) => {
   );
 };
 
-const renderTimeline = (graphData: GraphDataResponse, mode: DashboardMode = "LIVE") => {
+const renderTimeline = (
+  graphData: GraphDataResponse,
+  mode: DashboardMode = "LIVE"
+) => {
   const sorted = [...(graphData.data ?? [])].sort((a, b) => {
     const ta = new Date(a.timestamp ?? 0).getTime();
     const tb = new Date(b.timestamp ?? 0).getTime();
@@ -353,16 +355,18 @@ const renderTimeline = (graphData: GraphDataResponse, mode: DashboardMode = "LIV
   const keys = Object.keys(sorted[0].values ?? {});
   if (!keys.length) return renderEmptyChart(graphData.type);
 
-  const categories = sorted.map((point) => formatTimeByMode(point.timestamp ?? "", mode));
+  const categories = sorted.map((point) =>
+    formatTimeByMode(point.timestamp ?? "", mode)
+  );
   const legends = keys.map(formatColumnName);
   const seriesData = keys.map((key) =>
-    sorted.map((point) => ensureNumber(point.values?.[key]) ?? 0),
+    sorted.map((point) => ensureNumber(point.values?.[key]) ?? 0)
   );
 
   // y축 범위를 데이터에 맞게 자동 조정 (최소값은 0으로 고정)
   const allValues = seriesData.flat();
-  const minValue = Math.min(...allValues.filter(v => Number.isFinite(v)));
-  const maxValue = Math.max(...allValues.filter(v => Number.isFinite(v)));
+  const minValue = Math.min(...allValues.filter((v) => Number.isFinite(v)));
+  const maxValue = Math.max(...allValues.filter((v) => Number.isFinite(v)));
   const padding = (maxValue - minValue) * 0.1 || 1;
 
   return (
@@ -395,14 +399,9 @@ const renderDonut = (graphData: GraphDataResponse) => {
 
   // 총합 대비 비율로 변환
   const total = series.reduce((a, b) => a + b, 0);
-  const percentages = total > 0 ? series.map(v => (v / total) * 100) : series;
+  const percentages = total > 0 ? series.map((v) => (v / total) * 100) : series;
 
-  return (
-    <DonutChart
-      labels={labels}
-      series={percentages}
-    />
-  );
+  return <DonutChart labels={labels} series={percentages} />;
 };
 
 const renderTable = (graphData: GraphDataResponse) => {
@@ -432,15 +431,18 @@ const renderTable = (graphData: GraphDataResponse) => {
           ? formattedValue.toLocaleString()
           : formattedValue.toFixed(2)
         : typeof value === "string"
-          ? value
-          : "-",
+        ? value
+        : "-",
     ];
   });
 
   return <TableChart columns={columns} rows={rows} size="sm" />;
 };
 
-const renderLineColumn = (graphData: GraphDataResponse, mode: DashboardMode = "LIVE") => {
+const renderLineColumn = (
+  graphData: GraphDataResponse,
+  mode: DashboardMode = "LIVE"
+) => {
   const sorted = [...(graphData.data ?? [])].sort((a, b) => {
     const ta = new Date(a.timestamp ?? 0).getTime();
     const tb = new Date(b.timestamp ?? 0).getTime();
@@ -452,11 +454,17 @@ const renderLineColumn = (graphData: GraphDataResponse, mode: DashboardMode = "L
   const keys = Object.keys(sorted[0].values ?? {});
   if (keys.length < 2) return renderEmptyChart(graphData.type);
 
-  const categories = sorted.map((point) => formatTimeByMode(point.timestamp ?? "", mode));
-  
+  const categories = sorted.map((point) =>
+    formatTimeByMode(point.timestamp ?? "", mode)
+  );
+
   // 첫 번째 키는 Column, 두 번째 키는 Line으로 사용
-  const columnData = sorted.map((point) => ensureNumber(point.values?.[keys[0]]) ?? 0);
-  const lineData = sorted.map((point) => ensureNumber(point.values?.[keys[1]]) ?? 0);
+  const columnData = sorted.map(
+    (point) => ensureNumber(point.values?.[keys[0]]) ?? 0
+  );
+  const lineData = sorted.map(
+    (point) => ensureNumber(point.values?.[keys[1]]) ?? 0
+  );
 
   return (
     <MixedChart
@@ -472,11 +480,20 @@ const renderLineColumn = (graphData: GraphDataResponse, mode: DashboardMode = "L
 export const mainChartRenderer = (
   _title: string,
   graphData?: GraphDataResponse | null,
-  mode: DashboardMode = "LIVE",
+  mode: DashboardMode = "LIVE"
 ): React.ReactNode => {
   if (!graphData) {
     return (
-      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af" }}>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#9ca3af",
+        }}
+      >
         데이터가 없습니다.
       </div>
     );

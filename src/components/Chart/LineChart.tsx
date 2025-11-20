@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
-import { formatNumberWithUnit, formatTooltipNumber } from "@/utils/numberFormatter";
+import {
+  formatNumberWithUnit,
+  formatTooltipNumber,
+} from "@/utils/numberFormatter";
 
 interface LineChartProps {
   legends?: string[];
@@ -12,6 +16,8 @@ interface LineChartProps {
   height?: number | string;
   yMin?: number;
   yMax?: number;
+  originalTimes?: string[]; // tooltip용 원본 시간 데이터
+  xAxisFilter?: (index: number, time: string) => boolean; // X축 레이블 필터링 함수
 }
 
 const LineChart: React.FC<LineChartProps> = ({
@@ -20,9 +26,11 @@ const LineChart: React.FC<LineChartProps> = ({
   seriesData = [],
   categories = [],
   yaxisTitle = "",
-  height = 190,
+  height = 180,
   yMin,
   yMax,
+  originalTimes = [],
+  xAxisFilter,
 }) => {
   const colors = [
     "#3B82F6",
@@ -72,7 +80,6 @@ const LineChart: React.FC<LineChartProps> = ({
     grid: {
       borderColor: "rgba(0,0,0,0.08)",
       strokeDashArray: 3,
-      padding: { top: 10, right: 5, bottom: 0, left: 10 },
     },
 
     /** X축 포맷 */
@@ -83,6 +90,29 @@ const LineChart: React.FC<LineChartProps> = ({
         style: {
           colors: "#777",
           fontSize: "10px",
+        },
+        hideOverlappingLabels: true,
+        formatter: (value: string, opts?: any) => {
+          // X축 필터링이 있으면 필터링 적용
+          if (
+            xAxisFilter &&
+            originalTimes.length > 0 &&
+            opts &&
+            opts.dataPointIndex !== undefined
+          ) {
+            const index = opts.dataPointIndex;
+            if (
+              index >= 0 &&
+              index < originalTimes.length &&
+              originalTimes[index]
+            ) {
+              const shouldShow = xAxisFilter(index, originalTimes[index]);
+              if (!shouldShow) {
+                return ""; // 필터링된 레이블은 빈 문자열 반환 (표시 안됨)
+              }
+            }
+          }
+          return value;
         },
       },
       axisTicks: { show: false },
@@ -131,6 +161,31 @@ const LineChart: React.FC<LineChartProps> = ({
 
     tooltip: {
       theme: "light",
+      x: {
+        formatter: (val: any, opts?: any) => {
+          // 원본 시간이 있으면 tooltip에 원본 시간 표시
+          if (
+            originalTimes.length > 0 &&
+            opts &&
+            opts.dataPointIndex !== undefined &&
+            opts.dataPointIndex >= 0 &&
+            opts.dataPointIndex < originalTimes.length
+          ) {
+            const originalTime = originalTimes[opts.dataPointIndex];
+            if (originalTime) {
+              const d = new Date(originalTime);
+              if (!isNaN(d.getTime())) {
+                const mm = String(d.getMonth() + 1).padStart(2, "0");
+                const dd = String(d.getDate()).padStart(2, "0");
+                const HH = String(d.getHours()).padStart(2, "0");
+                const MM = String(d.getMinutes()).padStart(2, "0");
+                return `${mm}-${dd} ${HH}:${MM}`;
+              }
+            }
+          }
+          return val;
+        },
+      },
       y: {
         formatter: (val) => formatTooltipNumber(Number(val)),
       },
@@ -138,7 +193,14 @@ const LineChart: React.FC<LineChartProps> = ({
   };
 
   return (
-    <div style={{ width: "100%", height: "100%", maxWidth: "100%", overflow: "hidden" }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        maxWidth: "100%",
+        overflow: "hidden",
+      }}
+    >
       <ReactApexChart
         options={options}
         series={series}

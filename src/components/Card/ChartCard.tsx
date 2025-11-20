@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { useState, memo } from "react";
 import "./ChartCard.scss";
 import WarningIcon from "@/assets/general/warning.svg";
 import SuccessGreenIcon from "@/assets/general/succes-green.svg";
@@ -6,9 +6,13 @@ import SettingIcon from "@/assets/general/setting.svg";
 import InfoIcon from "@/assets/general/info.svg";
 import DragIcon from "@/assets/general/drag.svg";
 import { getChartByTitle } from "./utils/getChartByTitle";
-import { useDashboardContext, type DashboardMode } from "@/state/DashboardContext";
+import {
+  useDashboardContext,
+  type DashboardMode,
+} from "@/state/DashboardContext";
 import { renderDynamicChart } from "./utils/renderDynamicChart";
-import type { GraphDataResponse } from "@/api/dashboard";
+import ChartInfoModal from "./ChartInfoModal";
+import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 
 interface ChartCardProps {
   title: string;
@@ -17,7 +21,7 @@ interface ChartCardProps {
   showSettingIcon?: boolean;
   showDragIcon?: boolean;
   graphData?: GraphDataResponse | null;
-  mode?: DashboardMode; // 히스토리 페이지에서 사용
+  mode?: DashboardMode;
 }
 
 const ChartCard: React.FC<ChartCardProps> = ({
@@ -26,10 +30,12 @@ const ChartCard: React.FC<ChartCardProps> = ({
   onSettingClick,
   showSettingIcon = true,
   showDragIcon = true,
-  graphData: propGraphData,
+  graphData,
   mode: propMode,
 }) => {
   const StatusIcon = status === "warning" ? WarningIcon : SuccessGreenIcon;
+  const [showInfoModal, setShowInfoModal] = useState(false);
+
   const {
     graphsByName,
     isFetching,
@@ -38,28 +44,43 @@ const ChartCard: React.FC<ChartCardProps> = ({
     mode: contextMode,
   } = useDashboardContext();
 
-  const graphData = propGraphData ?? graphsByName[title];
-  const mode = propMode ?? contextMode; // propMode가 있으면 사용, 없으면 contextMode 사용
+  const [showInfo, setShowInfo] = useState(false);
+
+  const data = graphData ?? graphsByName[title];
+  const mode = propMode ?? contextMode;
+
+  // 모달 고정 위치
+  const modalPos = { x: -300, y: 0 };
+
+  const handleInfoEnter = () => {
+    setShowInfoModal(true);
+  };
+
+  const handleInfoLeave = () => {
+    setShowInfoModal(false);
+  };
+
+  // Description 가공
+  const formattedDescription =
+    graphData?.description?.split("\n").join("<br />") ?? "";
 
   let bodyContent: React.ReactNode;
 
-  // propGraphData가 있으면 (히스토리 페이지 등) selectedInstanceId 체크 생략
-  if (!propGraphData && !selectedInstanceId) {
+  if (!graphData && !selectedInstanceId) {
     bodyContent = (
       <div className="chart-placeholder">인스턴스를 선택해주세요.</div>
     );
-  } else if ((!propGraphData && !graphData && isFetching) || (propGraphData === undefined && isFetching)) {
-    // propGraphData가 undefined이고 로딩 중이면 로딩 상태 표시
+  } else if (!graphData && isFetching) {
     bodyContent = (
       <div className="chart-placeholder">데이터를 불러오는 중입니다...</div>
     );
-  } else if (!propGraphData && !graphData && error) {
+  } else if (!graphData && error) {
     bodyContent = <div className="chart-placeholder">{error}</div>;
-  } else if (graphData) {
-    const rendered = renderDynamicChart(title, graphData, mode);
-    bodyContent = rendered ?? getChartByTitle(title, graphData, mode);
+  } else if (data) {
+    const rendered = renderDynamicChart(title, data, mode);
+    bodyContent = rendered ?? getChartByTitle(title, data, mode);
   } else {
-    bodyContent = getChartByTitle(title, graphData, mode);
+    bodyContent = getChartByTitle(title, data, mode);
   }
 
   return (
@@ -70,62 +91,49 @@ const ChartCard: React.FC<ChartCardProps> = ({
           <span className="chart-card__title">{title}</span>
           <img src={StatusIcon} alt={status} />
         </div>
+
         <div className="chart-card__right">
-          <img src={InfoIcon} alt="info" />
-          {showSettingIcon && (
-            <img
-              src={SettingIcon}
-              alt="setting"
-              className="chart-card__setting"
-              onClick={onSettingClick}
-            />
-          )}
+          <div
+            onMouseEnter={handleInfoEnter}
+            onMouseLeave={handleInfoLeave}
+            style={{ position: "relative" }}
+          >
+            <img src={InfoIcon} alt="info" />
+
+            {showInfoModal && graphData?.description && (
+              <ChartInfoModal
+                pos={modalPos}
+                description={formattedDescription}
+                onMouseEnter={() => setShowInfoModal(true)}
+                onMouseLeave={() => setShowInfoModal(false)}
+              />
+            )}
+
+            {showSettingIcon && (
+              <img
+                src={SettingIcon}
+                alt="setting"
+                className="chart-card__setting"
+                onClick={onSettingClick}
+              />
+            )}
+          </div>
         </div>
       </div>
+
       <div className="chart-card__body">{bodyContent}</div>
+
+      {/* Info Modal for click */}
+      {showInfo && data?.description && (
+        <ChartInfoModal
+          pos={modalPos}
+          description={formattedDescription}
+          onMouseEnter={() => setShowInfo(false)}
+          onMouseLeave={() => setShowInfo(true)}
+        />
+      )}
     </div>
   );
 };
 
-// props가 동일하면 리렌더링 방지 (불필요한 깜빡임 제거)
-// graphData와 mode가 변경되면 리렌더링 (실시간 업데이트를 위해)
-export default memo(
-  ChartCard,
-  (prev, next) => {
-    // 기본 props 비교
-    if (
-      prev.title !== next.title ||
-      prev.status !== next.status ||
-      prev.showDragIcon !== next.showDragIcon ||
-      prev.showSettingIcon !== next.showSettingIcon ||
-      prev.mode !== next.mode
-    ) {
-      return false; // 리렌더링 필요
-    }
-
-    // graphData 비교 (실시간 업데이트를 위해 데이터 변경 감지)
-    const prevData = prev.graphData;
-    const nextData = next.graphData;
-
-    // 둘 다 없으면 동일
-    if (!prevData && !nextData) return true;
-    // 하나만 있으면 다름
-    if (!prevData || !nextData) return false;
-    // ID가 다르면 다름
-    if (prevData.id !== nextData.id) return false;
-
-    // data 배열 길이 비교 (새 데이터가 추가되었는지 확인)
-    const prevDataLength = prevData.data?.length ?? 0;
-    const nextDataLength = nextData.data?.length ?? 0;
-    if (prevDataLength !== nextDataLength) return false;
-
-    // 마지막 타임스탬프 비교 (새 데이터 포인트가 추가되었는지 확인)
-    if (prevDataLength > 0 && nextDataLength > 0) {
-      const prevLastTimestamp = prevData.data?.[prevDataLength - 1]?.timestamp;
-      const nextLastTimestamp = nextData.data?.[nextDataLength - 1]?.timestamp;
-      if (prevLastTimestamp !== nextLastTimestamp) return false;
-    }
-
-    return true; // 동일하므로 리렌더링 불필요
-  }
-);
+export default memo(ChartCard);

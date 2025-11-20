@@ -2,7 +2,7 @@ import "./Button.scss";
 import clsx from "clsx";
 import React from "react";
 
-type ButtonSize = "sm" | "md";
+type ButtonSize = "xs" | "sm" | "md";
 type ButtonVariant = "primary" | "error" | "white";
 
 interface ButtonProps {

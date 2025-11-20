@@ -8,11 +8,17 @@ import {
   type ReportType,
   type GraphCategory,
   type ReportContent,
-} from "@/api/report";
+} from "@/api/Report/report";
 
 type ReportTemplate = "daily" | "weekly" | "monthly" | "performance";
 
-type MetricKey = "CPU" | "MEMORY" | "SESSION" | "IO" | "STORAGE" | "PERF_IMPROVE";
+type MetricKey =
+  | "CPU"
+  | "MEMORY"
+  | "SESSION"
+  | "IO"
+  | "STORAGE"
+  | "PERF_IMPROVE";
 
 type SectionKey = "summary" | "charts" | "table";
 
@@ -24,22 +30,22 @@ const TEMPLATES: {
   {
     id: "daily",
     title: "일일 보고서",
-    description: "하루 동안의 DB 성능 지표를 요약한 보고서",
+    description: "하루 동안의 DB 성능 지표 요약",
   },
   {
     id: "weekly",
     title: "주간 보고서",
-    description: "일간 성능 추이와 분석을 포함한 주간 리포트",
+    description: "일간 성능 추이와 분석",
   },
   {
     id: "monthly",
     title: "월간 보고서",
-    description: "월간 종합 분석 및 개선 제안을 포함한 보고서",
+    description: "월간 종합 분석 및 개선 제안",
   },
   {
     id: "performance",
     title: "성능 분석",
-    description: "상세한 성능 메트릭 및 병목 지점 분석",
+    description: "성능 메트릭 및 병목 지점 분석",
   },
 ];
 
@@ -95,7 +101,7 @@ const Improvement: React.FC = () => {
     setSelectedMetrics((prev) =>
       prev.includes(metric)
         ? prev.filter((m) => m !== metric)
-        : [...prev, metric],
+        : [...prev, metric]
     );
   };
 
@@ -103,7 +109,7 @@ const Improvement: React.FC = () => {
     setSelectedSections((prev) =>
       prev.includes(section)
         ? prev.filter((s) => s !== section)
-        : [...prev, section],
+        : [...prev, section]
     );
   };
 
@@ -113,12 +119,12 @@ const Improvement: React.FC = () => {
 
   const periodError = useMemo(() => {
     if (!startDate) return "";
-    
+
     // 주간 보고서와 월간 보고서는 endDate 검증 불필요
     if (isWeeklyTemplate || isMonthlyTemplate) {
       return "";
     }
-    
+
     // 일일 보고서가 아닌 경우에만 endDate 검증
     if (!isSingleDateTemplate && !endDate) return "";
 
@@ -127,13 +133,26 @@ const Improvement: React.FC = () => {
     if (end < start) return "종료일은 시작일 이후여야 합니다.";
 
     return "";
-  }, [startDate, endDate, template, isSingleDateTemplate, isWeeklyTemplate, isMonthlyTemplate]);
+  }, [
+    startDate,
+    endDate,
+    template,
+    isSingleDateTemplate,
+    isWeeklyTemplate,
+    isMonthlyTemplate,
+  ]);
 
   const canGenerate = useMemo(() => {
     if (!selectedInstanceId) return false;
     if (!startDate) return false;
     // 주간/월간 보고서는 endDate 검증 불필요
-    if (!isSingleDateTemplate && !isWeeklyTemplate && !isMonthlyTemplate && !endDate) return false;
+    if (
+      !isSingleDateTemplate &&
+      !isWeeklyTemplate &&
+      !isMonthlyTemplate &&
+      !endDate
+    )
+      return false;
     if (periodError) return false;
     if (selectedMetrics.length === 0) return false;
     if (selectedSections.length === 0) return false;
@@ -212,12 +231,12 @@ const Improvement: React.FC = () => {
       // 주간 보고서: endDate = startDate + 6일
       let calculatedStartDate = startDate;
       let calculatedEndDate: string | null = null;
-      
+
       if (isWeeklyTemplate) {
         const start = new Date(startDate);
         const end = new Date(start);
         end.setDate(end.getDate() + 6);
-        calculatedEndDate = end.toISOString().split('T')[0];
+        calculatedEndDate = end.toISOString().split("T")[0];
       } else if (isMonthlyTemplate) {
         // 월간 보고서: YYYY-MM 형식의 값을 YYYY-MM-01로 변환
         if (startDate && startDate.length === 7) {
@@ -227,11 +246,11 @@ const Improvement: React.FC = () => {
         // 해당 월의 마지막 날짜 계산
         const start = new Date(calculatedStartDate);
         const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0);
-        calculatedEndDate = lastDay.toISOString().split('T')[0];
+        calculatedEndDate = lastDay.toISOString().split("T")[0];
       } else if (!isSingleDateTemplate) {
         calculatedEndDate = endDate || null;
       }
-      
+
       const request = {
         reportType: mapTemplateToReportType(template),
         instanceId: selectedInstanceId,
@@ -249,9 +268,10 @@ const Improvement: React.FC = () => {
       const link = document.createElement("a");
       link.href = url;
 
-      // 파일명 생성 (백엔드에서 Content-Disposition 헤더로 파일명을 제공하지만, 
+      // 파일명 생성 (백엔드에서 Content-Disposition 헤더로 파일명을 제공하지만,
       // 브라우저 호환성을 위해 여기서도 설정)
-      const reportTypeName = TEMPLATES.find((t) => t.id === template)?.title || "보고서";
+      const reportTypeName =
+        TEMPLATES.find((t) => t.id === template)?.title || "보고서";
       const dateStr = startDate.replace(/-/g, "");
       const endDateStr = endDate ? `_${endDate.replace(/-/g, "")}` : "";
       link.download = `${reportTypeName}_${dateStr}${endDateStr}_${selectedInstanceId}.pdf`;
@@ -265,7 +285,7 @@ const Improvement: React.FC = () => {
       setError(
         err instanceof Error
           ? err.message
-          : "보고서 생성 중 오류가 발생했습니다.",
+          : "보고서 생성 중 오류가 발생했습니다."
       );
     } finally {
       setIsGenerating(false);
@@ -276,22 +296,12 @@ const Improvement: React.FC = () => {
 
   return (
     <div className="report-page">
-      {/* 상단 타이틀 */}
-      <div className="report-page__header">
-        <div>
-          <h1 className="report-page__title">보고서 생성</h1>
-          <p className="report-page__subtitle">
-            DB 모니터링 데이터를 종합하여 보고서를 생성합니다.
-          </p>
-        </div>
-      </div>
-
       <div className="report-page__layout">
         {/* 왼쪽: 설정 영역 */}
         <div className="report-page__left">
           {/* 보고서 템플릿 선택 */}
           <section className="report-section">
-            <h2 className="report-section__title">보고서 템플릿 선택</h2>
+            <h2 className="report-section__title">템플릿</h2>
             <div className="report-section__templates">
               {TEMPLATES.map((t) => (
                 <button
@@ -310,9 +320,7 @@ const Improvement: React.FC = () => {
                     {t.id === "performance" && "⚡"}
                   </div>
                   <div className="report-template-card__body">
-                    <div className="report-template-card__title">
-                      {t.title}
-                    </div>
+                    <div className="report-template-card__title">{t.title}</div>
                     <div className="report-template-card__desc">
                       {t.description}
                     </div>
@@ -324,17 +332,16 @@ const Improvement: React.FC = () => {
 
           {/* 보고서 설정 */}
           <section className="report-section">
-            <h2 className="report-section__title">보고서 설정</h2>
+            <h2 className="report-section__title">설정</h2>
 
             {/* 기간 선택 */}
             <div className="report-section__block">
-              <div className="report-section__block-title">보고서 기간</div>
               <div className="report-period">
                 <div className="report-period__field">
                   <span className="report-period__label">
-                    {isSingleDateTemplate 
-                      ? "일자" 
-                      : isWeeklyTemplate 
+                    {isSingleDateTemplate
+                      ? "일자"
+                      : isWeeklyTemplate
                       ? "시작일 (7일간)"
                       : isMonthlyTemplate
                       ? "월 선택"
@@ -347,15 +354,17 @@ const Improvement: React.FC = () => {
                   />
                 </div>
 
-                {!isSingleDateTemplate && !isWeeklyTemplate && !isMonthlyTemplate && (
-                  <div className="report-period__field">
-                    <span className="report-period__label">종료일</span>
-                    <DateInput
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                    />
-                  </div>
-                )}
+                {!isSingleDateTemplate &&
+                  !isWeeklyTemplate &&
+                  !isMonthlyTemplate && (
+                    <div className="report-period__field">
+                      <span className="report-period__label">종료일</span>
+                      <DateInput
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                      />
+                    </div>
+                  )}
               </div>
               {isWeeklyTemplate && (
                 <p className="report-period__hint">
@@ -371,9 +380,7 @@ const Improvement: React.FC = () => {
                 <p className="report-period__error">{periodError}</p>
               )}
               {!selectedInstanceId && (
-                <p className="report-period__error">
-                  인스턴스를 선택해주세요.
-                </p>
+                <p className="report-period__error">인스턴스를 선택해주세요.</p>
               )}
             </div>
 
@@ -385,7 +392,9 @@ const Improvement: React.FC = () => {
                   <button
                     key={metric.id}
                     type="button"
-                    className={`report-metric-chip report-metric-chip--${metric.id} ${
+                    className={`report-metric-chip report-metric-chip--${
+                      metric.id
+                    } ${
                       selectedMetrics.includes(metric.id)
                         ? "report-metric-chip--active"
                         : ""
@@ -401,7 +410,7 @@ const Improvement: React.FC = () => {
 
             {/* 보고서 구성 */}
             <div className="report-section__block">
-              <div className="report-section__block-title">보고서 구성</div>
+              <div className="report-section__block-title">구성</div>
               <div className="report-sections">
                 {SECTIONS.map((section) => (
                   <button
@@ -439,7 +448,7 @@ const Improvement: React.FC = () => {
             <div className="report-preview__header">
               <div className="report-preview__header-icon">📄</div>
               <div>
-                <h2 className="report-preview__title">보고서 미리보기</h2>
+                <h2 className="report-preview__title">미리보기</h2>
                 <p className="report-preview__subtitle">
                   생성될 보고서의 구성을 확인하세요.
                 </p>
@@ -467,13 +476,10 @@ const Improvement: React.FC = () => {
                     {selectedMetrics.length > 0 ? (
                       METRICS.filter((m) => selectedMetrics.includes(m.id)).map(
                         (m) => (
-                          <span
-                            key={m.id}
-                            className="report-preview__tag"
-                          >
+                          <span key={m.id} className="report-preview__tag">
                             {m.label}
                           </span>
-                        ),
+                        )
                       )
                     ) : (
                       <span className="report-preview__value">
@@ -487,12 +493,10 @@ const Improvement: React.FC = () => {
               {/* 보고서 구성요소 */}
               <div className="report-preview__row">
                 <div className="report-preview__row-body">
-                  <span className="report-preview__label">
-                    보고서 구성요소
-                  </span>
+                  <span className="report-preview__label">보고서 구성요소</span>
                   <ul className="report-preview__checklist">
                     {SECTIONS.filter((s) =>
-                      selectedSections.includes(s.id),
+                      selectedSections.includes(s.id)
                     ).map((section) => (
                       <li
                         key={section.id}
@@ -520,15 +524,26 @@ const Improvement: React.FC = () => {
                           const start = new Date(startDate);
                           const end = new Date(start);
                           end.setDate(end.getDate() + 6);
-                          return `${startDate} ~ ${end.toISOString().split('T')[0]}`;
+                          return `${startDate} ~ ${
+                            end.toISOString().split("T")[0]
+                          }`;
                         })()
                       : isMonthlyTemplate
                       ? (() => {
                           // YYYY-MM 형식인 경우 첫날로 변환
-                          const monthDate = startDate.length === 7 ? `${startDate}-01` : startDate;
+                          const monthDate =
+                            startDate.length === 7
+                              ? `${startDate}-01`
+                              : startDate;
                           const start = new Date(monthDate);
-                          const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0);
-                          return `${monthDate} ~ ${lastDay.toISOString().split('T')[0]}`;
+                          const lastDay = new Date(
+                            start.getFullYear(),
+                            start.getMonth() + 1,
+                            0
+                          );
+                          return `${monthDate} ~ ${
+                            lastDay.toISOString().split("T")[0]
+                          }`;
                         })()
                       : endDate
                       ? `${startDate} ~ ${endDate}`
@@ -546,7 +561,14 @@ const Improvement: React.FC = () => {
 
             <div className="report-preview__footer">
               {error && (
-                <div className="report-preview__error" style={{ marginBottom: "12px", color: "red", fontSize: "14px" }}>
+                <div
+                  className="report-preview__error"
+                  style={{
+                    marginBottom: "12px",
+                    color: "red",
+                    fontSize: "14px",
+                  }}
+                >
                   {error}
                 </div>
               )}

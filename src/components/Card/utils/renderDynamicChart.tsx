@@ -6,7 +6,7 @@ import MetricGrid, { type MetricData } from "@/components/Card/MetricCard";
 import StackChart from "@/components/Chart/StackChart";
 import SuccessGreenIcon from "@/assets/general/succes-green.svg";
 import ErrorRedIcon from "@/assets/general/error-red.svg";
-import type { GraphDataResponse } from "@/api/dashboard";
+import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 
 const ensureNumber = (value: unknown): number | null => {
@@ -190,6 +190,8 @@ const renderMetricTiles = (
       if (numeric !== null) {
         if (suffix === "%") {
           display = `${numeric.toFixed(1)}%`;
+        } else if (suffix) {
+          display = `${numeric.toLocaleString()} ${suffix}`;
         } else {
           display = numeric.toLocaleString();
         }
@@ -597,26 +599,27 @@ export const renderDynamicChart = (
       [
         {
           key: "host_cpu_util_pct",
-          label: "Host CPU(%)",
-          suffix: "%",
+          label: "호스트 CPU 사용률",
+          suffix: " %",
         },
         {
           key: "cpu_saturation_pct",
-          label: "DB CPU Saturation(%)",
-          suffix: "%",
+          label: "DB CPU 포화도 ",
+          suffix: " %",
         },
         {
           key: "db_of_host_share_pct",
-          label: "DB Share of Host(%)",
-          suffix: "%",
+          label: "DB CPU 점유율",
+          suffix: " %",
           subtitleKeys: ["aas_oncpu_sessions", "host_busy_cores"],
         },
         {
           key: "runq_per_core_load_proxy",
-          label: "Run Queue per Core(process)",
+          label: "RunQ",
+          suffix: " /Core",
         },
-        { key: "tps_per_sec", label: "TPS" },
-        { key: "execs_per_sec", label: "EXEC/S" },
+        { key: "tps_per_sec", label: "TPS", suffix: " /s" },
+        { key: "execs_per_sec", label: "EXEC/S", suffix: " /s" },
       ],
       6
     );
@@ -654,7 +657,7 @@ export const renderDynamicChart = (
       graph,
       {
         keys: ["aas_oncpu_sessions", "core_baseline_sessions"],
-        legends: ["AAS On-CPU Sessions", "Core Baseline Sessions"],
+        legends: ["AAS On-CPU", "Core Baseline Sessions"],
       },
       mode
     );
@@ -715,10 +718,10 @@ export const renderDynamicChart = (
     return renderMetricTiles(
       graph,
       [
-        { key: "pga_used_bytes", label: "PGA Used (bytes)" },
-        { key: "pga_target_bytes", label: "PGA Target (bytes)" },
-        { key: "pga_util_pct", label: "PGA Util (%)", suffix: "%" },
-        { key: "memory_sort_pct", label: "Memory Sort (%)", suffix: "%" },
+        { key: "pga_used_bytes", label: "PGA 사용량", suffix: "bytes" },
+        { key: "pga_target_bytes", label: "PGA 할당량", suffix: "bytes" },
+        { key: "pga_util_pct", label: "PGA 사용률", suffix: "%" },
+        { key: "memory_sort_pct", label: "Memory Sort", suffix: "%" },
         { key: "dedicated_sess_cnt", label: "Dedicated" },
         { key: "parallel_proc_cnt", label: "Parallel" },
         { key: "shared_server_proc_cnt", label: "Shared" },
@@ -733,10 +736,14 @@ export const renderDynamicChart = (
     return renderMetricTiles(
       graph,
       [
-        { key: "sga_util_pct", label: "SGA Usage", suffix: "%" },
+        { key: "sga_util_pct", label: "SGA 사용률", suffix: "%" },
         { key: "shared_pool_free_pct", label: "Shared Pool", suffix: "%" },
-        { key: "library_cache_mb", label: "Lib.Cache", suffix: " MB" },
-        { key: "dictionary_cache_mb", label: "Dic.Cache", suffix: " MB" },
+        { key: "library_cache_mb", label: "Libary Cache", suffix: " MB" },
+        {
+          key: "dictionary_cache_mb",
+          label: "Dictionary Cache",
+          suffix: " MB",
+        },
         { key: "large_pool_mb", label: "Large Pool", suffix: " MB" },
         { key: "java_pool_mb", label: "Java Pool", suffix: " MB" },
         { key: "log_buffer_mb", label: "Log Buffer", suffix: " MB" },
@@ -879,19 +886,19 @@ export const renderDynamicChart = (
     return renderMetricTiles(
       graph,
       [
-        { key: "active_user_sessions_now", label: "Active / Total Users" },
+        { key: "active_user_sessions_now", label: "활성 세션" },
         {
           key: "sessions_limit_util_pct",
-          label: "Sessions Limit Util(%)",
+          label: "세션 사용률",
           suffix: "%",
         },
         {
           key: "processes_limit_util_pct",
-          label: "Processes Limit Util(%)",
+          label: "프로세스 사용률",
           suffix: "%",
         },
-        { key: "blockers_now", label: "Blockers(session)" },
-        { key: "blocked_now", label: "Blocked(session)" },
+        { key: "blockers_now", label: "Blockers" },
+        { key: "blocked_now", label: "Blocked" },
       ],
       5
     );
@@ -906,22 +913,30 @@ export const renderDynamicChart = (
       [
         {
           key: "cache_hit_ratio_pct",
-          label: "Cache Hit Ratio(%)",
-          suffix: "%",
+          label: "Buffer Cache Hit Ratio",
+          suffix: " %",
         },
         {
           key: "avg_io_wait_time_ms",
-          label: "Avg I/O Wait Time(ms)",
+          label: "평균 I/O 대기",
           suffix: " ms",
         },
-        { key: "physical_reads_per_sec", label: "Physical Reads(/s)" },
+        {
+          key: "physical_reads_per_sec",
+          label: "Physical Reads",
+          suffix: " blocks/s",
+        },
         {
           key: "redo_size_mb_per_sec",
-          label: "Redo Size(MB/s)",
+          label: "Redo 생성량",
           suffix: " MB/s",
         },
-        { key: "parse_execute_ratio", label: "Parse/Execute Ratio" },
-        { key: "direct_path_io_per_sec", label: "Direct Path I/O(/s)" },
+        { key: "parse_execute_ratio", label: "파스/실행 비율", suffix: " %" },
+        {
+          key: "direct_path_io_per_sec",
+          label: "Direct Path I/O",
+          suffix: " blocks/s",
+        },
       ],
       6
     );
@@ -1046,13 +1061,17 @@ export const renderDynamicChart = (
     return renderMetricTiles(
       graph,
       [
-        { key: "fra_usage_percent", label: "FRA Usage(%)", suffix: "%" },
-        { key: "fra_free_gb", label: "FRA Free(GB)", suffix: " GB" },
-        { key: "undo_usage_pct", label: "Undo Usage(%)", suffix: "%" },
-        { key: "temp_usage_pct", label: "Temp Usage(%)", suffix: "%" },
-        { key: "max_ts_name", label: "Max TS Name" },
-        { key: "max_ts_usage_pct", label: "Max TS Usage(%)", suffix: "%" },
-        { key: "total_db_usage_pct", label: "Total DB Usage(%)", suffix: "%" },
+        { key: "fra_usage_percent", label: "FRA 사용률", suffix: "%" },
+        { key: "fra_free_gb", label: "FRA 여유", suffix: " GB" },
+        { key: "undo_usage_pct", label: "Undo 사용률", suffix: "%" },
+        { key: "temp_usage_pct", label: "Temp 사용률", suffix: "%" },
+        { key: "max_ts_name", label: "최대 사용 테이블 스페이스" },
+        {
+          key: "max_ts_usage_pct",
+          label: "최대 사용 테이블 스페이스 사용률",
+          suffix: "%",
+        },
+        { key: "total_db_usage_pct", label: "전체 DB 사용률 ", suffix: "%" },
       ],
       7
     );
