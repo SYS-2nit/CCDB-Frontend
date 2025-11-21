@@ -3,7 +3,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { chartData } from "./data/chartData";
-import { type DropResult } from "@hello-pangea/dnd"; // 추가
+// import { type DropResult } from "@hello-pangea/dnd"; // 추가
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
 import ChartSetting from "@/pages/Dashboard/InstanceMap/Dashboard/Card/ChartSetting";
@@ -454,27 +454,6 @@ const Dashboard: React.FC<DashboardProps> = ({
     }
     prevTabRef.current = activeTab;
   }, [activeTab, isWidgetOrderDirty, saveWidgetOrder]);
-
-  // HEAD 브랜치: 드래그 앤 드롭 처리
-  const handleDragEnd = ({ source, destination }: DropResult) => {
-    if (!destination || destination.index === source.index) return;
-    if (activeTab !== "main") return;
-
-    setCharts((prev) => {
-      const reordered = [...prev];
-      const [moved] = reordered.splice(source.index, 1);
-      reordered.splice(destination.index, 0, moved);
-
-      // GraphDataResponse 배열에서 이름 배열로 변환
-      const names = reordered.map((graph) => graph.name);
-      reorderGraphsByNames(names);
-      void saveWidgetOrder().finally(() => {
-        triggerRefresh();
-      });
-
-      return reordered;
-    });
-  };
 
   /* -------------------------------------------------------
       react-grid-layout drag → layout + charts 순서 업데이트
