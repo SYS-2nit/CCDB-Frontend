@@ -148,27 +148,27 @@ const Dashboard: React.FC<DashboardProps> = ({
     return [...sorted, ...remaining];
   };
 
-  const handleOpenSetting = (index: number) => {
-    setSettingTargetIndex(index);
-    setIsSettingOpen(true);
-  };
-  const handleCloseSetting = () => {
-    setSettingTargetIndex(null);
-    setIsSettingOpen(false);
-  };
+  // const handleOpenSetting = (index: number) => {
+  //   setSettingTargetIndex(index);
+  //   setIsSettingOpen(true);
+  // };
+  // const handleCloseSetting = () => {
+  //   setSettingTargetIndex(null);
+  //   setIsSettingOpen(false);
+  // };
 
-  const tabs = useMemo(
-    () =>
-      [
-        { id: "main", label: "Main Custom" },
-        { id: "cpu", label: "CPU" },
-        { id: "memory", label: "Memory" },
-        { id: "session", label: "Session" },
-        { id: "io", label: "I/O" },
-        { id: "storage", label: "Storage" },
-      ] as const,
-    []
-  );
+  // const tabs = useMemo(
+  //   () =>
+  //     [
+  //       { id: "main", label: "Main Custom" },
+  //       { id: "cpu", label: "CPU" },
+  //       { id: "memory", label: "Memory" },
+  //       { id: "session", label: "Session" },
+  //       { id: "io", label: "I/O" },
+  //       { id: "storage", label: "Storage" },
+  //     ] as const,
+  //   []
+  // );
 
   useEffect(() => {
     setActiveTab(initialTab);

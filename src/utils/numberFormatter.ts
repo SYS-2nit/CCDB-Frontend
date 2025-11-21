@@ -1,4 +1,4 @@
-const UNITS = ["", "K", "M", "G", "T", "P"];
+// const UNITS = ["", "K", "M", "G", "T", "P"];
 
 interface FormattedNumber {
   value: number;
