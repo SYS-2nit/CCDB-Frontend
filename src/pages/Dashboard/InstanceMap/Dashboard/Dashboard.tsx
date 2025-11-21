@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { chartData } from "./data/chartData";
+// import { type DropResult } from "@hello-pangea/dnd"; // 추가
 import "./Dashboard.scss";
 import ChartCard from "@/components/Card/ChartCard";
 import ChartSetting from "@/pages/Dashboard/InstanceMap/Dashboard/Card/ChartSetting";
@@ -80,6 +82,9 @@ const Dashboard: React.FC<DashboardProps> = ({
     Map<TabType, GraphDataResponse[]>
   >(new Map());
 
+  // HEAD 브랜치 기능: 마지막으로 로드한 탭 추적
+  const lastLoadedTabRef = useRef<TabType | null>(null);
+
   /* Dashboard Context */
   const {
     selectedInstanceId: contextInstanceId,
@@ -93,6 +98,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     replaceGraphAt,
     clearGraphs,
     saveWidgetOrder,
+    isWidgetOrderDirty, // 추가
     setIsFetching,
     setError,
     triggerRefresh,
@@ -125,6 +131,62 @@ const Dashboard: React.FC<DashboardProps> = ({
     return categoryMap[tab] ?? "CUSTOM";
   };
 
+  // chartData.ts의 순서에 맞춰 그래프 정렬
+  const orderGraphsByTab = (
+    graphs: GraphDataResponse[]
+  ): GraphDataResponse[] => {
+    if (!graphs || graphs.length === 0) return [];
+    if (activeTab === "main") {
+      return graphs; // 메인 탭은 정렬하지 않음 (드래그 앤 드롭 유지)
+    }
+    const order = chartData[activeTab] ?? [];
+    const graphMap = new Map(graphs.map((g) => [g.name, g]));
+    const sorted = order
+      .map((name) => graphMap.get(name))
+      .filter((g): g is GraphDataResponse => g !== undefined);
+    const remaining = graphs.filter((g) => !order.includes(g.name));
+    return [...sorted, ...remaining];
+  };
+
+  // const handleOpenSetting = (index: number) => {
+  //   setSettingTargetIndex(index);
+  //   setIsSettingOpen(true);
+  // };
+  // const handleCloseSetting = () => {
+  //   setSettingTargetIndex(null);
+  //   setIsSettingOpen(false);
+  // };
+
+  // const tabs = useMemo(
+  //   () =>
+  //     [
+  //       { id: "main", label: "Main Custom" },
+  //       { id: "cpu", label: "CPU" },
+  //       { id: "memory", label: "Memory" },
+  //       { id: "session", label: "Session" },
+  //       { id: "io", label: "I/O" },
+  //       { id: "storage", label: "Storage" },
+  //     ] as const,
+  //   []
+  // );
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
+  // 서버에서 받은 그래프 데이터를 그대로 사용
+  useEffect(() => {
+    if (activeTab === "main") {
+      // main 탭은 graphList를 그대로 사용
+      setCharts(graphList);
+    } else {
+      // 다른 탭은 categoryGraphs에서 그래프 데이터를 그대로 사용
+      const currentGraphs = categoryGraphs.get(activeTab) ?? [];
+      setCharts(currentGraphs);
+    }
+  }, [activeTab, graphList, categoryGraphs]);
+
+  // 초기 로드 및 모드/인스턴스/탭 변경 시 데이터 로드
   /* -------------------------------------------------------
       데이터 로드
   -------------------------------------------------------- */
@@ -171,15 +233,20 @@ const Dashboard: React.FC<DashboardProps> = ({
         });
 
         if (cancelled) return;
+        if (cancelled) return;
 
-        const norm = normalize(res?.graphs);
+        // normalize 함수 사용 (이미 정의되어 있음 - dev 브랜치)
+        const normalizedGraphs = normalize(res?.graphs);
+        // orderGraphsByTab 사용 (HEAD 브랜치 기능)
+        const orderedGraphs = orderGraphsByTab(normalizedGraphs);
 
         if (activeTab === "main") {
-          setGraphs(norm);
+          setGraphs(orderedGraphs);
+          lastLoadedTabRef.current = activeTab; // HEAD 브랜치 기능
         } else {
           setCategoryGraphs((prev) => {
             const next = new Map(prev);
-            next.set(activeTab, norm);
+            next.set(activeTab, orderedGraphs);
             return next;
           });
         }
@@ -216,14 +283,14 @@ const Dashboard: React.FC<DashboardProps> = ({
   ]);
 
   /* -------------------------------------------------------
-      charts & layout 동기화
-  -------------------------------------------------------- */
+    charts & layout 동기화
+-------------------------------------------------------- */
   useEffect(() => {
     const newCharts =
       activeTab === "main" ? graphList : categoryGraphs.get(activeTab) ?? [];
     setCharts(newCharts);
 
-    // layout과 charts 동기화
+    // dev 브랜치: layout과 charts 동기화
     setLayout(() => {
       return newCharts.map((c, index) => ({
         i: String(c.id),
@@ -234,6 +301,159 @@ const Dashboard: React.FC<DashboardProps> = ({
       }));
     });
   }, [activeTab, graphList, categoryGraphs]);
+
+  // HEAD 브랜치: LIVE 모드일 때만 1분마다 지정된 시간(02초)에 데이터 자동 새로고침
+  useEffect(() => {
+    // LIVE 모드가 아니면 자동 새로고침하지 않음
+    if (mode !== "LIVE" || !selectedInstanceId) {
+      return;
+    }
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let intervalId: ReturnType<typeof setInterval>;
+    let cancelled = false;
+
+    // 기존 데이터에 새 데이터 포인트를 추가하는 함수
+    const mergeGraphData = (
+      existingGraphs: GraphDataResponse[],
+      newGraphs: GraphDataResponse[]
+    ): GraphDataResponse[] => {
+      const existingMap = new Map(existingGraphs.map((g) => [g.id, g]));
+
+      return newGraphs.map((newGraph) => {
+        const existing = existingMap.get(newGraph.id);
+        if (!existing || !existing.data || existing.data.length === 0) {
+          return newGraph;
+        }
+
+        // 기존 데이터의 마지막 타임스탬프 확인
+        const existingTimestamps = new Set(
+          existing.data.map((d) => d.timestamp).filter(Boolean)
+        );
+
+        // 새로운 데이터 포인트만 필터링 (중복 제거)
+        const newDataPoints = (newGraph.data ?? []).filter(
+          (point) => !existingTimestamps.has(point.timestamp)
+        );
+
+        if (newDataPoints.length === 0) {
+          return existing; // 새 데이터가 없으면 기존 데이터 유지
+        }
+
+        // 기존 데이터에 새 포인트 추가 (타임스탬프 순서 유지)
+        const mergedData = [...existing.data, ...newDataPoints].sort((a, b) => {
+          const timeA = new Date(a.timestamp ?? 0).getTime();
+          const timeB = new Date(b.timestamp ?? 0).getTime();
+          return timeA - timeB;
+        });
+
+        // 최대 100개 데이터 포인트만 유지 (메모리 관리)
+        const maxPoints = 100;
+        const trimmedData =
+          mergedData.length > maxPoints
+            ? mergedData.slice(-maxPoints)
+            : mergedData;
+
+        return {
+          ...newGraph,
+          data: trimmedData,
+        };
+      });
+    };
+
+    const loadDashboard = async () => {
+      if (cancelled) return;
+
+      // 로딩 상태를 표시하지 않음 (백그라운드 업데이트)
+      setError(null);
+      try {
+        const category = getCategoryByTab(activeTab);
+        const response = await fetchDashboardData({
+          instanceId: selectedInstanceId,
+          timeUnit: resolveTimeUnit(mode),
+          category,
+        });
+        if (cancelled) return;
+
+        const orderedNewGraphs = orderGraphsByTab(response?.graphs ?? []);
+
+        if (activeTab === "main") {
+          setGraphs((prev) => {
+            if (prev.length === 0) {
+              return orderedNewGraphs;
+            }
+            return mergeGraphData(prev, orderedNewGraphs);
+          });
+        } else {
+          setCategoryGraphs((prev) => {
+            const next = new Map(prev);
+            const existing = next.get(activeTab) ?? [];
+
+            if (existing.length === 0) {
+              next.set(activeTab, orderedNewGraphs);
+            } else {
+              next.set(activeTab, mergeGraphData(existing, orderedNewGraphs));
+            }
+            return next;
+          });
+        }
+      } catch (error) {
+        if (cancelled) return;
+        setError(getErrorMessage(error));
+      }
+    };
+
+    const scheduleNextUpdate = () => {
+      const now = new Date();
+      const seconds = now.getSeconds();
+      const milliseconds = now.getMilliseconds();
+
+      // 02초에 데이터 호출하도록 설정
+      let msUntilNextUpdate: number;
+      if (seconds < 2) {
+        // 아직 02초가 안 지났으면 다음 02초까지 대기
+        msUntilNextUpdate = (2 - seconds) * 1000 - milliseconds;
+      } else {
+        // 02초가 지났으면 다음 분의 02초까지 대기
+        msUntilNextUpdate = (60 - seconds + 2) * 1000 - milliseconds;
+      }
+
+      timeoutId = setTimeout(() => {
+        if (cancelled) return;
+        void loadDashboard();
+        // 이후 1분마다 02초에 호출
+        intervalId = setInterval(() => {
+          if (cancelled) return;
+          void loadDashboard();
+        }, 60000);
+      }, msUntilNextUpdate);
+    };
+
+    scheduleNextUpdate();
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [mode, selectedInstanceId, activeTab, refreshToken, setGraphs, setError]);
+
+  // HEAD 브랜치: refreshToken 변경 시 위젯 순서 저장
+  useEffect(() => {
+    if (activeTab === "main" && graphList.length > 0) {
+      void saveWidgetOrder();
+    }
+  }, [refreshToken, activeTab, graphList, saveWidgetOrder]);
+
+  // HEAD 브랜치: 탭 변경 시 위젯 순서 저장
+  const prevTabRef = useRef<TabType>(activeTab);
+  useEffect(() => {
+    const prevTab = prevTabRef.current;
+    if (prevTab === "main" && activeTab !== "main" && isWidgetOrderDirty) {
+      void saveWidgetOrder();
+    }
+    prevTabRef.current = activeTab;
+  }, [activeTab, isWidgetOrderDirty, saveWidgetOrder]);
 
   /* -------------------------------------------------------
       react-grid-layout drag → layout + charts 순서 업데이트
