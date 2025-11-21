@@ -1540,7 +1540,7 @@ export const renderDynamicChart = (
 
     // labelKeys와 valueKeys를 매칭하여 함께 정렬
     const pairs = labelKeys
-      .map((labelKey, index) => {
+      .map((labelKey) => {
         // 같은 숫자 접두사를 가진 valueKey 찾기
         const labelPrefix = labelKey.match(/^(.+)_tablespace_name_inc$/)?.[1];
         const valueKey = valueKeys.find(
@@ -1667,7 +1667,7 @@ export const renderDynamicChart = (
     // tooltipFormatter 생성
     const tooltipFormatter = (
       { used }: { used: number; total: number; percent: number },
-      index: number
+      _index: number // eslint-disable-line @typescript-eslint/no-unused-vars
     ) => {
       // 소수점 둘째자리까지 반올림하고 " ms" 붙이기
       return `${used.toFixed(2)} ms`;
@@ -1713,7 +1713,7 @@ export const renderDynamicChart = (
     // x축 라벨 포맷터 생성 (툴팁과 동일한 변환 적용)
     const xAxisFormatter = (value: number) => {
       const mbValue = value / 1_048_576;
-      return `${mbValue.toFixed(2)}`;
+      return `${mbValue.toFixed(3)}`;
     };
 
     return renderStack(
