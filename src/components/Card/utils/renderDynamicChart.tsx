@@ -755,6 +755,7 @@ export const renderDynamicChart = (
       mode
     );
   }
+  // --------------------------------------------------------------- 머지 직전 ---------------------
 
   // Graph ID 4: CPU 사용(호스트 vs DB CPU)
   // GraphRegistry: HOST_CPU_UTIL_PCT, CPU_SATURATION_PCT
