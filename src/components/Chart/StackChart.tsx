@@ -26,6 +26,7 @@ interface StackChartProps {
   height?: number | string;
   xMin?: number; // x축,y축 설정 변경
   xMax?: number; // x축,y축 설정 변경
+  useActualValue?: boolean; // 실제 값 사용 여부 (percent 계산 안 함)
 }
 
 const StackChart: React.FC<StackChartProps> = ({
@@ -43,26 +44,34 @@ const StackChart: React.FC<StackChartProps> = ({
   yaxisTitle,
   xMin, // x축,y축 설정 변경
   xMax, // x축,y축 설정 변경
+  useActualValue = false, // 실제 값 사용 여부 (기본값: false - 기존 동작 유지)
 }) => {
   const _labels = labels.slice(0, stackCount);
   const _usage = usage.slice(0, stackCount);
   const _total = total.slice(0, stackCount);
 
-  // 사용률 계산
-  const percents = _usage.map((v, i) => (v / _total[i]) * 100);
+  // 실제 값 모드면 percent 계산 건너뛰고 실제 값 사용
+  const displayValues = useActualValue
+    ? _usage // 실제 값 그대로 사용
+    : _usage.map((v, i) => (v / _total[i]) * 100); // 기존: percent 계산
 
-  const getColor = (percent: number) => {
-    const rule = colorRules.find((r) => percent >= r.min && percent < r.max);
+  const getColor = (value: number) => {
+    if (useActualValue) {
+      // 실제 값 모드에서는 기본 색상 사용
+      return getCssVar("sematic-success");
+    }
+    // percent 모드에서는 colorRules 적용
+    const rule = colorRules.find((r) => value >= r.min && value < r.max);
     return rule ? rule.color : getCssVar("gray-300");
   };
 
   const series = [
     {
       name: "Usage",
-      data: percents.map((p, i) => ({
+      data: displayValues.map((val, i) => ({
         x: _labels[i],
-        y: p,
-        fillColor: getColor(p),
+        y: val,
+        fillColor: getColor(val),
       })),
     },
   ];

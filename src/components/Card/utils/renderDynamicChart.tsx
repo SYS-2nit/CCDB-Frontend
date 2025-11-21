@@ -24,7 +24,7 @@ const GRAPH_AXIS_RANGES: Record<
   17: { yMin: 0, yMax: 2 }, // x축,y축 설정 변경
   18: { yMin: 0, yMax: 50 }, // x축,y축 설정 변경
   19: { yMin: 0, yMax: 0.5 }, // x축,y축 설정 변경
-  20: { xMin: 0, xMax: 500 }, // x축,y축 설정 변경 ----- 막대
+  20: { xMin: 0, xMax: 4000 }, // x축,y축 설정 변경 ----- 막대
   // Memory
   23: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   24: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
@@ -48,7 +48,7 @@ const GRAPH_AXIS_RANGES: Record<
   41: { yMin: 0, yMax: 5 }, // x축,y축 설정 변경
   42: { yMin: 0, yMax: 0.1 }, // x축,y축 설정 변경
   43: { yMin: 0, yMax: 10 }, // x축,y축 설정 변경
-  // 44: { xMin: 0, xMax: 10 }, // x축,y축 설정 변경 -- 막대
+  44: { xMin: 0, xMax: 100 }, // x축,y축 설정 변경 -- 막대
 
   // Storage
   46: { yMin: 0, yMax: 0.1 }, // x축,y축 설정 변경
@@ -671,22 +671,12 @@ const renderStack = (
   const latest = sorted[sorted.length - 1];
 
   const usage = keys.map((key) => ensureNumber(latest.values?.[key]) ?? 0);
-  const totals = keys.map(() => 100);
+  const totals = keys.map(() => 40000);
 
   const axisRange = GRAPH_AXIS_RANGES[graph.id]; // x축,y축 설정 변경
-  // return (
-  //   <StackChart
-  //     labels={labels}
-  //     usage={usage}
-  //     total={totals}
-  //     colorRules={[
-  //       { min: 0, max: 69, color: "#22C55E" },
-  //       { min: 70, max: 84, color: "#FACC15" },
-  //       { min: 85, max: 100, color: "#EF4444" },
-  //     ]}
-  //     height={200}
-  //   />
-  // );
+  // 20번 그래프는 실제 값(ms)을 표시해야 하므로 실제 값 모드 사용
+  const useActualValue =
+    graph.id === 20 || graph.id === 28 || graph.id === 44 || graph.id === 48;
   return (
     <StackChart
       labels={labels}
@@ -701,6 +691,7 @@ const renderStack = (
         { min: 85, max: 100, color: "#EF4444" },
       ]}
       height={200}
+      useActualValue={useActualValue}
     />
   );
 };
@@ -1877,12 +1868,10 @@ export const renderDynamicChart = (
     const columnData = sorted.map(
       (point) => ensureNumber(point.values?.[dbwrKey]) ?? 0
     );
-    const lineData = sorted.map(
-      (point) => {
-        const value = ensureNumber(point.values?.[secondKey]) ?? 0;
-        return parseFloat(value.toFixed(2)); // 소수점 2자리까지 반올림
-      }
-    );
+    const lineData = sorted.map((point) => {
+      const value = ensureNumber(point.values?.[secondKey]) ?? 0;
+      return parseFloat(value.toFixed(2)); // 소수점 2자리까지 반올림
+    });
 
     return (
       <MixedChart

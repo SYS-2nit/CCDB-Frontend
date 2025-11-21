@@ -127,6 +127,23 @@ const Dashboard: React.FC<DashboardProps> = ({
     return categoryMap[tab] ?? "CUSTOM";
   };
 
+  // chartData.ts의 순서에 맞춰 그래프 정렬
+  const orderGraphsByTab = (
+    graphs: GraphDataResponse[]
+  ): GraphDataResponse[] => {
+    if (!graphs || graphs.length === 0) return [];
+    if (activeTab === "main") {
+      return graphs; // 메인 탭은 정렬하지 않음 (드래그 앤 드롭 유지)
+    }
+    const order = chartData[activeTab] ?? [];
+    const graphMap = new Map(graphs.map((g) => [g.name, g]));
+    const sorted = order
+      .map((name) => graphMap.get(name))
+      .filter((g): g is GraphDataResponse => g !== undefined);
+    const remaining = graphs.filter((g) => !order.includes(g.name));
+    return [...sorted, ...remaining];
+  };
+
   const handleOpenSetting = (index: number) => {
     setSettingTargetIndex(index);
     setIsSettingOpen(true);
@@ -207,23 +224,6 @@ const Dashboard: React.FC<DashboardProps> = ({
         const sliced = sorted.length > limit ? sorted.slice(-limit) : sorted;
         return { ...graph, data: sliced };
       });
-    };
-
-    // chartData.ts의 순서에 맞춰 그래프 정렬
-    const orderGraphsByTab = (
-      graphs: GraphDataResponse[]
-    ): GraphDataResponse[] => {
-      if (!graphs || graphs.length === 0) return [];
-      if (activeTab === "main") {
-        return graphs; // 메인 탭은 정렬하지 않음 (드래그 앤 드롭 유지)
-      }
-      const order = chartData[activeTab] ?? [];
-      const graphMap = new Map(graphs.map((g) => [g.name, g]));
-      const sorted = order
-        .map((name) => graphMap.get(name))
-        .filter((g): g is GraphDataResponse => g !== undefined);
-      const remaining = graphs.filter((g) => !order.includes(g.name));
-      return [...sorted, ...remaining];
     };
 
     const loadDashboard = async () => {
