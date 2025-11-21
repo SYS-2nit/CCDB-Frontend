@@ -5,7 +5,7 @@ import { ioChartRenderer } from "../chartRenderers/ioChartRenderer";
 import { storageChartRenderer } from "../chartRenderers/storageChartRenderer";
 import { memoryChartRenderer } from "../chartRenderers/memoryChartRenderer";
 import { sessionChartRenderer } from "../chartRenderers/sessionChartRenderer";
-import type { GraphDataResponse } from "@/api/dashboard";
+import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 /** 탭 타입 정의 */
 export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";

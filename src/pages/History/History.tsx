@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useCallback } from "react";
 import "./History.scss";
 import DateInput from "@/components/Input/DateInput";
@@ -5,9 +7,17 @@ import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
 import { X } from "lucide-react";
 import Select from "@/components/Select/Select";
-import { fetchHistoryData, fetchHistoryGraphList, type HistoryGraphDataResponse, type HistoryGraphInfo } from "@/api/history";
+import {
+  fetchHistoryData,
+  fetchHistoryGraphList,
+  type HistoryGraphDataResponse,
+  type HistoryGraphInfo,
+} from "@/api/History/history";
 import { useDashboardContext } from "@/state/DashboardContext";
 import ChartCard from "@/components/Card/ChartCard";
+import Spinner from "@/components/Spinner/Spinner";
+import TabMenu from "@/components/Tabs/TabMenu";
+import { chartData } from "@/pages/Dashboard/InstanceMap/Dashboard/data/chartData";
 
 interface FilterItem {
   key: string;
@@ -15,49 +25,66 @@ interface FilterItem {
   value: string;
 }
 
-// 카테고리 옵션
-const CATEGORY_OPTIONS = [
-  { label: "CPU", value: "CPU" },
-  { label: "Memory", value: "MEMORY" },
-  { label: "Session", value: "SESSION" },
-  { label: "I/O", value: "IO" },
-  { label: "Storage", value: "STORAGE" },
-  { label: "Custom", value: "CUSTOM" },
-];
-
-// 시간 단위 매핑 (프론트엔드 표시용 -> 백엔드 형식)
+// 시간 단위 매핑
 const TIME_UNIT_MAP: Record<string, "1m" | "10m" | "1h" | "1d"> = {
   "1분": "1m",
   "10분": "10m",
   "1시간": "1h",
-  "하루": "1d",
+  하루: "1d",
 };
 
 const History: React.FC = () => {
+  // filters
   const { selectedInstanceId } = useDashboardContext();
   const [filters, setFilters] = useState<FilterItem[]>([]);
   const [graphList, setGraphList] = useState<HistoryGraphInfo[]>([]);
-  const [historyGraphs, setHistoryGraphs] = useState<HistoryGraphDataResponse[]>([]);
+  const [historyGraphs, setHistoryGraphs] = useState<
+    HistoryGraphDataResponse[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [graphTimeUnits, setGraphTimeUnits] = useState<Map<number, "1m" | "10m" | "1h" | "1d">>(new Map());
+  const [graphTimeUnits, setGraphTimeUnits] = useState<
+    Map<number, "1m" | "10m" | "1h" | "1d">
+  >(new Map());
 
-  /** 공통 업데이트 함수 */
-  const updateFilter = useCallback((key: string, label: string, value: string) => {
-    setFilters((prev) => {
-      if (!value || value === "0" || value === "") {
-        return prev.filter((f) => f.key !== key);
-      }
-      const exists = prev.find((f) => f.key === key);
-      if (exists) {
-        return prev.map((f) => (f.key === key ? { ...f, value } : f));
-      } else {
+  // 탭 옵션
+  const TAB_ITEMS = [
+    { id: "CUSTOM", label: "Custom" },
+    { id: "CPU", label: "CPU" },
+    { id: "MEMORY", label: "Memory" },
+    { id: "SESSION", label: "Session" },
+    { id: "IO", label: "I/O" },
+    { id: "STORAGE", label: "Storage" },
+  ] as const;
+
+  // 내부 activeTab = 소문자로 관리 (chartData key와 동일)
+  const [activeTab, setActiveTab] = useState<
+    "cpu" | "memory" | "session" | "io" | "storage"
+  >("cpu"); // 기본 CPU
+
+  // chartData 기반 필터링
+  const filteredGraphs = historyGraphs.filter((graph) =>
+    chartData[activeTab]?.includes(graph.name)
+  );
+
+  /** 공통 필터 업데이트 */
+  const updateFilter = useCallback(
+    (key: string, label: string, value: string) => {
+      setFilters((prev) => {
+        if (!value || value === "0" || value === "") {
+          return prev.filter((f) => f.key !== key);
+        }
+        const exists = prev.find((f) => f.key === key);
+        if (exists) {
+          return prev.map((f) => (f.key === key ? { ...f, value } : f));
+        }
         return [...prev, { key, label, value }];
-      }
-    });
-  }, []);
+      });
+    },
+    []
+  );
 
-  /** 카테고리 선택 시 그래프 리스트 조회 */
+  /** 카테고리 변경 시 그래프 목록 조회 */
   useEffect(() => {
     const category = filters.find((f) => f.key === "category")?.value;
     if (!category) {
@@ -78,7 +105,7 @@ const History: React.FC = () => {
     void loadGraphList();
   }, [filters]);
 
-  /** 검색 버튼 클릭 핸들러 */
+  /** 검색 */
   const handleSearch = useCallback(async () => {
     if (!selectedInstanceId) {
       alert("인스턴스를 선택해주세요.");
@@ -92,7 +119,6 @@ const History: React.FC = () => {
     const keyword = filters.find((f) => f.key === "keyword")?.value;
     const duration = filters.find((f) => f.key === "duration")?.value;
 
-    // 시작일 또는 종료일이 없으면 경고
     if (!startDate && !endDate) {
       alert("시작일 또는 종료일을 선택해주세요.");
       return;
@@ -102,28 +128,21 @@ const History: React.FC = () => {
     setError(null);
 
     try {
-      // 날짜 형식 변환 (datetime-local 또는 date -> ISO 8601)
       let startDateTime: string | undefined;
       let endDateTime: string | undefined;
 
       if (startDate) {
-        // datetime-local 형식이면 그대로 사용, date 형식이면 시간 추가
-        if (startDate.includes("T")) {
-          startDateTime = startDate + ":00"; // 초 추가
-        } else {
-          startDateTime = startDate + "T00:00:00";
-        }
+        startDateTime = startDate.includes("T")
+          ? startDate + ":00"
+          : startDate + "T00:00:00";
       }
 
       if (endDate) {
-        if (endDate.includes("T")) {
-          endDateTime = endDate + ":00"; // 초 추가
-        } else {
-          endDateTime = endDate + "T23:59:59";
-        }
+        endDateTime = endDate.includes("T")
+          ? endDate + ":00"
+          : endDate + "T23:59:59";
       }
 
-      // 시간 단위 변환
       const timeUnit = duration ? TIME_UNIT_MAP[duration] || "1d" : "1d";
 
       const response = await fetchHistoryData({
@@ -137,13 +156,11 @@ const History: React.FC = () => {
       });
 
       setHistoryGraphs(response.graphs || []);
-      
-      // 각 그래프의 기본 시간 단위 설정
-      const newTimeUnits = new Map<number, "1m" | "10m" | "1h" | "1d">();
-      response.graphs?.forEach((graph) => {
-        newTimeUnits.set(graph.id, timeUnit);
-      });
-      setGraphTimeUnits(newTimeUnits);
+
+      // 그래프 시간 단위 저장
+      const newUnits = new Map<number, "1m" | "10m" | "1h" | "1d">();
+      response.graphs?.forEach((g) => newUnits.set(g.id, timeUnit));
+      setGraphTimeUnits(newUnits);
     } catch (error) {
       console.error("히스토리 데이터 조회 실패:", error);
       setError("데이터를 불러오는데 실패했습니다.");
@@ -158,36 +175,19 @@ const History: React.FC = () => {
     setFilters((prev) => prev.filter((f) => f.key !== key));
   };
 
-  /** 날짜 및 시간 유효성 검사 */
+  /** 날짜 처리 */
   const handleDateChange = (type: "start" | "end", value: string) => {
     const duration = filters.find((f) => f.key === "duration")?.value;
 
-    // 기간 미선택 시
     if (!duration || duration === "0") {
       alert("먼저 기간을 선택해주세요.");
       return;
     }
 
-    const start =
-      type === "start" ? value : filters.find((f) => f.key === "start")?.value;
-    const end =
-      type === "end" ? value : filters.find((f) => f.key === "end")?.value;
-
-    if (start && end) {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-
-      // 종료일이 시작일보다 빠를 경우
-      if (endDate.getTime() < startDate.getTime()) {
-        alert("종료일은 시작일보다 이후여야 합니다.");
-        return;
-      }
-    }
-
     updateFilter(type, type === "start" ? "시작일" : "종료일", value);
   };
 
-  // 기간 변경 시 종료일 초기화
+  // 기간 적용
   const handleDurationChange = (value: string) => {
     setFilters((prev) => prev.filter((f) => f.key !== "end"));
     updateFilter("duration", "기간", value);
@@ -197,7 +197,7 @@ const History: React.FC = () => {
 
   return (
     <div className="history">
-      {/* 1행: 필터 영역 */}
+      {/* 필터 */}
       <div className="history__filters">
         <div className="history__filter-row">
           <Select
@@ -213,7 +213,7 @@ const History: React.FC = () => {
             ]}
           />
 
-          {/* 시간 단위일 경우 datetime-local */}
+          {/* 날짜 */}
           {["1분", "10분", "1시간"].includes(duration) ? (
             <>
               <div className="date-input">
@@ -225,6 +225,7 @@ const History: React.FC = () => {
                   className="date-input__field date-input__field--sm date-input__field--default"
                 />
               </div>
+
               <div className="date-input">
                 <label className="date-input__label">종료일</label>
                 <input
@@ -250,21 +251,27 @@ const History: React.FC = () => {
             </>
           )}
 
+          {/* 카테고리 */}
           <Select
             label="카테고리"
             placeholder="선택해주세요."
             value={filters.find((f) => f.key === "category")?.value || ""}
             onChange={(e) => {
               updateFilter("category", "카테고리", e.target.value);
-              // 카테고리 변경 시 그래프 필터 초기화
               updateFilter("graph", "그래프", "");
             }}
             options={[
               { label: "선택해주세요", value: "" },
-              ...CATEGORY_OPTIONS,
+              { label: "CPU", value: "CPU" },
+              { label: "Memory", value: "MEMORY" },
+              { label: "Session", value: "SESSION" },
+              { label: "I/O", value: "IO" },
+              { label: "Storage", value: "STORAGE" },
+              { label: "Custom", value: "CUSTOM" },
             ]}
           />
 
+          {/* 그래프 */}
           <Select
             label="그래프"
             placeholder="선택해주세요."
@@ -280,6 +287,7 @@ const History: React.FC = () => {
             disabled={!filters.find((f) => f.key === "category")?.value}
           />
 
+          {/* 키워드 */}
           <Input
             label="키워드"
             size="lg"
@@ -288,29 +296,25 @@ const History: React.FC = () => {
             onChange={(e) => updateFilter("keyword", "키워드", e.target.value)}
           />
 
-          <Button 
-            text="검색" 
-            size="sm" 
-            variant="primary" 
+          <Button
+            text="검색"
+            size="sm"
+            variant="primary"
             onClick={handleSearch}
             disabled={isLoading || !selectedInstanceId}
           />
         </div>
 
-        {/* 2행: 조건 표시 */}
+        {/* 조건 표시 */}
         {filters.length > 0 && (
           <div className="history__conditions">
             <div className="history__conditions-title">검색 조건:</div>
             {filters.map((f) => {
-              // 그래프 ID인 경우 그래프 이름으로 변환
               let displayValue = f.value;
-              if (f.key === "graph" && f.value) {
+              if (f.key === "graph") {
                 const graph = graphList.find((g) => String(g.id) === f.value);
-                if (graph) {
-                  displayValue = graph.name;
-                }
+                if (graph) displayValue = graph.name;
               }
-              
               return (
                 <div key={f.key} className="history__chip">
                   <span>
@@ -329,7 +333,14 @@ const History: React.FC = () => {
         )}
       </div>
 
-      {/* 차트 카드 */}
+      {/* 탭 메뉴 */}
+      <TabMenu
+        tabs={TAB_ITEMS}
+        activeTab={activeTab.toUpperCase()}
+        onTabChange={(tab) => setActiveTab(tab.toLowerCase() as any)}
+      />
+
+      {/* 차트 영역 */}
       <div className="history__grid">
         {!selectedInstanceId ? (
           <div className="history__empty">
@@ -337,37 +348,37 @@ const History: React.FC = () => {
           </div>
         ) : isLoading ? (
           <div className="history__empty">
-            <p>데이터를 불러오는 중입니다...</p>
+            <Spinner message="데이터 불러오는 중..." />
           </div>
         ) : error ? (
           <div className="history__empty">
             <p style={{ color: "#ef4444" }}>{error}</p>
           </div>
-        ) : historyGraphs.length === 0 ? (
+        ) : filteredGraphs.length === 0 ? (
           <div className="history__empty">
             <p>검색 조건을 설정하고 검색 버튼을 클릭해주세요.</p>
           </div>
         ) : (
-          historyGraphs.map((graph) => {
+          filteredGraphs.map((graph) => {
             const timeUnit = graphTimeUnits.get(graph.id) || "1d";
-            // timeUnit을 DashboardMode로 변환
-            const modeMap: Record<"1m" | "10m" | "1h" | "1d", "LIVE" | "10분" | "1시간" | "1일"> = {
+            const modeMap: Record<
+              "1m" | "10m" | "1h" | "1d",
+              "LIVE" | "10분" | "1시간" | "1일"
+            > = {
               "1m": "LIVE",
               "10m": "10분",
               "1h": "1시간",
               "1d": "1일",
             };
-            const chartMode = modeMap[timeUnit] || "1일";
-            
-            // GraphDataResponse 형식으로 변환 (호환성)
+
             const graphDataForRender = {
               id: graph.id,
               name: graph.name,
               description: graph.description,
               type: graph.type,
-              data: graph.data.map((point) => ({
-                timestamp: point.timestamp,
-                values: point.values,
+              data: graph.data.map((p) => ({
+                timestamp: p.timestamp,
+                values: p.values,
               })),
             };
 
@@ -379,7 +390,7 @@ const History: React.FC = () => {
                   showDragIcon={false}
                   showSettingIcon={false}
                   graphData={graphDataForRender}
-                  mode={chartMode}
+                  mode={modeMap[timeUnit]}
                 />
               </div>
             );

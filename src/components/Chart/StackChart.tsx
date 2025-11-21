@@ -27,6 +27,7 @@ interface StackChartProps {
   xMin?: number; // x축,y축 설정 변경
   xMax?: number; // x축,y축 설정 변경
   useActualValue?: boolean; // 실제 값 사용 여부 (percent 계산 안 함)
+  xAxisFormatter?: (value: number) => string; // x축 라벨 포맷터
 }
 
 const StackChart: React.FC<StackChartProps> = ({
@@ -45,6 +46,7 @@ const StackChart: React.FC<StackChartProps> = ({
   xMin, // x축,y축 설정 변경
   xMax, // x축,y축 설정 변경
   useActualValue = false, // 실제 값 사용 여부 (기본값: false - 기존 동작 유지)
+  xAxisFormatter, // x축 라벨 포맷터
 }) => {
   const _labels = labels.slice(0, stackCount);
   const _usage = usage.slice(0, stackCount);
@@ -111,6 +113,9 @@ const StackChart: React.FC<StackChartProps> = ({
           },
       labels: {
         style: { colors: "#888", fontSize: "10px" },
+        formatter: xAxisFormatter
+          ? (value: number) => xAxisFormatter(value)
+          : undefined,
       },
     },
     yaxis: {

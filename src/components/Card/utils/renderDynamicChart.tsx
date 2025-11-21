@@ -7,7 +7,7 @@ import StackChart from "@/components/Chart/StackChart";
 import MixedChart from "@/components/Chart/MixedChart";
 import SuccessGreenIcon from "@/assets/general/succes-green.svg";
 import ErrorRedIcon from "@/assets/general/error-red.svg";
-import type { GraphDataResponse } from "@/api/dashboard";
+import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 
 // 그래프 ID별 축 범위 설정 (필요할 때만 추가)
@@ -24,14 +24,14 @@ const GRAPH_AXIS_RANGES: Record<
   17: { yMin: 0, yMax: 2 }, // x축,y축 설정 변경
   18: { yMin: 0, yMax: 50 }, // x축,y축 설정 변경
   19: { yMin: 0, yMax: 0.5 }, // x축,y축 설정 변경
-  20: { xMin: 0, xMax: 4000 }, // x축,y축 설정 변경 ----- 막대
+  20: { xMin: 0, xMax: 2000 }, // x축,y축 설정 변경 ----- 막대
   // Memory
   23: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   24: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   25: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   26: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   27: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
-  28: { xMin: 0, xMax: 400000 }, // x축,y축 설정 변경 ----- 막대
+  28: { xMin: 0, xMax: 60000 }, // x축,y축 설정 변경 ----- 막대
   // Session
   29: { yMin: 0, yMax: 20 }, // x축,y축 설정 변경
   30: { yMin: 0, yMax: 2 }, // x축,y축 설정 변경
@@ -381,20 +381,24 @@ const renderMetricTiles = (
       const finalNumeric =
         divisor && numeric !== null ? numeric / divisor : numeric; // 추가
       let display: string | number = "-";
+
       if (finalNumeric !== null) {
-        // numeric → finalNumeric
+        // decimals가 있으면 HEAD 브랜치 방식 (소수점 지정)
         if (decimals !== undefined) {
           const fixed = finalNumeric.toFixed(decimals);
           const trimmed = parseFloat(fixed).toString(); // 불필요한 0 제거
           display = suffix ? `${trimmed}${suffix}` : trimmed;
-        } else if (suffix === "%") {
-          display = `${finalNumeric.toFixed(1)}%`; // numeric → finalNumeric
+        }
+        // decimals가 없으면 dev 브랜치 방식 (기존 로직)
+        else if (suffix === "%") {
+          display = `${finalNumeric.toFixed(1)}%`;
         } else if (suffix) {
-          display = `${finalNumeric.toLocaleString()} ${suffix}`; // numeric → finalNumeric
+          display = `${finalNumeric.toLocaleString()} ${suffix}`;
         } else {
-          display = finalNumeric.toLocaleString(); // numeric → finalNumeric
+          display = finalNumeric.toLocaleString();
         }
       }
+
       // 문자열 처리 추가
 
       if (
@@ -664,7 +668,8 @@ const renderStack = (
   tooltipFormatter?: (
     data: { used: number; total: number; percent: number },
     index: number
-  ) => string
+  ) => string,
+  xAxisFormatter?: (value: number) => string
 ) => {
   const sorted = sortPoints(graph);
   if (sorted.length === 0) return null;
@@ -692,6 +697,7 @@ const renderStack = (
       ]}
       height={200}
       useActualValue={useActualValue}
+      xAxisFormatter={xAxisFormatter}
     />
   );
 };
@@ -1016,6 +1022,7 @@ export const renderDynamicChart = (
           divisor: 1_048_576,
           decimals: 1,
         },
+
         { key: "pga_util_pct", label: "PGA 사용률", suffix: "%" },
         { key: "memory_sort_pct", label: "Memory Sort", suffix: "%" },
         { key: "dedicated_sess_cnt", label: "Dedicated" },
@@ -1058,6 +1065,7 @@ export const renderDynamicChart = (
           suffix: " MB",
           decimals: 2,
         },
+
         {
           key: "dictionary_cache_mb",
           label: "Dictionary Cache",
@@ -1231,6 +1239,7 @@ export const renderDynamicChart = (
         {
           key: "sessions_limit_util_pct",
           label: "전체 세션 사용률",
+
           suffix: "%",
           subtitleSuffix: "Sessions",
           subtitleKeys: ["sessions_used_current", "sessions_limit"], // 추가
@@ -1274,6 +1283,7 @@ export const renderDynamicChart = (
           suffix: " blocks/s",
           decimals: 2,
         },
+
         {
           key: "redo_size_mb_per_sec",
           label: "Redo 생성량",
@@ -1441,6 +1451,7 @@ export const renderDynamicChart = (
         //   key: "max_ts_name",
         //   label: "최대 사용 테이블 스페이스",
         // },
+
         {
           key: "max_ts_usage_pct",
           label: "최대 사용 테이블 스페이스 사용률",
@@ -1520,7 +1531,7 @@ export const renderDynamicChart = (
     const labelKeys = availableKeys
       .filter((k) => k.toLowerCase().endsWith("_tablespace_name_inc"))
       .sort();
-    const labels = labelKeys.map((k) => String(latest.values?.[k] ?? ""));
+    // const labels = labelKeys.map((k) => String(latest.values?.[k] ?? ""));
 
     // values를 가져올 키들 찾기 (endsWith 사용)
     const valueKeys = availableKeys
@@ -1699,7 +1710,19 @@ export const renderDynamicChart = (
       return `${mbValue.toFixed(3)} MB`;
     };
 
-    return renderStack(graph, labels, valueKeys, tooltipFormatter);
+    // x축 라벨 포맷터 생성 (툴팁과 동일한 변환 적용)
+    const xAxisFormatter = (value: number) => {
+      const mbValue = value / 1_048_576;
+      return `${mbValue.toFixed(2)}`;
+    };
+
+    return renderStack(
+      graph,
+      labels,
+      valueKeys,
+      tooltipFormatter,
+      xAxisFormatter
+    );
   }
 
   if (graph.id === 36) {

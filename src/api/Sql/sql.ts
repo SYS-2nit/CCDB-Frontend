@@ -128,7 +128,10 @@ export const getSqlStats = async (params: {
  * ----------------------------------------------------- */
 export const getSqlGraph = async (params: unknown) => {
   const res = await api.get<ApiWrapper<any>>("/api/sql/graph", { params });
+
+  // 로그
   console.log("[API] SQL 그래프 응답:", res.data);
+
   return res.data.data;
 };
 
