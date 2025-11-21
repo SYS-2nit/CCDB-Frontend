@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React, { useMemo } from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import {
@@ -48,13 +48,16 @@ const LineChart: React.FC<LineChartProps> = ({
     return data.map((v) => (Number.isFinite(v) ? v : 0));
   };
 
-  const series = legends.map((name, i) => ({
-    name,
-    data: sanitizeData(seriesData[i] || []),
-  }));
+  // series 데이터 메모이제이션 - legends와 seriesData가 변경될 때만 재계산
+  const series = useMemo(() => {
+    return legends.map((name, i) => ({
+      name,
+      data: sanitizeData(seriesData[i] || []),
+    }));
+  }, [legends, seriesData]);
 
-  /** Apex 옵션 */
-  const options: ApexOptions = {
+  /** Apex 옵션 메모이제이션 - 관련 props가 변경될 때만 재계산 */
+  const options: ApexOptions = useMemo(() => ({
     chart: {
       type: "line",
       toolbar: { show: false },
@@ -190,7 +193,15 @@ const LineChart: React.FC<LineChartProps> = ({
         formatter: (val) => formatTooltipNumber(Number(val)),
       },
     },
-  };
+  }), [
+    categories,
+    yaxisTitle,
+    yMin,
+    yMax,
+    showLegend,
+    originalTimes,
+    xAxisFilter,
+  ]);
 
   return (
     <div
