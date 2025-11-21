@@ -1,5 +1,3 @@
-// const UNITS = ["", "K", "M", "G", "T", "P"];
-
 interface FormattedNumber {
   value: number;
   unit: string;
