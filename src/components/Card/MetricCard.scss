@@ -27,10 +27,9 @@
   overflow: hidden;
   min-width: 0;
 
-
   &:hover {
     transform: translateY(-3px);
-    
+
     .metric-card__subtitle {
       opacity: 1;
       visibility: visible;
@@ -41,6 +40,7 @@
   &__title {
     color: $gray-400;
     @include text-styles("label02");
+    white-space: pre-line; // 추가: 줄바꿈 허용
   }
 
   &__value {
@@ -49,7 +49,7 @@
   }
 
   &__icon {
-    width: 40px; 
+    width: 40px;
     height: 40px;
     margin: 2px 0;
     transition: transform 0.2s ease;
@@ -62,11 +62,11 @@
   &__subtitle {
     @include text-styles("label02");
     color: $gray-400;
-    position: absolute;
-    bottom: 0px;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(5px);
-    transition: all 0.2s ease;
+    margin-top: 4px; // value 아래에 간격 추가
+    opacity: 1; // 수정: 항상 보이게
+    visibility: visible; // 수정: 항상 보이게
+    // position: absolute; 제거
+    // bottom: 0px; 제거
+    // transform: translateY(5px); 제거
   }
 }
