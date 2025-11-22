@@ -5,7 +5,7 @@ import {
   acknowledgeEvent,
   isEventRead,
   type EventResponse,
-} from "@/api/alerts";
+} from "@/api/Alert/alerts";
 
 interface AlertPanelProps {
   onClose: () => void;
@@ -42,11 +42,11 @@ const AlertPanel = ({
       // 2. 시간 계산 (알림 발생 시간 기준 전후 5분)
       const alertTime = new Date(alert.createdAt);
       const now = new Date();
-      
+
       // 시작일: 알림 시간 - 5분
       const startTime = new Date(alertTime);
       startTime.setMinutes(startTime.getMinutes() - 5);
-      
+
       // 종료일: min(알림 시간 + 5분, 현재 시간)
       const endTime = new Date(alertTime);
       endTime.setMinutes(endTime.getMinutes() + 5);
@@ -70,7 +70,9 @@ const AlertPanel = ({
         IO: "IO",
         STORAGE: "STORAGE",
       };
-      const historyCategory = alert.category ? categoryMap[alert.category] || "CPU" : "CPU";
+      const historyCategory = alert.category
+        ? categoryMap[alert.category] || "CPU"
+        : "CPU";
 
       // 4. URL 파라미터 생성
       const params = new URLSearchParams({
@@ -93,13 +95,15 @@ const AlertPanel = ({
     }
   };
 
-
   return (
     <div className="alert-panel__overlay" onClick={onClose}>
       <div className="alert-panel" onClick={(e) => e.stopPropagation()}>
         <div className="alert-panel__header">
           <h3>알림 목록</h3>
-          <div className="alert-panel__header-actions" style={{ marginLeft: "30px" }}>
+          <div
+            className="alert-panel__header-actions"
+            style={{ marginLeft: "30px" }}
+          >
             <button
               className="alert-panel__event-log-btn"
               onClick={() => {
@@ -150,7 +154,11 @@ const AlertPanel = ({
                   </div>
                   <div className="alert-item__text" style={{ flex: 1 }}>
                     <div
-                      style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
                     >
                       <strong>{alert.message}</strong>
                     </div>
