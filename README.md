@@ -2,7 +2,7 @@
 
 #### Oracle, Java, React 를 활용한 데이터베이스 모니터링 웹 서비스입니다. <br />
 
-![alt text](image-3.png)
+![프로젝트 소개](src/assets/readme/image-3.png)
 
 ## 📌 Intro
 
@@ -12,34 +12,34 @@
 
 ## 🖥️ Screen
 ### 대시보드 
-![alt text](image-2.png)
-![alt text](image-4.png)
+![대시보드 화면 1](src/assets/readme/image-2.png)
+![대시보드 화면 2](src/assets/readme/image-4.png)
 
 ### SQL 
-![alt text](image-5.png)
-![alt text](image-6.png)
+![SQL 분석 화면 1](src/assets/readme/image-5.png)
+![SQL 분석 화면 2](src/assets/readme/image-6.png)
 
 ### 알림 
-![alt text](image-7.png)
+![알림 화면](src/assets/readme/image-7.png)
 
 ### 진단
-![alt text](image-8.png)
+![진단 화면](src/assets/readme/image-8.png)
 
 ### 보고서 
-![alt text](image-9.png)
+![보고서 화면](src/assets/readme/image-9.png)
 
 ### 히스토리
-![alt text](image-10.png)
+![히스토리 화면](src/assets/readme/image-10.png)
 
 ### 설정
-![alt text](image-12.png)
+![설정 화면](src/assets/readme/image-12.png)
 
 ## ⚒️ Architecture
-![alt text](image.png)
+![시스템 아키텍처](src/assets/readme/image.png)
 
 ## ⚒️ Tech Stack
 
-![alt text](image-1.png)
+![기술 스택](src/assets/readme/image-1.png)
 
 ## 💬 Communication
 
@@ -57,7 +57,7 @@
 | **백엔드** | https://github.com/SYS-2nit/CCDB-Backend |
 
 ## 👩🏻‍💻 Developer
-![alt text](image-13.png)
+![개발자 소개](src/assets/readme/image-13.png)
 
 | 최영준 | 최온유 | 배지원 | 오수경 |
 |:---:|:---:|:---:|:---:|
