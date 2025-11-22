@@ -61,8 +61,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [charts, setCharts] = useState<GraphDataResponse[]>([]);
 
   const [settingTargetIndex, setSettingTargetIndex] = useState<number | null>(null);
+  const settingTargetIndexRef = useRef<number | null>(null);
   const [categoryGraphs, setCategoryGraphs] = useState<Map<TabType, GraphDataResponse[]>>(new Map());
   const lastLoadedTabRef = useRef<TabType | null>(null);
+  const shouldPreserveOrderRef = useRef<boolean>(true); // 위치 변경 후에는 false로 설정
   // 서버에서 받은 그래프 데이터를 그대로 사용 (하드코딩된 chartData 제거)
   const {
     selectedInstanceId: contextInstanceId,
@@ -119,10 +121,12 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   const handleOpenSetting = (index: number) => {
     setSettingTargetIndex(index);
+    settingTargetIndexRef.current = index;
     setIsSettingOpen(true);
   };
   const handleCloseSetting = () => {
     setSettingTargetIndex(null);
+    settingTargetIndexRef.current = null;
     setIsSettingOpen(false);
   };
 
@@ -143,14 +147,15 @@ const Dashboard: React.FC<DashboardProps> = ({
   }, [initialTab]);
 
   // 서버에서 받은 그래프 데이터를 그대로 사용
+  // graphList가 변경되면 charts도 즉시 동기화
   useEffect(() => {
     if (activeTab === "main") {
       // main 탭은 graphList를 그대로 사용
-      setCharts(graphList);
+      setCharts([...graphList]);
     } else {
       // 다른 탭은 categoryGraphs에서 그래프 데이터를 그대로 사용
       const currentGraphs = categoryGraphs.get(activeTab) ?? [];
-      setCharts(currentGraphs);
+      setCharts([...currentGraphs]);
     }
   }, [activeTab, graphList, categoryGraphs]);
 
@@ -165,13 +170,14 @@ const Dashboard: React.FC<DashboardProps> = ({
       return;
     }
 
-    // 캐시된 데이터 확인
+    // 캐시된 데이터 확인 (lastLoadedTabRef가 null이면 강제로 다시 로드)
+    const shouldForceReload = lastLoadedTabRef.current === null;
     const hasCachedData = activeTab === "main" 
-      ? graphList.length > 0 
-      : (categoryGraphs.get(activeTab)?.length ?? 0) > 0;
+      ? graphList.length > 0 && !shouldForceReload
+      : (categoryGraphs.get(activeTab)?.length ?? 0) > 0 && !shouldForceReload;
     
-    // 캐시된 데이터가 없으면 즉시 로딩 상태 표시 (렌더링 전에 설정)
-    if (!hasCachedData) {
+    // 캐시된 데이터가 없거나 강제 리로드가 필요한 경우 즉시 로딩 상태 표시
+    if (!hasCachedData || shouldForceReload) {
       setIsFetching(true);
     }
 
@@ -211,8 +217,12 @@ const Dashboard: React.FC<DashboardProps> = ({
         const normalizedGraphs = normalizeGraphsForMode(response?.graphs);
         
         if (activeTab === "main") {
-          setGraphs(normalizedGraphs);
+          // 위치 변경 후 데이터 재로드 시 백엔드 순서를 그대로 사용
+          setGraphs(normalizedGraphs, shouldPreserveOrderRef.current);
+          // 데이터 로드 완료 후 lastLoadedTabRef 설정 및 preserveOrder 플래그 리셋
           lastLoadedTabRef.current = activeTab;
+          shouldPreserveOrderRef.current = true; // 다음 로드는 기본적으로 순서 유지
+          // charts는 useEffect([activeTab, graphListKey, ...])에서 자동으로 동기화됨
         } else {
           setCategoryGraphs((prev) => {
             const next = new Map(prev);
@@ -246,6 +256,10 @@ const Dashboard: React.FC<DashboardProps> = ({
       cancelled = true;
     };
   }, [selectedInstanceId, mode, activeTab, refreshToken, setGraphs, clearGraphs, setIsFetching, setError]);
+
+  // graphList가 변경될 때 (드래그 앤 드롭 또는 그래프 교체 후) 데이터 다시 로드
+  // 이 useEffect는 lastLoadedTabRef가 null로 설정된 경우에만 작동하도록 함
+  // (handleDragEnd나 handleGraphSwap에서 명시적으로 null로 설정한 경우)
 
   // categoryGraphs가 업데이트된 후 lastLoadedTabRef 설정
   useEffect(() => {
@@ -336,8 +350,19 @@ const Dashboard: React.FC<DashboardProps> = ({
             if (prev.length === 0) {
               return response?.graphs ?? [];
             }
-            return mergeGraphData(prev, response?.graphs ?? []);
-          });
+            const merged = mergeGraphData(prev, response?.graphs ?? []);
+            // 위치 변경 후 첫 번째 업데이트에서는 백엔드 순서를 그대로 사용
+            if (!shouldPreserveOrderRef.current) {
+              // 백엔드에서 반환된 순서를 기준으로 정렬
+              const backendOrder = response?.graphs ?? [];
+              const backendOrderMap = new Map(backendOrder.map((g) => [g.id, g]));
+              return merged
+                .map((g) => backendOrderMap.get(g.id))
+                .filter((g): g is GraphDataResponse => Boolean(g))
+                .concat(merged.filter((g) => !backendOrderMap.has(g.id)));
+            }
+            return merged;
+          }, shouldPreserveOrderRef.current);
         } else {
           setCategoryGraphs((prev) => {
             const next = new Map(prev);
@@ -393,11 +418,32 @@ const Dashboard: React.FC<DashboardProps> = ({
     };
   }, [mode, selectedInstanceId, activeTab, refreshToken, setGraphs, setError]);
 
+  // graphList가 변경될 때 (위젯 순서 변경 또는 그래프 교체) 백엔드에 저장
+  const prevGraphListIdsRef = useRef<string>("");
   useEffect(() => {
-    if (activeTab === "main" && graphList.length > 0) {
-      void saveWidgetOrder();
+    if (activeTab === "main" && graphList.length > 0 && isWidgetOrderDirty) {
+      // graphList의 ID 순서를 문자열로 변환하여 비교
+      const currentIds = graphList.map((g) => `${g.id}:${g.name}`).join(",");
+      const prevIds = prevGraphListIdsRef.current;
+      
+      // graphList가 실제로 변경되었는지 확인
+      if (currentIds !== prevIds) {
+        prevGraphListIdsRef.current = currentIds;
+        
+        // 백엔드에 위젯 순서 저장 (완료를 기다림)
+        void saveWidgetOrder().then(() => {
+          // 저장 완료 후 데이터 다시 로드 (Redis 캐시 업데이트 반영)
+          shouldPreserveOrderRef.current = false; // 백엔드 순서를 그대로 사용
+          lastLoadedTabRef.current = null; // 강제로 데이터 다시 로드
+          triggerRefresh();
+        });
+      }
+    } else if (activeTab === "main" && graphList.length > 0) {
+      // graphList가 업데이트되었지만 isWidgetOrderDirty가 false인 경우에도 ID 추적 업데이트
+      const currentIds = graphList.map((g) => `${g.id}:${g.name}`).join(",");
+      prevGraphListIdsRef.current = currentIds;
     }
-  }, [refreshToken, activeTab, graphList, saveWidgetOrder]);
+  }, [activeTab, graphList, isWidgetOrderDirty, saveWidgetOrder, triggerRefresh]);
 
   const prevTabRef = useRef<TabType>(activeTab);
   useEffect(() => {
@@ -412,33 +458,34 @@ const Dashboard: React.FC<DashboardProps> = ({
     if (!destination || destination.index === source.index) return;
     if (activeTab !== "main") return;
     
-    setCharts((prev) => {
-      const reordered = [...prev];
+    // graphList를 기준으로 순서 변경 (charts는 useEffect에서 자동 동기화됨)
+    const reordered = [...graphList];
       const [moved] = reordered.splice(source.index, 1);
       reordered.splice(destination.index, 0, moved);
-      
-      // GraphDataResponse 배열에서 이름 배열로 변환
-      const names = reordered.map((graph) => graph.name);
-      reorderGraphsByNames(names);
-      void saveWidgetOrder().finally(() => {
-        triggerRefresh();
-      });
-      
-      return reordered;
-    });
+    
+    // GraphDataResponse 배열에서 이름 배열로 변환
+    const names = reordered.map((graph) => graph.name);
+    reorderGraphsByNames(names);
+    // reorderGraphsByNames가 graphList를 업데이트하고 isWidgetOrderDirty를 true로 설정
+    // useEffect에서 graphList 변경과 isWidgetOrderDirty를 감지하여 자동으로 saveWidgetOrder() 호출
+    // 저장 완료 후 triggerRefresh()가 호출되어 데이터 다시 로드됨
+    // charts는 useEffect([activeTab, graphList, categoryGraphs])에서 자동으로 동기화됨
   };
 
   const handleGraphSwap = async (graph: GraphDefinition) => {
-    if (settingTargetIndex === null) return;
-    replaceGraphAt(settingTargetIndex, {
+    const targetIndex = settingTargetIndexRef.current;
+    if (targetIndex === null) return;
+    replaceGraphAt(targetIndex, {
       id: graph.id,
       name: graph.name,
       description: graph.info ?? "",
       type: graph.type ?? 0,
       data: [],
     });
-    await saveWidgetOrder();
-    triggerRefresh();
+    
+    // replaceGraphAt이 graphList를 업데이트하고 isWidgetOrderDirty를 true로 설정
+    // useEffect에서 graphList 변경과 isWidgetOrderDirty를 감지하여 자동으로 saveWidgetOrder() 호출
+    // 저장 완료 후 triggerRefresh()가 호출되어 데이터 다시 로드됨
     handleCloseSetting();
   };
 

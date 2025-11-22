@@ -177,20 +177,27 @@ const Modal: React.FC<ModalProps> = ({
                       case "radio":
                         return (
                           <div className="modal__radio-group">
-                            {field.options?.map((opt, idx) => (
-                              <label key={idx}>
-                                <input
-                                  type="radio"
-                                  name={field.label}
-                                  value={opt}
-                                  checked={inputs[field.label] === opt}
-                                  onChange={() =>
-                                    handleChange(field.label, opt)
-                                  }
-                                />
-                                {opt}
-                              </label>
-                            ))}
+                            {field.options?.map((opt, idx) => {
+                              const currentValue = (field.value as string) ?? (inputs[field.label] as string) ?? "";
+                              return (
+                                <label key={idx}>
+                                  <input
+                                    type="radio"
+                                    name={field.label}
+                                    value={opt}
+                                    checked={currentValue === opt}
+                                    onChange={() => {
+                                      if (field.onChange) {
+                                        field.onChange(field.label, opt);
+                                      } else {
+                                        handleChange(field.label, opt);
+                                      }
+                                    }}
+                                  />
+                                  {opt}
+                                </label>
+                              );
+                            })}
                           </div>
                         );
                       case "checkbox":

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import "./ChartSetting.scss";
 import SearchIcon from "@/assets/general/search.svg";
-import { chartData, type TabType } from "../data/chartData";
+import { type TabType } from "../data/chartData";
 import { getChartByTitle } from "@/components/Card/utils/getChartByTitle";
 import Button from "@/components/Button/Button";
 import Checkbox from "@/components/Checkbox/Checkbox";
@@ -134,23 +134,37 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
     setSearchTerm("");
   };
 
+  /** 카테고리별 그래프 필터링 */
+  const getGraphsByCategory = useMemo(() => {
+    const categoryMap: Record<string, GraphDefinition[]> = {
+      performance: allGraphs.filter((g) => g.category === "IMPROVEMENTS"),
+      prevention: allGraphs.filter((g) => g.category === "PREVENTION"),
+      cpu: allGraphs.filter((g) => g.category === "CPU"),
+      memory: allGraphs.filter((g) => g.category === "MEMORY"),
+      session: allGraphs.filter((g) => g.category === "SESSION"),
+      io: allGraphs.filter((g) => g.category === "IO"),
+      storage: allGraphs.filter((g) => g.category === "STORAGE"),
+    };
+    return categoryMap;
+  }, [allGraphs]);
+
   /** 검색 결과 */
   const searchResults = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return null;
 
     const searchTargets =
-      mode === "category"
+      mode === "category"  
         ? ["performance", "prevention"]
         : ["cpu", "memory", "session", "io", "storage"];
 
-    const results: { tab: TabType; name: string }[] = [];
+    const results: { tab: TabType; graph: GraphDefinition }[] = [];
 
     searchTargets.forEach((tab) => {
-      const charts = chartData[tab as TabType] || [];
-      charts.forEach((name) => {
-        if (name.toLowerCase().includes(term))
-          results.push({ tab: tab as TabType, name });
+      const graphs = getGraphsByCategory[tab] || [];
+      graphs.forEach((graph) => {
+        if (graph.name.toLowerCase().includes(term))
+          results.push({ tab: tab as TabType, graph });
       });
     });
 
@@ -160,21 +174,22 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
     }
 
     return results;
-  }, [searchTerm, mode]);
+  }, [searchTerm, mode, getGraphsByCategory, activeTab]);
 
   /** 현재 탭의 그래프 목록 */
   const currentGraphs = useMemo(() => {
     if (searchResults) {
       return searchResults
         .filter((r) => r.tab === activeTab)
-        .map((r) => r.name);
+        .map((r) => r.graph);
     }
-    return chartData[activeTab] ?? [];
-  }, [activeTab, searchResults]);
+    return getGraphsByCategory[activeTab] || [];
+  }, [activeTab, searchResults, getGraphsByCategory]);
 
   /** 선택된 그래프 */
-  const selectedGraphName =
+  const selectedGraph =
     selectedOption !== null ? currentGraphs[selectedOption] : null;
+  const selectedGraphName = selectedGraph?.name ?? null;
 
   /** 전체 그래프 목록 가져오기 */
   useEffect(() => {
@@ -252,19 +267,20 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
           {currentGraphs.length > 0 ? (
             currentGraphs.map((graph, i) => {
               // 더미데이터만 사용 (DB에서 데이터를 가져오지 않음)
-              const dummyData = getDummyDataForGraph(graph);
-              const miniChart = getChartByTitle(graph, dummyData, dashboardMode);
-              const isActiveInCustom = activeGraphNames.includes(graph);
+              const dummyData = getDummyDataForGraph(graph.name);
+              const miniChart = getChartByTitle(graph.name, dummyData, dashboardMode);
+              const isActiveInCustom = activeGraphNames.includes(graph.name);
+              // 선택된 그래프이거나 커스텀 대시보드에 있는 그래프면 체크
+              const isChecked = selectedOption === i || isActiveInCustom;
               
               return (
-                <div key={graph} className="chart-setting__option-item">
+                <div key={graph.id} className="chart-setting__option-item">
                   <Checkbox
-                    // 커스텀 대시보드에 이미 올라가 있는 그래프는 항상 체크된 상태로 표시
-                    checked={isActiveInCustom}
-                    // 체크박스 클릭은 단순히 "이 그래프를 선택"하는 용도로만 사용
-                    // 실제 체크 상태는 activeGraphNames로 제어하므로 토글되지는 않음
+                    // 선택된 그래프이거나 커스텀 대시보드에 있는 그래프는 체크된 상태로 표시
+                    checked={isChecked}
+                    // 체크박스 클릭 시 해당 그래프를 선택
                     onChange={() => setSelectedOption(i)}
-                    label={graph}
+                    label={graph.name}
                     size="md"
                   />
                   <div className="chart-setting__option-item--chart">
@@ -289,8 +305,13 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
           size="sm"
           variant="primary"
           onClick={() => {
-            if (selectedGraphName) onSave(selectedGraphName);
+            if (selectedGraphName) {
+              onSave(selectedGraphName);
+            } else {
+              alert("변경할 그래프를 선택해주세요.");
+            }
           }}
+          disabled={!selectedGraphName}
         />
       </div>
     </aside>

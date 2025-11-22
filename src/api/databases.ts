@@ -17,7 +17,8 @@ export interface DatabaseCreatePayload {
   port: number;
   account: string;
   password: string;
-  sid: string;
+  identifier: string;
+  connectionType?: "SID" | "SERVICE_NAME";
 }
 
 export type DatabaseTestPayload = Omit<DatabaseCreatePayload, "name">;
@@ -64,9 +65,17 @@ export const fetchDatabaseInstances = async (): Promise<
 export const createDatabaseInstance = async (
   payload: DatabaseCreatePayload,
 ): Promise<DatabaseInstanceResponse | null> => {
+  // connectionType이 없으면 기본값 "SID" 설정
+  const requestPayload = {
+    ...payload,
+    connectionType: payload.connectionType || "SID",
+  };
+  
+  console.log("[API] 데이터베이스 생성 요청:", requestPayload);
+  
   const response = await api.post<ApiResponse<DatabaseInstanceResponse | null>>(
     DATABASES_ENDPOINT,
-    payload,
+    requestPayload,
   );
   return response.data.data ?? null;
 };
@@ -106,7 +115,8 @@ export const fetchInstancesByDatabase = async (
 };
 
 export interface InstanceCreatePayload {
-  sid: string;
+  identifier: string;
+  connectionType?: "SID" | "SERVICE_NAME";
 }
 
 export const createInstanceForDatabase = async (

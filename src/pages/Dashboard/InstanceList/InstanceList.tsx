@@ -165,13 +165,15 @@ const InstanceList: React.FC = () => {
   const [activeTab, setActiveTab] = useState<StatusTab>("all");        
   const [currentPage, setCurrentPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [createSid, setCreateSid] = useState("");
+  const [createIdentifier, setCreateIdentifier] = useState("");
+  const [createConnectionType, setCreateConnectionType] = useState<"SID" | "SERVICE_NAME">("SID");
   const [isCreating, setIsCreating] = useState(false);
   const [createTestResult, setCreateTestResult] = useState<DatabaseTestResult | null>(null);
   const [isCreateTesting, setIsCreateTesting] = useState(false);
   const [editTarget, setEditTarget] = useState<InstanceRow | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editSid, setEditSid] = useState("");
+  const [editIdentifier, setEditIdentifier] = useState("");
+  const [editConnectionType, setEditConnectionType] = useState<"SID" | "SERVICE_NAME">("SID");
   const [isEditTesting, setIsEditTesting] = useState(false);
   const [editTestResult, setEditTestResult] = useState<DatabaseTestResult | null>(null);
   const [isEditSaving, setIsEditSaving] = useState(false);
@@ -271,7 +273,8 @@ const InstanceList: React.FC = () => {
       alert("DB를 먼저 선택해주세요.");
       return;
     }
-    setCreateSid("");
+    setCreateIdentifier("");
+    setCreateConnectionType("SID");
     setCreateTestResult(null);
     setIsCreateTesting(false);
     setIsCreateModalOpen(true);
@@ -284,26 +287,29 @@ const InstanceList: React.FC = () => {
       return;
     }
 
-    const sid = createSid.trim();
-    if (!sid) {
-      alert("SID를 입력해주세요.");
+    const identifier = createIdentifier.trim();
+    if (!identifier) {
+      alert(createConnectionType === "SID" ? "SID를 입력해주세요." : "서비스 이름을 입력해주세요.");
       return;
     }
 
     setIsCreateTesting(true);
     try {
-      const result = await testInstanceForDatabase(selectedDatabase.id, { sid });
+      const result = await testInstanceForDatabase(selectedDatabase.id, {
+        identifier,
+        connectionType: createConnectionType,
+      });
       setCreateTestResult(result);
-    } catch {
+    } catch (error) {
       setCreateTestResult({
         success: false,
         message: null,
-        errorMessage: "테스트 연결 실패",
+        errorMessage: "데이터베이스 연결에 실패했습니다.",
       });
     } finally {
       setIsCreateTesting(false);
     }
-  }, [createSid, isCreateTesting, selectedDatabase]);
+  }, [createIdentifier, createConnectionType, isCreateTesting, selectedDatabase]);
 
   const handleCreateInstance = useCallback(async () => {
     if (isCreating) return;
@@ -317,17 +323,21 @@ const InstanceList: React.FC = () => {
       return;
     }
 
-    const sid = createSid.trim();
-    if (!sid) {
-      alert("SID를 입력해주세요.");
+    const identifier = createIdentifier.trim();
+    if (!identifier) {
+      alert(createConnectionType === "SID" ? "SID를 입력해주세요." : "서비스 이름을 입력해주세요.");
       return;
     }
 
     setIsCreating(true);
     try {
-      await createInstanceForDatabase(selectedDatabase.id, { sid });
+      await createInstanceForDatabase(selectedDatabase.id, {
+        identifier,
+        connectionType: createConnectionType,
+      });
       setIsCreateModalOpen(false);
-      setCreateSid("");
+      setCreateIdentifier("");
+      setCreateConnectionType("SID");
       setCreateTestResult(null);
       await loadInstances(selectedDatabase.id);
     } catch (err) {
@@ -335,7 +345,7 @@ const InstanceList: React.FC = () => {
     } finally {
       setIsCreating(false);
     }
-  }, [createSid, createTestResult, isCreating, loadInstances, selectedDatabase]);
+  }, [createIdentifier, createConnectionType, createTestResult, isCreating, loadInstances, selectedDatabase]);
 
   const openEditModal = useCallback(
     (item: InstanceRow) => {
@@ -344,7 +354,8 @@ const InstanceList: React.FC = () => {
         return;
       }
       setEditTarget(item);
-      setEditSid(item.sid ?? "");
+      setEditIdentifier(item.sid ?? "");
+      setEditConnectionType("SID"); // 기본값, 실제로는 API에서 받아와야 하지만 일단 기본값 사용
       setEditTestResult(null);
       setIsEditTesting(false);
       setIsEditSaving(false);
@@ -360,26 +371,29 @@ const InstanceList: React.FC = () => {
       return;
     }
 
-    const sid = editSid.trim();
-    if (!sid) {
-      alert("SID를 입력해주세요.");
+    const identifier = editIdentifier.trim();
+    if (!identifier) {
+      alert(editConnectionType === "SID" ? "SID를 입력해주세요." : "서비스 이름을 입력해주세요.");
       return;
     }
 
     setIsEditTesting(true);
     try {
-      const result = await testInstanceForDatabase(selectedDatabase.id, { sid });
+      const result = await testInstanceForDatabase(selectedDatabase.id, {
+        identifier,
+        connectionType: editConnectionType,
+      });
       setEditTestResult(result);
-    } catch {
+    } catch (error) {
       setEditTestResult({
         success: false,
         message: null,
-        errorMessage: "테스트 연결 실패",
+        errorMessage: "데이터베이스 연결에 실패했습니다.",
       });
     } finally {
       setIsEditTesting(false);
     }
-  }, [editSid, editTarget, isEditTesting, selectedDatabase]);
+  }, [editIdentifier, editConnectionType, editTarget, isEditTesting, selectedDatabase]);
 
   const handleUpdateInstance = useCallback(async () => {
     if (isEditSaving) return;
@@ -393,15 +407,18 @@ const InstanceList: React.FC = () => {
       return;
     }
 
-    const sid = editSid.trim();
-    if (!sid) {
-      alert("SID를 입력해주세요.");
+    const identifier = editIdentifier.trim();
+    if (!identifier) {
+      alert(editConnectionType === "SID" ? "SID를 입력해주세요." : "서비스 이름을 입력해주세요.");
       return;
     }
 
     setIsEditSaving(true);
     try {
-      await updateInstanceForDatabase(selectedDatabase.id, editTarget.id, { sid });
+      await updateInstanceForDatabase(selectedDatabase.id, editTarget.id, {
+        identifier,
+        connectionType: editConnectionType,
+      });
       setIsEditModalOpen(false);
       setEditTarget(null);
       setEditTestResult(null);
@@ -411,7 +428,7 @@ const InstanceList: React.FC = () => {
     } finally {
       setIsEditSaving(false);
     }
-  }, [editSid, editTarget, editTestResult, isEditSaving, loadInstances, selectedDatabase]);
+  }, [editIdentifier, editConnectionType, editTarget, editTestResult, isEditSaving, loadInstances, selectedDatabase]);
 
   const handleDeleteInstance = useCallback(
     async (item: InstanceRow) => {
@@ -568,7 +585,7 @@ const InstanceList: React.FC = () => {
           <Input
             size="sm"
             variant="default"
-            placeholder="SID를 입력해주세요."
+            placeholder="SID 또는 서비스 이름을 입력해주세요."
             icon={SearchIcon}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -602,21 +619,35 @@ const InstanceList: React.FC = () => {
             onClose={() => {
             if (isCreating) return;
             setIsCreateModalOpen(false);
-            setCreateSid("");
+            setCreateIdentifier("");
+            setCreateConnectionType("SID");
             setCreateTestResult(null);
             }}
           onConfirm={handleCreateInstance}
           onReset={handleCreateTest}
             fields={[
               {
-              label: "SID",
-                type: "textarea",
-              placeholder: "SID를 입력해주세요.",
-              value: createSid,
-              onChange: (_label, val) => {
-                setCreateSid(val);
-                setCreateTestResult(null);
+                label: "연결 타입",
+                type: "radio",
+                options: ["SID", "SERVICE_NAME"],
+                value: createConnectionType,
+                onChange: (_label, val) => {
+                  setCreateConnectionType(val as "SID" | "SERVICE_NAME");
+                  setCreateTestResult(null);
+                },
               },
+              {
+                label: createConnectionType === "SID" ? "SID" : "서비스 이름",
+                type: "textarea",
+                placeholder:
+                  createConnectionType === "SID"
+                    ? "SID를 입력해주세요. (예: ORCL)"
+                    : "서비스 이름을 입력해주세요. (예: orcl.example.com)",
+                value: createIdentifier,
+                onChange: (_label, val) => {
+                  setCreateIdentifier(val);
+                  setCreateTestResult(null);
+                },
               },
             ]}
           >
@@ -647,15 +678,28 @@ const InstanceList: React.FC = () => {
           onReset={handleEditTest}
             fields={[
               {
-              label: "SID",
-              type: "textarea",
-                placeholder: "SID를 입력해주세요.",
-              value: editSid,
-              onChange: (_label, val) => {
-                setEditSid(val);
-                setEditTestResult(null);
+                label: "연결 타입",
+                type: "radio",
+                options: ["SID", "SERVICE_NAME"],
+                value: editConnectionType,
+                onChange: (_label, val) => {
+                  setEditConnectionType(val as "SID" | "SERVICE_NAME");
+                  setEditTestResult(null);
+                },
               },
-            },
+              {
+                label: editConnectionType === "SID" ? "SID" : "서비스 이름",
+                type: "textarea",
+                placeholder:
+                  editConnectionType === "SID"
+                    ? "SID를 입력해주세요. (예: ORCL)"
+                    : "서비스 이름을 입력해주세요. (예: orcl.example.com)",
+                value: editIdentifier,
+                onChange: (_label, val) => {
+                  setEditIdentifier(val);
+                  setEditTestResult(null);
+                },
+              },
           ]}
         >
           {editTestResult && (

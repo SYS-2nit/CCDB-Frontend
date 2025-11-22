@@ -41,7 +41,8 @@ type FormState = {
   port: string;
   account: string;
   password: string;
-  sid: string;
+  identifier: string;
+  connectionType: "SID" | "SERVICE_NAME";
 };
 
 type ListProps = {
@@ -65,7 +66,8 @@ const INITIAL_INPUTS: FormState = {
   port: "",
   account: "",
   password: "",
-  sid: "",
+  identifier: "",
+  connectionType: "SID",
 };
 
 const getErrorMessage = (error: unknown) => {
@@ -171,7 +173,8 @@ const List: React.FC<ListProps> = ({
         port: portValue,
         account: inputs.account.trim(),
         password: inputs.password,
-        sid: inputs.sid.trim(),
+        identifier: inputs.identifier.trim(),
+        connectionType: inputs.connectionType || "SID",
       });
 
       if (result.success) {
@@ -189,9 +192,7 @@ const List: React.FC<ListProps> = ({
         });
       }
     } catch (error) {
-      const message = getErrorMessage(error);
-      setTestFeedback({ status: "fail", message });
-      alert(message);
+      setTestFeedback({ status: "fail", message: "데이터베이스 연결에 실패했습니다." });
     } finally {
       setIsTesting(false);
     }
@@ -228,14 +229,17 @@ const List: React.FC<ListProps> = ({
         port: portValue,
         account: inputs.account.trim(),
         password: inputs.password,
-        sid: inputs.sid.trim(),
+        identifier: inputs.identifier.trim(),
+        connectionType: inputs.connectionType || "SID",
       });
 
       alert(`${inputs.name} DB가 추가되었습니다.`);
       setIsModalOpen(null);
       resetAddForm();
     } catch (error) {
-      alert(getErrorMessage(error));
+      console.error("[Database] 저장 실패:", error);
+      const errorMessage = getErrorMessage(error);
+      alert(`데이터베이스 저장에 실패했습니다.\n${errorMessage}`);
     } finally {
       setIsSaving(false);
     }
@@ -424,11 +428,26 @@ const List: React.FC<ListProps> = ({
                 setInputs((prev) => ({ ...prev, password: val })),
             },
             {
-              label: "SID",
+              label: "연결 타입",
+              type: "radio",
+              options: ["SID", "SERVICE_NAME"],
+              value: inputs.connectionType,
+              onChange: (_, val) =>
+                setInputs((prev) => ({
+                  ...prev,
+                  connectionType: val as "SID" | "SERVICE_NAME",
+                })),
+            },
+            {
+              label: inputs.connectionType === "SID" ? "SID" : "서비스 이름",
               type: "textarea",
-              placeholder: "SID를 입력해주세요.",
-              value: inputs.sid,
-              onChange: (_, val) => setInputs((prev) => ({ ...prev, sid: val })),
+              placeholder:
+                inputs.connectionType === "SID"
+                  ? "SID를 입력해주세요. (예: ORCL)"
+                  : "서비스 이름을 입력해주세요. (예: orcl.example.com)",
+              value: inputs.identifier,
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, identifier: val })),
             },
           ]}
         >

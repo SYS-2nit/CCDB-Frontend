@@ -36,7 +36,7 @@ interface DashboardContextValue {
   setMode: (mode: DashboardMode, minutes: number | null) => void;
   graphList: GraphDataResponse[];
   graphsByName: Record<string, GraphDataResponse>;
-  setGraphs: (graphs: GraphDataResponse[] | ((prev: GraphDataResponse[]) => GraphDataResponse[])) => void;
+  setGraphs: (graphs: GraphDataResponse[] | ((prev: GraphDataResponse[]) => GraphDataResponse[]), preserveOrder?: boolean) => void;
   reorderGraphsByNames: (names: string[]) => void;
   replaceGraphAt: (index: number, graph: GraphDataResponse) => void;
   clearGraphs: () => void;
@@ -147,12 +147,17 @@ export const DashboardProvider: React.FC<React.PropsWithChildren> = ({ children 
     setRangeMinutes(minutes);
   }, []);
 
-  const setGraphs = useCallback((graphs: GraphDataResponse[] | ((prev: GraphDataResponse[]) => GraphDataResponse[])) => {
+  const setGraphs = useCallback((graphs: GraphDataResponse[] | ((prev: GraphDataResponse[]) => GraphDataResponse[]), preserveOrder: boolean = true) => {
     setGraphList((prev) => {
       const nextGraphs = typeof graphs === 'function' ? graphs(prev) : graphs;
       
       if (!nextGraphs || nextGraphs.length === 0) {
         return [];
+      }
+
+      // preserveOrder가 false이면 백엔드에서 반환된 순서를 그대로 사용
+      if (!preserveOrder) {
+        return nextGraphs;
       }
 
       if (prev.length === 0) {
