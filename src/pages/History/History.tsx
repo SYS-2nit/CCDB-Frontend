@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import "./History.scss";
 import DateInput from "@/components/Input/DateInput";
 import Input from "@/components/Input/Input";
@@ -13,11 +14,11 @@ import {
   type HistoryGraphDataResponse,
   type HistoryGraphInfo,
 } from "@/api/History/history";
+import { fetchEventRuleDetail } from "@/api/alerts";
 import { useDashboardContext } from "@/state/DashboardContext";
 import ChartCard from "@/components/Card/ChartCard";
 import Spinner from "@/components/Spinner/Spinner";
 import TabMenu from "@/components/Tabs/TabMenu";
-import { chartData } from "@/pages/Dashboard/InstanceMap/Dashboard/data/chartData";
 
 interface FilterItem {
   key: string;
@@ -36,6 +37,7 @@ const TIME_UNIT_MAP: Record<string, "1m" | "10m" | "1h" | "1d"> = {
 const History: React.FC = () => {
   // filters
   const { selectedInstanceId } = useDashboardContext();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState<FilterItem[]>([]);
   const [graphList, setGraphList] = useState<HistoryGraphInfo[]>([]);
   const [historyGraphs, setHistoryGraphs] = useState<
@@ -46,6 +48,10 @@ const History: React.FC = () => {
   const [graphTimeUnits, setGraphTimeUnits] = useState<
     Map<number, "1m" | "10m" | "1h" | "1d">
   >(new Map());
+  const [alertGraphId, setAlertGraphId] = useState<number | null>(null);
+  const [alertSeverity, setAlertSeverity] = useState<number | null>(null);
+  const [lastProcessedParams, setLastProcessedParams] = useState<string>("");
+  const [shouldAutoSearch, setShouldAutoSearch] = useState(false);
 
   // 탭 옵션
   const TAB_ITEMS = [
@@ -55,6 +61,7 @@ const History: React.FC = () => {
     { id: "SESSION", label: "Session" },
     { id: "IO", label: "I/O" },
     { id: "STORAGE", label: "Storage" },
+
   ] as const;
 
   // 내부 activeTab = 소문자로 관리 (chartData key와 동일)
@@ -62,10 +69,137 @@ const History: React.FC = () => {
     "cpu" | "memory" | "session" | "io" | "storage"
   >("cpu"); // 기본 CPU
 
-  // chartData 기반 필터링
-  const filteredGraphs = historyGraphs.filter((graph) =>
-    chartData[activeTab]?.includes(graph.name)
-  );
+  // URL 파라미터에서 필터 설정 (알림 클릭 시 자동 설정, 변경될 때마다 처리)
+  useEffect(() => {
+    const urlStart = searchParams.get("start");
+    const urlEnd = searchParams.get("end");
+    const urlCategory = searchParams.get("category");
+    const urlDuration = searchParams.get("duration");
+    const urlAlertEventId = searchParams.get("alertEventId");
+    const urlSeverity = searchParams.get("severity");
+
+    // 현재 파라미터를 문자열로 만들어서 이전과 비교
+    const currentParams = `${urlStart}|${urlEnd}|${urlCategory}|${urlDuration}|${urlAlertEventId}|${urlSeverity}`;
+    
+    // 파라미터가 변경되지 않았으면 스킵
+    if (currentParams === lastProcessedParams) return;
+
+    // 파라미터가 없으면 스킵 (초기 로드 시)
+    if (!urlStart && !urlEnd && !urlCategory && !urlDuration && !urlAlertEventId && !urlSeverity) {
+      return;
+    }
+
+    // AlertEvent 조회하여 graphId 얻기
+    if (urlAlertEventId) {
+      const loadAlertEvent = async () => {
+        try {
+          const alertEvent = await fetchEventRuleDetail(Number(urlAlertEventId));
+          if (alertEvent.graphId) {
+            setAlertGraphId(alertEvent.graphId);
+          } else {
+            setAlertGraphId(null);
+          }
+        } catch (error) {
+          console.error("[History] AlertEvent 조회 실패:", error);
+          setAlertGraphId(null);
+        }
+      };
+      void loadAlertEvent();
+    } else {
+      setAlertGraphId(null);
+    }
+
+    if (urlSeverity) {
+      setAlertSeverity(Number(urlSeverity));
+    } else {
+      setAlertSeverity(null);
+    }
+
+    // URL 파라미터가 있으면 필터 설정
+    if (urlStart || urlEnd || urlCategory || urlDuration) {
+      const newFilters: FilterItem[] = [];
+
+      if (urlDuration) {
+        newFilters.push({ key: "duration", label: "기간", value: urlDuration });
+      }
+
+      if (urlStart) {
+        newFilters.push({ key: "start", label: "시작일", value: urlStart });
+      }
+
+      if (urlEnd) {
+        newFilters.push({ key: "end", label: "종료일", value: urlEnd });
+      }
+
+      if (urlCategory) {
+        newFilters.push({ key: "category", label: "카테고리", value: urlCategory });
+        // 카테고리에 맞는 탭 설정
+        const categoryLower = urlCategory.toLowerCase();
+        if (["cpu", "memory", "session", "io", "storage"].includes(categoryLower)) {
+          setActiveTab(categoryLower as "cpu" | "memory" | "session" | "io" | "storage");
+        }
+      }
+
+      setFilters(newFilters);
+      setLastProcessedParams(currentParams);
+      // 필터가 변경되면 기존 그래프 데이터 초기화 (새로운 검색을 위해)
+      setHistoryGraphs([]);
+      // 자동 검색 플래그 설정
+      setShouldAutoSearch(true);
+
+      // URL 파라미터 정리 (처리 후 제거) - 즉시 실행하여 재실행 방지
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("start");
+      newSearchParams.delete("end");
+      newSearchParams.delete("category");
+      newSearchParams.delete("duration");
+      newSearchParams.delete("instanceId");
+      newSearchParams.delete("alertEventId");
+      newSearchParams.delete("severity");
+      setSearchParams(newSearchParams, { replace: true });
+    } else {
+      setLastProcessedParams(currentParams);
+    }
+  }, [searchParams, setSearchParams, lastProcessedParams]);
+
+  // GraphId 기반 카테고리 필터링
+  const getCategoryByGraphId = (graphId: number): "cpu" | "memory" | "session" | "io" | "storage" | "custom"| "main" | null => {
+    if (graphId >= 1 && graphId <= 12) return "custom";
+    if (graphId >= 13 && graphId <= 20) return "cpu";
+    if (graphId >= 21 && graphId <= 28) return "memory";
+    if (graphId >= 29 && graphId <= 36) return "session";
+    if (graphId >= 37 && graphId <= 44) return "io";
+    if (graphId >= 45 && graphId <= 52) return "storage";
+    return "main";
+  };
+
+  const filteredGraphs = historyGraphs.filter((graph) => {
+    const category = getCategoryByGraphId(graph.id);
+    return category === activeTab;
+  });
+
+  // 그래프 정렬: alertGraphId가 있으면 맨 앞으로
+  const sortedGraphs = React.useMemo(() => {
+    if (!alertGraphId) return filteredGraphs;
+    
+    const alertGraph = filteredGraphs.find(g => g.id === alertGraphId);
+    const otherGraphs = filteredGraphs.filter(g => g.id !== alertGraphId);
+    
+    return alertGraph ? [alertGraph, ...otherGraphs] : filteredGraphs;
+  }, [filteredGraphs, alertGraphId]);
+
+  // 심각도별 테두리 색상
+  const getBorderColor = (graphId: number): string | undefined => {
+    if (graphId === alertGraphId && alertSeverity) {
+      switch (alertSeverity) {
+        case 1: return "#FACC15"; // 주의
+        case 2: return "#DC2626"; // 위험
+        case 3: return "#151515"; // 치명
+        default: return undefined;
+      }
+    }
+    return undefined;
+  };
 
   /** 공통 필터 업데이트 */
   const updateFilter = useCallback(
@@ -107,7 +241,11 @@ const History: React.FC = () => {
 
   /** 검색 */
   const handleSearch = useCallback(async () => {
-    if (!selectedInstanceId) {
+    // URL 파라미터에서 instanceId 가져오기 (알림 클릭 시 전달됨)
+    const urlInstanceId = searchParams.get("instanceId");
+    const targetInstanceId = urlInstanceId ? Number(urlInstanceId) : selectedInstanceId;
+
+    if (!targetInstanceId) {
       alert("인스턴스를 선택해주세요.");
       return;
     }
@@ -146,7 +284,7 @@ const History: React.FC = () => {
       const timeUnit = duration ? TIME_UNIT_MAP[duration] || "1d" : "1d";
 
       const response = await fetchHistoryData({
-        instanceId: selectedInstanceId,
+        instanceId: targetInstanceId,
         startDateTime,
         endDateTime,
         category: category as any,
@@ -168,7 +306,27 @@ const History: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedInstanceId, filters]);
+  }, [selectedInstanceId, filters, searchParams]);
+
+  // 필터가 설정되면 자동 검색 실행 (URL 파라미터로 들어온 경우)
+  useEffect(() => {
+    // 자동 검색 플래그가 있고, 필터가 설정되어 있고, 로딩 중이 아니면 검색 실행
+    if (shouldAutoSearch && !isLoading) {
+      const hasStartOrEnd = filters.some(f => f.key === "start" || f.key === "end");
+      const hasCategory = filters.some(f => f.key === "category");
+      
+      if (hasStartOrEnd || hasCategory) {
+        // 약간의 지연을 두어 필터 설정이 완전히 완료된 후 검색 실행
+        const timer = setTimeout(() => {
+          handleSearch();
+          setShouldAutoSearch(false); // 검색 실행 후 플래그 해제
+        }, 200);
+        return () => clearTimeout(timer);
+      } else {
+        setShouldAutoSearch(false); // 필터가 없으면 플래그 해제
+      }
+    }
+  }, [shouldAutoSearch, filters, isLoading, handleSearch]);
 
   /** 필터 제거 */
   const removeFilter = (key: string) => {
@@ -359,7 +517,7 @@ const History: React.FC = () => {
             <p>검색 조건을 설정하고 검색 버튼을 클릭해주세요.</p>
           </div>
         ) : (
-          filteredGraphs.map((graph) => {
+          sortedGraphs.map((graph) => {
             const timeUnit = graphTimeUnits.get(graph.id) || "1d";
             const modeMap: Record<
               "1m" | "10m" | "1h" | "1d",
@@ -382,8 +540,18 @@ const History: React.FC = () => {
               })),
             };
 
+            const borderColor = getBorderColor(graph.id);
+
             return (
-              <div key={graph.id} className="history__card">
+              <div 
+                key={graph.id} 
+                className="history__card"
+                style={borderColor ? { 
+                  border: `3px solid ${borderColor}`, 
+                  borderRadius: "8px",
+                  boxSizing: "border-box"
+                } : {}}
+              >
                 <ChartCard
                   title={graph.name}
                   status="normal"

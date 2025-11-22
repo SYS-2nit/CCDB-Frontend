@@ -86,32 +86,54 @@ const getErrorMessage = (error: unknown) => {
   return "알 수 없는 오류가 발생했습니다.";
 };
 
-const mapStatusToTab = (status?: string | null): StatusTab => {
-  switch (status) {
-    case "정상":
-      return "normal";
-    case "주의":
-      return "warn";
-    case "위험":
-      return "danger";
-    case "장애":
-      return "error";
+// currentSeverity 기준으로 탭 매핑 (null=정상, 1=주의, 2=위험, 3=치명)
+const mapSeverityToTab = (currentSeverity?: number | null): StatusTab => {
+  if (currentSeverity === null || currentSeverity === undefined) {
+    return "normal"; // 정상
+  }
+  switch (currentSeverity) {
+    case 1:
+      return "warn"; // 주의
+    case 2:
+      return "danger"; // 위험
+    case 3:
+      return "error"; // 치명
     default:
-      return "warn";
+      return "normal"; // 기본값은 정상
   }
 };
 
-const getStatusClass = (status?: string | null) => {
-  switch (status) {
-    case "정상":
-      return "normal";
-    case "위험":
-      return "danger";
-    case "장애":
-      return "error";
-    case "주의":
+// currentSeverity 기준으로 상태 클래스 결정
+const getStatusClass = (currentSeverity?: number | null) => {
+  if (currentSeverity === null || currentSeverity === undefined) {
+    return "normal"; // 정상
+  }
+  switch (currentSeverity) {
+    case 1:
+      return "warn"; // 주의
+    case 2:
+      return "danger"; // 위험
+    case 3:
+      return "error"; // 치명
     default:
-      return "warn";
+      return "normal"; // 기본값은 정상
+  }
+};
+
+// currentSeverity 기준으로 상태 라벨 결정
+const getStatusLabel = (currentSeverity?: number | null): string => {
+  if (currentSeverity === null || currentSeverity === undefined) {
+    return "정상";
+  }
+  switch (currentSeverity) {
+    case 1:
+      return "주의";
+    case 2:
+      return "위험";
+    case 3:
+      return "치명";
+    default:
+      return "정상";
   }
 };
 
@@ -230,7 +252,7 @@ const InstanceList: React.FC = () => {
     };
 
     return instances.reduce((acc, item) => {
-      const tab = mapStatusToTab(item.status);
+      const tab = mapSeverityToTab(item.currentSeverity);
       if (tab !== "all") acc[tab] += 1;
       return acc;
     }, initial);
@@ -240,10 +262,10 @@ const InstanceList: React.FC = () => {
     () =>
       [
         { id: "all", label: `전체(${instances.length})` },
-        { id: "normal", label: `무해(${statusCounts.normal})` },
+        { id: "normal", label: `정상(${statusCounts.normal})` },
         { id: "warn", label: `주의(${statusCounts.warn})` },
         { id: "danger", label: `위험(${statusCounts.danger})` },
-        { id: "error", label: `장애(${statusCounts.error})` },
+        { id: "error", label: `치명(${statusCounts.error})` },
       ] as const,
     [instances.length, statusCounts]
   );
@@ -251,7 +273,7 @@ const InstanceList: React.FC = () => {
   const filteredByStatus = useMemo(() => {
     if (activeTab === "all") return instances;
     return instances.filter(
-      (item) => mapStatusToTab(item.status) === activeTab
+      (item) => mapSeverityToTab(item.currentSeverity) === activeTab
     );
   }, [instances, activeTab]);
 
@@ -524,8 +546,8 @@ const InstanceList: React.FC = () => {
   const rows = useMemo(
     () =>
       paginatedData.map((item) => {
-        const statusClass = getStatusClass(item.status);
-        const statusLabel = item.status ?? "비활성";
+        const statusClass = getStatusClass(item.currentSeverity);
+        const statusLabel = getStatusLabel(item.currentSeverity);
 
         return [
           <div
