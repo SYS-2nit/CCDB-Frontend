@@ -8,7 +8,6 @@ import { formatTimeAgo } from "./utils/timeFormatter";
 
 const Header: React.FC = () => {
   const [showAlertPanel, setShowAlertPanel] = useState(false);
-  const [unreadCount] = useState<number>(0);
 
   const { unreadCount, alerts, isLoading, handleAlertClick, loadUnreadCount } = useAlerts({
     showPanel: showAlertPanel,
@@ -19,8 +18,7 @@ const Header: React.FC = () => {
   return (
     <>
       <header className="header">
-        <HeaderLeft />
-        {/* <HeaderRight onAlertOpen={() => setShowAlertPanel(true)} /> */}
+        <HeaderLeft />        
         <HeaderRight
           unreadCount={unreadCount}
           onAlertOpen={() => setShowAlertPanel(true)}
