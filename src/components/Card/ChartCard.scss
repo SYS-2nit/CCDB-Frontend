@@ -43,6 +43,28 @@
     cursor: pointer;
   }
 
+  &__setting-wrapper {
+    position: relative;
+    margin-left: 8px;
+    cursor: pointer;
+    z-index: 1000;
+    pointer-events: auto;
+    
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  &__setting {
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+  }
+
+  &__drag-handle {
+    cursor: move;
+  }
+
   &__body {
     display: flex;
     align-items: center;

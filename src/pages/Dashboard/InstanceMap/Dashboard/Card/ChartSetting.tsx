@@ -15,6 +15,7 @@ import { useDashboardContext } from "@/state/DashboardContext";
 interface ChartSettingProps {
   onClose: () => void;
   onSave: (newChartTitle: string) => void;
+  isOpen?: boolean;
 }
 
 type ModeType = "category" | "resource";
@@ -105,7 +106,16 @@ const generateDummyData = (
   };
 };
 
-const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
+const ChartSetting: React.FC<ChartSettingProps> = ({
+  onClose,
+  onSave,
+  isOpen = true,
+}) => {
+  console.log("[ChartSetting] 컴포넌트 렌더링", {
+    isOpen,
+    className: `chart-setting ${isOpen ? "open" : ""}`,
+  });
+
   // 상태 관리
   const [mode, setMode] = useState<ModeType>("category");
   const [activeTab, setActiveTab] = useState<TabType>("performance");
@@ -208,8 +218,16 @@ const ChartSetting: React.FC<ChartSettingProps> = ({ onClose, onSave }) => {
     return generateDummyData(graphName, graphType);
   };
 
+  const className = `chart-setting ${isOpen ? "open" : ""}`;
+  console.log(
+    "[ChartSetting] 렌더링 - className:",
+    className,
+    "isOpen:",
+    isOpen
+  );
+
   return (
-    <aside className="chart-setting">
+    <aside className={className}>
       {/* 헤더 */}
       <div className="chart-setting__header">
         <span className="chart-setting__header--title">차트 변경</span>
