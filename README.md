@@ -2,7 +2,7 @@
 
 #### Oracle, Java, React 를 활용한 데이터베이스 모니터링 웹 서비스입니다. <br />
 
-![프로젝트 소개](src/assets/readme/image-3.png)
+![프로젝트 소개](src/assets/readme/image-2.png)
 
 ## 📌 Intro
 
@@ -12,7 +12,7 @@
 
 ## 🖥️ Screen
 ### 대시보드 
-![대시보드 화면 1](src/assets/readme/image-2.png)
+![대시보드 화면 1](src/assets/readme/image-3.png)
 ![대시보드 화면 2](src/assets/readme/image-4.png)
 
 ### SQL 
