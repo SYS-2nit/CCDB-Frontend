@@ -1,0 +1,94 @@
+@use "@/styles/_typography.scss" as *;
+@use "@styles/variables" as *;
+
+.level-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+
+  &__label {
+    @include text-styles("body02");
+    color: $gray-900;
+  }
+
+  &__container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid $gray-300;
+    border-radius: 6px;
+    background: $gray-0;
+    overflow: hidden;
+  }
+
+  &__button {
+    width: 32px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $gray-50;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 500;
+    color: $gray-700;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+
+    &:hover:not(:disabled) {
+      background: $gray-100;
+      color: $gray-900;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &--increment {
+      border-left: 1px solid $gray-300;
+    }
+
+    &--decrement {
+      border-right: 1px solid $gray-300;
+    }
+  }
+
+  &__value-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+  }
+
+  &__input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    text-align: center;
+    @include text-styles("body01");
+    color: $gray-900;
+    min-width: 0;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    &[type="number"] {
+      -moz-appearance: textfield;
+    }
+  }
+
+  &__unit {
+    @include text-styles("body02");
+    color: $gray-600;
+    flex-shrink: 0;
+  }
+}

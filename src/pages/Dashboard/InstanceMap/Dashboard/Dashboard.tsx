@@ -201,7 +201,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
     const hasCache =
       activeTab === "main"
-        ? graphList.length > 0
+        ? graphList.length > 0 && lastLoadedTabRef.current === activeTab
         : (categoryGraphs.get(activeTab)?.length ?? 0) > 0;
 
     if (!hasCache) setIsFetching(true);
@@ -275,7 +275,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     activeTab,
     mode,
     refreshToken,
-    graphList,
+    // graphList,
     clearGraphs,
     setGraphs,
     setError,

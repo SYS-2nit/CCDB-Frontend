@@ -82,6 +82,7 @@
         background: none;
         cursor: pointer;
         transition: background 0.2s ease;
+        position: relative;
 
         img {
           width: 28px;
@@ -91,6 +92,25 @@
         &:hover {
           background: $gray-100;
         }
+    }
+
+    &-alert-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background-color: #ef4444;
+      color: white;
+      border-radius: 50%;
+      min-width: 18px;
+      height: 18px;
+      font-size: 11px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      padding: 0 4px;
+      box-sizing: border-box;
     }
   }
 
@@ -216,6 +236,33 @@
     color: $gray-900;
   }
 
+  &-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .alert-panel__event-log-btn {
+    padding: 6px 12px;
+    border: 1px solid $main-600;
+    border-radius: 6px;
+    background: $gray-0;
+    color: $main-600;
+    @include text-styles("body02");
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background: $main-600;
+      color: $gray-0;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
   .alert-panel__close {
     border: none;
     background: transparent;
@@ -251,6 +298,14 @@
   }
 }
 
+/* 빈 상태 및 로딩 상태 */
+.alert-panel__empty {
+  padding: 20px;
+  text-align: center;
+  color: $gray-500;
+  @include text-styles("label02");
+}
+
 /* 개별 알림 아이템 */
 .alert-item {
   display: flex;
@@ -269,6 +324,20 @@
   &__icon {
     @include text-styles("heading04");
     margin-top: 2px;
+    font-size: 20px;
+    line-height: 1;
+
+    &--warning {
+      color: #f59e0b; // 노란색 (WARNING)
+    }
+
+    &--danger {
+      color: #f97316; // 주황색 (DANGER)
+    }
+
+    &--critical {
+      color: #ef4444; // 빨간색 (CRITICAL)
+    }
   }
 
   &__text {
@@ -279,6 +348,7 @@
     strong {
       color: $gray-900;
       margin-right: 4px;
+      font-weight: 600;
     }
   }
 
@@ -286,6 +356,7 @@
     margin-top: 3px;
     color: $gray-500;
     font-size: 11px;
+    @include text-styles("label02");
   }
 }
 

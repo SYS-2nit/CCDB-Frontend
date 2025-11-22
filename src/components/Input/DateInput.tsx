@@ -9,6 +9,8 @@ interface DateInputProps {
   disabled?: boolean;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  min?: string;
+  max?: string;
   type?: "date" | "month";
 }
 
@@ -19,6 +21,8 @@ const DateInput: React.FC<DateInputProps> = ({
   disabled = false,
   value,
   onChange,
+  min,
+  max,
   type = "date",
 }) => {
   return (
@@ -29,6 +33,8 @@ const DateInput: React.FC<DateInputProps> = ({
         value={value}
         onChange={onChange}
         disabled={disabled}
+        min={min}
+        max={max}
         className={clsx(
           "date-input__field",
           `date-input__field--${size}`,

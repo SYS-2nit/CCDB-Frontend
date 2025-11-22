@@ -1,18 +1,24 @@
+import React, { useState } from "react";
+import "./Header.scss";
 import AlertPanel from "./components/AlertPanel";
 import HeaderLeft from "./components/HeaderLeft";
 import HeaderRight from "./components/HeaderRight";
-import "./Header.scss";
-import { useState } from "react";
+import { useAlerts } from "./hooks/useAlerts";
+import { formatTimeAgo } from "./utils/timeFormatter";
 
-const Header = () => {
+const Header: React.FC = () => {
   const [showAlertPanel, setShowAlertPanel] = useState(false);
-  const [unreadCount] = useState<number>(0);
+
+  const { unreadCount, alerts, isLoading, handleAlertClick, loadUnreadCount } = useAlerts({
+    showPanel: showAlertPanel,
+  });
+
+
 
   return (
     <>
       <header className="header">
-        <HeaderLeft />
-        {/* <HeaderRight onAlertOpen={() => setShowAlertPanel(true)} /> */}
+        <HeaderLeft />        
         <HeaderRight
           unreadCount={unreadCount}
           onAlertOpen={() => setShowAlertPanel(true)}
@@ -20,7 +26,14 @@ const Header = () => {
       </header>
 
       {showAlertPanel && (
-        <AlertPanel onClose={() => setShowAlertPanel(false)} />
+        <AlertPanel
+          onClose={() => setShowAlertPanel(false)}
+          alerts={alerts}
+          isLoading={isLoading}
+          onAlertClick={handleAlertClick}
+          formatTimeAgo={formatTimeAgo}
+          loadUnreadCount={loadUnreadCount}
+        />
       )}
     </>
   );
