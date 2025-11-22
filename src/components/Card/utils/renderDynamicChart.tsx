@@ -7,7 +7,7 @@ import StackChart from "@/components/Chart/StackChart";
 import MixedChart from "@/components/Chart/MixedChart";
 import SuccessGreenIcon from "@/assets/general/succes-green.svg";
 import ErrorRedIcon from "@/assets/general/error-red.svg";
-import type { GraphDataResponse } from "@/api/dashboard";
+import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 
 // 그래프 ID별 축 범위 설정 (필요할 때만 추가)

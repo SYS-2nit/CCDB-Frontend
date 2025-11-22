@@ -12,7 +12,6 @@ import {
   unacknowledgeEvent,
   acknowledgeEvent,
   isEventRead,
-  isEventResolved,
   type ProgressHistoryResponse,
 } from "@/api/alerts";
 
@@ -174,7 +173,7 @@ const AlertTable: React.FC<AlertTableProps> = ({
       }));
     } catch (error) {
       console.error("[AlertTable] 읽음 상태 변경 실패:", error);
-      alert("읽음 상태 변경에 실패했습니다.");
+      window.alert("읽음 상태 변경에 실패했습니다.");
     }
   };
 

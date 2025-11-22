@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import "./EventSettingPanel.scss";
 import Button from "@/components/Button/Button";
 import Modal from "@/components/Modal/Modal";
@@ -78,7 +78,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   mode = "default",
   onPoliciesChange,
 }) => {
-  const { selectedInstanceId, instances } = useDashboardContext();
+  const { selectedInstanceId } = useDashboardContext();
   const [policyName, setPolicyName] = useState("");
   const [inputForms, setInputForms] = useState<EventCard[]>([
     createEmptyEvent(0),

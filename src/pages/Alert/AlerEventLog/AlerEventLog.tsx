@@ -25,7 +25,7 @@ const AlerEventLog: React.FC = () => {
   const [severity, setSeverity] = useState<AlertLevel | "">("");
   const [status, setStatus] = useState<AlertStatus | "">("");
   const [readStatus, setReadStatus] = useState<"all" | "read" | "unread">("all"); // 읽음/안읽음 필터
-  const [keyword, setKeyword] = useState("");
+  
 
   // 데이터 상태
   const [alerts, setAlerts] = useState<EventResponse[]>([]);
@@ -143,11 +143,6 @@ const AlerEventLog: React.FC = () => {
     loadAlerts();
   }, [loadAlerts]);
 
-  // 검색 버튼 클릭 핸들러
-  const handleSearch = () => {
-    setPage(0); // 첫 페이지로 리셋
-    loadAlerts();
-  };
 
   // 필터 초기화
   const handleReset = () => {
@@ -157,7 +152,6 @@ const AlerEventLog: React.FC = () => {
     setSeverity("");
     setStatus("");
     setReadStatus("all");
-    setKeyword("");
     setPage(0);
     // 초기화 후 자동으로 조회 (useEffect가 필터 변경을 감지하여 자동 조회)
   };

@@ -16,7 +16,6 @@ import {
   togglePolicy,
   toggleEvent,
   deletePolicy,
-  type AlertPolicyResponse,
   type AlertEventResponse,
 } from "@/api/alerts";
 
@@ -46,7 +45,6 @@ const AlertEventSetting: React.FC = () => {
     dangerChannel: "전체",
     criticalChannel: "전체",
   });
-  const [isLoadingSettings, setIsLoadingSettings] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
@@ -877,9 +875,7 @@ const AlertEventSetting: React.FC = () => {
               
               // 이메일과 Slack 메시지 파싱
               // 이메일: "이메일 테스트 전송 완료: 이메일주소. "
-              const emailMatch = testResult.match(/이메일 테스트 전송 완료:\s*([^\s.]+(?:\.[^\s.]+)*)/);
-              // Slack: "Slack 테스트 전송 완료: URL. " (URL은 https://로 시작)
-              const slackMatch = testResult.match(/Slack 테스트 전송 완료:\s*([^\s.]+(?:\.[^\s.]+)*)/);
+              const emailMatch = testResult.match(/이메일 테스트 전송 완료:\s*([^\s.]+(?:\.[^\s.]+)*)/);              
               const isError = testResult.includes("실패") || testResult.includes("없습니다");
               
               const results = [];
