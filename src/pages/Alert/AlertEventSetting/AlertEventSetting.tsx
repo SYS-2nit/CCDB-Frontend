@@ -78,7 +78,6 @@ const AlertEventSetting: React.FC = () => {
   }, [isReceiveModal, hasTested, originalSettings]);
 
   const loadNotificationSettings = async () => {
-    setIsLoadingSettings(true);
     try {
       console.log(`[AlertEventSetting] 알림 설정 조회 시작`);
       // 항상 DB에서 최신 값 조회
@@ -104,8 +103,6 @@ const AlertEventSetting: React.FC = () => {
       });
       const errorMessage = error?.response?.data?.message || error?.message || "알림 설정을 불러오는데 실패했습니다.";
       alert(`알림 설정 조회 실패: ${errorMessage}`);
-    } finally {
-      setIsLoadingSettings(false);
     }
   };
 
