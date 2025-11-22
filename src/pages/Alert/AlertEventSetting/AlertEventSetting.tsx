@@ -825,19 +825,19 @@ const AlertEventSetting: React.FC = () => {
               onChange: handleFieldChange,
             },
             {
-              label: "Warning",
-              type: "select",
-              placeholder: "주요 알림 채널을 선택해주세요.",
-              options: ["전체", "slack", "email"],
-              value: notificationSettings.warningChannel,
-              onChange: handleFieldChange,
-            },
-            {
               label: "Danger",
               type: "select",
               placeholder: "주요 알림 채널을 선택해주세요.",
               options: ["전체", "slack", "email"],
               value: notificationSettings.dangerChannel,
+              onChange: handleFieldChange,
+            },
+            {
+              label: "Warning",
+              type: "select",
+              placeholder: "주요 알림 채널을 선택해주세요.",
+              options: ["전체", "slack", "email"],
+              value: notificationSettings.warningChannel,
               onChange: handleFieldChange,
             },
           ]}
