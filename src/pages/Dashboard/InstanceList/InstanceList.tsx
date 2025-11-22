@@ -5,7 +5,6 @@ import Input from "@/components/Input/Input";
 import SearchIcon from "@/assets/general/search.svg";
 import TabMenu from "@/components/Tabs/TabMenu";
 import Pagination from "@/components/Pagination/Pagination";
-import Button from "@/components/Button/Button";
 import Modal from "@/components/Modal/Modal";
 import EditIcon from "@/assets/general/edit.svg";
 import TrashIcon from "@/assets/general/trash.svg";
@@ -183,7 +182,7 @@ const InstanceList: React.FC = () => {
 
   const [instances, setInstances] = useState<InstanceRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<StatusTab>("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -214,10 +213,10 @@ const InstanceList: React.FC = () => {
     try {
       const data = await fetchInstancesByDatabase(databaseId);
       setInstances(data);
-      setError(null);
-    } catch (err) {
+      // setError(null);
+    } catch {
       setInstances([]);
-      setError(getErrorMessage(err));
+      // setError(getErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -299,17 +298,17 @@ const InstanceList: React.FC = () => {
     }
   }, [currentPage, totalPages]);
 
-  const openCreateModal = useCallback(() => {
-    if (!selectedDatabase) {
-      alert("DB를 먼저 선택해주세요.");
-      return;
-    }
-    setCreateIdentifier("");
-    setCreateConnectionType("SID");
-    setCreateTestResult(null);
-    setIsCreateTesting(false);
-    setIsCreateModalOpen(true);
-  }, [selectedDatabase]);
+  // const openCreateModal = useCallback(() => {
+  //   if (!selectedDatabase) {
+  //     alert("DB를 먼저 선택해주세요.");
+  //     return;
+  //   }
+  //   setCreateIdentifier("");
+  //   setCreateConnectionType("SID");
+  //   setCreateTestResult(null);
+  //   setIsCreateTesting(false);
+  //   setIsCreateModalOpen(true);
+  // }, [selectedDatabase]);
 
   const handleCreateTest = useCallback(async () => {
     if (isCreateTesting) return;
@@ -331,7 +330,7 @@ const InstanceList: React.FC = () => {
         connectionType: createConnectionType,
       });
       setCreateTestResult(result);
-    } catch (error) {
+    } catch {
       setCreateTestResult({
         success: false,
         message: null,
@@ -415,7 +414,7 @@ const InstanceList: React.FC = () => {
         connectionType: editConnectionType,
       });
       setEditTestResult(result);
-    } catch (error) {
+    } catch {
       setEditTestResult({
         success: false,
         message: null,
