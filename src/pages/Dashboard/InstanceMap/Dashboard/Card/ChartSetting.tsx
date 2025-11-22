@@ -111,11 +111,6 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
   onSave,
   isOpen = true,
 }) => {
-  console.log("[ChartSetting] 컴포넌트 렌더링", {
-    isOpen,
-    className: `chart-setting ${isOpen ? "open" : ""}`,
-  });
-
   // 상태 관리
   const [mode, setMode] = useState<ModeType>("category");
   const [activeTab, setActiveTab] = useState<TabType>("performance");
@@ -218,16 +213,8 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
     return generateDummyData(graphName, graphType);
   };
 
-  const className = `chart-setting ${isOpen ? "open" : ""}`;
-  console.log(
-    "[ChartSetting] 렌더링 - className:",
-    className,
-    "isOpen:",
-    isOpen
-  );
-
   return (
-    <aside className={className}>
+    <aside className={`chart-setting ${isOpen ? "open" : ""}`}>
       {/* 헤더 */}
       <div className="chart-setting__header">
         <span className="chart-setting__header--title">차트 변경</span>
@@ -287,9 +274,9 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
                 <div key={graph} className="chart-setting__option-item">
                   <Checkbox
                     // 커스텀 대시보드에 이미 올라가 있는 그래프는 항상 체크된 상태로 표시
-                    checked={isActiveInCustom}
-                    // 체크박스 클릭은 단순히 "이 그래프를 선택"하는 용도로만 사용
-                    // 실제 체크 상태는 activeGraphNames로 제어하므로 토글되지는 않음
+                    // 또는 사용자가 선택한 그래프도 체크된 상태로 표시
+                    checked={isActiveInCustom || selectedOption === i}
+                    // 체크박스 클릭 시 해당 그래프를 선택
                     onChange={() => setSelectedOption(i)}
                     label={graph}
                     size="md"

@@ -78,15 +78,6 @@ const Dashboard: React.FC<DashboardProps> = ({
     null
   );
 
-  // 상태 변경 추적
-  useEffect(() => {
-    console.log("[Dashboard] 상태 변경", {
-      isSettingOpen,
-      settingTargetIndex,
-      shouldRenderChartSetting: isSettingOpen && settingTargetIndex !== null,
-    });
-  }, [isSettingOpen, settingTargetIndex]);
-
   const [categoryGraphs, setCategoryGraphs] = useState<
     Map<TabType, GraphDataResponse[]>
   >(new Map());
@@ -526,15 +517,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         { id: "storage", label: "Storage" },
       ];
 
-  const dashboardClassName = `dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`;
-  console.log("[Dashboard] 렌더링", {
-    isSettingOpen,
-    settingTargetIndex,
-    dashboardClassName,
-  });
-
   return (
-    <div className={dashboardClassName}>
+    <div className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}>
       {!singleTabMode && (
         <TabMenu
           tabs={visibleTabs}
@@ -578,18 +562,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                     status="normal"
                     onSettingClick={() => {
                       const idx = charts.findIndex((c) => c.id === graph.id);
-                      console.log("[Dashboard] 설정 아이콘 클릭 - Main 탭", {
-                        graphId: graph.id,
-                        graphName: graph.name,
-                        idx,
-                        chartsLength: charts.length,
-                      });
                       setSettingTargetIndex(idx);
                       setIsSettingOpen(true);
-                      console.log("[Dashboard] 상태 업데이트 완료", {
-                        settingTargetIndex: idx,
-                        isSettingOpen: true,
-                      });
                     }}
                     showDragIcon
                     showSettingIcon
@@ -683,24 +657,14 @@ const Dashboard: React.FC<DashboardProps> = ({
           </>
         )}
       </div>
-      {(() => {
-        console.log("[Dashboard] ChartSetting 렌더링 조건 체크", {
-          isSettingOpen,
-          settingTargetIndex,
-          shouldRender: isSettingOpen && settingTargetIndex !== null,
-        });
-        return null;
-      })()}
       {isSettingOpen && settingTargetIndex !== null && (
         <ChartSetting
           isOpen={isSettingOpen}
           onClose={() => {
-            console.log("[Dashboard] ChartSetting 닫기 호출");
             setIsSettingOpen(false);
             setSettingTargetIndex(null);
           }}
           onSave={async (newChartTitle: string) => {
-            console.log("[Dashboard] ChartSetting 저장 호출", { newChartTitle });
             try {
               const all = await fetchAllGraphs();
               const found = all.find((g) => g.name === newChartTitle);

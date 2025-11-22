@@ -140,11 +140,8 @@ const ChartCard: React.FC<ChartCardProps> = ({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log("[ChartCard] 설정 아이콘 클릭됨", { title, onSettingClick: !!onSettingClick });
                 if (onSettingClick) {
                   onSettingClick();
-                } else {
-                  console.warn("[ChartCard] onSettingClick이 정의되지 않음");
                 }
               }}
               onMouseDown={(e) => {
