@@ -3,9 +3,15 @@ import TimeSection from "./TimeSection";
 import Select from "@/components/Select/Select";
 import { useInstances } from "../hooks/useInstances";
 import { useDbInfo } from "../hooks/useDbInfo";
+import { useLocation } from "react-router-dom";
 
 // DB + Instance + Time
 const HeaderLeft = () => {
+  const location = useLocation();
+
+  // "/dashboard" 라는 경로일 때만 노출
+  const showTimeSection = location.pathname.startsWith("/dashboard");
+
   const { dbName } = useDbInfo();
   const { instances, selectedInstanceId, handleInstanceChange } =
     useInstances();
@@ -28,7 +34,7 @@ const HeaderLeft = () => {
         onChange={handleInstanceChange}
       />
 
-      <TimeSection />
+      {showTimeSection && <TimeSection />}
     </div>
   );
 };

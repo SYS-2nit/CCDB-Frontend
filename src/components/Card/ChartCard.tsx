@@ -7,10 +7,14 @@ import InfoIcon from "@/assets/general/info.svg";
 import DragIcon from "@/assets/general/drag.svg";
 import { getChartByTitle } from "./utils/getChartByTitle";
 import {
+  renderDynamicChart,
+  GRAPH_TITLE_SUFFIX_FORMATTERS,
+} from "./utils/renderDynamicChart";
+
+import {
   useDashboardContext,
   type DashboardMode,
 } from "@/state/DashboardContext";
-import { renderDynamicChart } from "./utils/renderDynamicChart";
 import ChartInfoModal from "./ChartInfoModal";
 import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 
@@ -44,16 +48,14 @@ const ChartCard: React.FC<ChartCardProps> = ({
     mode: contextMode,
   } = useDashboardContext();
 
-  // modal visible state
   const [showInfo, setShowInfo] = useState(false);
 
   const data = graphData ?? graphsByName[title];
   const mode = propMode ?? contextMode;
 
-  // modal 위치 고정 (모든 카드 동일 좌표)
-  const modalPos = { x: 0, y: 0 };
+  // 모달 고정 위치
+  const modalPos = { x: -300, y: 0 };
 
-  // Info hover handlers
   const handleInfoEnter = () => {
     setShowInfoModal(true);
   };
@@ -61,6 +63,10 @@ const ChartCard: React.FC<ChartCardProps> = ({
   const handleInfoLeave = () => {
     setShowInfoModal(false);
   };
+
+  // Description 가공
+  const formattedDescription =
+    graphData?.description?.split("\n").join("<br />") ?? "";
 
   let bodyContent: React.ReactNode;
 
@@ -81,32 +87,52 @@ const ChartCard: React.FC<ChartCardProps> = ({
     bodyContent = getChartByTitle(title, data, mode);
   }
 
+  // 그래프별 제목 suffix 가져오기 (최소 수정)
+  const titleSuffix =
+    graphData && graphData.id && GRAPH_TITLE_SUFFIX_FORMATTERS[graphData.id]
+      ? GRAPH_TITLE_SUFFIX_FORMATTERS[graphData.id](graphData)
+      : null;
+
   return (
     <div className={`chart-card ${status}`}>
       <div className="chart-card__header">
         <div className="chart-card__left">
           {showDragIcon && <img src={DragIcon} alt="Drag" />}
-          <span className="chart-card__title">{title}</span>
+          <span className="chart-card__title">
+            {title}
+            {titleSuffix && (
+              <span
+                style={{
+                  fontSize: "11px",
+                  color: "#666",
+                  marginLeft: "12px",
+                  fontWeight: "normal",
+                }}
+              >
+                {titleSuffix}
+              </span>
+            )}
+          </span>
           <img src={StatusIcon} alt={status} />
         </div>
 
         <div className="chart-card__right">
-          {/* Info hover */}
           <div
             onMouseEnter={handleInfoEnter}
             onMouseLeave={handleInfoLeave}
             style={{ position: "relative" }}
           >
             <img src={InfoIcon} alt="info" />
+
             {showInfoModal && graphData?.description && (
               <ChartInfoModal
-                pos={{ x: -300, y: 0 }}
-                description={graphData.description}
+                pos={modalPos}
+                description={formattedDescription}
                 onMouseEnter={() => setShowInfoModal(true)}
                 onMouseLeave={() => setShowInfoModal(false)}
               />
             )}
-            {/* Setting click */}
+
             {showSettingIcon && (
               <img
                 src={SettingIcon}
@@ -121,11 +147,11 @@ const ChartCard: React.FC<ChartCardProps> = ({
 
       <div className="chart-card__body">{bodyContent}</div>
 
-      {/* INFO 모달 */}
+      {/* Info Modal for click */}
       {showInfo && data?.description && (
         <ChartInfoModal
           pos={modalPos}
-          description={data.description}
+          description={formattedDescription}
           onMouseEnter={() => setShowInfo(false)}
           onMouseLeave={() => setShowInfo(true)}
         />

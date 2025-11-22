@@ -76,7 +76,13 @@ const ChartSection: React.FC<{ title: string; children: any }> = ({
   children,
 }) => (
   <div>
-    <h3 style={{ fontSize: "16px" }}>{title}</h3>
+    <h3
+      style={{
+        fontSize: "16px",
+      }}
+    >
+      {title}
+    </h3>
     <div>{children}</div>
   </div>
 );

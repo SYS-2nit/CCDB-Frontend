@@ -20,9 +20,8 @@ const ChartInfoModal: React.FC<Props> = ({
       style={{ left: pos.x, top: pos.y }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-    >
-      {description}
-    </div>
+      dangerouslySetInnerHTML={{ __html: description ?? "" }}
+    />
   );
 };
 

@@ -64,7 +64,13 @@ export const saveMemberWidgets = async (
   await api.post<ApiResponse<string>>("/api/dashboards/widgets", payload);
 };
 
+// 전체 그래프 조회 API
 export const fetchAllGraphs = async (): Promise<GraphDefinition[]> => {
   const response = await api.get<ApiResponse<GraphDefinition[]>>("/api/graphs");
-  return response.data.data ?? [];
+  const data = response.data.data ?? [];
+
+  return data.map((graph) => ({
+    ...graph,
+    info: graph.info,
+  }));
 };
