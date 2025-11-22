@@ -1,5 +1,6 @@
-import api from "./index";
-import type { ApiResponse } from "./types";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import api from "../index";
+import type { ApiResponse } from "../types";
 
 // ==================== Enum Types ====================
 
@@ -16,7 +17,11 @@ export const AlertLevelEnum = {
 
 export type ThresholdFormat = "PERCENT" | "MS" | "MBPS" | "COUNT";
 
-export type DelayTime = "ONE_MINUTE" | "FIVE_MINUTES" | "TEN_MINUTES" | "ONE_HOUR";
+export type DelayTime =
+  | "ONE_MINUTE"
+  | "FIVE_MINUTES"
+  | "TEN_MINUTES"
+  | "ONE_HOUR";
 
 export type AlertCategory = "CPU" | "MEMORY" | "SESSION" | "IO" | "STORAGE";
 
@@ -186,12 +191,14 @@ export const fetchUnreadAlertCount = async (): Promise<number> => {
           page: 0,
           size: 1000, // 충분히 큰 값으로 설정 (또는 백엔드에서 카운트만 반환하는 API 사용)
         },
-      },
+      }
     );
-    
+
     const allAlerts = response.data.data?.content ?? [];
     // acknowledgedAt이 null인 알림만 카운트
-    const unreadCount = allAlerts.filter(alert => alert.acknowledgedAt === null).length;
+    const unreadCount = allAlerts.filter(
+      (alert) => alert.acknowledgedAt === null
+    ).length;
     return unreadCount;
   } catch (error) {
     console.error("[fetchUnreadAlertCount] 안읽음 알림 개수 조회 실패:", error);
@@ -205,7 +212,7 @@ export const fetchUnreadAlertCount = async (): Promise<number> => {
  */
 export const fetchPendingAlerts = async (
   page: number = 0,
-  size: number = 20,
+  size: number = 20
 ): Promise<Page<EventResponse>> => {
   const response = await api.get<ApiResponse<Page<EventResponse>>>(
     `${ALERTS_ENDPOINT}/events`,
@@ -216,9 +223,20 @@ export const fetchPendingAlerts = async (
         page,
         size,
       },
-    },
+    }
   );
-  return response.data.data ?? { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20, first: true, last: true, numberOfElements: 0 };
+  return (
+    response.data.data ?? {
+      content: [],
+      totalElements: 0,
+      totalPages: 0,
+      number: 0,
+      size: 20,
+      first: true,
+      last: true,
+      numberOfElements: 0,
+    }
+  );
 };
 
 /**
@@ -234,7 +252,7 @@ export interface FetchAlertsParams {
 }
 
 export const fetchAlerts = async (
-  params: FetchAlertsParams = {},
+  params: FetchAlertsParams = {}
 ): Promise<Page<EventResponse>> => {
   const { page = 0, size = 20, ...rest } = params;
   const response = await api.get<ApiResponse<Page<EventResponse>>>(
@@ -245,9 +263,20 @@ export const fetchAlerts = async (
         page,
         size,
       },
-    },
+    }
   );
-  return response.data.data ?? { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20, first: true, last: true, numberOfElements: 0 };
+  return (
+    response.data.data ?? {
+      content: [],
+      totalElements: 0,
+      totalPages: 0,
+      number: 0,
+      size: 20,
+      first: true,
+      last: true,
+      numberOfElements: 0,
+    }
+  );
 };
 
 /**
@@ -271,14 +300,14 @@ export interface AlertExportPDFRequest {
  * 이벤트 기록 PDF 다운로드
  */
 export const exportAlertsToPDF = async (
-  request: AlertExportPDFRequest,
+  request: AlertExportPDFRequest
 ): Promise<Blob> => {
   const response = await api.post(
     `${ALERTS_ENDPOINT}/events/export-pdf`,
     request,
     {
       responseType: "blob",
-    },
+    }
   );
   return response.data;
 };
@@ -286,11 +315,9 @@ export const exportAlertsToPDF = async (
 /**
  * 알림 이벤트 상세 조회
  */
-export const fetchEventDetail = async (
-  id: number,
-): Promise<EventResponse> => {
+export const fetchEventDetail = async (id: number): Promise<EventResponse> => {
   const response = await api.get<ApiResponse<EventResponse>>(
-    `${ALERTS_ENDPOINT}/events/${id}`,
+    `${ALERTS_ENDPOINT}/events/${id}`
   );
   return response.data.data!;
 };
@@ -299,10 +326,10 @@ export const fetchEventDetail = async (
  * 알림 이벤트 처리 이력 조회
  */
 export const fetchEventHistories = async (
-  eventId: number,
+  eventId: number
 ): Promise<ProgressHistoryResponse[]> => {
   const response = await api.get<ApiResponse<ProgressHistoryResponse[]>>(
-    `${ALERTS_ENDPOINT}/events/${eventId}/history`,
+    `${ALERTS_ENDPOINT}/events/${eventId}/history`
   );
   return response.data.data ?? [];
 };
@@ -320,7 +347,7 @@ export const connectSSE = (): EventSource => {
  * 알림 정책 목록 조회
  */
 export const fetchPolicies = async (
-  instanceId?: number,
+  instanceId?: number
 ): Promise<AlertPolicyResponse[]> => {
   const params: Record<string, number> = {};
   // memberId 제거 - 백엔드가 기본값 1 사용
@@ -328,7 +355,7 @@ export const fetchPolicies = async (
 
   const response = await api.get<ApiResponse<AlertPolicyResponse[]>>(
     `${ALERTS_ENDPOINT}/policies`,
-    { params },
+    { params }
   );
   return response.data.data ?? [];
 };
@@ -337,10 +364,10 @@ export const fetchPolicies = async (
  * 알림 정책 상세 조회
  */
 export const fetchPolicyDetail = async (
-  id: number,
+  id: number
 ): Promise<AlertPolicyResponse> => {
   const response = await api.get<ApiResponse<AlertPolicyResponse>>(
-    `${ALERTS_ENDPOINT}/policies/${id}`,
+    `${ALERTS_ENDPOINT}/policies/${id}`
   );
   return response.data.data!;
 };
@@ -349,10 +376,10 @@ export const fetchPolicyDetail = async (
  * 정책별 알림 규칙 목록 조회
  */
 export const fetchEventsByPolicy = async (
-  policyId: number,
+  policyId: number
 ): Promise<AlertEventResponse[]> => {
   const response = await api.get<ApiResponse<AlertEventResponse[]>>(
-    `${ALERTS_ENDPOINT}/policies/${policyId}/rules`,
+    `${ALERTS_ENDPOINT}/policies/${policyId}/rules`
   );
   return response.data.data ?? [];
 };
@@ -361,10 +388,10 @@ export const fetchEventsByPolicy = async (
  * 알림 규칙 상세 조회
  */
 export const fetchEventRuleDetail = async (
-  id: number,
+  id: number
 ): Promise<AlertEventResponse> => {
   const response = await api.get<ApiResponse<AlertEventResponse>>(
-    `${ALERTS_ENDPOINT}/rules/${id}`,
+    `${ALERTS_ENDPOINT}/rules/${id}`
   );
   return response.data.data!;
 };
@@ -373,10 +400,10 @@ export const fetchEventRuleDetail = async (
  * 인스턴스별 활성 알림 규칙 목록 조회
  */
 export const fetchActiveEventsByInstance = async (
-  instanceId: number,
+  instanceId: number
 ): Promise<AlertEventResponse[]> => {
   const response = await api.get<ApiResponse<AlertEventResponse[]>>(
-    `${ALERTS_ENDPOINT}/instances/${instanceId}/rules`,
+    `${ALERTS_ENDPOINT}/instances/${instanceId}/rules`
   );
   return response.data.data ?? [];
 };
@@ -403,7 +430,7 @@ export interface AlertMetricTemplateResponse {
  * 카테고리별 알림 메트릭 템플릿 목록 조회
  */
 export const fetchMetricTemplatesByCategory = async (
-  category: AlertCategory,
+  category: AlertCategory
 ): Promise<AlertMetricTemplateResponse[]> => {
   const response = await api.get<ApiResponse<AlertMetricTemplateResponse[]>>(
     `${ALERTS_ENDPOINT}/templates`,
@@ -414,11 +441,14 @@ export const fetchMetricTemplatesByCategory = async (
       // 캐시 방지: 항상 최신 데이터 조회
       headers: {
         "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
+        Pragma: "no-cache",
       },
-    },
+    }
   );
-  console.log(`[fetchMetricTemplatesByCategory] 카테고리 ${category} 조회 결과:`, response.data.data);
+  console.log(
+    `[fetchMetricTemplatesByCategory] 카테고리 ${category} 조회 결과:`,
+    response.data.data
+  );
   return response.data.data ?? [];
 };
 
@@ -454,34 +484,38 @@ export interface NotificationTestRequest {
 /**
  * 회원 알림 설정 조회
  */
-export const fetchNotificationSettings = async (): Promise<NotificationSettingsResponse> => {
-  console.log(`[fetchNotificationSettings] 조회 시작`);
-  try {
-    // URL에서 memberId 제거 - 백엔드가 기본값 1 사용
-    // 백엔드 API가 /api/members/notification-settings 형태로 변경되어야 함
-    const response = await api.get<ApiResponse<NotificationSettingsResponse>>(
-      `/api/members/notification-settings`,
-    );
-    console.log(`[fetchNotificationSettings] 응답:`, response.data);
-    return response.data.data!;
-  } catch (error: any) {
-    console.error(`[fetchNotificationSettings] 에러:`, error);
-    console.error(`[fetchNotificationSettings] 응답 데이터:`, error?.response?.data);
-    throw error;
-  }
-};
+export const fetchNotificationSettings =
+  async (): Promise<NotificationSettingsResponse> => {
+    console.log(`[fetchNotificationSettings] 조회 시작`);
+    try {
+      // URL에서 memberId 제거 - 백엔드가 기본값 1 사용
+      // 백엔드 API가 /api/members/notification-settings 형태로 변경되어야 함
+      const response = await api.get<ApiResponse<NotificationSettingsResponse>>(
+        `/api/members/notification-settings`
+      );
+      console.log(`[fetchNotificationSettings] 응답:`, response.data);
+      return response.data.data!;
+    } catch (error: any) {
+      console.error(`[fetchNotificationSettings] 에러:`, error);
+      console.error(
+        `[fetchNotificationSettings] 응답 데이터:`,
+        error?.response?.data
+      );
+      throw error;
+    }
+  };
 
 /**
  * 회원 알림 설정 저장
  */
 export const updateNotificationSettings = async (
-  payload: NotificationSettingsUpdateRequest,
+  payload: NotificationSettingsUpdateRequest
 ): Promise<NotificationSettingsResponse> => {
   // URL에서 memberId 제거 - 백엔드가 기본값 1 사용
   // 백엔드 API가 /api/members/notification-settings 형태로 변경되어야 함
   const response = await api.put<ApiResponse<NotificationSettingsResponse>>(
     `/api/members/notification-settings`,
-    payload,
+    payload
   );
   return response.data.data!;
 };
@@ -490,13 +524,13 @@ export const updateNotificationSettings = async (
  * 알림 테스트 전송
  */
 export const testNotification = async (
-  payload: NotificationTestRequest,
+  payload: NotificationTestRequest
 ): Promise<string> => {
   // URL에서 memberId 제거 - 백엔드가 기본값 1 사용
   // 백엔드 API가 /api/members/notification-settings/test 형태로 변경되어야 함
   const response = await api.post<ApiResponse<string>>(
     `/api/members/notification-settings/test`,
-    payload,
+    payload
   );
   return response.data.data!;
 };
@@ -505,11 +539,11 @@ export const testNotification = async (
  * 알림 정책 생성
  */
 export const createPolicy = async (
-  payload: AlertPolicyCreateRequest,
+  payload: AlertPolicyCreateRequest
 ): Promise<AlertPolicyResponse> => {
   const response = await api.post<ApiResponse<AlertPolicyResponse>>(
     `${ALERTS_ENDPOINT}/policies`,
-    payload,
+    payload
   );
   return response.data.data!;
 };
@@ -519,11 +553,11 @@ export const createPolicy = async (
  */
 export const updatePolicy = async (
   id: number,
-  payload: AlertPolicyUpdateRequest,
+  payload: AlertPolicyUpdateRequest
 ): Promise<AlertPolicyResponse> => {
   const response = await api.put<ApiResponse<AlertPolicyResponse>>(
     `${ALERTS_ENDPOINT}/policies/${id}`,
-    payload,
+    payload
   );
   return response.data.data!;
 };
@@ -539,10 +573,10 @@ export const deletePolicy = async (id: number): Promise<void> => {
  * 알림 정책 활성화/비활성화 토글
  */
 export const togglePolicy = async (
-  id: number,
+  id: number
 ): Promise<AlertPolicyResponse> => {
   const response = await api.patch<ApiResponse<AlertPolicyResponse>>(
-    `${ALERTS_ENDPOINT}/policies/${id}/toggle`,
+    `${ALERTS_ENDPOINT}/policies/${id}/toggle`
   );
   return response.data.data!;
 };
@@ -551,11 +585,11 @@ export const togglePolicy = async (
  * 알림 규칙 생성
  */
 export const createEvent = async (
-  payload: AlertEventCreateRequest,
+  payload: AlertEventCreateRequest
 ): Promise<AlertEventResponse> => {
   const response = await api.post<ApiResponse<AlertEventResponse>>(
     `${ALERTS_ENDPOINT}/events`,
-    payload,
+    payload
   );
   return response.data.data!;
 };
@@ -563,11 +597,9 @@ export const createEvent = async (
 /**
  * 알림 규칙 활성화/비활성화 토글
  */
-export const toggleEvent = async (
-  id: number,
-): Promise<AlertEventResponse> => {
+export const toggleEvent = async (id: number): Promise<AlertEventResponse> => {
   const response = await api.patch<ApiResponse<AlertEventResponse>>(
-    `${ALERTS_ENDPOINT}/events/${id}/toggle`,
+    `${ALERTS_ENDPOINT}/events/${id}/toggle`
   );
   return response.data.data!;
 };
@@ -577,11 +609,11 @@ export const toggleEvent = async (
  */
 export const acknowledgeEvent = async (
   id: number,
-  message?: string,
+  message?: string
 ): Promise<EventResponse> => {
   const response = await api.post<ApiResponse<EventResponse>>(
     `${ALERTS_ENDPOINT}/events/${id}/acknowledge`,
-    { message } as Omit<EventAcknowledgeRequest, "memberId">, // memberId 제거 - 백엔드가 기본값 1 사용
+    { message } as Omit<EventAcknowledgeRequest, "memberId"> // memberId 제거 - 백엔드가 기본값 1 사용
   );
   return response.data.data!;
 };
@@ -591,11 +623,11 @@ export const acknowledgeEvent = async (
  */
 export const resolveEvent = async (
   id: number,
-  message?: string,
+  message?: string
 ): Promise<EventResponse> => {
   const response = await api.post<ApiResponse<EventResponse>>(
     `${ALERTS_ENDPOINT}/events/${id}/resolve`,
-    { message } as Omit<EventResolveRequest, "memberId">, // memberId 제거 - 백엔드가 기본값 1 사용
+    { message } as Omit<EventResolveRequest, "memberId"> // memberId 제거 - 백엔드가 기본값 1 사용
   );
   return response.data.data!;
 };
@@ -604,10 +636,10 @@ export const resolveEvent = async (
  * 알림 이벤트 읽음 → 안읽음 되돌리기
  */
 export const unacknowledgeEvent = async (
-  id: number,
+  id: number
 ): Promise<EventResponse> => {
   const response = await api.post<ApiResponse<EventResponse>>(
-    `${ALERTS_ENDPOINT}/events/${id}/unacknowledge`,
+    `${ALERTS_ENDPOINT}/events/${id}/unacknowledge`
   );
   return response.data.data!;
 };
@@ -617,11 +649,11 @@ export const unacknowledgeEvent = async (
  */
 export const addHistory = async (
   eventId: number,
-  content: string,
+  content: string
 ): Promise<ProgressHistoryResponse> => {
   const response = await api.post<ApiResponse<ProgressHistoryResponse>>(
     `${ALERTS_ENDPOINT}/events/${eventId}/history`,
-    { content } as Omit<ProgressHistoryCreateRequest, "memberId">, // memberId 제거 - 백엔드가 기본값 1 사용
+    { content } as Omit<ProgressHistoryCreateRequest, "memberId"> // memberId 제거 - 백엔드가 기본값 1 사용
   );
   return response.data.data!;
 };

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
-import api from "..";
+import api from "../index";
 
 /* ===== SQL 통계 목록 조회 API ===== */
 export interface SqlStatsItem {

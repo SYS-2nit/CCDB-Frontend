@@ -27,7 +27,7 @@ import {
 
 import { isAxiosError } from "axios";
 import { useSearchParams } from "react-router-dom";
-import { fetchAlertStatistics, type AlertStatisticsResponse, type AlertCategory } from "@/api/alerts";
+import { fetchAlertStatistics, type AlertStatisticsResponse, type AlertCategory } from "@/api/Alert/alerts";
 
 export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 
@@ -294,7 +294,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       return;
     }
 
-      const loadStatistics = async () => {
+    const loadStatistics = async () => {
       setIsLoadingStatistics(true);
       try {
         const category = getCategoryByTab(activeTab) as AlertCategory;
@@ -529,8 +529,14 @@ const Dashboard: React.FC<DashboardProps> = ({
       data: [],
     });
 
+    //  saveWidgetOrder를 먼저 완료 (백엔드에 저장)
     await saveWidgetOrder();
-    triggerRefresh();
+
+    // 약간의 지연을 두어 저장이 완료된 후 새로고침
+    setTimeout(() => {
+      triggerRefresh();
+    }, 100);
+
     setSettingTargetIndex(null);
     setIsSettingOpen(false);
   };
@@ -548,18 +554,16 @@ const Dashboard: React.FC<DashboardProps> = ({
   const visibleTabs = singleTabMode
     ? [{ id: initialTab, label: initialTab }]
     : [
-        { id: "main", label: "Main Custom" },
-        { id: "cpu", label: "CPU" },
-        { id: "memory", label: "Memory" },
-        { id: "session", label: "Session" },
-        { id: "io", label: "I/O" },
-        { id: "storage", label: "Storage" },
-      ];
+      { id: "main", label: "Main Custom" },
+      { id: "cpu", label: "CPU" },
+      { id: "memory", label: "Memory" },
+      { id: "session", label: "Session" },
+      { id: "io", label: "I/O" },
+      { id: "storage", label: "Storage" },
+    ];
 
   return (
-    <div
-      className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}
-    >
+    <div className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}>
       {!singleTabMode && (
         <TabMenu
           tabs={visibleTabs}
@@ -594,6 +598,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               rowHeight={290}
               onLayoutChange={handleLayoutChange}
               compactType="vertical"
+              draggableHandle=".chart-card__drag-handle"
             >
               {charts.map((graph) => (
                 <div key={String(graph.id)}>
@@ -622,27 +627,27 @@ const Dashboard: React.FC<DashboardProps> = ({
             <div className="dashboard__grid--other">
               <div className="dashboard__row row-1">
                 <div className="dashboard__status-wrap">
-                  <StatusCard 
-                    label="정상" 
-                    value={isLoadingStatistics ? "-" : (alertStatistics?.normal ?? 0)} 
+                  <StatusCard
+                    label="정상"
+                    value={isLoadingStatistics ? "-" : (alertStatistics?.normal ?? 0)}
                     color="safe"
                     change={alertStatistics?.normalChange}
                   />
-                  <StatusCard 
-                    label="주의" 
-                    value={isLoadingStatistics ? "-" : (alertStatistics?.warning ?? 0)} 
+                  <StatusCard
+                    label="주의"
+                    value={isLoadingStatistics ? "-" : (alertStatistics?.warning ?? 0)}
                     color="warning"
                     change={alertStatistics?.warningChange}
                   />
-                  <StatusCard 
-                    label="위험" 
-                    value={isLoadingStatistics ? "-" : (alertStatistics?.danger ?? 0)} 
+                  <StatusCard
+                    label="위험"
+                    value={isLoadingStatistics ? "-" : (alertStatistics?.danger ?? 0)}
                     color="danger"
                     change={alertStatistics?.dangerChange}
                   />
-                  <StatusCard 
-                    label="치명" 
-                    value={isLoadingStatistics ? "-" : (alertStatistics?.critical ?? 0)} 
+                  <StatusCard
+                    label="치명"
+                    value={isLoadingStatistics ? "-" : (alertStatistics?.critical ?? 0)}
                     color="critical"
                     change={alertStatistics?.criticalChange}
                   />
@@ -716,24 +721,21 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </>
         )}
-        {isSettingOpen && settingTargetIndex !== null && (
-          <ChartSetting
-            onClose={() => setIsSettingOpen(false)}
-            onSave={async (newChartTitle: string) => {
-              try {
-                const all = await fetchAllGraphs();
-                const found = all.find((g) => g.name === newChartTitle);
+      </div>
+      {isSettingOpen && settingTargetIndex !== null && (
+        <ChartSetting
+          isOpen={isSettingOpen}
+          onClose={() => {
+            setIsSettingOpen(false);
+            setSettingTargetIndex(null);
+          }}
+          onSave={async (newChartTitle: string) => {
+            try {
+              const all = await fetchAllGraphs();
+              const found = all.find((g) => g.name === newChartTitle);
 
-                if (found) await handleGraphSwap(found);
-                else
-                  await handleGraphSwap({
-                    id: 0,
-                    name: newChartTitle,
-                    category: "CUSTOM",
-                    type: 1,
-                    info: null,
-                  } as GraphDefinition);
-              } catch {
+              if (found) await handleGraphSwap(found);
+              else
                 await handleGraphSwap({
                   id: 0,
                   name: newChartTitle,
@@ -741,11 +743,18 @@ const Dashboard: React.FC<DashboardProps> = ({
                   type: 1,
                   info: null,
                 } as GraphDefinition);
-              }
-            }}
-          />
-        )}
-      </div>
+            } catch {
+              await handleGraphSwap({
+                id: 0,
+                name: newChartTitle,
+                category: "CUSTOM",
+                type: 1,
+                info: null,
+              } as GraphDefinition);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

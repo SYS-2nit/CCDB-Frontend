@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import "./SqlStat.scss";
 import DateInput from "@/components/Input/DateInput";
 import Button from "@/components/Button/Button";
@@ -104,8 +104,8 @@ const SqlStat: React.FC = () => {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  /* 그래프 데이터 조회 API */
-  const fetchGraph = async () => {
+  /* 그래프 데이터 조회 API - useCallback으로 메모이제이션 */
+  const fetchGraph = useCallback(async () => {
     if (!dateRange.start || !dateRange.end) return;
 
     setIsGraphLoading(true);
@@ -136,10 +136,10 @@ const SqlStat: React.FC = () => {
     } finally {
       setIsGraphLoading(false);
     }
-  };
+  }, [dateRange.start, dateRange.end, filter, interval]);
 
-  /* 테이블 데이터 조회 API */
-  const fetchTable = async () => {
+  /* 테이블 데이터 조회 API - useCallback으로 메모이제이션 */
+  const fetchTable = useCallback(async () => {
     if (!dateRange.start || !dateRange.end) return;
 
     setNoResult(false);
@@ -186,7 +186,7 @@ const SqlStat: React.FC = () => {
     } finally {
       setIsTableLoading(false);
     }
-  };
+  }, [dateRange.start, dateRange.end, filter]);
 
   /** currentPage 또는 rawTableData 변경 시 page 데이터 새로 계산 */
   useEffect(() => {
@@ -195,21 +195,13 @@ const SqlStat: React.FC = () => {
     setTableData(rawTableData.slice(start, end));
   }, [currentPage, rawTableData]);
 
-  /** 필터 변경 시 그래프와 테이블 모두 재조회 */
+  /** 필터/날짜/interval 변경 시 그래프와 테이블 모두 재조회 - 통합된 useEffect로 중복 호출 제거 */
   useEffect(() => {
     if (dateRange.start && dateRange.end) {
-      fetchGraph();
-      fetchTable();
+      // 데이터 변경 시 단 1회만 갱신되도록 Promise.all로 병렬 처리
+      Promise.all([fetchGraph(), fetchTable()]);
     }
-  }, [filter]);
-
-  /** 날짜/interval 변경 시 그래프와 테이블 모두 재조회 */
-  useEffect(() => {
-    if (dateRange.start && dateRange.end) {
-      fetchGraph();
-      fetchTable();
-    }
-  }, [dateRange, interval]);
+  }, [filter, dateRange.start, dateRange.end, interval, fetchGraph, fetchTable]);
 
   /* 정렬 */
   const handleSort = (key: keyof TableData) => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import type { ThresholdFormat } from "@/api/alerts";
+import type { ThresholdFormat } from "@/api/Alert/alerts";
 import "./LevelInput.scss";
 
 interface LevelInputProps {
@@ -50,7 +50,8 @@ const LevelInput: React.FC<LevelInputProps> = ({
   };
 
   const unit = getUnit(thresholdFormat);
-  const step = thresholdFormat === "PERCENT" ? 1 : thresholdFormat === "MS" ? 10 : 1;
+  const step =
+    thresholdFormat === "PERCENT" ? 1 : thresholdFormat === "MS" ? 10 : 1;
 
   const handleIncrement = () => {
     const newValue = value + step;
@@ -76,7 +77,7 @@ const LevelInput: React.FC<LevelInputProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    
+
     // 입력 중에는 검증하지 않고 문자열 그대로 저장
     // 숫자가 아니거나 빈 값도 허용 (사용자가 지우고 입력할 수 있도록)
     if (newValue === "" || newValue === "-") {
@@ -97,10 +98,10 @@ const LevelInput: React.FC<LevelInputProps> = ({
 
   const handleBlur = () => {
     setIsFocused(false);
-    
+
     // 포커스 아웃 시에만 검증 및 값 설정
     const trimmedValue = inputValue.trim();
-    
+
     // 빈 값이면 최소값 또는 0으로 설정
     if (trimmedValue === "" || trimmedValue === "-") {
       const defaultValue = min !== undefined ? min : 0;
@@ -110,7 +111,7 @@ const LevelInput: React.FC<LevelInputProps> = ({
     }
 
     const numValue = Number(trimmedValue);
-    
+
     // NaN이면 이전 값으로 복원
     if (isNaN(numValue)) {
       setInputValue(value.toString());

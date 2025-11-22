@@ -13,7 +13,7 @@ import {
   type AlertStatus,
   type AlertLevel,
   type Page,
-} from "@/api/alerts";
+} from "@/api/Alert/alerts";
 
 const AlerEventLog: React.FC = () => {
   // memberId 제거 - 백엔드가 기본값 1 사용
@@ -24,12 +24,15 @@ const AlerEventLog: React.FC = () => {
   const [endDate, setEndDate] = useState<string>("");
   const [severity, setSeverity] = useState<AlertLevel | "">("");
   const [status, setStatus] = useState<AlertStatus | "">("");
-  const [readStatus, setReadStatus] = useState<"all" | "read" | "unread">("all"); // 읽음/안읽음 필터
-  
+  const [readStatus, setReadStatus] = useState<"all" | "read" | "unread">(
+    "all"
+  ); // 읽음/안읽음 필터
 
   // 데이터 상태
   const [alerts, setAlerts] = useState<EventResponse[]>([]);
-  const [allFilteredAlerts, setAllFilteredAlerts] = useState<EventResponse[]>([]); // 필터링된 전체 데이터 (PDF용)
+  const [allFilteredAlerts, setAllFilteredAlerts] = useState<EventResponse[]>(
+    []
+  ); // 필터링된 전체 데이터 (PDF용)
   const [isLoading, setIsLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [page, setPage] = useState(0);
@@ -66,7 +69,7 @@ const AlerEventLog: React.FC = () => {
 
       // 전체 데이터 조회
       const result: Page<EventResponse> = await fetchAlerts(params);
-      
+
       // 클라이언트 사이드 필터링 (카테고리, 날짜, 읽음/안읽음)
       let filteredAlerts = result.content;
 
@@ -131,7 +134,16 @@ const AlerEventLog: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [status, severity, page, category, startDate, endDate, readStatus, pageSize]);
+  }, [
+    status,
+    severity,
+    page,
+    category,
+    startDate,
+    endDate,
+    readStatus,
+    pageSize,
+  ]);
 
   // 필터 변경 시 페이지를 0으로 리셋
   useEffect(() => {
@@ -142,7 +154,6 @@ const AlerEventLog: React.FC = () => {
   useEffect(() => {
     loadAlerts();
   }, [loadAlerts]);
-
 
   // 필터 초기화
   const handleReset = () => {
@@ -382,7 +393,10 @@ const AlerEventLog: React.FC = () => {
               style={{
                 background: "none",
                 border: "none",
-                cursor: isDownloading || totalElements === 0 ? "not-allowed" : "pointer",
+                cursor:
+                  isDownloading || totalElements === 0
+                    ? "not-allowed"
+                    : "pointer",
                 opacity: isDownloading || totalElements === 0 ? 0.5 : 1,
                 padding: "4px",
                 display: "flex",
@@ -395,15 +409,15 @@ const AlerEventLog: React.FC = () => {
             </button>
           </div>
         </div>
-              <AlertTable
-                alerts={alerts}
-                isLoading={isLoading}
-                currentPage={page}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                onPageChange={setPage}
-                onRefresh={loadAlerts}
-              />
+        <AlertTable
+          alerts={alerts}
+          isLoading={isLoading}
+          currentPage={page}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onRefresh={loadAlerts}
+        />
       </div>
     </div>
   );

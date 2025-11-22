@@ -14,8 +14,12 @@ import {
   type AlertMetricTemplateResponse,
   type AlertPolicyCreateRequest,
   type AlertEventCreateRequest,
-} from "@/api/alerts";
-import type { AlertCategory, ThresholdFormat, DelayTime } from "@/api/alerts";
+} from "@/api/Alert/alerts";
+import type {
+  AlertCategory,
+  ThresholdFormat,
+  DelayTime,
+} from "@/api/Alert/alerts";
 
 interface EventSettingPanelProps {
   title: string;
@@ -86,7 +90,9 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   const [createdCards, setCreatedCards] = useState<EventCard[]>([]);
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [isInitial, setIsInitial] = useState(true);
-  const [metricTemplates, setMetricTemplates] = useState<AlertMetricTemplateResponse[]>([]);
+  const [metricTemplates, setMetricTemplates] = useState<
+    AlertMetricTemplateResponse[]
+  >([]);
   const [isLoadingMetrics, setIsLoadingMetrics] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isValidationModalOpen, setIsValidationModalOpen] = useState(false);
@@ -105,17 +111,24 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
       const templates = await fetchMetricTemplatesByCategory(category);
       console.log(`[EventSettingPanel] API 응답 전체 템플릿:`, templates);
       console.log(`[EventSettingPanel] 템플릿 개수: ${templates.length}`);
-      
+
       // isActive가 true인 것만 필터링
       const activeTemplates = templates.filter((t) => t.isActive === true);
-      console.log(`[EventSettingPanel] 활성 템플릿 (isActive=true):`, activeTemplates);
-      console.log(`[EventSettingPanel] 활성 템플릿 개수: ${activeTemplates.length}`);
-      
+      console.log(
+        `[EventSettingPanel] 활성 템플릿 (isActive=true):`,
+        activeTemplates
+      );
+      console.log(
+        `[EventSettingPanel] 활성 템플릿 개수: ${activeTemplates.length}`
+      );
+
       // 각 템플릿의 ID와 메트릭 이름 로그
       activeTemplates.forEach((t) => {
-        console.log(`[EventSettingPanel] 템플릿 ID: ${t.id}, 메트릭: ${t.metricName}, KEY: ${t.metricKey}`);
+        console.log(
+          `[EventSettingPanel] 템플릿 ID: ${t.id}, 메트릭: ${t.metricName}, KEY: ${t.metricKey}`
+        );
       });
-      
+
       setMetricTemplates(activeTemplates);
     } catch (error) {
       console.error("[EventSettingPanel] 메트릭 템플릿 조회 실패:", error);
@@ -149,11 +162,12 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputForms[0]?.resources]);
 
-
   // 레벨 검증: 주의 < 위험 < 치명 (낮을수록 좋음, 높을수록 문제)
-  const validateLevels = (
-    levels: { warning: number; danger: number; critical: number }
-  ): string | null => {
+  const validateLevels = (levels: {
+    warning: number;
+    danger: number;
+    critical: number;
+  }): string | null => {
     if (levels.warning >= levels.danger) {
       return "주의 값은 위험 값보다 작아야 합니다.";
     }
@@ -177,14 +191,20 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     const missingFields: string[] = [];
     if (!policyName.trim()) missingFields.push("정책 이름");
     if (!currentForm.resources.trim()) missingFields.push("카테고리");
-    if (!currentForm.metricKey || !currentForm.metricKey.trim()) missingFields.push("메트릭");
-    if (!currentForm.frequency || !currentForm.frequency.trim()) missingFields.push("누적 횟수");
+    if (!currentForm.metricKey || !currentForm.metricKey.trim())
+      missingFields.push("메트릭");
+    if (!currentForm.frequency || !currentForm.frequency.trim())
+      missingFields.push("누적 횟수");
     // 요일과 시간은 선택 사항이므로 검증에서 제외
 
     if (missingFields.length > 0) {
       console.error("[EventSettingPanel] 비어있는 필드:", missingFields);
       console.error("[EventSettingPanel] 현재 폼 데이터:", currentForm);
-      setValidationMessage(`비어 있는 입력폼을 작성해주세요.\n누락된 필드: ${missingFields.join(", ")}`);
+      setValidationMessage(
+        `비어 있는 입력폼을 작성해주세요.\n누락된 필드: ${missingFields.join(
+          ", "
+        )}`
+      );
       setIsValidationModalOpen(true);
       return;
     }
@@ -227,7 +247,9 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     for (const event of createdCards) {
       const levelError = validateLevels(event.levels);
       if (levelError) {
-        setValidationMessage(`${event.metricName || event.name}: ${levelError}`);
+        setValidationMessage(
+          `${event.metricName || event.name}: ${levelError}`
+        );
         setIsValidationModalOpen(true);
         return;
       }
@@ -324,7 +346,8 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
         delayTime: frequencyToDelayTime(card.frequency),
         days: daysToBitmask(card.days),
         // 시간이 비어있으면 null로 전송 (시간 제한 없음)
-        startTime: card.startTime && card.startTime.trim() ? card.startTime : null,
+        startTime:
+          card.startTime && card.startTime.trim() ? card.startTime : null,
         endTime: card.endTime && card.endTime.trim() ? card.endTime : null,
         state: true,
         isReverse: false, // 역방향 메트릭 제거됨
@@ -361,7 +384,9 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
       setPolicyName("");
 
       if (onPoliciesChange) onPoliciesChange(updated);
-      setValidationMessage("정책이 성공적으로 저장되었습니다.\n설정 기록 탭에서 확인할 수 있습니다.");
+      setValidationMessage(
+        "정책이 성공적으로 저장되었습니다.\n설정 기록 탭에서 확인할 수 있습니다."
+      );
       setIsValidationModalOpen(true);
     } catch (error: any) {
       console.error("[handleSave] 정책 생성 실패:", error);
@@ -418,7 +443,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
     );
   };
 
-
   return (
     <div className="event-panel">
       {/* 정책 설정 헤더 */}
@@ -464,7 +488,11 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                                   graphId: null,
                                   thresholdFormat: "PERCENT",
                                   frequency: ev.frequency || "ONE_MINUTE", // frequency 유지 (없으면 기본값)
-                                  levels: { warning: 0, danger: 0, critical: 0 },
+                                  levels: {
+                                    warning: 0,
+                                    danger: 0,
+                                    critical: 0,
+                                  },
                                 }
                               : ev
                           )
@@ -503,13 +531,15 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                                     metricKey: selectedTemplate.metricKey,
                                     metricName: selectedTemplate.metricName,
                                     graphId: selectedTemplate.graphId,
-                                    thresholdFormat: selectedTemplate.thresholdFormat,
+                                    thresholdFormat:
+                                      selectedTemplate.thresholdFormat,
                                     eventName: selectedTemplate.metricName,
                                     // 기본값 적용
                                     levels: {
                                       warning:
                                         selectedTemplate.defaultWarning ?? 0,
-                                      danger: selectedTemplate.defaultDanger ?? 0,
+                                      danger:
+                                        selectedTemplate.defaultDanger ?? 0,
                                       critical:
                                         selectedTemplate.defaultCritical ?? 0,
                                     },
@@ -557,7 +587,9 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                         />
                         <button
                           type="button"
-                          className={`select-all-days-btn ${event.days.length === 0 ? 'active' : ''}`}
+                          className={`select-all-days-btn ${
+                            event.days.length === 0 ? "active" : ""
+                          }`}
                           onClick={() => handleSelectAllDays(index)}
                         >
                           매일
@@ -575,39 +607,55 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                             setInputForms((prev) =>
                               prev.map((ev, i) => {
                                 if (i !== index) return ev;
-                                
+
                                 if (!newStartTime) {
                                   return { ...ev, startTime: newStartTime };
                                 }
-                                
+
                                 // 시간을 분 단위로 변환하는 헬퍼 함수
-                                const timeToMinutes = (time: string): number => {
-                                  const [hours, minutes] = time.split(':').map(Number);
+                                const timeToMinutes = (
+                                  time: string
+                                ): number => {
+                                  const [hours, minutes] = time
+                                    .split(":")
+                                    .map(Number);
                                   return hours * 60 + minutes;
                                 };
-                                
+
                                 // 분을 시간 문자열로 변환하는 헬퍼 함수
-                                const minutesToTime = (minutes: number): string => {
+                                const minutesToTime = (
+                                  minutes: number
+                                ): string => {
                                   const hours = Math.floor(minutes / 60) % 24;
                                   const mins = minutes % 60;
-                                  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+                                  return `${String(hours).padStart(
+                                    2,
+                                    "0"
+                                  )}:${String(mins).padStart(2, "0")}`;
                                 };
-                                
-                                const newStartMinutes = timeToMinutes(newStartTime);
-                                
+
+                                const newStartMinutes =
+                                  timeToMinutes(newStartTime);
+
                                 // 종료 시간이 있는 경우
                                 if (ev.endTime) {
                                   const endMinutes = timeToMinutes(ev.endTime);
                                   const diff = endMinutes - newStartMinutes;
-                                  
+
                                   // 시작 시간이 종료 시간보다 이후이거나, 차이가 1분 미만인 경우
                                   if (diff <= 0) {
                                     // 종료 시간을 시작 시간 + 1분으로 설정
-                                    const newEndTime = minutesToTime(newStartMinutes + 1);
-                                    return { ...ev, startTime: newStartTime, endTime: newEndTime };
+                                    const newEndTime = minutesToTime(
+                                      newStartMinutes + 1
+                                    );
+                                    return {
+                                      ...ev,
+                                      startTime: newStartTime,
+                                      endTime: newEndTime,
+                                    };
                                   }
                                 }
-                                
+
                                 return { ...ev, startTime: newStartTime };
                               })
                             );
@@ -615,7 +663,9 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                         />
                         <button
                           type="button"
-                          className={`select-24h-btn ${!event.startTime && !event.endTime ? 'active' : ''}`}
+                          className={`select-24h-btn ${
+                            !event.startTime && !event.endTime ? "active" : ""
+                          }`}
                           onClick={() => handleSelect24Hours(index)}
                         >
                           24시간
@@ -632,39 +682,54 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                           setInputForms((prev) =>
                             prev.map((ev, i) => {
                               if (i !== index) return ev;
-                              
+
                               if (!newEndTime) {
                                 return { ...ev, endTime: newEndTime };
                               }
-                              
+
                               // 시간을 분 단위로 변환하는 헬퍼 함수
                               const timeToMinutes = (time: string): number => {
-                                const [hours, minutes] = time.split(':').map(Number);
+                                const [hours, minutes] = time
+                                  .split(":")
+                                  .map(Number);
                                 return hours * 60 + minutes;
                               };
-                              
+
                               // 분을 시간 문자열로 변환하는 헬퍼 함수
-                              const minutesToTime = (minutes: number): string => {
+                              const minutesToTime = (
+                                minutes: number
+                              ): string => {
                                 const hours = Math.floor(minutes / 60) % 24;
                                 const mins = minutes % 60;
-                                return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+                                return `${String(hours).padStart(
+                                  2,
+                                  "0"
+                                )}:${String(mins).padStart(2, "0")}`;
                               };
-                              
+
                               const newEndMinutes = timeToMinutes(newEndTime);
-                              
+
                               // 시작 시간이 있는 경우
                               if (ev.startTime) {
-                                const startMinutes = timeToMinutes(ev.startTime);
+                                const startMinutes = timeToMinutes(
+                                  ev.startTime
+                                );
                                 const diff = newEndMinutes - startMinutes;
-                                
+
                                 // 종료 시간이 시작 시간보다 이전이거나, 차이가 1분 미만인 경우
                                 if (diff < 1) {
                                   // 시작 시간을 종료 시간 - 1분으로 설정
-                                  const newStartTime = minutesToTime(newEndMinutes - 1);
-                                  return { ...ev, startTime: newStartTime, endTime: newEndTime };
+                                  const newStartTime = minutesToTime(
+                                    newEndMinutes - 1
+                                  );
+                                  return {
+                                    ...ev,
+                                    startTime: newStartTime,
+                                    endTime: newEndTime,
+                                  };
                                 }
                               }
-                              
+
                               return { ...ev, endTime: newEndTime };
                             })
                           );
@@ -679,7 +744,11 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                       value={event.levels.warning}
                       thresholdFormat={event.thresholdFormat}
                       min={0}
-                      max={event.levels.danger > 0 ? event.levels.danger - 1 : undefined}
+                      max={
+                        event.levels.danger > 0
+                          ? event.levels.danger - 1
+                          : undefined
+                      }
                       onChange={(value) => {
                         setInputForms((prev) =>
                           prev.map((ev, i) =>
@@ -757,7 +826,13 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                     />
                   </div>
                   {validationError && (
-                    <div style={{ color: "red", fontSize: "12px", marginTop: "-10px" }}>
+                    <div
+                      style={{
+                        color: "red",
+                        fontSize: "12px",
+                        marginTop: "-10px",
+                      }}
+                    >
                       {validationError}
                     </div>
                   )}
@@ -784,12 +859,16 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
                     {createdCards.map((card, index) => (
                       <div className="event-card-item" key={card.id}>
                         <div className="event-card-item__content">
-                          <div className="event-card-item__name">{card.metricName || card.name}</div>
+                          <div className="event-card-item__name">
+                            {card.metricName || card.name}
+                          </div>
                         </div>
                         <button
                           className="event-card-item__delete"
                           onClick={() => {
-                            setCreatedCards((prev) => prev.filter((_, i) => i !== index));
+                            setCreatedCards((prev) =>
+                              prev.filter((_, i) => i !== index)
+                            );
                             if (createdCards.length <= 1) setIsInitial(true);
                           }}
                           aria-label="삭제"
@@ -821,7 +900,6 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
               />
             </div>
           )}
-
         </div>
       )}
 
@@ -835,14 +913,16 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
           hideCancelButton={true}
           fields={[]}
         >
-          <div style={{ 
-            padding: "20px 0", 
-            whiteSpace: "pre-line",
-            textAlign: "center",
-            color: "#333",
-            fontSize: "14px",
-            lineHeight: "1.6"
-          }}>
+          <div
+            style={{
+              padding: "20px 0",
+              whiteSpace: "pre-line",
+              textAlign: "center",
+              color: "#333",
+              fontSize: "14px",
+              lineHeight: "1.6",
+            }}
+          >
             {validationMessage}
           </div>
         </Modal>
@@ -852,7 +932,3 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
 };
 
 export default EventSettingPanel;
-
-
-
-

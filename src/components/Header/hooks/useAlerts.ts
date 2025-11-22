@@ -6,7 +6,7 @@ import {
   acknowledgeEvent,
   isEventRead,
   type EventResponse,
-} from "@/api/alerts";
+} from "@/api/Alert/alerts";
 
 interface UseAlertsOptions {
   showPanel: boolean;
@@ -35,7 +35,9 @@ export const useAlerts = ({ showPanel }: UseAlertsOptions) => {
     try {
       // status 필터 없이 모든 알림 조회 후 클라이언트에서 안읽음만 필터링
       const result = await fetchAlerts({ page: 0, size: 20 });
-      const unreadAlerts = result.content.filter((alert) => !isEventRead(alert));
+      const unreadAlerts = result.content.filter(
+        (alert) => !isEventRead(alert)
+      );
       setAlerts(unreadAlerts);
     } catch (error) {
       console.error("[useAlerts] 알림 목록 조회 실패:", error);
@@ -95,7 +97,10 @@ export const useAlerts = ({ showPanel }: UseAlertsOptions) => {
               });
             }
 
-            if ("Notification" in window && Notification.permission === "granted") {
+            if (
+              "Notification" in window &&
+              Notification.permission === "granted"
+            ) {
               new Notification("새 알림", {
                 body: data.event?.message || "새로운 알림이 발생했습니다.",
                 icon: "/favicon.ico",
@@ -162,9 +167,15 @@ export const useAlerts = ({ showPanel }: UseAlertsOptions) => {
       }
     };
 
-    window.addEventListener("alert:read-status-changed", handleAlertStatusChange);
+    window.addEventListener(
+      "alert:read-status-changed",
+      handleAlertStatusChange
+    );
     return () => {
-      window.removeEventListener("alert:read-status-changed", handleAlertStatusChange);
+      window.removeEventListener(
+        "alert:read-status-changed",
+        handleAlertStatusChange
+      );
     };
   }, [showPanel, loadUnreadCount, loadAlertsList]);
 
@@ -176,4 +187,3 @@ export const useAlerts = ({ showPanel }: UseAlertsOptions) => {
     loadUnreadCount, // 알림 개수 갱신 함수 노출
   };
 };
-
