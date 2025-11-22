@@ -15,7 +15,7 @@ import {
   type DatabaseDeletePayload,
   type DatabaseInstanceResponse,
   type DatabaseTestPayload,
-} from "@/api/databases";
+} from "@/api/Databases/databases";
 
 type DatabaseListItem = {
   id: number;
@@ -71,9 +71,7 @@ const parseOracleUrl = (url?: string | null) => {
   };
 };
 
-const toListItem = (
-  instance: DatabaseInstanceResponse,
-): DatabaseListItem => {
+const toListItem = (instance: DatabaseInstanceResponse): DatabaseListItem => {
   const { host, port, sid } = parseOracleUrl(instance.url);
 
   return {
@@ -107,56 +105,64 @@ const Database: React.FC = () => {
   const [dbList, setDbList] = useState<DatabaseListItem[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [selectedDatabaseId, setSelectedDatabaseId] = useState<number | null>(() => {
-    const stored = sessionStorage.getItem(SELECTED_DB_STORAGE_KEY);
-    if (!stored) return null;
-    try {
-      const parsed = JSON.parse(stored) as { id?: number | string };
-      if (typeof parsed?.id === "number") return parsed.id;
-      if (typeof parsed?.id === "string") {
-        const numeric = Number(parsed.id);
-        return Number.isNaN(numeric) ? null : numeric;
-      }
-      return null;
-    } catch (error) {
-      console.warn("[Database] 저장된 선택 정보를 읽는 중 오류", error);
-      return null;
-    }
-  });
-
-  const handleDatabaseSelectStorage = useCallback((database: DatabaseListItem | null) => {
-    if (database) {
+  const [selectedDatabaseId, setSelectedDatabaseId] = useState<number | null>(
+    () => {
+      const stored = sessionStorage.getItem(SELECTED_DB_STORAGE_KEY);
+      if (!stored) return null;
       try {
-        sessionStorage.setItem(
-          SELECTED_DB_STORAGE_KEY,
-          JSON.stringify({ id: database.id, name: database.name }),
-        );
+        const parsed = JSON.parse(stored) as { id?: number | string };
+        if (typeof parsed?.id === "number") return parsed.id;
+        if (typeof parsed?.id === "string") {
+          const numeric = Number(parsed.id);
+          return Number.isNaN(numeric) ? null : numeric;
+        }
+        return null;
       } catch (error) {
-        console.warn("[Database] 선택한 DB 저장 실패", error);
+        console.warn("[Database] 저장된 선택 정보를 읽는 중 오류", error);
+        return null;
       }
-      window.dispatchEvent(
-        new CustomEvent("dashboard:selected-db", {
-          detail: { id: database.id, name: database.name },
-        }),
-      );
-    } else {
-      sessionStorage.removeItem(SELECTED_DB_STORAGE_KEY);
-      window.dispatchEvent(
-        new CustomEvent("dashboard:selected-db", {
-          detail: { id: null, name: null },
-        }),
-      );
     }
-  }, []);
+  );
 
-  const handleDatabaseSelect = useCallback((database: DatabaseListItem | null) => {
-    if (database) {
-      setSelectedDatabaseId(database.id);
-    } else {
-      setSelectedDatabaseId(null);
-    }
-    handleDatabaseSelectStorage(database);
-  }, [handleDatabaseSelectStorage]);
+  const handleDatabaseSelectStorage = useCallback(
+    (database: DatabaseListItem | null) => {
+      if (database) {
+        try {
+          sessionStorage.setItem(
+            SELECTED_DB_STORAGE_KEY,
+            JSON.stringify({ id: database.id, name: database.name })
+          );
+        } catch (error) {
+          console.warn("[Database] 선택한 DB 저장 실패", error);
+        }
+        window.dispatchEvent(
+          new CustomEvent("dashboard:selected-db", {
+            detail: { id: database.id, name: database.name },
+          })
+        );
+      } else {
+        sessionStorage.removeItem(SELECTED_DB_STORAGE_KEY);
+        window.dispatchEvent(
+          new CustomEvent("dashboard:selected-db", {
+            detail: { id: null, name: null },
+          })
+        );
+      }
+    },
+    []
+  );
+
+  const handleDatabaseSelect = useCallback(
+    (database: DatabaseListItem | null) => {
+      if (database) {
+        setSelectedDatabaseId(database.id);
+      } else {
+        setSelectedDatabaseId(null);
+      }
+      handleDatabaseSelectStorage(database);
+    },
+    [handleDatabaseSelectStorage]
+  );
 
   const loadDatabases = useCallback(async () => {
     setIsFetching(true);
@@ -193,7 +199,7 @@ const Database: React.FC = () => {
         throw new Error(getErrorMessage(error));
       }
     },
-    [loadDatabases],
+    [loadDatabases]
   );
 
   const handleTestDatabase = useCallback(
@@ -209,7 +215,7 @@ const Database: React.FC = () => {
         throw new Error(getErrorMessage(error));
       }
     },
-    [],
+    []
   );
 
   const handleDeleteDatabase = useCallback(
@@ -226,7 +232,7 @@ const Database: React.FC = () => {
         throw new Error(getErrorMessage(error));
       }
     },
-    [handleDatabaseSelect, loadDatabases, selectedDatabaseId],
+    [handleDatabaseSelect, loadDatabases, selectedDatabaseId]
   );
 
   return (

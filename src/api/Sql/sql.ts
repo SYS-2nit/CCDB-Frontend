@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
-import api from "..";
+import api from "../index";
 
 /* ===== SQL 통계 목록 조회 API ===== */
 export interface SqlStatsItem {
@@ -128,7 +128,10 @@ export const getSqlStats = async (params: {
  * ----------------------------------------------------- */
 export const getSqlGraph = async (params: unknown) => {
   const res = await api.get<ApiWrapper<any>>("/api/sql/graph", { params });
+
+  // 로그
   console.log("[API] SQL 그래프 응답:", res.data);
+
   return res.data.data;
 };
 

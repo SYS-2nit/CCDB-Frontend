@@ -111,11 +111,11 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
     cpuRaw + userIoRaw + concRaw + appRaw + clusterRaw + otherRaw;
 
   const rows1 = [
-    ["CPU Time", `${(data.totalCpu / 1_000_000).toFixed(1)} Sec`],
-    ["Elapsed Time", `${(data.totalElapsed / 1_000_000).toFixed(1)} Sec`],
-    ["Execute Count", `${(data.totalExec / 1_000_000).toFixed(1)} Sec`],
-    ["Avg Elapsed", `${(data.avgElapsed / 1_000_000).toFixed(1)} Sec`],
-    ["Wait Time", `${(data.totalWait / 1_000_000).toFixed(1)} Sec`],
+    ["CPU Time", `${(data.totalCpu / 1000).toFixed(1)} ms`],
+    ["Elapsed Time", `${(data.totalElapsed / 1000).toFixed(1)} ms`],
+    ["Execute Count", `${(data.totalExec / 1000).toFixed(1)} ms`],
+    ["Avg Elapsed", `${(data.avgElapsed / 1000).toFixed(1)} ms`],
+    ["Wait Time", `${(data.totalWait / 1000).toFixed(1)} ms`],
     ["Logical Reads", data.totalBuffer],
     ["Physical Reads", data.totalDisk],
   ];
@@ -143,7 +143,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
 
       <div className="sql-drawer">
         <div className="sql-drawer__header">
-          <h3>SQL Detail</h3>
+          <h3>SQL 상세 정보</h3>
           <button className="close-btn" onClick={onClose}>
             ✕
           </button>

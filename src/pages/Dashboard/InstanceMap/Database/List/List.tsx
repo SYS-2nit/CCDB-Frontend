@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useMemo, useState } from "react";
 import "./List.scss";
@@ -16,7 +15,7 @@ import {
   type DatabaseCreatePayload,
   type DatabaseDeletePayload,
   type DatabaseTestPayload,
-} from "@/api/databases";
+} from "@/api/Databases/databases";
 
 type DatabaseListItem = {
   id: number;
@@ -395,7 +394,8 @@ const List: React.FC<ListProps> = ({
               type: "textarea",
               placeholder: "DB 이름을 입력해주세요.",
               value: inputs.name,
-              onChange: (_, val) => setInputs((prev) => ({ ...prev, name: val })),
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, name: val })),
             },
             {
               label: "IP",
@@ -409,7 +409,8 @@ const List: React.FC<ListProps> = ({
               type: "textarea",
               placeholder: "DB 포트번호를 입력해주세요.",
               value: inputs.port,
-              onChange: (_, val) => setInputs((prev) => ({ ...prev, port: val })),
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, port: val })),
             },
             {
               label: "Account",
@@ -455,9 +456,7 @@ const List: React.FC<ListProps> = ({
             <div className="modal__test-result">⏳ 연결 테스트 중입니다...</div>
           )}
           {!isTesting && testFeedback && (
-            <div
-              className={`modal__test-result ${testFeedback.status}`}
-            >
+            <div className={`modal__test-result ${testFeedback.status}`}>
               {testFeedback.status === "success" ? "✅ " : "❌ "}
               {testFeedback.message}
             </div>

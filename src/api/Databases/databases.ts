@@ -1,5 +1,5 @@
-import api from "./index";
-import type { ApiResponse } from "./types";
+import api from "..";
+import type { ApiResponse } from "../types";
 
 export interface DatabaseInstanceResponse {
   id: number;
@@ -37,6 +37,7 @@ export interface DatabaseTestResult {
 export interface DatabaseInstanceListItem {
   id: number;
   status: string | null;
+  currentSeverity: number | null; // null=정상, 1=주의, 2=위험, 3=치명
   serverName: string | null;
   ip: string | null;
   port: number | null;
@@ -57,13 +58,13 @@ export const fetchDatabaseInstances = async (): Promise<
   DatabaseInstanceResponse[]
 > => {
   const response = await api.get<ApiResponse<DatabaseInstanceResponse[]>>(
-    DATABASES_ENDPOINT,
+    DATABASES_ENDPOINT
   );
   return response.data.data ?? [];
 };
 
 export const createDatabaseInstance = async (
-  payload: DatabaseCreatePayload,
+  payload: DatabaseCreatePayload
 ): Promise<DatabaseInstanceResponse | null> => {
   // connectionType이 없으면 기본값 "SID" 설정
   const requestPayload = {
@@ -81,11 +82,11 @@ export const createDatabaseInstance = async (
 };
 
 export const testDatabaseInstance = async (
-  payload: DatabaseTestPayload,
+  payload: DatabaseTestPayload
 ): Promise<DatabaseTestResult> => {
   const response = await api.post<ApiResponse<DatabaseTestResult | null>>(
     `${DATABASES_ENDPOINT}/test`,
-    payload,
+    payload
   );
 
   return (
@@ -98,7 +99,7 @@ export const testDatabaseInstance = async (
 };
 
 export const deleteDatabaseInstance = async (
-  payload: DatabaseDeletePayload,
+  payload: DatabaseDeletePayload
 ): Promise<void> => {
   await api.delete<ApiResponse<null>>(`${DATABASES_ENDPOINT}/${payload.id}`, {
     data: { id: payload.id, password: payload.password },
@@ -106,10 +107,10 @@ export const deleteDatabaseInstance = async (
 };
 
 export const fetchInstancesByDatabase = async (
-  dbId: number,
+  dbId: number
 ): Promise<DatabaseInstanceListItem[]> => {
   const response = await api.get<ApiResponse<DatabaseInstanceListItem[]>>(
-    `${DATABASES_ENDPOINT}/${dbId}/instances`,
+    `${DATABASES_ENDPOINT}/${dbId}/instances`
   );
   return response.data.data ?? [];
 };
@@ -121,11 +122,11 @@ export interface InstanceCreatePayload {
 
 export const createInstanceForDatabase = async (
   dbId: number,
-  payload: InstanceCreatePayload,
+  payload: InstanceCreatePayload
 ): Promise<DatabaseInstanceListItem> => {
   const response = await api.post<ApiResponse<DatabaseInstanceListItem>>(
     `${DATABASES_ENDPOINT}/${dbId}/instances`,
-    payload,
+    payload
   );
   return response.data.data!;
 };
@@ -133,31 +134,31 @@ export const createInstanceForDatabase = async (
 export const updateInstanceForDatabase = async (
   dbId: number,
   instanceId: number,
-  payload: InstanceCreatePayload,
+  payload: InstanceCreatePayload
 ): Promise<DatabaseInstanceListItem> => {
   const response = await api.put<ApiResponse<DatabaseInstanceListItem>>(
     `${DATABASES_ENDPOINT}/${dbId}/instances/${instanceId}`,
-    payload,
+    payload
   );
   return response.data.data!;
 };
 
 export const deleteInstanceForDatabase = async (
   dbId: number,
-  instanceId: number,
+  instanceId: number
 ): Promise<void> => {
   await api.delete<ApiResponse<null>>(
-    `${DATABASES_ENDPOINT}/${dbId}/instances/${instanceId}`,
+    `${DATABASES_ENDPOINT}/${dbId}/instances/${instanceId}`
   );
 };
 
 export const testInstanceForDatabase = async (
   dbId: number,
-  payload: InstanceCreatePayload,
+  payload: InstanceCreatePayload
 ): Promise<DatabaseTestResult> => {
   const response = await api.post<ApiResponse<DatabaseTestResult | null>>(
     `${DATABASES_ENDPOINT}/${dbId}/instances/test`,
-    payload,
+    payload
   );
 
   return (
@@ -168,4 +169,3 @@ export const testInstanceForDatabase = async (
     }
   );
 };
-

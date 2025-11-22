@@ -82,13 +82,13 @@ const DBInfoPanel: React.FC<DBInfoPanelProps> = ({
       {/* 중앙 3D 모델 */}
       <div className="db-model-center">
         <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
-          <ambientLight intensity={0.6} />
+          <ambientLight intensity={0} />
           <directionalLight position={[5, 5, 5]} intensity={1.2} />
           <Environment preset="city" />
           {/* hover 이벤트 제거된 OracleDBModel */}
           <OracleDBModel
             onClick={() => {}}
-            isZoomed={true}
+            isZoomed={false}
             showInfoCard={false}
           />
           <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.0} />
@@ -100,7 +100,7 @@ const DBInfoPanel: React.FC<DBInfoPanelProps> = ({
         <div className="status-card-group">
           <DBStatusCard title="주의" value="N" subValue="N" trend="down" />
           <DBStatusCard title="위험" value="N" subValue="N" trend="up" />
-          <DBStatusCard title="치명" value="N" subValue="N" trend="up" />
+          <DBStatusCard title="에러" value="N" subValue="N" trend="up" />
         </div>
 
         <div className="db-card">

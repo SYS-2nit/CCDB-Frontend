@@ -11,51 +11,119 @@ import ImprovementIcon from "@/assets/sidebar/improvement.svg";
 import SettingIcon from "@/assets/sidebar/setting.svg";
 import HistoryIcon from "@/assets/sidebar/history.svg";
 import ProfileIcon from "@/assets/sidebar/profile.svg";
-import BottomArrowIcon from "@/assets/general/bottom-arrow.svg";
-import ClickedTopArrowIcon from "@/assets/general/clicked-top-arrow.svg";
-import { useDashboardContext } from "@/state/DashboardContext";
+import SidebarParentItem from "./components/SidebarParentItem";
+import SidebarItem from "./components/SidebarItem";
+import SidebarHoverModal from "./Modal/SidebarHoverModal";
+import { fetchMembers, type Member } from "@/api/Member/member";
+import UserListModal from "./Modal/UserListModal";
+import { useSelectedInstanceStore } from "@/state/useInstanceStore";
+
+const menuRoutes: Record<string, string[]> = {
+  dashboard: ["/dashboard/instance-map", "/dashboard/instance-list"],
+  sql: ["/sql/stat", "/sql/top"],
+  alert: ["/alert/event-setting", "/alert/event-log"],
+  analysis: ["/analysis"],
+  improvement: ["/improvement"],
+  history: ["/history"],
+  setting: ["/setting"],
+  logo: ["/dashboard"],
+};
 
 const Sidebar: React.FC = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { selectedInstanceId } = useDashboardContext();
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [isCollapsed, setIsCollapsed] = useState(false); // 사이드바 축소 상태
+  const location = useLocation();
 
-  // 대시보드 관련 경로일 때 서브메뉴 자동 열기
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const { selectedInstanceId } = useSelectedInstanceStore();
+
+  // 대시보드 클릭 시 바로 이동
+  const handleDashboardClick = () => {
+    const targetId = selectedInstanceId ?? 1; // fallback 1 (원한다면 null 체크 후 alert로 변경 가능)
+    navigate(`/dashboard?instanceId=${targetId}`);
+  };
+
+  /** -------------------------
+   *  사용자 정보 상태
+   *  ------------------------- */
+  const [currentUser, setCurrentUser] = useState<Member | null>(null); // 단일 사용자
+  const [members, setMembers] = useState<Member[]>([]); // 전체 목록
+  const [loading, setLoading] = useState(true);
+
+  /** -------------------------
+   *  Hover Tooltip 상태
+   *  ------------------------- */
+  const [hoverMenu, setHoverMenu] = useState<string | null>(null);
+  const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
+    null
+  );
+
+  /** -------------------------
+   *  사용자 모달
+   *  ------------------------- */
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+
+  const openUserModal = async () => {
+    try {
+      const data = await fetchMembers(); // 전체 회원 목록
+      setMembers(data); // 목록 저장
+      setIsUserModalOpen(true);
+    } catch (e) {
+      console.error("회원 목록 조회 실패", e);
+    }
+  };
+
+  /** -------------------------
+   *  페이지 로드시 사용자 정보 로드
+   *  ------------------------- */
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await fetchMembers();
+        setMembers(data);
+        setCurrentUser(data[0]); // 첫 번째 회원을 현재 사용자로 가정
+      } catch (err) {
+        console.error("사용자 정보 로딩 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, []);
+
+  /** 자동으로 대시보드 메뉴 펼침 */
   useEffect(() => {
     if (location.pathname.startsWith("/dashboard")) {
       setOpenMenu("dashboard");
     }
   }, [location.pathname]);
 
+  /** 아코디언 toggle */
   const toggleMenu = (menu: string) => {
-    if (isCollapsed) setIsCollapsed(false); // 축소 상태에서 클릭 시 복원
+    if (isCollapsed) return;
     setOpenMenu(openMenu === menu ? null : menu);
   };
 
-  // 대시보드 클릭 핸들러 - 대시보드 아이콘/텍스트 클릭 시
-  const handleDashboardClick = (e: React.MouseEvent) => {
-    // 화살표가 아닌 경우에만 페이지 이동
-    if ((e.target as HTMLElement).closest('.arrow')) {
-      return;
-    }
-    e.stopPropagation(); // 부모 클릭 이벤트 방지
-    if (isCollapsed) setIsCollapsed(false);
-    
-    // instanceId가 있으면 쿼리 파라미터로 추가, 없으면 없이 이동
-    if (selectedInstanceId !== null) {
-      navigate(`/dashboard?instanceId=${selectedInstanceId}`);
-    } else {
-      navigate("/dashboard");
-    }
+  /** Hover 모달 위치 계산 */
+  const handleHover = (e: React.MouseEvent, menuKey: string) => {
+    if (!isCollapsed) return;
+    setHoverMenu(menuKey);
+
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setHoverPos({ x: rect.right - 11, y: rect.top + 12 });
   };
+
+  /** 로딩 중 */
+  if (loading || !currentUser)
+    return <div className="setting">사용자 정보를 불러오는 중...</div>;
 
   return (
     <aside className={`sidebar ${isCollapsed ? "sidebar--collapsed" : ""}`}>
-      {/* Header */}
+      {/* Header 영역 */}
       <div className="sidebar__logo">
-        <div className="sidebar__logo--left">
+        <div className="sidebar__item--parent--arrow-left">
           <img
             src={WhiteLogoIcon}
             alt="logoIcon"
@@ -71,184 +139,191 @@ const Sidebar: React.FC = () => {
         />
       </div>
 
-      {/* Divider */}
       <div className="sidebar__divider" />
 
       {/* Navigation */}
       <nav className="sidebar__nav">
-        {/* 대시보드 */}
-        <div className="sidebar__item--parent--arrow">
-          <div 
-            className={`sidebar__item--parent--left ${
-              location.pathname === "/dashboard" || location.pathname.startsWith("/dashboard?") ? "active" : ""
-            }`}
-            onClick={handleDashboardClick}
+        <div
+          onMouseEnter={(e) => handleHover(e, "dashboard")}
+          onMouseLeave={() => isCollapsed && setHoverMenu(null)}
+          style={{ cursor: "pointer" }}
+        >
+          <SidebarParentItem
+            icon={DashboardIcon}
+            label="대시보드"
+            menuKey="dashboard"
+            openMenu={openMenu}
+            toggleMenu={toggleMenu}
+            isCollapsed={isCollapsed}
+            onParentClick={handleDashboardClick}
           >
-            <img src={DashboardIcon} alt="dashboard" />
-            <span className="sidebar__item--title">대시보드</span>
-            <span 
-              className="arrow"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleMenu("dashboard");
-              }}
-            >
-              {openMenu === "dashboard" ? (
-                <img src={ClickedTopArrowIcon} alt="clicked-top-arrow" />
-              ) : (
-                <img src={BottomArrowIcon} alt="bottom-arrow" />
-              )}
-            </span>
-          </div>
+            <div className="sidebar__submenu">
+              <NavLink
+                to="/dashboard/instance-map"
+                className="sidebar__subitem"
+              >
+                데이터베이스 맵
+              </NavLink>
+              <NavLink
+                to="/dashboard/instance-list"
+                className="sidebar__subitem"
+              >
+                인스턴스 목록
+              </NavLink>
+            </div>
+          </SidebarParentItem>
         </div>
-
-        {openMenu === "dashboard" && (
-          <div className="sidebar__submenu">
-            <NavLink to="/dashboard/instance-map" className="sidebar__subitem">
-              데이터베이스 맵
-            </NavLink>
-            <NavLink to="/dashboard/instance-list" className="sidebar__subitem">
-              인스턴스 목록
-            </NavLink>
-          </div>
-        )}
 
         {/* SQL */}
         <div
-          className="sidebar__item--parent--arrow"
-          onClick={() => toggleMenu("sql")}
+          onMouseEnter={(e) => handleHover(e, "sql")}
+          onMouseLeave={() => isCollapsed && setHoverMenu(null)}
         >
-          <div className="sidebar__item--parent--left">
-            <img src={SqlIcon} alt="sql" />
-            <span className="sidebar__item--title">SQL</span>
-            <span className="arrow">
-              {openMenu === "sql" ? (
-                <img src={ClickedTopArrowIcon} alt="clicked-top-arrow" />
-              ) : (
-                <img src={BottomArrowIcon} alt="bottom-arrow" />
-              )}
-            </span>
-          </div>
+          <SidebarParentItem
+            icon={SqlIcon}
+            label="SQL"
+            menuKey="sql"
+            openMenu={openMenu}
+            toggleMenu={toggleMenu}
+            isCollapsed={isCollapsed}
+          >
+            <div className="sidebar__submenu">
+              <NavLink to="/sql/stat" className="sidebar__subitem">
+                SQL 통계
+              </NavLink>
+              <NavLink to="/sql/top" className="sidebar__subitem">
+                Top SQL 비교
+              </NavLink>
+            </div>
+          </SidebarParentItem>
         </div>
-
-        {openMenu === "sql" && (
-          <div className="sidebar__submenu">
-            <NavLink to="/sql/stat" className="sidebar__subitem">
-              SQL 통계
-            </NavLink>
-            <NavLink to="/sql/top" className="sidebar__subitem">
-              Top SQL 비교
-            </NavLink>
-          </div>
-        )}
 
         {/* 알림 */}
         <div
-          className="sidebar__item--parent--arrow"
-          onClick={() => toggleMenu("alert")}
+          onMouseEnter={(e) => handleHover(e, "alert")}
+          onMouseLeave={() => isCollapsed && setHoverMenu(null)}
         >
-          <div className="sidebar__item--parent--left">
-            <img src={AlertIcon} alt="alert" />
-            <span className="sidebar__item--title">알림</span>
-            <span className="arrow">
-              {openMenu === "alert" ? (
-                <img src={ClickedTopArrowIcon} alt="clicked-top-arrow" />
-              ) : (
-                <img src={BottomArrowIcon} alt="bottom-arrow" />
-              )}
-            </span>
-          </div>
+          <SidebarParentItem
+            icon={AlertIcon}
+            label="알림"
+            menuKey="alert"
+            openMenu={openMenu}
+            toggleMenu={toggleMenu}
+            isCollapsed={isCollapsed}
+          >
+            <div className="sidebar__submenu">
+              <NavLink to="/alert/event-setting" className="sidebar__subitem">
+                이벤트 설정
+              </NavLink>
+              <NavLink to="/alert/event-log" className="sidebar__subitem">
+                이벤트 기록
+              </NavLink>
+            </div>
+          </SidebarParentItem>
         </div>
 
-        {openMenu === "alert" && (
-          <div className="sidebar__submenu">
-            <NavLink to="/alert/event-setting" className="sidebar__subitem">
-              이벤트 설정
-            </NavLink>
-            <NavLink to="/alert/event-log" className="sidebar__subitem">
-              이벤트 기록
-            </NavLink>
-          </div>
-        )}
-
-        {/* 진단 */}
-        <NavLink
-          to="/analysis"
-          className={({ isActive }) =>
-            `sidebar__item ${isActive ? "active" : ""}`
-          }
+        {/* 자식 없는 메뉴 */}
+        <div
+          onMouseEnter={(e) => handleHover(e, "analysis")}
+          onMouseLeave={() => isCollapsed && setHoverMenu(null)}
         >
-          <img
-            src={AnalysisIcon}
-            alt="analysis"
-            onClick={() => setIsCollapsed(false)}
+          <SidebarItem
+            to="/analysis"
+            icon={AnalysisIcon}
+            label="진단"
+            isCollapsed={isCollapsed}
           />
-          {!isCollapsed && <span className="sidebar__item--title">진단</span>}
-        </NavLink>
+        </div>
 
-        {/* 보고서 */}
-        <NavLink
-          to="/improvement"
-          className={({ isActive }) =>
-            `sidebar__item ${isActive ? "active" : ""}`
-          }
+        <div
+          onMouseEnter={(e) => handleHover(e, "improvement")}
+          onMouseLeave={() => isCollapsed && setHoverMenu(null)}
         >
-          <img
-            src={ImprovementIcon}
-            alt="improvement"
-            onClick={() => setIsCollapsed(false)}
+          <SidebarItem
+            to="/improvement"
+            icon={ImprovementIcon}
+            label="보고서"
+            isCollapsed={isCollapsed}
           />
-          {!isCollapsed && <span className="sidebar__item--title">보고서</span>}
-        </NavLink>
+        </div>
 
-        {/* 히스토리 */}
-        <NavLink
-          to="/history"
-          className={({ isActive }) =>
-            `sidebar__item ${isActive ? "active" : ""}`
-          }
+        <div
+          onMouseEnter={(e) => handleHover(e, "history")}
+          onMouseLeave={() => isCollapsed && setHoverMenu(null)}
         >
-          <img
-            src={HistoryIcon}
-            alt="history"
-            onClick={() => setIsCollapsed(false)}
+          <SidebarItem
+            to="/history"
+            icon={HistoryIcon}
+            label="히스토리"
+            isCollapsed={isCollapsed}
           />
-          {!isCollapsed && (
-            <span className="sidebar__item--title">히스토리</span>
-          )}
-        </NavLink>
+        </div>
       </nav>
 
       {/* Footer */}
-      <div className="sidebar__footer">
-        <div className="sidebar__nav">
-          {/* 설정 */}
-          <NavLink
-            to="/setting"
-            className={({ isActive }) =>
-              `sidebar__item ${isActive ? "active" : ""}`
-            }
-          >
-            <img
-              src={SettingIcon}
-              alt="setting"
-              onClick={() => setIsCollapsed(false)}
-            />
-            {!isCollapsed && <span className="sidebar__item--title">설정</span>}
-          </NavLink>
+      <div
+        className="sidebar__footer"
+        onMouseEnter={(e) => handleHover(e, "setting")}
+        onMouseLeave={() => isCollapsed && setHoverMenu(null)}
+      >
+        <SidebarItem
+          to="/setting"
+          icon={SettingIcon}
+          label="설정"
+          isCollapsed={isCollapsed}
+        />
 
-          {/* 사용자 정보 */}
-          <div className="sidebar__item--user">
-            <img src={ProfileIcon} alt="user" />
-            {!isCollapsed && (
-              <div className="user-info">
-                <span className="sidebar__item--title">사용자</span>
-                <span className="user-email">user1@gmail.com</span>
-              </div>
-            )}
-          </div>
+        {/* 사용자 영역 */}
+        <div
+          className="sidebar__item--user"
+          onClick={openUserModal}
+          style={{ cursor: "pointer" }}
+        >
+          <img src={ProfileIcon} alt="user" />
+          {!isCollapsed && currentUser && (
+            <div className="user-info">
+              <span className="sidebar__item--title">
+                {currentUser.username}
+              </span>
+              <span className="user-email">{currentUser.email}</span>
+            </div>
+          )}
         </div>
+
+        {isUserModalOpen && (
+          <UserListModal
+            members={members} // 전체 사용자 목록 전달
+            onClose={() => setIsUserModalOpen(false)}
+          />
+        )}
       </div>
+
+      {/* Hover Modal */}
+      {isCollapsed && hoverMenu && hoverPos && (
+        <SidebarHoverModal
+          pos={hoverPos}
+          items={
+            {
+              dashboard: ["데이터베이스 맵", "인스턴스 목록"],
+              sql: ["SQL 통계", "Top SQL 비교"],
+              alert: ["이벤트 설정", "이벤트 기록"],
+              analysis: ["진단"],
+              improvement: ["보고서"],
+              history: ["히스토리"],
+              setting: ["설정"],
+              logo: ["CCDB"],
+            }[hoverMenu] || []
+          }
+          onEnter={() => setHoverMenu(hoverMenu)}
+          onLeave={() => setHoverMenu(null)}
+          onSelect={(index) => {
+            const routeList = menuRoutes[hoverMenu] || [];
+            const target = routeList[index];
+            if (target) navigate(target);
+            setHoverMenu(null);
+          }}
+        />
+      )}
     </aside>
   );
 };

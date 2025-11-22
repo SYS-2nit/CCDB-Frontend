@@ -12,7 +12,7 @@ import {
   type GraphDataResponse,
   saveMemberWidgets,
   type MemberWidgetConfig,
-} from "@/api/dashboard";
+} from "@/api/Dashboard/dashboard";
 
 export type DashboardMode = "LIVE" | "10분" | "1시간" | "1일";
 
@@ -36,7 +36,11 @@ interface DashboardContextValue {
   setMode: (mode: DashboardMode, minutes: number | null) => void;
   graphList: GraphDataResponse[];
   graphsByName: Record<string, GraphDataResponse>;
-  setGraphs: (graphs: GraphDataResponse[] | ((prev: GraphDataResponse[]) => GraphDataResponse[]), preserveOrder?: boolean) => void;
+  setGraphs: (
+    graphs:
+      | GraphDataResponse[]
+      | ((prev: GraphDataResponse[]) => GraphDataResponse[])
+  ) => void;
   reorderGraphsByNames: (names: string[]) => void;
   replaceGraphAt: (index: number, graph: GraphDataResponse) => void;
   clearGraphs: () => void;
@@ -50,7 +54,9 @@ interface DashboardContextValue {
   triggerRefresh: () => void;
 }
 
-const DashboardContext = createContext<DashboardContextValue | undefined>(undefined);
+const DashboardContext = createContext<DashboardContextValue | undefined>(
+  undefined
+);
 
 const INITIAL_STATE: DashboardContextValue = {
   dbId: null,
@@ -92,7 +98,7 @@ const buildGraphMap = (graphs: GraphDataResponse[]) => {
 
 const mapNamesToGraphs = (
   names: string[],
-  graphList: GraphDataResponse[],
+  graphList: GraphDataResponse[]
 ): GraphDataResponse[] => {
   const map = new Map(graphList.map((graph) => [graph.name, graph] as const));
   const next = names
@@ -107,12 +113,18 @@ const getWidgetPayload = (graphs: GraphDataResponse[]): MemberWidgetConfig[] =>
     .map((graph, index) => ({ graphId: graph.id, position: index + 1 }))
     .filter((item) => item.graphId != null);
 
-export const DashboardProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+export const DashboardProvider: React.FC<React.PropsWithChildren> = ({
+  children,
+}) => {
   const [dbId, setDbId] = useState<number | null>(null);
   const [dbName, setDbName] = useState<string | null>(null);
   const [instances, setInstancesState] = useState<InstanceOption[]>([]);
-  const [selectedInstanceId, setSelectedInstanceId] = useState<number | null>(null);
-  const [selectedInstanceName, setSelectedInstanceName] = useState<string | null>(null);
+  const [selectedInstanceId, setSelectedInstanceId] = useState<number | null>(
+    null
+  );
+  const [selectedInstanceName, setSelectedInstanceName] = useState<
+    string | null
+  >(null);
   const [mode, setModeState] = useState<DashboardMode>("LIVE");
   const [rangeMinutes, setRangeMinutes] = useState<number | null>(null);
   const [graphList, setGraphList] = useState<GraphDataResponse[]>([]);
@@ -123,10 +135,13 @@ export const DashboardProvider: React.FC<React.PropsWithChildren> = ({ children 
 
   const latestGraphOrderRef = useRef<MemberWidgetConfig[] | null>(null);
 
-  const setDbInfo = useCallback(({ id, name }: { id: number | null; name: string | null }) => {
-    setDbId(id);
-    setDbName(name);
-  }, []);
+  const setDbInfo = useCallback(
+    ({ id, name }: { id: number | null; name: string | null }) => {
+      setDbId(id);
+      setDbName(name);
+    },
+    []
+  );
 
   const setInstances = useCallback((items: InstanceOption[]) => {
     setInstancesState(items);
@@ -142,43 +157,52 @@ export const DashboardProvider: React.FC<React.PropsWithChildren> = ({ children 
     }
   }, []);
 
-  const setMode = useCallback((nextMode: DashboardMode, minutes: number | null) => {
-    setModeState(nextMode);
-    setRangeMinutes(minutes);
-  }, []);
+  const setMode = useCallback(
+    (nextMode: DashboardMode, minutes: number | null) => {
+      setModeState(nextMode);
+      setRangeMinutes(minutes);
+    },
+    []
+  );
 
-  const setGraphs = useCallback((graphs: GraphDataResponse[] | ((prev: GraphDataResponse[]) => GraphDataResponse[]), preserveOrder: boolean = true) => {
-    setGraphList((prev) => {
-      const nextGraphs = typeof graphs === 'function' ? graphs(prev) : graphs;
-      
-      if (!nextGraphs || nextGraphs.length === 0) {
-        return [];
-      }
+  const setGraphs = useCallback(
+    (
+      graphs:
+        | GraphDataResponse[]
+        | ((prev: GraphDataResponse[]) => GraphDataResponse[])
+    ) => {
+      setGraphList((prev) => {
+        const nextGraphs = typeof graphs === "function" ? graphs(prev) : graphs;
 
-      // preserveOrder가 false이면 백엔드에서 반환된 순서를 그대로 사용
-      if (!preserveOrder) {
+        if (!nextGraphs || nextGraphs.length === 0) {
+          return [];
+        }
+
+        if (prev.length === 0) {
+          return nextGraphs;
+        }
+
+        const map = new Map(
+          nextGraphs.map((graph) => [graph.id, graph] as const)
+        );
+        const ordered = prev
+          .map((graph) => map.get(graph.id))
+          .filter((graph): graph is GraphDataResponse => Boolean(graph));
+
+        const remaining = nextGraphs.filter(
+          (graph) => !ordered.some((item) => item.id === graph.id)
+        );
+        const nextList = [...ordered, ...remaining];
+
+        if (nextList.length === nextGraphs.length) {
+          return nextList;
+        }
+
         return nextGraphs;
-      }
-
-      if (prev.length === 0) {
-        return nextGraphs;
-      }
-
-      const map = new Map(nextGraphs.map((graph) => [graph.id, graph] as const));
-      const ordered = prev
-        .map((graph) => map.get(graph.id))
-        .filter((graph): graph is GraphDataResponse => Boolean(graph));
-
-      const remaining = nextGraphs.filter((graph) => !ordered.some((item) => item.id === graph.id));
-      const nextList = [...ordered, ...remaining];
-
-      if (nextList.length === nextGraphs.length) {
-        return nextList;
-      }
-
-      return nextGraphs;
-    });
-  }, []);
+      });
+    },
+    []
+  );
 
   const reorderGraphsByNames = useCallback((names: string[]) => {
     setGraphList((prev) => {
@@ -189,18 +213,21 @@ export const DashboardProvider: React.FC<React.PropsWithChildren> = ({ children 
     });
   }, []);
 
-  const replaceGraphAt = useCallback((index: number, graph: GraphDataResponse) => {
-    setGraphList((prev) => {
-      const next = [...prev];
-      if (index >= 0 && index < next.length) {
-        next[index] = graph;
-      } else {
-        next[index] = graph;
-      }
-      setIsWidgetOrderDirty(true);
-      return next;
-    });
-  }, []);
+  const replaceGraphAt = useCallback(
+    (index: number, graph: GraphDataResponse) => {
+      setGraphList((prev) => {
+        const next = [...prev];
+        if (index >= 0 && index < next.length) {
+          next[index] = graph;
+        } else {
+          next[index] = graph;
+        }
+        setIsWidgetOrderDirty(true);
+        return next;
+      });
+    },
+    []
+  );
 
   const clearGraphs = useCallback(() => {
     setGraphList([]);
@@ -214,7 +241,10 @@ export const DashboardProvider: React.FC<React.PropsWithChildren> = ({ children 
     if (payload.length === 0) return;
 
     const serialized = JSON.stringify(payload);
-    if (latestGraphOrderRef.current && JSON.stringify(latestGraphOrderRef.current) === serialized) {
+    if (
+      latestGraphOrderRef.current &&
+      JSON.stringify(latestGraphOrderRef.current) === serialized
+    ) {
       setIsWidgetOrderDirty(false);
       return;
     }
@@ -242,59 +272,66 @@ export const DashboardProvider: React.FC<React.PropsWithChildren> = ({ children 
 
   const graphsByName = useMemo(() => buildGraphMap(graphList), [graphList]);
 
-  const value = useMemo<DashboardContextValue>(() => ({
-    dbId,
-    dbName,
-    setDbInfo,
-    instances,
-    setInstances,
-    selectedInstanceId,
-    selectedInstanceName,
-    selectInstance,
-    mode,
-    rangeMinutes,
-    setMode,
-    graphList,
-    graphsByName,
-    setGraphs,
-    reorderGraphsByNames,
-    replaceGraphAt,
-    clearGraphs,
-    isWidgetOrderDirty,
-    saveWidgetOrder,
-    isFetching,
-    setIsFetching,
-    error,
-    setError,
-    refreshToken,
-    triggerRefresh,
-  }), [
-    dbId,
-    dbName,
-    setDbInfo,
-    instances,
-    setInstances,
-    selectedInstanceId,
-    selectedInstanceName,
-    selectInstance,
-    mode,
-    rangeMinutes,
-    setMode,
-    graphList,
-    graphsByName,
-    setGraphs,
-    reorderGraphsByNames,
-    replaceGraphAt,
-    clearGraphs,
-    isWidgetOrderDirty,
-    saveWidgetOrder,
-    isFetching,
-    error,
-    refreshToken,
-    triggerRefresh,
-  ]);
+  const value = useMemo<DashboardContextValue>(
+    () => ({
+      dbId,
+      dbName,
+      setDbInfo,
+      instances,
+      setInstances,
+      selectedInstanceId,
+      selectedInstanceName,
+      selectInstance,
+      mode,
+      rangeMinutes,
+      setMode,
+      graphList,
+      graphsByName,
+      setGraphs,
+      reorderGraphsByNames,
+      replaceGraphAt,
+      clearGraphs,
+      isWidgetOrderDirty,
+      saveWidgetOrder,
+      isFetching,
+      setIsFetching,
+      error,
+      setError,
+      refreshToken,
+      triggerRefresh,
+    }),
+    [
+      dbId,
+      dbName,
+      setDbInfo,
+      instances,
+      setInstances,
+      selectedInstanceId,
+      selectedInstanceName,
+      selectInstance,
+      mode,
+      rangeMinutes,
+      setMode,
+      graphList,
+      graphsByName,
+      setGraphs,
+      reorderGraphsByNames,
+      replaceGraphAt,
+      clearGraphs,
+      isWidgetOrderDirty,
+      saveWidgetOrder,
+      isFetching,
+      error,
+      refreshToken,
+      triggerRefresh,
+    ]
+  );
 
-  return <DashboardContext.Provider value={value}>{children}</DashboardContext.Provider>;
+  return (
+    <DashboardContext.Provider value={value}>
+      {children}
+    </DashboardContext.Provider>
+  );
 };
 
 export const useDashboardContext = (): DashboardContextValue => {

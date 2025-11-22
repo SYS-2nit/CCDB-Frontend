@@ -110,7 +110,7 @@
       margin: 0px 20px;
       display: flex;
       align-items: center;  
-      justify-content: center;  
+      justify-content: space-between; 
       cursor: pointer;
 
       &:hover {
@@ -118,18 +118,19 @@
         background-color: var(--color-active-tap-bg);
       }
 
-      // 대시보드 주 메뉴는 active 상태에서도 배경 제거
       &.active {
         color: var(--color-sidebar-text);
-        // background와 outline 제거 - 서브 메뉴에서만 표시
       }
     }
 
+    // 탭바 왼쪽 부분 (아이콘 + 타이틀)
     &--arrow {
-      display: flex;
-      align-items: center;
-      justify-content: space-between; 
-
+      &-left {
+        gap: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between; 
+      }
     }
   }
 
@@ -191,3 +192,25 @@
     }
   }
 }
+
+// 사이드바 모달
+.sidebar-hover-modal {
+ background-color: var(--color-sidebar-bg);
+  color: $gray-100;
+  border-radius: 3px;
+  min-width: 140px;
+  position: fixed;
+  z-index: 10;
+}
+
+.sidebar-hover-item {
+  padding: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.sidebar-hover-item:hover {
+  color: $main-300;
+}
+
