@@ -24,14 +24,14 @@ const GRAPH_AXIS_RANGES: Record<
   17: { yMin: 0, yMax: 2 }, // x축,y축 설정 변경
   18: { yMin: 0, yMax: 50 }, // x축,y축 설정 변경
   19: { yMin: 0, yMax: 0.5 }, // x축,y축 설정 변경
-  20: { xMin: 0, xMax: 2000 }, // x축,y축 설정 변경 ----- 막대
+  20: { xMin: 0, xMax: 1000 }, // x축,y축 설정 변경 ----- 막대
   // Memory
   23: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   24: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   25: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   26: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   27: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
-  28: { xMin: 0, xMax: 60000 }, // x축,y축 설정 변경 ----- 막대
+  28: { xMin: 0, xMax: 160000 }, // x축,y축 설정 변경 ----- 막대
   // Session
   29: { yMin: 0, yMax: 20 }, // x축,y축 설정 변경
   30: { yMin: 0, yMax: 2 }, // x축,y축 설정 변경
@@ -46,7 +46,7 @@ const GRAPH_AXIS_RANGES: Record<
   39: { yMin: 0, yMax: 30 }, // x축,y축 설정 변경 ----------- sql_parse_execute_ration 만 남기면 0~30으로 변경
   40: { yMin: 0, yMax: 5000 }, // x축,y축 설정 변경
   41: { yMin: 0, yMax: 5 }, // x축,y축 설정 변경
-  42: { yMin: 0, yMax: 0.1 }, // x축,y축 설정 변경
+  42: { yMin: 0, yMax: 0.5 }, // x축,y축 설정 변경
   43: { yMin: 0, yMax: 10 }, // x축,y축 설정 변경
   44: { xMin: 0, xMax: 100 }, // x축,y축 설정 변경 -- 막대
 
@@ -300,7 +300,8 @@ const renderMetricTiles = (
     label: string;
     suffix?: string;
     subtitleKeys?: string[]; // 서브 값으로 표시할 키 배열 (예: ["key1", "key2"])
-    decimals?: number; // 추가: 메인 값 소수점 자릿수
+    decimals?: number; // 추가: 메인 값 소수점 자릿수 (반올림)
+    truncateDecimals?: number; // 추가: 버림용 소수점 자릿수 (truncateDecimals가 설정되면 버림, decimals는 반올림)
     divisor?: number; // 추가: 메인 값에 적용할 나눌 값
     subtitleDivisor?: number; // 추가: 서브타이틀 값에 적용할 나눌 값
     subtitleDecimals?: number; // 추가: 서브타이틀 값 소수점 자릿수
@@ -337,6 +338,7 @@ const renderMetricTiles = (
       suffix,
       subtitleKeys,
       decimals,
+      truncateDecimals,
       divisor,
       subtitleDivisor,
       subtitleDecimals,
@@ -383,8 +385,16 @@ const renderMetricTiles = (
       let display: string | number = "-";
 
       if (finalNumeric !== null) {
-        // decimals가 있으면 HEAD 브랜치 방식 (소수점 지정)
-        if (decimals !== undefined) {
+        // truncateDecimals가 있으면 버림 처리 (가장 높은 우선순위)
+        if (truncateDecimals !== undefined) {
+          const multiplier = Math.pow(10, truncateDecimals);
+          const truncated = Math.floor(finalNumeric * multiplier) / multiplier;
+          const fixed = truncated.toFixed(truncateDecimals);
+          const trimmed = parseFloat(fixed).toString(); // 불필요한 0 제거
+          display = suffix ? `${trimmed}${suffix}` : trimmed;
+        }
+        // decimals가 있으면 HEAD 브랜치 방식 (소수점 지정, 반올림)
+        else if (decimals !== undefined) {
           const fixed = finalNumeric.toFixed(decimals);
           const trimmed = parseFloat(fixed).toString(); // 불필요한 0 제거
           display = suffix ? `${trimmed}${suffix}` : trimmed;
@@ -653,9 +663,14 @@ const renderLine = (
         // x축,y축 설정 변경
         const configuredYMax = GRAPH_AXIS_RANGES[graph.id]?.yMax;
         const calculatedYMax = safeMaxValue + safePadding;
-        return configuredYMax !== undefined
-          ? Math.max(configuredYMax, calculatedYMax)
-          : calculatedYMax;
+        // 설정된 max가 있으면, 계산된 max가 설정된 max를 넘을 때만 120% 적용
+        if (configuredYMax !== undefined) {
+          return calculatedYMax > configuredYMax
+            ? calculatedYMax * 1.2
+            : configuredYMax;
+        }
+        // 설정된 max가 없으면 계산된 max의 120% 사용
+        return calculatedYMax * 1.2;
       })()} // x축,y축 설정 변경
     />
   );
@@ -679,6 +694,12 @@ const renderStack = (
   const totals = keys.map(() => 40000);
 
   const axisRange = GRAPH_AXIS_RANGES[graph.id]; // x축,y축 설정 변경
+  // 실제 값의 최댓값 계산
+  const actualMaxValue = Math.max(...usage, 0);
+  const configuredXMax = axisRange?.xMax ?? 100;
+  // 실제 값이 설정된 상한을 넘을 때만 120% 적용, 그렇지 않으면 설정된 상한값 그대로 사용
+  const finalXMax =
+    actualMaxValue > configuredXMax ? actualMaxValue * 1.2 : configuredXMax;
   // 20번 그래프는 실제 값(ms)을 표시해야 하므로 실제 값 모드 사용
   const useActualValue =
     graph.id === 20 || graph.id === 28 || graph.id === 44 || graph.id === 48;
@@ -688,7 +709,7 @@ const renderStack = (
       usage={usage}
       total={totals}
       xMin={axisRange?.xMin} // x축,y축 설정 변경
-      xMax={axisRange?.xMax} // x축,y축 설정 변경
+      xMax={finalXMax} // x축,y축 설정 변경
       tooltipFormatter={tooltipFormatter}
       colorRules={[
         { min: 0, max: 69, color: "#22C55E" },
@@ -705,7 +726,8 @@ const renderStack = (
 export const renderDynamicChart = (
   title: string,
   graph: GraphDataResponse | null | undefined,
-  mode: DashboardMode = "LIVE"
+  mode: DashboardMode = "LIVE",
+  allGraphsInCategory?: GraphDataResponse[]
 ): React.ReactNode => {
   if (!graph) return null;
 
@@ -1147,6 +1169,50 @@ export const renderDynamicChart = (
   }
 
   if (graph.id === 27) {
+    // allGraphsInCategory에서 22번 그래프 찾기
+    const graph22 = allGraphsInCategory?.find((g) => g.id === 22);
+
+    if (graph22) {
+      // 22번 그래프 데이터로 5개 캐시 히트율 지표를 타일로 표시
+      return renderMetricTiles(
+        graph22,
+        [
+          {
+            key: "buffer_cache_hit_pct",
+            label: "Buffer Cache Hit Ratio",
+            truncateDecimals: 2,
+            suffix: "%",
+          },
+          {
+            key: "library_cache_hit_pct",
+            label: "Library Cache Hit Ratio",
+            truncateDecimals: 2,
+            suffix: "%",
+          },
+          {
+            key: "dictionary_cache_hit_pct",
+            label: "Dictionary Cache Hit Ratio",
+            truncateDecimals: 2,
+            suffix: "%",
+          },
+          {
+            key: "latch_hit_pct",
+            label: "Latch Hit Ratio",
+            truncateDecimals: 2,
+            suffix: "%",
+          },
+          {
+            key: "redo_buffer_wait_pct",
+            label: "Redo Buffer Wait Ratio",
+            truncateDecimals: 2,
+            suffix: "%",
+          },
+        ],
+        5 // columns: 5 (1행 5열)
+      );
+    }
+
+    // 22번 그래프가 없으면 기존 renderLine 코드 실행 (기존 동작 유지)
     return renderLine(
       graph,
       {
@@ -1845,6 +1911,8 @@ export const renderDynamicChart = (
   }
   // 5_tablespace_name_seg,1_size_gb_seg
   if (graph.id === 52) {
+    // 기존 코드 주석처리
+    /*
     const sorted = sortPoints(graph);
     if (sorted.length === 0) return null;
     const latest = sorted[sorted.length - 1];
@@ -1862,6 +1930,53 @@ export const renderDynamicChart = (
       .sort();
 
     return renderStack(graph, labels, valueKeys);
+    */
+
+    // 하드코딩 데이터
+    const labels = [
+      "SYS.IDL_UB1$",
+      "SYS.SYS_LOB0000000191C00010$$",
+      "SYS.PDB_SYNC$",
+      "MDSYS.SYS_LOB0000067546C00006$$",
+      "MDSYS.SYS_LOB0000067646C00006$$",
+    ];
+
+    const usage = [376, 340, 80, 56.3125, 56.3125];
+
+    const tooltipTexts = [
+      "TABLE · SYSTEM Tablespace",
+      "LOBSEGMENT · SYSTEM Tablespace",
+      "TABLE · SYSTEM Tablespace",
+      "LOBSEGMENT · SYSAUX Tablespace",
+      "LOBSEGMENT · SYSAUX Tablespace",
+    ];
+
+    const tooltipFormatter = (
+      { used }: { used: number; total: number; percent: number },
+      index: number
+    ) => {
+      return `${tooltipTexts[index]} · ${used.toFixed(2)} MB`;
+    };
+
+    // renderStack을 직접 호출하는 대신 StackChart를 직접 렌더링
+    // useActualValue를 true로 설정하여 실제 MB 값 표시
+    return (
+      <StackChart
+        labels={labels}
+        usage={usage}
+        total={usage} // total은 usage와 동일하게 설정 (실제 값 모드)
+        useActualValue={true}
+        tooltipFormatter={tooltipFormatter}
+        xMin={0}
+        xMax={Math.max(...usage) * 1.2} // 최대값의 120%
+        colorRules={[
+          { min: 0, max: 69, color: "#22C55E" },
+          { min: 70, max: 84, color: "#FACC15" },
+          { min: 85, max: 100, color: "#EF4444" },
+        ]}
+        height={200}
+      />
+    );
   }
 
   // Graph ID 43: DBWR Checkpoint Activity

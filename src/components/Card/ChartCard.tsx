@@ -26,6 +26,7 @@ interface ChartCardProps {
   showDragIcon?: boolean;
   graphData?: GraphDataResponse | null;
   mode?: DashboardMode;
+  allGraphsInCategory?: GraphDataResponse[];
 }
 
 const ChartCard: React.FC<ChartCardProps> = ({
@@ -36,6 +37,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
   showDragIcon = true,
   graphData,
   mode: propMode,
+  allGraphsInCategory,
 }) => {
   const StatusIcon = status === "warning" ? WarningIcon : SuccessGreenIcon;
   const [showInfoModal, setShowInfoModal] = useState(false);
@@ -81,7 +83,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
   } else if (!graphData && error) {
     bodyContent = <div className="chart-placeholder">{error}</div>;
   } else if (data) {
-    const rendered = renderDynamicChart(title, data, mode);
+    const rendered = renderDynamicChart(title, data, mode, allGraphsInCategory);
     bodyContent = rendered ?? getChartByTitle(title, data, mode);
   } else {
     bodyContent = getChartByTitle(title, data, mode);

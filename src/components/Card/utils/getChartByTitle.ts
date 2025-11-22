@@ -20,7 +20,7 @@ const fallbackStyle: React.CSSProperties = {
 };
 
 // Graph ID 범위로 카테고리 판단 (ID 기반 검증만 사용)
-const getCategoryByGraphId = (graphId: number): TabType | null => {
+export const getCategoryByGraphId = (graphId: number): TabType | null => {
   // CPU: 13-20
   if (graphId >= 13 && graphId <= 20) return "cpu";
   // Memory: 21-28
