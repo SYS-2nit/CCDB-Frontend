@@ -13,7 +13,7 @@ import {
   acknowledgeEvent,
   isEventRead,
   type ProgressHistoryResponse,
-} from "@/api/alerts";
+} from "@/api/Alert/alerts";
 
 interface AlertTableProps {
   alerts: EventResponse[];
@@ -112,23 +112,25 @@ const AlertTable: React.FC<AlertTableProps> = ({
       // 처리내역 목록 새로고침
       const newHistories = await fetchEventHistories(selectedEventId);
       setHistories(newHistories);
-      
+
       // 입력 내용 초기화
       setHistoryContent("");
 
       // 현재 알림이 안읽음 상태인지 확인
-      const currentAlert = alerts.find(a => a.id === selectedEventId);
+      const currentAlert = alerts.find((a) => a.id === selectedEventId);
       if (currentAlert && !isEventRead(currentAlert)) {
         // 안읽음 상태면 읽음 처리
         await acknowledgeEvent(selectedEventId);
-        
+
         // Header에 알림 상태 변경 이벤트 발생
-        window.dispatchEvent(new CustomEvent("alert:read-status-changed", {
-          detail: {
-            eventId: selectedEventId,
-            isRead: true, // 읽음으로 변경
-          }
-        }));
+        window.dispatchEvent(
+          new CustomEvent("alert:read-status-changed", {
+            detail: {
+              eventId: selectedEventId,
+              isRead: true, // 읽음으로 변경
+            },
+          })
+        );
       }
 
       // 알림 목록 새로고침 (status가 CLOSED로 변경되었으므로)
@@ -144,7 +146,10 @@ const AlertTable: React.FC<AlertTableProps> = ({
   };
 
   // 읽음/안읽음 토글 처리
-  const handleToggleReadStatus = async (alert: EventResponse, e: React.MouseEvent) => {
+  const handleToggleReadStatus = async (
+    alert: EventResponse,
+    e: React.MouseEvent
+  ) => {
     e.stopPropagation(); // 행 클릭 이벤트 방지
 
     const isRead = isEventRead(alert);
@@ -165,12 +170,14 @@ const AlertTable: React.FC<AlertTableProps> = ({
       }
 
       // Header에 알림 상태 변경 이벤트 발생
-      window.dispatchEvent(new CustomEvent("alert:read-status-changed", {
-        detail: {
-          eventId: alert.id,
-          isRead: newReadStatus, // 변경된 상태
-        }
-      }));
+      window.dispatchEvent(
+        new CustomEvent("alert:read-status-changed", {
+          detail: {
+            eventId: alert.id,
+            isRead: newReadStatus, // 변경된 상태
+          },
+        })
+      );
     } catch (error) {
       console.error("[AlertTable] 읽음 상태 변경 실패:", error);
       window.alert("읽음 상태 변경에 실패했습니다.");
@@ -193,7 +200,13 @@ const AlertTable: React.FC<AlertTableProps> = ({
   // 행 생성
   const rows = alerts.map((alert, index) => [
     // 번호 (중앙 정렬을 위해 div로 감싸기)
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       {currentPage * pageSize + index + 1}
     </div>,
 
@@ -213,7 +226,13 @@ const AlertTable: React.FC<AlertTableProps> = ({
     statusTextMap[alert.status],
 
     // 읽음/안읽음 버튼
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <button
         onClick={(e) => handleToggleReadStatus(alert, e)}
         style={{
@@ -228,10 +247,14 @@ const AlertTable: React.FC<AlertTableProps> = ({
           transition: "all 0.2s ease",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = isEventRead(alert) ? "#d0d0d0" : "#fff5f5";
+          e.currentTarget.style.backgroundColor = isEventRead(alert)
+            ? "#d0d0d0"
+            : "#fff5f5";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = isEventRead(alert) ? "#e0e0e0" : "#fff";
+          e.currentTarget.style.backgroundColor = isEventRead(alert)
+            ? "#e0e0e0"
+            : "#fff";
         }}
       >
         {isEventRead(alert) ? "읽음" : "안읽음"}
@@ -258,7 +281,13 @@ const AlertTable: React.FC<AlertTableProps> = ({
     // 메시지
     alert.message,
     // 인스턴스 ID (중앙 정렬)
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       {alert.instanceId ?? "N/A"}
     </div>,
     formatDateTime(alert.createdAt),
@@ -294,8 +323,18 @@ const AlertTable: React.FC<AlertTableProps> = ({
   }));
 
   return (
-    <div className="alert-table__wrapper alert-event-log-table" style={{ display: "flex", flexDirection: "column", minHeight: "650px" }}>
-      <div style={{ flex: 1, minHeight: "550px", display: "flex", flexDirection: "column" }}>
+    <div
+      className="alert-table__wrapper alert-event-log-table"
+      style={{ display: "flex", flexDirection: "column", minHeight: "650px" }}
+    >
+      <div
+        style={{
+          flex: 1,
+          minHeight: "550px",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <div style={{ flex: 1, overflow: "auto" }}>
           <TableChart columns={columns} rows={rows} size="md" />
         </div>
@@ -321,7 +360,7 @@ const AlertTable: React.FC<AlertTableProps> = ({
             onClick={() => onPageChange(Math.max(0, currentPage - 1))}
             disabled={currentPage === 0}
           />
-          
+
           {/* 페이지 번호 표시 */}
           <div
             style={{
@@ -383,7 +422,9 @@ const AlertTable: React.FC<AlertTableProps> = ({
             text="다음"
             size="sm"
             variant="white"
-            onClick={() => onPageChange(Math.min(totalPages - 1, currentPage + 1))}
+            onClick={() =>
+              onPageChange(Math.min(totalPages - 1, currentPage + 1))
+            }
             disabled={currentPage >= totalPages - 1}
           />
         </div>
@@ -391,22 +432,25 @@ const AlertTable: React.FC<AlertTableProps> = ({
 
       {/* 처리내역 모달 */}
       {isListOpen && selectedEventId && (
-        <div className="modal-overlay light" onClick={() => {
-          setIsListOpen(false);
-          setSelectedEventId(null);
-          setHistories([]);
-          setHistoryContent("");
-        }}>
-          <div 
-            className="modal light modal--lg" 
+        <div
+          className="modal-overlay light"
+          onClick={() => {
+            setIsListOpen(false);
+            setSelectedEventId(null);
+            setHistories([]);
+            setHistoryContent("");
+          }}
+        >
+          <div
+            className="modal light modal--lg"
             style={{ maxWidth: "900px", width: "90%" }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* 헤더 */}
             <div className="modal__header">
               <h2>처리내역</h2>
-              <button 
-                className="modal__close" 
+              <button
+                className="modal__close"
                 onClick={() => {
                   setIsListOpen(false);
                   setSelectedEventId(null);
@@ -422,7 +466,14 @@ const AlertTable: React.FC<AlertTableProps> = ({
             <div className="modal__body">
               {/* 처리내역 목록 */}
               <div style={{ marginBottom: "16px" }}>
-                <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#333" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "8px",
+                    fontWeight: "bold",
+                    color: "#333",
+                  }}
+                >
                   처리내역 목록
                 </label>
                 <div style={{ marginTop: "8px" }}>
@@ -432,15 +483,15 @@ const AlertTable: React.FC<AlertTableProps> = ({
                       { key: "author", label: "작성자" },
                       { key: "content", label: "처리내역" },
                     ]}
-                    rows={historyTableData.length > 0 ? historyTableData.map((item) => [
-                      item.작성시간,
-                      item.작성자,
-                      item.처리내역,
-                    ]) : [[
-                      "-",
-                      "-",
-                      "처리내역이 없습니다.",
-                    ]]}
+                    rows={
+                      historyTableData.length > 0
+                        ? historyTableData.map((item) => [
+                            item.작성시간,
+                            item.작성자,
+                            item.처리내역,
+                          ])
+                        : [["-", "-", "처리내역이 없습니다."]]
+                    }
                     size="md"
                   />
                 </div>
@@ -448,7 +499,14 @@ const AlertTable: React.FC<AlertTableProps> = ({
 
               {/* 처리 내역 작성 섹션 */}
               <div style={{ padding: "16px", borderTop: "1px solid #e0e0e0" }}>
-                <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#333" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "8px",
+                    fontWeight: "bold",
+                    color: "#333",
+                  }}
+                >
                   처리 내역 작성
                 </label>
                 <textarea
@@ -468,7 +526,13 @@ const AlertTable: React.FC<AlertTableProps> = ({
                   }}
                   disabled={isSubmitting}
                 />
-                <div style={{ marginTop: "12px", display: "flex", justifyContent: "flex-end" }}>
+                <div
+                  style={{
+                    marginTop: "12px",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
+                >
                   <Button
                     text={isSubmitting ? "처리 중..." : "등록"}
                     size="sm"
@@ -482,7 +546,6 @@ const AlertTable: React.FC<AlertTableProps> = ({
           </div>
         </div>
       )}
-
     </div>
   );
 };

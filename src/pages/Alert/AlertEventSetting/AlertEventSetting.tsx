@@ -17,7 +17,7 @@ import {
   toggleEvent,
   deletePolicy,
   type AlertEventResponse,
-} from "@/api/alerts";
+} from "@/api/Alert/alerts";
 
 type AlertTabType = "1" | "2";
 
@@ -27,7 +27,6 @@ interface Policy {
   events: EventCard[];
   eventStates?: boolean[]; // 이벤트 상태 정보 (임시 저장용)
 }
-
 
 const AlertEventSetting: React.FC = () => {
   // memberId 제거 - 백엔드가 기본값 1 사용
@@ -86,9 +85,18 @@ const AlertEventSetting: React.FC = () => {
       const loadedSettings = {
         email: settings.email || "",
         slackAddress: settings.slackAddress || "",
-        warningChannel: settings.warningChannel === "all" ? "전체" : (settings.warningChannel || "전체"),
-        dangerChannel: settings.dangerChannel === "all" ? "전체" : (settings.dangerChannel || "전체"),
-        criticalChannel: settings.criticalChannel === "all" ? "전체" : (settings.criticalChannel || "전체"),
+        warningChannel:
+          settings.warningChannel === "all"
+            ? "전체"
+            : settings.warningChannel || "전체",
+        dangerChannel:
+          settings.dangerChannel === "all"
+            ? "전체"
+            : settings.dangerChannel || "전체",
+        criticalChannel:
+          settings.criticalChannel === "all"
+            ? "전체"
+            : settings.criticalChannel || "전체",
       };
       // 상태를 항상 최신 DB 값으로 초기화
       setNotificationSettings(loadedSettings);
@@ -101,7 +109,10 @@ const AlertEventSetting: React.FC = () => {
         response: error?.response?.data,
         status: error?.response?.status,
       });
-      const errorMessage = error?.response?.data?.message || error?.message || "알림 설정을 불러오는데 실패했습니다.";
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "알림 설정을 불러오는데 실패했습니다.";
       alert(`알림 설정 조회 실패: ${errorMessage}`);
     }
   };
@@ -109,9 +120,14 @@ const AlertEventSetting: React.FC = () => {
   const restoreOriginalSettings = async () => {
     if (!originalSettings) return;
     try {
-      console.log("[AlertEventSetting] 원본 값으로 복원 시작:", originalSettings);
+      console.log(
+        "[AlertEventSetting] 원본 값으로 복원 시작:",
+        originalSettings
+      );
       // 채널 값 변환: "전체" → "all", 빈 문자열/undefined → null, 그 외 → 그대로
-      const convertChannel = (value: string): "email" | "slack" | "all" | null => {
+      const convertChannel = (
+        value: string
+      ): "email" | "slack" | "all" | null => {
         if (!value || value.trim() === "" || value === "선택하세요") {
           return null;
         }
@@ -143,7 +159,9 @@ const AlertEventSetting: React.FC = () => {
     setIsSaving(true);
     try {
       // 채널 값 변환: "전체" → "all", 빈 문자열/undefined → null, 그 외 → 그대로
-      const convertChannel = (value: string): "email" | "slack" | "all" | null => {
+      const convertChannel = (
+        value: string
+      ): "email" | "slack" | "all" | null => {
         if (!value || value.trim() === "" || value === "선택하세요") {
           return null;
         }
@@ -175,7 +193,10 @@ const AlertEventSetting: React.FC = () => {
       setIsReceiveModal(false);
     } catch (error: any) {
       console.error("[AlertEventSetting] 알림 설정 저장 실패:", error);
-      const errorMessage = error?.response?.data?.message || error?.message || "알림 설정 저장에 실패했습니다.";
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "알림 설정 저장에 실패했습니다.";
       alert(`알림 설정 저장 실패: ${errorMessage}`);
     } finally {
       setIsSaving(false);
@@ -189,16 +210,20 @@ const AlertEventSetting: React.FC = () => {
       const channels: string[] = [];
       if (notificationSettings.email) channels.push("email");
       if (notificationSettings.slackAddress) channels.push("slack");
-      
+
       if (channels.length === 0) {
-        setTestResult("테스트할 채널이 없습니다.\nEmail 또는 Slack 주소를 입력해주세요.");
+        setTestResult(
+          "테스트할 채널이 없습니다.\nEmail 또는 Slack 주소를 입력해주세요."
+        );
         setIsTestResultModalOpen(true);
         setIsTesting(false);
         return;
       }
 
       // 채널 값 변환: "전체" → "all", 빈 문자열/undefined → null, 그 외 → 그대로
-      const convertChannel = (value: string): "email" | "slack" | "all" | null => {
+      const convertChannel = (
+        value: string
+      ): "email" | "slack" | "all" | null => {
         if (!value || value.trim() === "" || value === "선택하세요") {
           return null;
         }
@@ -213,7 +238,10 @@ const AlertEventSetting: React.FC = () => {
 
       // 테스트 전에 임시 저장 (입력한 값으로 DB 업데이트)
       // 백엔드 API가 DB의 값을 사용하므로 테스트를 위해 임시 저장 필요
-      console.log("[AlertEventSetting] 테스트를 위한 임시 저장 시작:", notificationSettings);
+      console.log(
+        "[AlertEventSetting] 테스트를 위한 임시 저장 시작:",
+        notificationSettings
+      );
       await updateNotificationSettings({
         email: notificationSettings.email || null,
         slackAddress: notificationSettings.slackAddress || null,
@@ -228,12 +256,14 @@ const AlertEventSetting: React.FC = () => {
       const result = await testNotification({ channels });
       setTestResult(result || "테스트 알림이 전송되었습니다.");
       setIsTestResultModalOpen(true);
-      
+
       // 테스트 후 원본 값으로 즉시 복원 (저장하지 않음)
       if (originalSettings) {
         console.log("[AlertEventSetting] 테스트 완료 - 원본 값으로 즉시 복원");
         // 채널 값 변환: "전체" → "all", 빈 문자열/undefined → null, 그 외 → 그대로
-        const convertChannel = (value: string): "email" | "slack" | "all" | null => {
+        const convertChannel = (
+          value: string
+        ): "email" | "slack" | "all" | null => {
           if (!value || value.trim() === "" || value === "선택하세요") {
             return null;
           }
@@ -258,7 +288,10 @@ const AlertEventSetting: React.FC = () => {
       }
     } catch (error: any) {
       console.error("[AlertEventSetting] 알림 테스트 실패:", error);
-      const errorMessage = error?.response?.data?.message || error?.message || "알림 테스트에 실패했습니다.";
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "알림 테스트에 실패했습니다.";
       setTestResult(`테스트 실패: ${errorMessage}`);
       setIsTestResultModalOpen(true);
     } finally {
@@ -275,7 +308,7 @@ const AlertEventSetting: React.FC = () => {
       Warning: "warningChannel",
       Danger: "dangerChannel",
     };
-    
+
     const stateKey = fieldMap[label] || label.toLowerCase();
     setNotificationSettings((prev) => ({
       ...prev,
@@ -291,7 +324,9 @@ const AlertEventSetting: React.FC = () => {
   const [eventStates, setEventStates] = useState<boolean[][]>([]);
   const [selectedEvent, setSelectedEvent] = useState<EventCard | null>(null);
   const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
-  const [expandedPolicies, setExpandedPolicies] = useState<Set<number>>(new Set());
+  const [expandedPolicies, setExpandedPolicies] = useState<Set<number>>(
+    new Set()
+  );
 
   const tabs = [
     { id: "1", label: "정책 설정" },
@@ -473,10 +508,7 @@ const AlertEventSetting: React.FC = () => {
   }, [policies]);
 
   /* 정책 on/off */
-  const handlePolicyToggle = async (
-    policyIndex: number,
-    checked: boolean
-  ) => {
+  const handlePolicyToggle = async (policyIndex: number, checked: boolean) => {
     const policy = policies[policyIndex];
     if (!policy) return;
 
@@ -499,10 +531,7 @@ const AlertEventSetting: React.FC = () => {
         return updated;
       });
     } catch (error: any) {
-      console.error(
-        `[AlertEventSetting] 정책 ${policy.id} 토글 실패:`,
-        error
-      );
+      console.error(`[AlertEventSetting] 정책 ${policy.id} 토글 실패:`, error);
       const errorMessage =
         error?.response?.data?.message ||
         error?.message ||
@@ -542,10 +571,7 @@ const AlertEventSetting: React.FC = () => {
         return updated;
       });
     } catch (error: any) {
-      console.error(
-        `[AlertEventSetting] 이벤트 ${event.id} 토글 실패:`,
-        error
-      );
+      console.error(`[AlertEventSetting] 이벤트 ${event.id} 토글 실패:`, error);
       const errorMessage =
         error?.response?.data?.message ||
         error?.message ||
@@ -643,15 +669,39 @@ const AlertEventSetting: React.FC = () => {
           tableData: [
             {
               구간: "Warning",
-              값: `${selectedEvent.levels.warning}${selectedEvent.thresholdFormat === "PERCENT" ? "%" : selectedEvent.thresholdFormat === "MBPS" ? "MBPS" : selectedEvent.thresholdFormat === "MS" ? "MS" : "COUNT"}`,
+              값: `${selectedEvent.levels.warning}${
+                selectedEvent.thresholdFormat === "PERCENT"
+                  ? "%"
+                  : selectedEvent.thresholdFormat === "MBPS"
+                  ? "MBPS"
+                  : selectedEvent.thresholdFormat === "MS"
+                  ? "MS"
+                  : "COUNT"
+              }`,
             },
             {
               구간: "Danger",
-              값: `${selectedEvent.levels.danger}${selectedEvent.thresholdFormat === "PERCENT" ? "%" : selectedEvent.thresholdFormat === "MBPS" ? "MBPS" : selectedEvent.thresholdFormat === "MS" ? "MS" : "COUNT"}`,
+              값: `${selectedEvent.levels.danger}${
+                selectedEvent.thresholdFormat === "PERCENT"
+                  ? "%"
+                  : selectedEvent.thresholdFormat === "MBPS"
+                  ? "MBPS"
+                  : selectedEvent.thresholdFormat === "MS"
+                  ? "MS"
+                  : "COUNT"
+              }`,
             },
             {
               구간: "Critical",
-              값: `${selectedEvent.levels.critical}${selectedEvent.thresholdFormat === "PERCENT" ? "%" : selectedEvent.thresholdFormat === "MBPS" ? "MBPS" : selectedEvent.thresholdFormat === "MS" ? "MS" : "COUNT"}`,
+              값: `${selectedEvent.levels.critical}${
+                selectedEvent.thresholdFormat === "PERCENT"
+                  ? "%"
+                  : selectedEvent.thresholdFormat === "MBPS"
+                  ? "MBPS"
+                  : selectedEvent.thresholdFormat === "MS"
+                  ? "MS"
+                  : "COUNT"
+              }`,
             },
           ],
         },
@@ -661,7 +711,14 @@ const AlertEventSetting: React.FC = () => {
   return (
     <div className="alert-setting">
       {/* 상단 탭 + 수신 설정 */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+        }}
+      >
         <TabMenu tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
         <Button
           text="수신 설정"
@@ -861,22 +918,27 @@ const AlertEventSetting: React.FC = () => {
           fields={[]}
           theme="light"
         >
-          <div style={{ 
-            padding: "20px 0",
-            lineHeight: "1.8",
-            fontSize: "14px",
-            color: "#333"
-          }}>
+          <div
+            style={{
+              padding: "20px 0",
+              lineHeight: "1.8",
+              fontSize: "14px",
+              color: "#333",
+            }}
+          >
             {(() => {
               if (!testResult) return null;
-              
+
               // 이메일과 Slack 메시지 파싱
               // 이메일: "이메일 테스트 전송 완료: 이메일주소. "
-              const emailMatch = testResult.match(/이메일 테스트 전송 완료:\s*([^\s.]+(?:\.[^\s.]+)*)/);              
-              const isError = testResult.includes("실패") || testResult.includes("없습니다");
-              
+              const emailMatch = testResult.match(
+                /이메일 테스트 전송 완료:\s*([^\s.]+(?:\.[^\s.]+)*)/
+              );
+              const isError =
+                testResult.includes("실패") || testResult.includes("없습니다");
+
               const results = [];
-              
+
               // 이메일 결과
               if (emailMatch) {
                 const email = emailMatch[1];
@@ -886,10 +948,12 @@ const AlertEventSetting: React.FC = () => {
                   value: email,
                 });
               }
-              
+
               // Slack 결과 - 더 정확한 파싱
               // "Slack 테스트 전송 완료: " 다음에 오는 모든 문자를 URL로 간주 (마지막 . 제외)
-              const slackFullMatch = testResult.match(/Slack 테스트 전송 완료:\s*([^.]+)/);
+              const slackFullMatch = testResult.match(
+                /Slack 테스트 전송 완료:\s*([^.]+)/
+              );
               if (slackFullMatch) {
                 const slackUrl = slackFullMatch[1].trim();
                 results.push({
@@ -898,7 +962,7 @@ const AlertEventSetting: React.FC = () => {
                   value: slackUrl,
                 });
               }
-              
+
               // 에러 메시지
               if (isError && results.length === 0) {
                 results.push({
@@ -907,32 +971,40 @@ const AlertEventSetting: React.FC = () => {
                   value: null,
                 });
               }
-              
+
               return results.map((result, index) => (
-                <div 
-                  key={index} 
-                  style={{ 
+                <div
+                  key={index}
+                  style={{
                     marginBottom: "16px",
                     padding: "12px",
-                    backgroundColor: result.type === "error" ? "#fff5f5" : "#f0f9ff",
+                    backgroundColor:
+                      result.type === "error" ? "#fff5f5" : "#f0f9ff",
                     borderRadius: "6px",
                     borderLeft: `3px solid ${
-                      result.type === "error" ? "#ef4444" : 
-                      result.type === "email" ? "#3b82f6" : "#10b981"
+                      result.type === "error"
+                        ? "#ef4444"
+                        : result.type === "email"
+                        ? "#3b82f6"
+                        : "#10b981"
                     }`,
                   }}
                 >
-                  <div style={{ 
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "10px"
-                  }}>
-                    <span style={{ 
-                      fontSize: "16px",
-                      lineHeight: "1",
-                      marginTop: "2px",
-                      flexShrink: 0
-                    }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: "10px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        lineHeight: "1",
+                        marginTop: "2px",
+                        flexShrink: 0,
+                      }}
+                    >
                       {result.type === "error" ? "❌" : "✅"}
                     </span>
                     <span style={{ flex: 1, fontWeight: "500" }}>
