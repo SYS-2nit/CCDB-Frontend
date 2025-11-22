@@ -6,11 +6,14 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  position: relative;
+  align-items: center; // 컨테이너 내부 요소 중앙 정렬
 
   label {
     @include text-styles("body02");
     color: $gray-900;
     margin-bottom: 10px;
+    width: 100%;
   }
 
   input[type="time"] {
@@ -23,10 +26,48 @@
     background-color: $gray-50;
     @include text-styles("body02");
     cursor: pointer;
+    text-align: center; // 시간 값 중앙 정렬
+    position: relative;
+    margin: 0 auto; // 중앙 정렬
 
     &:focus {
       border-color: $main-500;
       outline: none;
     }
+
+    // 시간 선택 드롭다운 내부 텍스트 중앙 정렬
+    &::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      position: absolute;
+      right: 50%;
+      transform: translateX(50%);
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    // 시간 입력 필드 내부 값 중앙 정렬 (브라우저별)
+    &::-webkit-datetime-edit-text,
+    &::-webkit-datetime-edit-hour-field,
+    &::-webkit-datetime-edit-minute-field,
+    &::-webkit-datetime-edit-ampm-field {
+      text-align: center;
+      padding: 0 2px;
+    }
+
+    // 시간 선택 드롭다운 팝업 중앙 정렬을 위한 컨테이너
+    &::-webkit-datetime-edit {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      text-align: center;
+      margin: 0 auto;
+    }
   }
 }
+
+// 브라우저 기본 시간 선택기 팝업은 직접 제어가 어렵습니다.
+// Chrome/Edge의 경우 팝업이 입력 필드 기준으로 나타나므로,
+// 입력 필드 자체를 중앙 정렬하면 팝업도 상대적으로 중앙에 가깝게 나타납니다.
+// 팝업 위치를 완전히 제어하려면 커스텀 시간 선택기 컴포넌트를 구현해야 합니다.

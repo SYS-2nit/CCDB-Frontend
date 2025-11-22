@@ -519,9 +519,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       ];
 
   return (
-    <div
-      className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}
-    >
+    <div className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}>
       {!singleTabMode && (
         <TabMenu
           tabs={visibleTabs}
@@ -556,6 +554,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               rowHeight={290}
               onLayoutChange={handleLayoutChange}
               compactType="vertical"
+              draggableHandle=".chart-card__drag-handle"
             >
               {charts.map((graph) => {
                 // 같은 카테고리의 그래프 필터링
@@ -676,24 +675,21 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </>
         )}
-        {isSettingOpen && settingTargetIndex !== null && (
-          <ChartSetting
-            onClose={() => setIsSettingOpen(false)}
-            onSave={async (newChartTitle: string) => {
-              try {
-                const all = await fetchAllGraphs();
-                const found = all.find((g) => g.name === newChartTitle);
+      </div>
+      {isSettingOpen && settingTargetIndex !== null && (
+        <ChartSetting
+          isOpen={isSettingOpen}
+          onClose={() => {
+            setIsSettingOpen(false);
+            setSettingTargetIndex(null);
+          }}
+          onSave={async (newChartTitle: string) => {
+            try {
+              const all = await fetchAllGraphs();
+              const found = all.find((g) => g.name === newChartTitle);
 
-                if (found) await handleGraphSwap(found);
-                else
-                  await handleGraphSwap({
-                    id: 0,
-                    name: newChartTitle,
-                    category: "CUSTOM",
-                    type: 1,
-                    info: null,
-                  } as GraphDefinition);
-              } catch {
+              if (found) await handleGraphSwap(found);
+              else
                 await handleGraphSwap({
                   id: 0,
                   name: newChartTitle,
@@ -701,11 +697,18 @@ const Dashboard: React.FC<DashboardProps> = ({
                   type: 1,
                   info: null,
                 } as GraphDefinition);
-              }
-            }}
-          />
-        )}
-      </div>
+            } catch {
+              await handleGraphSwap({
+                id: 0,
+                name: newChartTitle,
+                category: "CUSTOM",
+                type: 1,
+                info: null,
+              } as GraphDefinition);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

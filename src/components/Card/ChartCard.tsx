@@ -96,9 +96,9 @@ const ChartCard: React.FC<ChartCardProps> = ({
       : null;
 
   return (
-    <div className={`chart-card ${status}`}>
+      <div className={`chart-card ${status}`}>
       <div className="chart-card__header">
-        <div className="chart-card__left">
+        <div className="chart-card__left chart-card__drag-handle">
           {showDragIcon && <img src={DragIcon} alt="Drag" />}
           <span className="chart-card__title">
             {title}
@@ -134,16 +134,30 @@ const ChartCard: React.FC<ChartCardProps> = ({
                 onMouseLeave={() => setShowInfoModal(false)}
               />
             )}
-
-            {showSettingIcon && (
+          </div>
+          
+          {showSettingIcon && (
+            <div
+              className="chart-card__setting-wrapper"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (onSettingClick) {
+                  onSettingClick();
+                }
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
               <img
                 src={SettingIcon}
                 alt="setting"
                 className="chart-card__setting"
-                onClick={onSettingClick}
               />
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 

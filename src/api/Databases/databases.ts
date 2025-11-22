@@ -36,6 +36,7 @@ export interface DatabaseTestResult {
 export interface DatabaseInstanceListItem {
   id: number;
   status: string | null;
+  currentSeverity: number | null; // null=정상, 1=주의, 2=위험, 3=치명
   serverName: string | null;
   ip: string | null;
   port: number | null;
