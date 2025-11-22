@@ -1957,9 +1957,9 @@ export const renderDynamicChart = (
     ) => {
       return `${tooltipTexts[index]} · ${used.toFixed(2)} MB`;
     };
-
+    // 머지안전
     // renderStack을 직접 호출하는 대신 StackChart를 직접 렌더링
-    // useActualValue를 true로 설정하여 실제 MB 값 표시
+    // useActualValue를 true로 설정하여 실제 MB 값 표시 --
     return (
       <StackChart
         labels={labels}
