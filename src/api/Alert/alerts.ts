@@ -657,3 +657,48 @@ export const addHistory = async (
   );
   return response.data.data!;
 };
+
+/**
+ * 알림 통계 응답 타입
+ */
+export interface AlertStatisticsResponse {
+  normal: number;
+  normalChange: number;
+  warning: number;
+  warningChange: number;
+  danger: number;
+  dangerChange: number;
+  critical: number;
+  criticalChange: number;
+}
+
+/**
+ * 카테고리별 알림 통계 조회
+ * @param category 카테고리 (CPU, MEMORY, SESSION, IO, STORAGE)
+ * @param instanceId 인스턴스 ID (선택)
+ */
+export const fetchAlertStatistics = async (
+  category: AlertCategory,
+  instanceId?: number
+): Promise<AlertStatisticsResponse> => {
+  const params: Record<string, string | number> = { category };
+  if (instanceId !== undefined) {
+    params.instanceId = instanceId;
+  }
+
+  const response = await api.get<ApiResponse<AlertStatisticsResponse>>(
+    `${ALERTS_ENDPOINT}/statistics`,
+    { params }
+  );
+  return response.data.data ?? {
+    normal: 0,
+    normalChange: 0,
+    warning: 0,
+    warningChange: 0,
+    danger: 0,
+    dangerChange: 0,
+    critical: 0,
+    criticalChange: 0,
+  };
+};
+

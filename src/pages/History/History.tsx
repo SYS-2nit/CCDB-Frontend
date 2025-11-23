@@ -102,9 +102,18 @@ const History: React.FC = () => {
           const alertEvent = await fetchEventRuleDetail(
             Number(urlAlertEventId)
           );
+          console.log("[History] AlertEvent 조회 결과:", {
+            alertEventId: urlAlertEventId,
+            graphId: alertEvent.graphId,
+            graphName: alertEvent.graphName,
+            fullAlertEvent: alertEvent
+          });
+          
           if (alertEvent.graphId) {
             setAlertGraphId(alertEvent.graphId);
+            console.log("[History] alertGraphId 설정:", alertEvent.graphId);
           } else {
+            console.warn("[History] graphId가 null입니다:", alertEvent);
             setAlertGraphId(null);
           }
         } catch (error) {
@@ -206,10 +215,22 @@ const History: React.FC = () => {
 
   // 그래프 정렬: alertGraphId가 있으면 맨 앞으로
   const sortedGraphs = React.useMemo(() => {
+    console.log("[History] 그래프 정렬:", {
+      alertGraphId,
+      filteredGraphsCount: filteredGraphs.length,
+      filteredGraphIds: filteredGraphs.map(g => g.id),
+      alertGraphInFiltered: filteredGraphs.find((g) => g.id === alertGraphId)
+    });
+    
     if (!alertGraphId) return filteredGraphs;
 
     const alertGraph = filteredGraphs.find((g) => g.id === alertGraphId);
     const otherGraphs = filteredGraphs.filter((g) => g.id !== alertGraphId);
+
+    console.log("[History] 정렬 결과:", {
+      alertGraph: alertGraph ? { id: alertGraph.id, name: alertGraph.name } : null,
+      otherGraphsCount: otherGraphs.length
+    });
 
     return alertGraph ? [alertGraph, ...otherGraphs] : filteredGraphs;
   }, [filteredGraphs, alertGraphId]);
