@@ -46,8 +46,8 @@
 
     &:disabled,
     &.disabled {
-      background: $gray-300;
-      color: $gray-0;
+      background: var(--color-border);
+      color: var(--color-subtext);
       cursor: not-allowed;
       pointer-events: none;
     }
@@ -63,28 +63,28 @@
 
     &:disabled,
     &.disabled {
-      background: $gray-300;
-      color: $gray-0;
+      background: var(--color-border);
+      color: var(--color-subtext);
       cursor: not-allowed;
       pointer-events: none;
     }
   }
 
   &--white {
-    color: $gray-700;
-    background: $gray-0;
-    border: 1px solid $gray-200;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
 
     &:hover {
-      background: $gray-50;
-      border: 1px solid $gray-300;
+      background: var(--color-bg);
+      border: 1px solid var(--color-text);
     }
 
     &:disabled,
     &.disabled {
-      background: $gray-300;
-      color: $gray-0;
-      border: none;
+      background: var(--color-border);
+      color: var(--color-subtext);
+      border: 1px solid var(--color-border);
       cursor: not-allowed;
       pointer-events: none;
     }

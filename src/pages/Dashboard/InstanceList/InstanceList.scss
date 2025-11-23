@@ -17,7 +17,7 @@
 
   &__subtitle {
     margin-top: 4px;
-    color: $gray-400;
+    color: var(--color-subtext);
     @include text-styles("body02");
   }
 
@@ -28,7 +28,7 @@
   }
 
   &__table-wrapper {
-    background: $gray-0;
+    background: var(--color-surface);
     padding: 10px;
     border-radius: 5px;
     display: flex;
@@ -45,7 +45,7 @@
   &__status {
     padding: 10px 0;
     text-align: center;
-    color: $gray-400;
+    color: var(--color-subtext);
     @include text-styles("body02");
 
     &--error {
@@ -56,9 +56,9 @@
   &__empty {
     padding: 80px 0;
     text-align: center;
-    background: $gray-0;
+    background: var(--color-surface);
     border-radius: 5px;
-    color: $gray-400;
+    color: var(--color-subtext);
     @include text-styles("body02");
   }
 
@@ -111,23 +111,23 @@
   table {
     border-collapse: collapse;
     text-align: center;
-    color: $gray-700;
+    color: var(--color-text);
 
     th {
-      background: $gray-50;
-      color: $gray-600;
+      background: var(--color-bg);
+      color: var(--color-text);
       padding: 12px 8px;
-      border-bottom: 1px solid $gray-100;
+      border-bottom: 1px solid var(--color-border);
     }
 
     td {
       padding: 12px 8px;
-      border-bottom: 1px solid $gray-100;
+      border-bottom: 1px solid var(--color-border);
       vertical-align: middle;
     }
 
     tr:hover td {
-      background: $main-0;
+      background: var(--color-bg);
     }
   }
 
@@ -143,14 +143,14 @@
       min-width: 60px;
       text-align: right;
       @include text-styles("label02");
-      color: $gray-700;
+      color: var(--color-text);
       font-weight: 500;
     }
 
     &__bar {
       flex: 1;
       height: 8px;
-      background: $gray-100;
+      background: var(--color-bg);
       border-radius: 4px;
       overflow: hidden;
     }
@@ -165,7 +165,7 @@
 }
 
 .table-chart {
-  background: $gray-0;
+  background: var(--color-surface);
   padding: 20px;
   border-radius: 0px 0px 5px 5px;
 
@@ -174,7 +174,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: $gray-0;
+    background: var(--color-surface);
     margin-bottom: 10px;
     gap: 20px;
   }

@@ -6,14 +6,17 @@ import { isAxiosError } from "axios";
 import DetaileInfo from "./Card/DetaileInfo";
 import OracleDBModel from "./OracleDBModel/OracleDBModel";
 import List from "./List/List";
+import { useTheme } from "@/components/Header/hooks/useTheme";
 import {
   createDatabaseInstance,
   deleteDatabaseInstance,
   fetchDatabaseInstances,
+  fetchInstancesByDatabase,
   testDatabaseInstance,
   type DatabaseCreatePayload,
   type DatabaseDeletePayload,
   type DatabaseInstanceResponse,
+  type DatabaseInstanceListItem,
   type DatabaseTestPayload,
 } from "@/api/Databases/databases";
 
@@ -100,11 +103,86 @@ const getErrorMessage = (error: unknown) => {
   return "알 수 없는 오류가 발생했습니다.";
 };
 
+// 위험도에 따른 색상 매핑
+const getSeverityColor = (severity: number | null | undefined): string => {
+  if (severity === null || severity === undefined) {
+    return "#16A34A"; // 정상: 초록색
+  }
+  switch (severity) {
+    case 1:
+      return "#FACC15"; // 주의: 노란색
+    case 2:
+      return "#DC2626"; // 위험: 빨간색
+    case 3:
+      return "#151515"; // 치명: 검은색
+    default:
+      return "#16A34A"; // 기본값: 초록색
+  }
+};
+
+// 인스턴스 상태 카운트 및 라벨 생성
+const getInstanceStatusLabel = (
+  instances: DatabaseInstanceListItem[]
+): string => {
+  if (instances.length === 0) return "";
+
+  const counts = {
+    critical: 0, // 치명 (3)
+    danger: 0, // 위험 (2)
+    warning: 0, // 주의 (1)
+    normal: 0, // 정상 (null/undefined)
+  };
+
+  instances.forEach((inst) => {
+    const severity = inst.currentSeverity;
+    if (severity === null || severity === undefined) {
+      counts.normal++;
+    } else {
+      switch (severity) {
+        case 1:
+          counts.warning++;
+          break;
+        case 2:
+          counts.danger++;
+          break;
+        case 3:
+          counts.critical++;
+          break;
+      }
+    }
+  });
+
+  const parts: string[] = [];
+  if (counts.critical > 0) parts.push(`치명 ${counts.critical}`);
+  if (counts.danger > 0) parts.push(`위험 ${counts.danger}`);
+  if (counts.warning > 0) parts.push(`주의 ${counts.warning}`);
+  if (counts.normal > 0) parts.push(`정상 ${counts.normal}`);
+
+  return parts.join(" ");
+};
+
+// DB의 가장 높은 위험도 계산
+const getMaxSeverity = (instances: DatabaseInstanceListItem[]): number | null => {
+  if (instances.length === 0) return null;
+  
+  const severities = instances
+    .map((inst) => inst.currentSeverity)
+    .filter((sev): sev is number => sev !== null && sev !== undefined);
+  
+  if (severities.length === 0) return null;
+  
+  return Math.max(...severities);
+};
+
 const Database: React.FC = () => {
+  const { isDarkMode } = useTheme();
   const [showInfo, setShowInfo] = useState(false);
   const [dbList, setDbList] = useState<DatabaseListItem[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [dbInstancesMap, setDbInstancesMap] = useState<
+    Map<number, DatabaseInstanceListItem[]>
+  >(new Map());
   const [selectedDatabaseId, setSelectedDatabaseId] = useState<number | null>(
     () => {
       const stored = sessionStorage.getItem(SELECTED_DB_STORAGE_KEY);
@@ -179,6 +257,21 @@ const Database: React.FC = () => {
       ) {
         handleDatabaseSelect(null);
       }
+
+      // 각 DB에 대한 인스턴스 목록 가져오기
+      const instancesMap = new Map<number, DatabaseInstanceListItem[]>();
+      await Promise.all(
+        items.map(async (db) => {
+          try {
+            const instances = await fetchInstancesByDatabase(db.id);
+            instancesMap.set(db.id, instances);
+          } catch (error) {
+            console.warn(`[Database] DB ${db.id} 인스턴스 조회 실패:`, error);
+            instancesMap.set(db.id, []);
+          }
+        })
+      );
+      setDbInstancesMap(instancesMap);
     } catch (error) {
       setFetchError(getErrorMessage(error));
     } finally {
@@ -260,26 +353,32 @@ const Database: React.FC = () => {
                 <directionalLight position={[5, 5, 5]} intensity={1.2} />
                 <Environment preset="city" />
 
-                <group scale={0.2}>
-                  {dbList.map((db, i) => (
-                    <group
-                      key={db.id}
-                      position={[(i - (dbList.length - 1) / 2) * 7.0, -0.5, 0]}
-                    >
-                      <OracleDBModel
-                        name={db.name}
-                        ip={db.ip}
-                        port={db.port}
-                        account={db.account}
-                        onClick={() => {
-                          handleDatabaseSelect(db);
-                          setShowInfo(true);
-                        }}
-                        isZoomed={selectedDatabaseId === db.id}
-                        showInfoCard
-                      />
-                    </group>
-                  ))}
+                <group scale={0.35}>
+                  {dbList.map((db, i) => {
+                    const instances = dbInstancesMap.get(db.id) ?? [];
+                    const maxSeverity = getMaxSeverity(instances);
+                    const dbColor = getSeverityColor(maxSeverity);
+                    const statusLabel = getInstanceStatusLabel(instances);
+
+                    return (
+                      <group
+                        key={db.id}
+                        position={[(i - (dbList.length - 1) / 2) * 7.0, -0.5, 0]}
+                      >
+                        <OracleDBModel
+                          name={db.name}
+                          ip={db.ip}
+                          port={db.port}
+                          account={db.account}
+                          onClick={() => {}}
+                          isZoomed={isDarkMode ? false : selectedDatabaseId === db.id}
+                          showInfoCard
+                          color={dbColor}
+                          statusLabel={statusLabel}
+                        />
+                      </group>
+                    );
+                  })}
                 </group>
 
                 <OrbitControls enableZoom enablePan target={[0, 0, 0]} />

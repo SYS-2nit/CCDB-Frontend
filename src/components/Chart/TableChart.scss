@@ -5,7 +5,7 @@
 
 .table-chart__wrapper {
   width: 100%;
-  background-color: $gray-0;
+  background-color: var(--color-surface);
   overflow-x: auto; 
   overflow-y: hidden;
 
@@ -18,17 +18,17 @@
   width: 100%;
   border-collapse: collapse;
   @include text-styles("label02");
-  border: 1px solid $gray-100;
+  border: 1px solid var(--color-border);
   text-align: left;
   table-layout: fixed; 
 
   thead {
-    background-color: $gray-50;
-    border-bottom: 1px solid $gray-200;
+    background-color: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
   }
 
   &__th {
-    color: $gray-700;
+    color: var(--color-text);
     text-align: center;
     padding: 8px 10px;
     user-select: none;
@@ -40,7 +40,7 @@
       cursor: pointer;
 
       &:hover {
-        background-color: $gray-100;
+        background-color: var(--color-surface);
       }
     }
 
@@ -56,14 +56,14 @@
     transition: background-color 0.15s ease;
 
     &:hover {
-      background-color: $gray-50;
+      background-color: var(--color-bg);
     }
   }
 
   td {
     padding: 8px 36px;
-    border-bottom: 1px solid $gray-100;
-    color: $gray-800;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
     @include text-styles("label02");
     text-align: center;
     overflow: hidden; 
@@ -72,6 +72,16 @@
 
     &.numeric {
       text-align: right;
+    }
+
+    // 다크모드일 때 명시적으로 흰색 계열로 설정
+    body.dark & {
+      color: $gray-0 !important;
+    }
+
+    // td 내부의 모든 텍스트 요소도 흰색으로 (쿼리 링크 제외)
+    body.dark & *:not(.sql-top__query-link):not(.sql-stat__sql-clickable) {
+      color: $gray-0 !important;
     }
   }
 }
@@ -86,6 +96,6 @@
     color: $main-500;
   }
   &.neutral {
-    color: $gray-500;
+    color: var(--color-subtext);
   }
 }

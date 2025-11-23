@@ -11,9 +11,9 @@
   padding: 10px;
 
   &__btn {
-    border: 1px solid $gray-300;
-    background: $gray-0;
-    color: $gray-700;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
     border-radius: 3px;
     padding: 6px 12px;
     cursor: pointer;
@@ -23,13 +23,12 @@
     &:hover:not(:disabled) {
       border-color: $main-500;
       color: $main-600;
-      background: $main-100;
-      
+      background: var(--color-bg);
     }
 
     &:disabled {
-      border: 1px solid $gray-100;
-      color: $gray-200;
+      border: 1px solid var(--color-border);
+      color: var(--color-subtext);
       cursor: not-allowed;
     }
   }
@@ -43,7 +42,7 @@
   &__page {
     border: none;
     background: transparent;
-    color: $gray-700;
+    color: var(--color-text);
     padding: 6px 12px;
     cursor: pointer;
     border-radius: 3px;
@@ -51,19 +50,19 @@
     @include text-styles("body02");
 
     &:hover {
-      background: $main-100;
+      background: var(--color-bg);
       color: $main-600;
     }
 
     &.active {
-      background: $gray-0;
+      background: var(--color-surface);
       color: $main-600;
       border: 1px solid $main-600;
     }
   }
 
   &__dots {
-    color: $gray-500;
+    color: var(--color-subtext);
     padding: 0 4px;
   }
 }

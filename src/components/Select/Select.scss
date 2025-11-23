@@ -10,7 +10,7 @@
   gap: 5px;
 
   &__label {
-    color: $gray-700;
+    color: var(--color-text);
     @include text-styles("body02");
   }
 
@@ -19,8 +19,8 @@
     width: 100%;
     display: flex;
     align-items: center;
-    background-color: $gray-50;
-    border: 1px solid $gray-100;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: 3px;
     transition: border-color 0.2s ease;
 
@@ -30,12 +30,20 @@
       border: none;
       outline: none;
       background: transparent;
-      color: $gray-700;
+      color: var(--color-text);
       appearance: none;
       cursor: pointer;
 
       &:focus {
         outline: none;
+      }
+
+      /* 다크 모드에서 드롭다운 옵션 스타일 */
+      body.dark & {
+        option {
+          background: var(--color-surface);
+          color: var(--color-text);
+        }
       }
     }
 
@@ -56,8 +64,8 @@
     }
 
     &--default {
-      background-color: $gray-50;
-      border: 1px solid $gray-100;
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-border);
 
       &:focus-within {
         border-color: $main-500;
@@ -65,8 +73,8 @@
     }
 
     &--outlined {
-      background-color: $gray-0;
-      border: 1px solid $gray-700;
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-text);
 
       &:focus-within {
         border-color: $main-500;
@@ -100,7 +108,14 @@
       height: 0;
       border-left: 5px solid transparent;
       border-right: 5px solid transparent;
-      border-top: 6px solid $gray-500;
+      border-top: 6px solid var(--color-subtext);
+    }
+
+    /* 다크 모드에서 화살표 색상 */
+    body.dark & {
+      .custom-select__arrow {
+        border-top-color: var(--color-text);
+      }
     }
 
     /* 비활성화 */

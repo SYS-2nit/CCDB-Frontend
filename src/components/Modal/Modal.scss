@@ -16,13 +16,14 @@
 
 .modal {
   width: 100%;
-  background: $gray-0;
+  background: var(--color-surface);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(17, 5, 5, 0.25);
   display: flex;
   flex-direction: column;
   animation: fadeIn 0.25s ease;
+  color: var(--color-text);
 
   // 사이즈
   &--sm {
@@ -43,22 +44,22 @@
     justify-content: space-between;
     align-items: center;
     padding: 24px;
-    border-bottom: 1px solid $gray-200;
+    border-bottom: 1px solid var(--color-border);
 
     h2 {
       @include text-styles("heading01");
-      color: $gray-900;
+      color: var(--color-text);
     }
 
     .modal__close {
       border: none;
       background: none;
-      color: $gray-500;
+      color: var(--color-subtext);
       @include text-styles("heading03");
       cursor: pointer;
 
       &:hover {
-        color: $gray-700;
+        color: var(--color-text);
       }
     }
   }
@@ -73,7 +74,7 @@
 
   &__row-header {
     display: flex;
-    color: $gray-700;
+    color: var(--color-text);
     margin-bottom: 5px;
     white-space: pre-line;
     @include text-styles("body02");
@@ -88,33 +89,57 @@
     input,
     select {
       padding: 12px 16px;
-      border: 1px solid $gray-300;
+      border: 1px solid var(--color-border);
       border-radius: 5px;
-      color: $gray-700;
+      color: var(--color-text);
+      background: var(--color-bg);
       box-sizing: border-box;
       @include text-styles("label02");
 
       &::placeholder {
-        color: $gray-300;
+        color: var(--color-subtext);
       }
 
       &:focus {
         border-color: $main-500;
       }
+
+      /* 다크 모드에서 date input 캘린더 아이콘 */
+      body.dark &[type="date"],
+      body.dark &[type="datetime-local"] {
+        &::-webkit-calendar-picker-indicator {
+          filter: invert(1);
+          cursor: pointer;
+        }
+
+        &::-webkit-inner-spin-button,
+        &::-webkit-clear-button {
+          filter: invert(1);
+        }
+      }
+
+      /* 다크 모드에서 select 옵션 */
+      body.dark & {
+        option {
+          background: var(--color-surface);
+          color: var(--color-text);
+        }
+      }
     }
 
     textarea {
       padding: 10px 14px;
-      border: 1px solid $gray-300;
+      border: 1px solid var(--color-border);
       border-radius: 3px;
       resize: vertical;
       min-height: 20px; 
-      color: $gray-900;
+      color: var(--color-text);
+      background: var(--color-bg);
 
       @include text-styles("label02"); 
 
       &::placeholder {
-        color: $gray-300;
+        color: var(--color-subtext);
         @include text-styles("body02");
       }
 
@@ -141,21 +166,21 @@
 
       .byte-count {
         @include text-styles("body02");
-        color: $gray-300;
+        color: var(--color-subtext);
       }
     }
 
     /* 안내문 */
     .modal__helper {
       gap: 5px;
-      color: $gray-500;
+      color: var(--color-subtext);
       display: flex;
       align-items: flex-start;
       @include text-styles("label02");
 
       .icon {
         font-style: normal;
-        color: $gray-400;
+        color: var(--color-subtext);
       }
     }
   }
@@ -200,12 +225,13 @@
     }
 
     .custom-btn--white {
-      color: $gray-700;
-      background-color: $gray-0;
+      color: var(--color-text);
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
 
       &:hover {
-        color: $gray-900;
-        background: $gray-100;
+        color: var(--color-text);
+        background: var(--color-bg);
       }
     }
 
@@ -224,30 +250,30 @@
     margin-top: 4px;
     border-radius: 8px;
     overflow: hidden;
-    border: 1px solid $gray-200;
+    border: 1px solid var(--color-border);
   }
 
   &__table {
     width: 100%;
     border-collapse: collapse;
     text-align: center;
-    color: $gray-700;
+    color: var(--color-text);
 
     th {
-      background: $gray-50;
+      background: var(--color-bg);
       padding: 10px;
-      border-bottom: 1px solid $gray-200;
+      border-bottom: 1px solid var(--color-border);
       @include text-styles("label02");
     }
 
     td {
       padding: 10px;
-      border-top: 1px solid $gray-100;
+      border-top: 1px solid var(--color-border);
       @include text-styles("label02");
     }
 
     tr:hover {
-      background: $gray-50;
+      background: var(--color-bg);
     }
   }
 
@@ -257,7 +283,7 @@
     justify-content: flex-end;
     gap: 10px;
     padding: 18px 24px;
-    border-top: 1px solid $gray-200;
+    border-top: 1px solid var(--color-border);
 
     button {
       padding: 10px 16px;
@@ -268,12 +294,12 @@
     }
 
     .cancel {
-      background: $gray-0;
-      border: 1px solid $gray-300;
-      color: $gray-700;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
 
       &:hover {
-        background: $gray-100;
+        background: var(--color-bg);
       }
     }
 
@@ -289,25 +315,4 @@
   }
 }
 
-/* 다크 테마 */
-.modal.dark {
-  background: $default-bg;
-  color: $gray-0;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-
-  .modal__header {
-    border-bottom: 1px solid $gray-700;
-  }
-
-  .modal__button-group {
-    .custom-btn--white {
-      background: $gray-800;
-      color: $gray-0;
-      border: 1px solid $gray-600;
-
-      &:hover {
-        background: $gray-700;
-      }
-    }
-  }
-}
+/* 다크 테마는 body.dark로 자동 적용됨 */

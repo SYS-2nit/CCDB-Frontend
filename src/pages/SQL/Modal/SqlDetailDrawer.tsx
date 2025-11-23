@@ -267,7 +267,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
             {activeTab === "2" && (
               <div className="sql-drawer__plan">
                 {loadingPlan ? (
-                  <div className="loading">Loading Plan History...</div>
+                  <Spinner message="Plan 변경 이력 불러오는 중..." />
                 ) : (
                   <>
                     <TableChart

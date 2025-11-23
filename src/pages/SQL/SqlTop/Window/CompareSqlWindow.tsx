@@ -18,6 +18,8 @@ const CompareSqlWindow: React.FC<Props> = ({ base, compare }) => {
     <div
       style={{
         display: "flex",
+        background: "var(--color-bg)",
+        color: "var(--color-text)",
       }}
     >
       {/* 기준 */}
@@ -28,6 +30,8 @@ const CompareSqlWindow: React.FC<Props> = ({ base, compare }) => {
           height: "100%",
           overflowY: "auto",
           padding: "20px",
+          background: "var(--color-surface)",
+          borderRight: "1px solid var(--color-border)",
         }}
       >
         <SqlDetailPanel data={base.detail} date={base.date} />
@@ -41,6 +45,7 @@ const CompareSqlWindow: React.FC<Props> = ({ base, compare }) => {
           height: "100%",
           overflowY: "auto",
           padding: "20px",
+          background: "var(--color-surface)",
         }}
       >
         <SqlDetailPanel data={compare.detail} date={compare.date} />
