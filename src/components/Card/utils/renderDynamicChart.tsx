@@ -44,7 +44,7 @@ const GRAPH_AXIS_RANGES: Record<
   // I/O
   38: { yMin: 0, yMax: 5 }, // x축,y축 설정 변경
   39: { yMin: 0, yMax: 30 }, // x축,y축 설정 변경 ----------- sql_parse_execute_ration 만 남기면 0~30으로 변경
-  40: { yMin: 0, yMax: 5000 }, // x축,y축 설정 변경
+  40: { yMin: 0, yMax: 10000 }, // x축,y축 설정 변경
   41: { yMin: 0, yMax: 5 }, // x축,y축 설정 변경
   42: { yMin: 0, yMax: 0.5 }, // x축,y축 설정 변경
   43: { yMin: 0, yMax: 10 }, // x축,y축 설정 변경
