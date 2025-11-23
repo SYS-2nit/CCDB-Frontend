@@ -188,6 +188,51 @@ const sortPoints = (graph: GraphDataResponse) => {
 };
 
 /**
+ * 값을 "nice" number로 올림 처리하여 일관된 축 라벨 간격을 보장합니다.
+ * @param value 원본 값
+ * @returns nice number로 올림 처리된 값
+ * @example
+ * roundUpToNiceNumber(83.028) // 100
+ * roundUpToNiceNumber(156.7) // 200
+ * roundUpToNiceNumber(0.083) // 0.1
+ * roundUpToNiceNumber(120) // 120 (이미 nice 값)
+ */
+const roundUpToNiceNumber = (value: number): number => {
+  // 0이거나 유효하지 않은 값은 그대로 반환
+  if (!Number.isFinite(value) || value <= 0) {
+    return value;
+  }
+
+  // 이미 깔끔한 값인지 확인 (정수이고 1, 2, 5, 10, 20, 50, 100... 계열인지)
+  const magnitude = Math.floor(Math.log10(value));
+  const normalized = value / Math.pow(10, magnitude);
+  
+  // 이미 nice 값인 경우 (1, 2, 5 계열) 그대로 반환
+  if (
+    (normalized >= 0.95 && normalized <= 1.05) || // ~1
+    (normalized >= 1.9 && normalized <= 2.1) || // ~2
+    (normalized >= 4.9 && normalized <= 5.1) || // ~5
+    (normalized >= 9.5 && normalized <= 10.5) // ~10
+  ) {
+    return value;
+  }
+
+  // Nice number 간격 리스트: [1, 2, 5]
+  const niceSteps = [1, 2, 5];
+  
+  // 현재 normalized 값보다 큰 첫 번째 nice step 찾기
+  let niceStep = niceSteps.find((step) => step >= normalized);
+  
+  // 현재 normalized 값이 5보다 크면 다음 자릿수로 올림 (예: 7 → 10)
+  if (!niceStep) {
+    niceStep = 10;
+  }
+
+  // 자릿수를 곱해서 원래 스케일로 복원
+  return niceStep * Math.pow(10, magnitude);
+};
+
+/**
  * 타임스탬프를 Asia/Seoul 타임존 기준으로 포맷팅
  * 백엔드에서 LocalDateTime을 전송할 때 타임존 정보가 없으므로,
  * 명시적으로 Asia/Seoul 타임존으로 해석하여 포맷팅합니다.
@@ -664,13 +709,18 @@ const renderLine = (
         const configuredYMax = GRAPH_AXIS_RANGES[graph.id]?.yMax;
         const calculatedYMax = safeMaxValue + safePadding;
         // 설정된 max가 있으면, 계산된 max가 설정된 max를 넘을 때만 120% 적용
+        let rawYMax: number;
         if (configuredYMax !== undefined) {
-          return calculatedYMax > configuredYMax
-            ? calculatedYMax * 1.2
-            : configuredYMax;
+          rawYMax =
+            calculatedYMax > configuredYMax
+              ? calculatedYMax * 1.2
+              : configuredYMax;
+        } else {
+          // 설정된 max가 없으면 계산된 max의 120% 사용
+          rawYMax = calculatedYMax * 1.2;
         }
-        // 설정된 max가 없으면 계산된 max의 120% 사용
-        return calculatedYMax * 1.2;
+        // Nice number로 올림 처리하여 일관된 축 라벨 간격 보장
+        return roundUpToNiceNumber(rawYMax);
       })()} // x축,y축 설정 변경
     />
   );
@@ -698,8 +748,10 @@ const renderStack = (
   const actualMaxValue = Math.max(...usage, 0);
   const configuredXMax = axisRange?.xMax ?? 100;
   // 실제 값이 설정된 상한을 넘을 때만 120% 적용, 그렇지 않으면 설정된 상한값 그대로 사용
-  const finalXMax =
+  const rawXMax =
     actualMaxValue > configuredXMax ? actualMaxValue * 1.2 : configuredXMax;
+  // Nice number로 올림 처리하여 일관된 축 라벨 간격 보장
+  const finalXMax = roundUpToNiceNumber(rawXMax);
   // 20번 그래프는 실제 값(ms)을 표시해야 하므로 실제 값 모드 사용
   const useActualValue =
     graph.id === 20 || graph.id === 28 || graph.id === 44 || graph.id === 48;
