@@ -204,11 +204,16 @@ const Dashboard: React.FC<DashboardProps> = ({
           const chartMap = new Map(prevCharts.map((c) => [c.id, c]));
           return graphList.map((g) => {
             const existing = chartMap.get(g.id);
-            // 기존 데이터가 있고 data가 있으면 기존 데이터 사용, 없으면 새 데이터 사용
-            if (existing && existing.data && existing.data.length > 0) {
-              return { ...existing, ...g, data: existing.data };
+            // 기존 데이터가 있으면 항상 기존 데이터 사용 (데이터 보존 우선)
+            if (existing) {
+              // existing의 data가 있으면 existing.data 사용, 없으면 g.data 사용
+              return {
+                ...g,
+                ...existing,
+                data: existing.data && existing.data.length > 0 ? existing.data : (g.data || existing.data || []),
+              };
             }
-            return existing || g;
+            return g;
           });
         }
         
@@ -218,8 +223,13 @@ const Dashboard: React.FC<DashboardProps> = ({
           const chartMap = new Map(prevCharts.map((c) => [c.id, c]));
           return graphList.map((g) => {
             const existing = chartMap.get(g.id);
-            if (existing && existing.data && existing.data.length > 0) {
-              return { ...existing, ...g, data: existing.data };
+            // existing이 있으면 existing의 데이터를 우선 사용
+            if (existing) {
+              return {
+                ...g,
+                ...existing,
+                data: existing.data && existing.data.length > 0 ? existing.data : (g.data || existing.data || []),
+              };
             }
             return g;
           });
@@ -624,7 +634,8 @@ const Dashboard: React.FC<DashboardProps> = ({
 
     // 드래그 종료 후 300ms 후에 순서 변경 (debounce)
     reorderTimeoutRef.current = setTimeout(() => {
-      const currentCharts = activeTab === "main" ? graphList : (categoryGraphs.get(activeTab) ?? []);
+      // 현재 charts의 데이터를 보존하기 위해 charts를 사용
+      const currentCharts = activeTab === "main" ? charts : (categoryGraphs.get(activeTab) ?? []);
       const sortedIds = [...swappedLayout]
         .sort((a, b) => a.y - b.y || a.x - b.x)
         .map((l) => l.i);
@@ -638,9 +649,57 @@ const Dashboard: React.FC<DashboardProps> = ({
 
       // 순서만 변경 (데이터는 그대로 유지)
       if (newOrderNames.length > 0 && newOrderNames.length === currentCharts.length) {
-        reorderGraphsByNames(newOrderNames);
-        // 순서 저장 (데이터 새로고침 없이)
-        void saveWidgetOrder();
+        // 현재 charts의 데이터를 graphList에 먼저 반영하여 데이터 보존
+        if (activeTab === "main") {
+          // charts의 데이터를 graphList에 반영 (동기적으로 처리)
+          setGraphs((prevGraphList) => {
+            // charts의 데이터로 graphList 업데이트 (데이터 보존)
+            const chartsMap = new Map(currentCharts.map((c) => [c.id, c]));
+            const updatedGraphList = prevGraphList.map((g) => {
+              const chartData = chartsMap.get(g.id);
+              // charts에 데이터가 있으면 charts 데이터 사용, 없으면 graphList 데이터 유지
+              if (chartData) {
+                // charts의 데이터를 우선 사용하되, graphList의 다른 속성도 유지
+                return {
+                  ...g,
+                  ...chartData,
+                  // data가 있으면 charts의 data 사용, 없으면 graphList의 data 유지
+                  data: chartData.data && chartData.data.length > 0 ? chartData.data : (g.data || []),
+                };
+              }
+              return g;
+            });
+            
+            // 순서 변경을 위해 mapNamesToGraphs와 유사한 로직 적용
+            const nameMap = new Map(updatedGraphList.map((g) => [g.name, g] as const));
+            const reordered = newOrderNames
+              .map((name) => nameMap.get(name))
+              .filter((g): g is GraphDataResponse => Boolean(g));
+            const leftovers = updatedGraphList.filter((g) => !reordered.includes(g));
+            const finalGraphList = [...reordered, ...leftovers];
+            
+            // charts의 데이터를 최종적으로 보존
+            const finalChartsMap = new Map(currentCharts.map((c) => [c.id, c]));
+            return finalGraphList.map((g) => {
+              const chartData = finalChartsMap.get(g.id);
+              if (chartData && chartData.data && chartData.data.length > 0) {
+                return { ...g, data: chartData.data };
+              }
+              return g;
+            });
+          });
+          
+          // setGraphs가 완료된 후 reorderGraphsByNames를 호출하여 isWidgetOrderDirty 설정
+          // 하지만 이미 setGraphs에서 순서가 변경되었으므로, reorderGraphsByNames는 순서만 확인
+          setTimeout(() => {
+            reorderGraphsByNames(newOrderNames);
+            void saveWidgetOrder();
+          }, 0);
+        } else {
+          // 다른 탭은 기존 로직 유지
+          reorderGraphsByNames(newOrderNames);
+          void saveWidgetOrder();
+        }
       }
     }, 300);
   };
