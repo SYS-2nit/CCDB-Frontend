@@ -1,12 +1,16 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 // 의존성 배열에 fetchGraph, fetchTable을 포함하면 무한 루프 발생 가능
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { getSqlDetail, getSqlGraph, getSqlStats } from "@/api/Sql/sql";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 import type { SqlFilterType, IntervalType } from "../../types";
 import { convertSqlDetailToDrawerData } from "../../utils/convertSqlDetail";
 import { formatToMonthDayTime } from "../../utils/dateFormat";
 import { logError } from "../../utils/errorHandler";
+import {
+  fetchSqlGraph,
+  fetchSqlStats,
+  fetchSqlDetail,
+} from "../services/sqlStatService";
 import {
   DEFAULT_PAGE_SIZE,
   MIN_EXEC_COUNT,
@@ -81,7 +85,7 @@ export const useSqlStat = () => {
 
     setIsGraphLoading(true);
     try {
-      const graph = await getSqlGraph({
+      const graph = await fetchSqlGraph({
         instanceId: DEFAULT_INSTANCE_ID,
         startDate: dateRange.start,
         endDate: dateRange.end,
@@ -121,7 +125,7 @@ export const useSqlStat = () => {
     setNoResult(false);
     setIsTableLoading(true);
     try {
-      const data = await getSqlStats({
+      const data = await fetchSqlStats({
         instanceId: DEFAULT_INSTANCE_ID,
         startDate: dateRange.start,
         endDate: dateRange.end,
@@ -214,7 +218,7 @@ export const useSqlStat = () => {
   /* 상세 데이터 조회 */
   const handleRowClick = async (row: TableData) => {
     try {
-      const raw = await getSqlDetail({
+      const raw = await fetchSqlDetail({
         sqlId: row.sqlId,
         startDate: dateRange.start,
         endDate: dateRange.end,

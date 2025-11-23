@@ -31,6 +31,20 @@ export interface PeriodGraphItem {
   value: number;
 }
 
+/* ===== SQL 통계 파라미터 타입 ===== */
+export interface SqlStatsParams {
+  instanceId: number;
+  startDate: string;
+  endDate: string;
+  keyword?: string;
+  minExecCount?: number;
+  maxExecCount?: number;
+  orderBy?: string;
+  direction?: "ASC" | "DESC";
+  page?: number;
+  size?: number;
+}
+
 /* ===== SQL 상세 파라미터 타입 ===== */
 export interface SqlDetailParams {
   sqlId: string;

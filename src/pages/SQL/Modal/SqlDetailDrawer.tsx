@@ -14,6 +14,8 @@ import type { PlanHistoryRow } from "../types";
 import { formatToMonthDayTimeSimple } from "../utils/dateFormat";
 import { logError } from "../utils/errorHandler";
 import { PLAN_HISTORY_ROWS_PER_PAGE } from "../constants";
+import { usePagination } from "../utils/usePagination";
+import { formatMicrosecondsToMs } from "../utils/formatValue";
 
 interface SqlDetailDrawerProps {
   data: SqlDetailData;
@@ -32,9 +34,6 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   /* -------------------- Plan Change -------------------- */
   const [planList, setPlanList] = useState<PlanHistoryRow[]>([]);
   const [loadingPlan, setLoadingPlan] = useState(false);
-
-  /* 페이지네이션 */
-  const [currentPage, setCurrentPage] = useState(1);
 
   /* 상세조회 */
   const [selectedPlanRow, setSelectedPlanRow] = useState<PlanHistoryRow | null>(
@@ -63,14 +62,12 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   }, [activeTab, data.sqlId]);
 
   /* -------------------- Pagination -------------------- */
-  const totalPages = Math.max(
-    1,
-    Math.ceil(planList.length / PLAN_HISTORY_ROWS_PER_PAGE)
-  );
-
-  const pagedData = planList.slice(
-    (currentPage - 1) * PLAN_HISTORY_ROWS_PER_PAGE,
-    currentPage * PLAN_HISTORY_ROWS_PER_PAGE
+  const { currentPage, totalPages, setCurrentPage, pagedData } = usePagination(
+    planList,
+    {
+      itemsPerPage: PLAN_HISTORY_ROWS_PER_PAGE,
+      totalItems: planList.length,
+    }
   );
 
   /* -------------------- Detail API -------------------- */
@@ -109,22 +106,24 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const gaugeTotal =
     cpuRaw + userIoRaw + concRaw + appRaw + clusterRaw + otherRaw;
 
-  const rows1 = [
-    ["CPU Time", `${(data.totalCpu / 1000).toFixed(1)} ms`],
-    ["Elapsed Time", `${(data.totalElapsed / 1000).toFixed(1)} ms`],
-    ["Execute Count", `${(data.totalExec / 1000).toFixed(1)} ms`],
-    ["Avg Elapsed", `${(data.avgElapsed / 1000).toFixed(1)} ms`],
-    ["Wait Time", `${(data.totalWait / 1000).toFixed(1)} ms`],
+  type TableRow = [string, string | number];
+
+  const rows1: TableRow[] = [
+    ["CPU Time", formatMicrosecondsToMs(data.totalCpu)],
+    ["Elapsed Time", formatMicrosecondsToMs(data.totalElapsed)],
+    ["Execute Count", formatMicrosecondsToMs(data.totalExec)],
+    ["Avg Elapsed", formatMicrosecondsToMs(data.avgElapsed)],
+    ["Wait Time", formatMicrosecondsToMs(data.totalWait)],
     ["Logical Reads", data.totalBuffer],
     ["Physical Reads", data.totalDisk],
   ];
 
-  const rows2 = [
-    ["User I/O", `${data.waitUserIoUsDelta / 1000} ms`],
-    ["Concurrency", `${data.waitConcurrencyUsDelta / 1000} ms`],
-    ["Application", `${data.waitApplicationUsDelta / 1000} ms`],
-    ["Cluster", `${data.waitClusterUsDelta / 1000} ms`],
-    ["Other", `${data.waitOtherUsDelta / 1000} ms`],
+  const rows2: TableRow[] = [
+    ["User I/O", formatMicrosecondsToMs(data.waitUserIoUsDelta)],
+    ["Concurrency", formatMicrosecondsToMs(data.waitConcurrencyUsDelta)],
+    ["Application", formatMicrosecondsToMs(data.waitApplicationUsDelta)],
+    ["Cluster", formatMicrosecondsToMs(data.waitClusterUsDelta)],
+    ["Other", formatMicrosecondsToMs(data.waitOtherUsDelta)],
   ];
 
   const tableRows = pagedData.map((row) => [

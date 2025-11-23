@@ -1,6 +1,6 @@
 // eslint-disable-next-line react-hooks/exhaustive-deps
 // 의존성 배열에 loadCompareList, loadPeriodGraph를 포함하면 무한 루프 발생 가능
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import CompareSqlWindow from "../Window/CompareSqlWindow";
 import {
   fetchCompareStats,
@@ -14,7 +14,6 @@ import { buildTimeline, mapValuesToTimeline } from "../components/timeline";
 import type {
   SqlFilterType,
   IntervalType,
-  PeriodGraphItem,
   SqlDetailDrawerData,
 } from "../../types";
 import { convertSqlDetailToDrawerData } from "../../utils/convertSqlDetail";
@@ -37,8 +36,6 @@ export const useSqlTop = () => {
   const [isTableLoading, setIsTableLoading] = useState(false);
 
   /* 기간 그래프 */
-  const [, setBasePeriod] = useState<PeriodGraphItem[]>([]);
-  const [, setComparePeriod] = useState<PeriodGraphItem[]>([]);
   const [timeline, setTimeline] = useState<string[]>([]);
   const [baseValues, setBaseValues] = useState<number[]>([]);
   const [compareValues, setCompareValues] = useState<number[]>([]);
@@ -122,8 +119,6 @@ export const useSqlTop = () => {
       const t = buildTimeline(startDate, compareDate, interval);
 
       setTimeline(t);
-      setBasePeriod(base);
-      setComparePeriod(compare);
       setBaseValues(mapValuesToTimeline(t, base));
       setCompareValues(mapValuesToTimeline(t, compare));
     } catch (err) {
@@ -147,37 +142,34 @@ export const useSqlTop = () => {
   }, [startDate, compareDate, filter, interval]);
 
   /* 상세 */
-  const handleBaseRowClick = async (row: RankData) => {
-    try {
-      const raw = await fetchSqlDetail({
-        sqlId: row.sqlId,
-        startDate,
-        endDate: startDate,
-        intervalMinutes: interval,
-      });
+  const handleRowClick = useCallback(
+    async (row: RankData, date: string, context: string) => {
+      try {
+        const raw = await fetchSqlDetail({
+          sqlId: row.sqlId,
+          startDate: date,
+          endDate: date,
+          intervalMinutes: interval,
+        });
 
-      setDetailData(convertSqlDetailToDrawerData(raw, startDate));
-      setIsDrawerOpen(true);
-    } catch (err) {
-      logError("SQL 상세 데이터 로드 (기준)", err);
-    }
-  };
+        setDetailData(convertSqlDetailToDrawerData(raw, date));
+        setIsDrawerOpen(true);
+      } catch (err) {
+        logError(`SQL 상세 데이터 로드 (${context})`, err);
+      }
+    },
+    [interval]
+  );
 
-  const handleCompareRowClick = async (row: RankData) => {
-    try {
-      const raw = await fetchSqlDetail({
-        sqlId: row.sqlId,
-        startDate: compareDate,
-        endDate: compareDate,
-        intervalMinutes: interval,
-      });
+  const handleBaseRowClick = useCallback(
+    (row: RankData) => handleRowClick(row, startDate, "기준"),
+    [handleRowClick, startDate]
+  );
 
-      setDetailData(convertSqlDetailToDrawerData(raw, compareDate));
-      setIsDrawerOpen(true);
-    } catch (err) {
-      logError("SQL 상세 데이터 로드 (비교)", err);
-    }
-  };
+  const handleCompareRowClick = useCallback(
+    (row: RankData) => handleRowClick(row, compareDate, "비교"),
+    [handleRowClick, compareDate]
+  );
 
   const closeDrawer = () => setIsDrawerOpen(false);
 
