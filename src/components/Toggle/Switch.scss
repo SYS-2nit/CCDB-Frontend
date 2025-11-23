@@ -20,7 +20,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    background-color: $gray-400;
+    background-color: var(--color-border);
     border-radius: 9999px;
     transition: all 0.3s ease;
   }
@@ -89,7 +89,8 @@
 
   /* 비활성화 */
   input:disabled + .toggle-slider {
-    background-color: $gray-300;
+    background-color: var(--color-border);
+    opacity: 0.5;
     cursor: not-allowed;
   }
 }

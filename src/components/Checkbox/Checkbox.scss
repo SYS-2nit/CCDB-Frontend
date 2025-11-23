@@ -42,7 +42,7 @@
   /* 체크된 상태 */
   input:checked + &__box {
     border-color: $main-400;
-    background: $main-100;
+    background: $main-500;
 
     &::after {
       opacity: 1;

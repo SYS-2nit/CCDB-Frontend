@@ -27,7 +27,7 @@ const OracleDBModel: React.FC<OracleDBModelProps> = ({
     { color: "#7FA4FA", y: 0 },
   ];
 
-  const scaleValue = isZoomed ? 3.0 : 1;
+  const scaleValue = isZoomed ? 3.0 : 1.5;
 
   return (
     <group onClick={onClick} scale={scaleValue}>
