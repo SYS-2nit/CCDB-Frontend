@@ -6,6 +6,7 @@ import SearchIcon from "@/assets/general/search.svg";
 import TabMenu from "@/components/Tabs/TabMenu";
 import Pagination from "@/components/Pagination/Pagination";
 import Modal from "@/components/Modal/Modal";
+import Button from "@/components/Button/Button";
 import EditIcon from "@/assets/general/edit.svg";
 import TrashIcon from "@/assets/general/trash.svg";
 import {
@@ -298,17 +299,17 @@ const InstanceList: React.FC = () => {
     }
   }, [currentPage, totalPages]);
 
-  // const openCreateModal = useCallback(() => {
-  //   if (!selectedDatabase) {
-  //     alert("DB를 먼저 선택해주세요.");
-  //     return;
-  //   }
-  //   setCreateIdentifier("");
-  //   setCreateConnectionType("SID");
-  //   setCreateTestResult(null);
-  //   setIsCreateTesting(false);
-  //   setIsCreateModalOpen(true);
-  // }, [selectedDatabase]);
+  const openCreateModal = useCallback(() => {
+    if (!selectedDatabase) {
+      alert("DB를 먼저 선택해주세요.");
+      return;
+    }
+    setCreateIdentifier("");
+    setCreateConnectionType("SID");
+    setCreateTestResult(null);
+    setIsCreateTesting(false);
+    setIsCreateModalOpen(true);
+  }, [selectedDatabase]);
 
   const handleCreateTest = useCallback(async () => {
     if (isCreateTesting) return;
@@ -616,15 +617,21 @@ const InstanceList: React.FC = () => {
 
           <div className="instance-list__table-wrapper">
             <div className="instance-list__table-header">
-          <Input
-            size="sm"
-            variant="default"
-            placeholder="SID 또는 서비스 이름을 입력해주세요."
-            icon={SearchIcon}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+              <Input
+                size="sm"
+                variant="default"
+                placeholder="SID를 입력해주세요."
+                icon={SearchIcon}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Button
+                text="생성"
+                size="sm"
+                variant="primary"
+                onClick={openCreateModal}
+              />
+            </div>
 
             {isLoading ? (
               <div className="instance-list__status">로딩 중입니다...</div>
@@ -649,7 +656,7 @@ const InstanceList: React.FC = () => {
         <Modal
           title="인스턴스 생성"
           cancelText={isCreateTesting ? "테스트 중" : "테스트"}
-          confirmText={isCreating ? "생성 중" : "확인"}
+          confirmText={isCreating ? "저장 중" : "저장"}
           onClose={() => {
             if (isCreating) return;
             setIsCreateModalOpen(false);
@@ -685,7 +692,10 @@ const InstanceList: React.FC = () => {
               },
             ]}
           >
-          {createTestResult && (
+          {isCreateTesting && (
+            <div className="modal__test-result">⏳ 연결 테스트 중입니다...</div>
+          )}
+          {!isCreateTesting && createTestResult && (
             <div
               className={`modal__test-result ${
                 createTestResult.success ? "success" : "fail"
