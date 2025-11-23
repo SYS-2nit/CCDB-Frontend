@@ -3,6 +3,24 @@
 @use "@styles/variables" as *;
 @use "@styles/mixins" as *;
 
+.db-status-label {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+  padding: 6px 12px;
+  color: $gray-0;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  user-select: none;
+
+  body.dark & {
+    background: rgba(255, 255, 255, 0.9);
+    color: $gray-900;
+  }
+}
+
 .db-info-card {
     background: rgba(255, 255, 255, 0.9);
     border-radius: 5px;

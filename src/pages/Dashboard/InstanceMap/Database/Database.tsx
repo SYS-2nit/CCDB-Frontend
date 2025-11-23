@@ -106,7 +106,7 @@ const getErrorMessage = (error: unknown) => {
 // 위험도에 따른 색상 매핑
 const getSeverityColor = (severity: number | null | undefined): string => {
   if (severity === null || severity === undefined) {
-    return "#7FA4FA"; // 정상: 파란색
+    return "#16A34A"; // 정상: 초록색
   }
   switch (severity) {
     case 1:
@@ -116,8 +116,49 @@ const getSeverityColor = (severity: number | null | undefined): string => {
     case 3:
       return "#151515"; // 치명: 검은색
     default:
-      return "#7FA4FA"; // 기본값: 파란색
+      return "#16A34A"; // 기본값: 초록색
   }
+};
+
+// 인스턴스 상태 카운트 및 라벨 생성
+const getInstanceStatusLabel = (
+  instances: DatabaseInstanceListItem[]
+): string => {
+  if (instances.length === 0) return "";
+
+  const counts = {
+    critical: 0, // 치명 (3)
+    danger: 0, // 위험 (2)
+    warning: 0, // 주의 (1)
+    normal: 0, // 정상 (null/undefined)
+  };
+
+  instances.forEach((inst) => {
+    const severity = inst.currentSeverity;
+    if (severity === null || severity === undefined) {
+      counts.normal++;
+    } else {
+      switch (severity) {
+        case 1:
+          counts.warning++;
+          break;
+        case 2:
+          counts.danger++;
+          break;
+        case 3:
+          counts.critical++;
+          break;
+      }
+    }
+  });
+
+  const parts: string[] = [];
+  if (counts.critical > 0) parts.push(`치명 ${counts.critical}`);
+  if (counts.danger > 0) parts.push(`위험 ${counts.danger}`);
+  if (counts.warning > 0) parts.push(`주의 ${counts.warning}`);
+  if (counts.normal > 0) parts.push(`정상 ${counts.normal}`);
+
+  return parts.join(" ");
 };
 
 // DB의 가장 높은 위험도 계산
@@ -317,6 +358,7 @@ const Database: React.FC = () => {
                     const instances = dbInstancesMap.get(db.id) ?? [];
                     const maxSeverity = getMaxSeverity(instances);
                     const dbColor = getSeverityColor(maxSeverity);
+                    const statusLabel = getInstanceStatusLabel(instances);
 
                     return (
                       <group
@@ -332,6 +374,7 @@ const Database: React.FC = () => {
                           isZoomed={isDarkMode ? false : selectedDatabaseId === db.id}
                           showInfoCard
                           color={dbColor}
+                          statusLabel={statusLabel}
                         />
                       </group>
                     );
