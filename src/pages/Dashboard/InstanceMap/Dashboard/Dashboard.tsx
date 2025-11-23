@@ -181,10 +181,27 @@ const Dashboard: React.FC<DashboardProps> = ({
   }, [initialTab]);
 
   // 서버에서 받은 그래프 데이터를 그대로 사용
+  // 주의: 이 useEffect는 graphList가 변경될 때마다 charts를 업데이트하지만,
+  // reorderGraphsByNames로 인한 순서 변경 시에는 데이터를 보존해야 함
   useEffect(() => {
     if (activeTab === "main") {
       // main 탭은 graphList를 그대로 사용
-      setCharts(graphList);
+      // 하지만 순서만 변경된 경우 charts의 데이터를 보존
+      setCharts((prevCharts) => {
+        // graphList의 ID와 prevCharts의 ID가 같으면 데이터 보존
+        const prevIds = prevCharts.map((c) => c.id).sort().join(",");
+        const newIds = graphList.map((c) => c.id).sort().join(",");
+        
+        // ID 목록이 같으면 순서만 변경된 것이므로 데이터 보존
+        if (prevIds === newIds && prevCharts.length === graphList.length) {
+          // graphList의 순서에 맞춰 prevCharts 재정렬
+          const chartMap = new Map(prevCharts.map((c) => [c.id, c]));
+          return graphList.map((g) => chartMap.get(g.id) || g);
+        }
+        
+        // ID가 다르면 새로운 그래프이므로 graphList 사용
+        return graphList;
+      });
     } else {
       // 다른 탭은 categoryGraphs에서 그래프 데이터를 그대로 사용
       const currentGraphs = categoryGraphs.get(activeTab) ?? [];
@@ -315,22 +332,29 @@ const Dashboard: React.FC<DashboardProps> = ({
   /* -------------------------------------------------------
     charts & layout 동기화
 -------------------------------------------------------- */
+  const prevChartIdsRef = useRef<string>("");
+  
   useEffect(() => {
     const newCharts =
       activeTab === "main" ? graphList : categoryGraphs.get(activeTab) ?? [];
-    setCharts(newCharts);
 
-    // dev 브랜치: layout과 charts 동기화
-    setLayout(() => {
-      return newCharts.map((c, index) => ({
-        i: String(c.id),
-        x: index % 3,
-        y: Math.floor(index / 3),
-        w: 1,
-        h: 1,
-      }));
-    });
-  }, [activeTab, graphList, categoryGraphs]);
+    // layout은 그래프가 추가/제거될 때만 재계산 (순서 변경 시에는 재계산하지 않음)
+    const currentChartIds = newCharts.map((c) => String(c.id)).sort().join(",");
+    
+    // 그래프 ID 목록이 변경되었거나 layout이 비어있을 때만 재계산
+    if (currentChartIds !== prevChartIdsRef.current || layout.length === 0) {
+      setLayout(() => {
+        return newCharts.map((c, index) => ({
+          i: String(c.id),
+          x: index % 3,
+          y: Math.floor(index / 3),
+          w: 1,
+          h: 1,
+        }));
+      });
+      prevChartIdsRef.current = currentChartIds;
+    }
+  }, [activeTab, graphList, categoryGraphs, layout.length]);
 
   // HEAD 브랜치: LIVE 모드일 때만 1분마다 지정된 시간(02초)에 데이터 자동 새로고침
   useEffect(() => {
@@ -498,22 +522,43 @@ const Dashboard: React.FC<DashboardProps> = ({
   /* -------------------------------------------------------
       react-grid-layout drag → layout + charts 순서 업데이트
   -------------------------------------------------------- */
+  const reorderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handleLayoutChange = (currentLayout: any[]) => {
+    // 드래그 중에는 layout만 업데이트 (데이터는 유지)
     setLayout(currentLayout);
 
-    const sortedIds = [...currentLayout]
-      .sort((a, b) => a.y - b.y || a.x - b.x)
-      .map((l) => l.i);
+    // 메인 탭에서만 순서 변경 처리
+    if (activeTab !== "main") return;
 
-    const newOrderNames: string[] = [];
+    // 이전 타이머 취소
+    if (reorderTimeoutRef.current) {
+      clearTimeout(reorderTimeoutRef.current);
+    }
 
-    sortedIds.forEach((id) => {
-      const match = charts.find((c) => String(c.id) === id);
-      if (match) newOrderNames.push(match.name);
-    });
+    // 드래그 종료 후 300ms 후에 순서 변경 (debounce)
+    reorderTimeoutRef.current = setTimeout(() => {
+      const sortedIds = [...currentLayout]
+        .sort((a, b) => a.y - b.y || a.x - b.x)
+        .map((l) => l.i);
 
-    reorderGraphsByNames(newOrderNames);
-    void saveWidgetOrder();
+      const newOrderNames: string[] = [];
+
+      // 최신 charts를 사용 (graphList 기반)
+      const currentCharts = activeTab === "main" ? graphList : (categoryGraphs.get(activeTab) ?? []);
+
+      sortedIds.forEach((id) => {
+        const match = currentCharts.find((c) => String(c.id) === id);
+        if (match) newOrderNames.push(match.name);
+      });
+
+      // 순서만 변경 (데이터는 그대로 유지)
+      if (newOrderNames.length > 0 && newOrderNames.length === currentCharts.length) {
+        reorderGraphsByNames(newOrderNames);
+        // 순서 저장 (데이터 새로고침 없이)
+        void saveWidgetOrder();
+      }
+    }, 300);
   };
 
   /* -------------------------------------------------------
@@ -598,7 +643,8 @@ const Dashboard: React.FC<DashboardProps> = ({
               margin={[10, 10]}
               rowHeight={290}
               onLayoutChange={handleLayoutChange}
-              compactType="vertical"
+              compactType={null}
+              preventCollision={false}
               draggableHandle=".chart-card__drag-handle"
             >
               {charts.map((graph) => {
