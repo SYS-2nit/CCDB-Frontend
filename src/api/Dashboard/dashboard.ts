@@ -12,6 +12,7 @@ export interface GraphDataResponse {
   description: string;
   type: number;
   data: GraphDataPoint[];
+  alertSeverity?: number | null; // null=정상, 1=주의, 2=위험, 3=치명
 }
 
 export interface DashboardDataResponse {

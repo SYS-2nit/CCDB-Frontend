@@ -24,9 +24,11 @@ import {
   type GraphDefinition,
   type GraphDataResponse,
 } from "@/api/Dashboard/dashboard";
+import { getCategoryByGraphId } from "@/components/Card/utils/getChartByTitle";
 
 import { isAxiosError } from "axios";
 import { useSearchParams } from "react-router-dom";
+import { fetchAlertStatistics, type AlertStatisticsResponse, type AlertCategory } from "@/api/Alert/alerts";
 
 export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 
@@ -81,6 +83,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [categoryGraphs, setCategoryGraphs] = useState<
     Map<TabType, GraphDataResponse[]>
   >(new Map());
+
+  // 알림 통계 state
+  const [alertStatistics, setAlertStatistics] = useState<AlertStatisticsResponse | null>(null);
+  const [isLoadingStatistics, setIsLoadingStatistics] = useState(false);
 
   // HEAD 브랜치 기능: 마지막으로 로드한 탭 추적
   const lastLoadedTabRef = useRef<TabType | null>(null);
@@ -282,6 +288,30 @@ const Dashboard: React.FC<DashboardProps> = ({
     setIsFetching,
   ]);
 
+  // 카테고리별 알림 통계 조회
+  useEffect(() => {
+    if (activeTab === "main" || !selectedInstanceId) {
+      setAlertStatistics(null);
+      return;
+    }
+
+    const loadStatistics = async () => {
+      setIsLoadingStatistics(true);
+      try {
+        const category = getCategoryByTab(activeTab) as AlertCategory;
+        const stats = await fetchAlertStatistics(category, selectedInstanceId);
+        setAlertStatistics(stats);
+      } catch (error) {
+        console.error("[Dashboard] 알림 통계 조회 실패:", error);
+        setAlertStatistics(null);
+      } finally {
+        setIsLoadingStatistics(false);
+      }
+    };
+
+    void loadStatistics();
+  }, [activeTab, selectedInstanceId]);
+
   /* -------------------------------------------------------
     charts & layout 동기화
 -------------------------------------------------------- */
@@ -396,6 +426,16 @@ const Dashboard: React.FC<DashboardProps> = ({
             }
             return next;
           });
+
+          // 알림 통계도 함께 갱신 (main 탭이 아닐 때만)
+          try {
+            const stats = await fetchAlertStatistics(category as AlertCategory, selectedInstanceId);
+            if (!cancelled) {
+              setAlertStatistics(stats);
+            }
+          } catch (error) {
+            console.error("[Dashboard] 통계 갱신 실패:", error);
+          }
         }
       } catch (error) {
         if (cancelled) return;
@@ -490,16 +530,16 @@ const Dashboard: React.FC<DashboardProps> = ({
       data: [],
     });
 
-  //  saveWidgetOrder를 먼저 완료 (백엔드에 저장)
-  await saveWidgetOrder();
-  
-  // 약간의 지연을 두어 저장이 완료된 후 새로고침
-  setTimeout(() => {
-    triggerRefresh();
-  }, 100);
-  
-  setSettingTargetIndex(null);
-  setIsSettingOpen(false);
+    //  saveWidgetOrder를 먼저 완료 (백엔드에 저장)
+    await saveWidgetOrder();
+
+    // 약간의 지연을 두어 저장이 완료된 후 새로고침
+    setTimeout(() => {
+      triggerRefresh();
+    }, 100);
+
+    setSettingTargetIndex(null);
+    setIsSettingOpen(false);
   };
 
   const colsConfig = {
@@ -515,13 +555,13 @@ const Dashboard: React.FC<DashboardProps> = ({
   const visibleTabs = singleTabMode
     ? [{ id: initialTab, label: initialTab }]
     : [
-        { id: "main", label: "Main Custom" },
-        { id: "cpu", label: "CPU" },
-        { id: "memory", label: "Memory" },
-        { id: "session", label: "Session" },
-        { id: "io", label: "I/O" },
-        { id: "storage", label: "Storage" },
-      ];
+      { id: "main", label: "Main Custom" },
+      { id: "cpu", label: "CPU" },
+      { id: "memory", label: "Memory" },
+      { id: "session", label: "Session" },
+      { id: "io", label: "I/O" },
+      { id: "storage", label: "Storage" },
+    ];
 
   return (
     <div className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}>
@@ -561,22 +601,32 @@ const Dashboard: React.FC<DashboardProps> = ({
               compactType="vertical"
               draggableHandle=".chart-card__drag-handle"
             >
-              {charts.map((graph) => (
-                <div key={String(graph.id)}>
-                  <ChartCard
-                    title={graph.name}
-                    status="normal"
-                    onSettingClick={() => {
-                      const idx = charts.findIndex((c) => c.id === graph.id);
-                      setSettingTargetIndex(idx);
-                      setIsSettingOpen(true);
-                    }}
-                    showDragIcon
-                    showSettingIcon
-                    graphData={graph}
-                  />
-                </div>
-              ))}
+              {charts.map((graph) => {
+                // 같은 카테고리의 그래프 필터링
+                const graphCategory = getCategoryByGraphId(graph.id);
+                const allGraphsInCategory = graphList.filter(
+                  (g) => getCategoryByGraphId(g.id) === graphCategory
+                );
+                
+                return (
+                  <div key={String(graph.id)}>
+                    <ChartCard
+                      // title={graph.name}
+                      title={graph.id === 27 ? "SGA 효율" : graph.name}
+                      status="normal"
+                      onSettingClick={() => {
+                        const idx = charts.findIndex((c) => c.id === graph.id);
+                        setSettingTargetIndex(idx);
+                        setIsSettingOpen(true);
+                      }}
+                      showDragIcon
+                      showSettingIcon
+                      graphData={graph}
+                      allGraphsInCategory={allGraphsInCategory}
+                    />
+                  </div>
+                );
+              })}
             </ResponsiveGridLayout>
           </div>
         )}
@@ -588,15 +638,36 @@ const Dashboard: React.FC<DashboardProps> = ({
             <div className="dashboard__grid--other">
               <div className="dashboard__row row-1">
                 <div className="dashboard__status-wrap">
-                  <StatusCard label="정상" value={2} color="safe" />
-                  <StatusCard label="주의" value={5} color="warning" />
-                  <StatusCard label="위험" value={8} color="danger" />
-                  <StatusCard label="에러" value={1} color="critical" />
+                  <StatusCard
+                    label="정상"
+                    value={isLoadingStatistics ? "-" : (alertStatistics?.normal ?? 0)}
+                    color="safe"
+                    change={alertStatistics?.normalChange}
+                  />
+                  <StatusCard
+                    label="주의"
+                    value={isLoadingStatistics ? "-" : (alertStatistics?.warning ?? 0)}
+                    color="warning"
+                    change={alertStatistics?.warningChange}
+                  />
+                  <StatusCard
+                    label="위험"
+                    value={isLoadingStatistics ? "-" : (alertStatistics?.danger ?? 0)}
+                    color="danger"
+                    change={alertStatistics?.dangerChange}
+                  />
+                  <StatusCard
+                    label="치명"
+                    value={isLoadingStatistics ? "-" : (alertStatistics?.critical ?? 0)}
+                    color="critical"
+                    change={alertStatistics?.criticalChange}
+                  />
                 </div>
 
                 {charts[0] && (
                   <ChartCard
-                    title={charts[0].name}
+                    // title={charts[0].name}
+                    title={charts[0].id === 27 ? "SGA 효율" : charts[0].name}
                     status="normal"
                     onSettingClick={() => {
                       setSettingTargetIndex(0);
@@ -605,6 +676,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     showDragIcon={false}
                     showSettingIcon={false}
                     graphData={charts[0]}
+                    allGraphsInCategory={charts}
                   />
                 )}
               </div>
@@ -613,7 +685,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {charts.slice(1, 3).map((graph, i) => (
                   <ChartCard
                     key={graph.id}
-                    title={graph.name}
+                    // title={graph.name}
+                    title={graph.id === 27 ? "SGA 효율" : graph.name}
                     status="normal"
                     onSettingClick={() => {
                       setSettingTargetIndex(i + 1);
@@ -622,6 +695,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     showDragIcon={false}
                     showSettingIcon={false}
                     graphData={graph}
+                    allGraphsInCategory={charts}
                   />
                 ))}
               </div>
@@ -630,7 +704,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {charts.slice(3, 5).map((graph, i) => (
                   <ChartCard
                     key={graph.id}
-                    title={graph.name}
+                    // title={graph.name}
+                    title={graph.id === 27 ? "SGA 효율" : graph.name}
                     status="normal"
                     onSettingClick={() => {
                       setSettingTargetIndex(i + 3);
@@ -639,6 +714,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     showDragIcon={false}
                     showSettingIcon={false}
                     graphData={graph}
+                    allGraphsInCategory={charts}
                   />
                 ))}
               </div>
@@ -647,7 +723,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {charts.slice(5, 8).map((graph, i) => (
                   <ChartCard
                     key={graph.id}
-                    title={graph.name}
+                    // title={graph.name}
+                    title={graph.id === 27 ? "SGA 효율" : graph.name}
                     status="normal"
                     onSettingClick={() => {
                       setSettingTargetIndex(i + 5);
@@ -656,6 +733,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     showDragIcon={false}
                     showSettingIcon={false}
                     graphData={graph}
+                    allGraphsInCategory={charts}
                   />
                 ))}
               </div>

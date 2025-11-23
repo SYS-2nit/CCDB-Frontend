@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/exhaustive-deps */
-
-import { useEffect, useState } from "react";
+// eslint-disable-next-line react-hooks/exhaustive-deps
+// 의존성 배열에 loadCompareList, loadPeriodGraph를 포함하면 무한 루프 발생 가능
+import { useEffect, useState, useCallback } from "react";
 import CompareSqlWindow from "../Window/CompareSqlWindow";
 import {
   fetchCompareStats,
@@ -12,6 +11,14 @@ import {
 import { metricLabelMap } from "../components/metric";
 import { alignBySqlId, convertList, type RankData } from "../components/rank";
 import { buildTimeline, mapValuesToTimeline } from "../components/timeline";
+import type {
+  SqlFilterType,
+  IntervalType,
+  SqlDetailDrawerData,
+} from "../../types";
+import { convertSqlDetailToDrawerData } from "../../utils/convertSqlDetail";
+import { logError } from "../../utils/errorHandler";
+import { DEFAULT_INSTANCE_ID } from "../../constants";
 
 // 상태 + 데이터 로직 담당 Custom Hook
 export const useSqlTop = () => {
@@ -20,48 +27,64 @@ export const useSqlTop = () => {
   const [compareDate, setCompareDate] = useState("");
 
   /* 필터 & Interval */
-  const [filter, setFilter] = useState("");
-  const [interval, setInterval] = useState(30);
+  const [filter, setFilter] = useState<SqlFilterType | "">("");
+  const [interval, setInterval] = useState<IntervalType>(30);
 
   /* 리스트 */
   const [baseList, setBaseList] = useState<RankData[]>([]);
   const [compareList, setCompareList] = useState<RankData[]>([]);
+  const [isTableLoading, setIsTableLoading] = useState(false);
 
   /* 기간 그래프 */
-  const [, setBasePeriod] = useState<any[]>([]);
-  const [, setComparePeriod] = useState<any[]>([]);
   const [timeline, setTimeline] = useState<string[]>([]);
   const [baseValues, setBaseValues] = useState<number[]>([]);
   const [compareValues, setCompareValues] = useState<number[]>([]);
   const [isChartLoading, setIsChartLoading] = useState(false);
 
   /* 상세 */
-  const [detailData, setDetailData] = useState<any>(null);
+  const [detailData, setDetailData] = useState<SqlDetailDrawerData | null>(
+    null
+  );
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   /* 비교 체크 */
   const [selectedBase, setSelectedBase] = useState<string | null>(null);
   const [selectedCompare, setSelectedCompare] = useState<string | null>(null);
 
-  const metricLabel = metricLabelMap[filter];
+  const metricLabel = filter ? metricLabelMap[filter] : "";
 
   /* Compare 리스트 */
   const loadCompareList = async () => {
-    const data = await fetchCompareStats({
-      baseDate: startDate,
-      compareDate,
-      instanceId: 1,
-      keyword: filter,
-      intervalMinutes: interval,
-    });
+    setIsTableLoading(true);
+    try {
+      const data = await fetchCompareStats({
+        baseDate: startDate,
+        compareDate,
+        instanceId: DEFAULT_INSTANCE_ID,
+        keyword: filter || undefined,
+        intervalMinutes: interval,
+      });
 
-    const base = convertList(data.baseList, filter);
-    const comp = convertList(data.compareList, filter);
+      const base = convertList(
+        data.baseList,
+        (filter || "elapsed") as SqlFilterType
+      );
+      const comp = convertList(
+        data.compareList,
+        (filter || "elapsed") as SqlFilterType
+      );
 
-    const aligned = alignBySqlId(base, comp);
+      const aligned = alignBySqlId(base, comp);
 
-    setBaseList(aligned.base);
-    setCompareList(aligned.compare);
+      setBaseList(aligned.base);
+      setCompareList(aligned.compare);
+    } catch (err) {
+      logError("SQL 비교 리스트 로드", err);
+      setBaseList([]);
+      setCompareList([]);
+    } finally {
+      setIsTableLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -80,26 +103,29 @@ export const useSqlTop = () => {
       const base = await fetchPeriodData({
         startDate,
         endDate: startDate,
-        metric: filter,
+        metric: filter || "elapsed",
         intervalMinutes: interval,
-        instanceId: 1,
+        instanceId: DEFAULT_INSTANCE_ID,
       });
 
       const compare = await fetchPeriodData({
         startDate: compareDate,
         endDate: compareDate,
-        metric: filter,
+        metric: filter || "elapsed",
         intervalMinutes: interval,
-        instanceId: 1,
+        instanceId: DEFAULT_INSTANCE_ID,
       });
 
       const t = buildTimeline(startDate, compareDate, interval);
 
       setTimeline(t);
-      setBasePeriod(base);
-      setComparePeriod(compare);
       setBaseValues(mapValuesToTimeline(t, base));
       setCompareValues(mapValuesToTimeline(t, compare));
+    } catch (err) {
+      logError("SQL 기간 그래프 로드", err);
+      setTimeline([]);
+      setBaseValues([]);
+      setCompareValues([]);
     } finally {
       setIsChartLoading(false);
     }
@@ -116,29 +142,34 @@ export const useSqlTop = () => {
   }, [startDate, compareDate, filter, interval]);
 
   /* 상세 */
-  const handleBaseRowClick = async (row: RankData) => {
-    const raw = await fetchSqlDetail({
-      sqlId: row.sqlId,
-      startDate,
-      endDate: startDate,
-      intervalMinutes: interval,
-    });
+  const handleRowClick = useCallback(
+    async (row: RankData, date: string, context: string) => {
+      try {
+        const raw = await fetchSqlDetail({
+          sqlId: row.sqlId,
+          startDate: date,
+          endDate: date,
+          intervalMinutes: interval,
+        });
 
-    setDetailData({ date: startDate, ...raw });
-    setIsDrawerOpen(true);
-  };
+        setDetailData(convertSqlDetailToDrawerData(raw, date));
+        setIsDrawerOpen(true);
+      } catch (err) {
+        logError(`SQL 상세 데이터 로드 (${context})`, err);
+      }
+    },
+    [interval]
+  );
 
-  const handleCompareRowClick = async (row: RankData) => {
-    const raw = await fetchSqlDetail({
-      sqlId: row.sqlId,
-      startDate: compareDate,
-      endDate: compareDate,
-      intervalMinutes: interval,
-    });
+  const handleBaseRowClick = useCallback(
+    (row: RankData) => handleRowClick(row, startDate, "기준"),
+    [handleRowClick, startDate]
+  );
 
-    setDetailData({ date: compareDate, ...raw });
-    setIsDrawerOpen(true);
-  };
+  const handleCompareRowClick = useCallback(
+    (row: RankData) => handleRowClick(row, compareDate, "비교"),
+    [handleRowClick, compareDate]
+  );
 
   const closeDrawer = () => setIsDrawerOpen(false);
 
@@ -146,38 +177,50 @@ export const useSqlTop = () => {
   const fetchCompareDetails = async () => {
     if (!selectedBase || !selectedCompare) return;
 
-    const base = await fetchSqlDetail({
-      sqlId: selectedBase,
-      startDate,
-      endDate: startDate,
-      intervalMinutes: interval,
-    });
+    try {
+      const base = await fetchSqlDetail({
+        sqlId: selectedBase,
+        startDate,
+        endDate: startDate,
+        intervalMinutes: interval,
+      });
 
-    const compare = await fetchSqlDetail({
-      sqlId: selectedCompare,
-      startDate: compareDate,
-      endDate: compareDate,
-      intervalMinutes: interval,
-    });
+      const compare = await fetchSqlDetail({
+        sqlId: selectedCompare,
+        startDate: compareDate,
+        endDate: compareDate,
+        intervalMinutes: interval,
+      });
 
-    const popup = window.open("", "_blank", "width=1600,height=900");
-    if (!popup) return;
+      const popup = window.open("", "_blank", "width=1600,height=900");
+      if (!popup) {
+        logError("SQL 비교 팝업", new Error("팝업 창을 열 수 없습니다."));
+        return;
+      }
 
-    popup.document.write(`<div id="compare-root"></div>`);
-    popup.document.close();
+      popup.document.write(`<div id="compare-root"></div>`);
+      popup.document.close();
 
-    const rootEl = popup.document.getElementById("compare-root");
-    if (!rootEl) return;
+      const rootEl = popup.document.getElementById("compare-root");
+      if (!rootEl) {
+        logError("SQL 비교 팝업", new Error("루트 엘리먼트를 찾을 수 없습니다."));
+        return;
+      }
 
-    import("react-dom/client").then(({ createRoot }) => {
-      const root = createRoot(rootEl);
-      root.render(
-        <CompareSqlWindow
-          base={{ date: startDate, detail: base }}
-          compare={{ date: compareDate, detail: compare }}
-        />
-      );
-    });
+      import("react-dom/client").then(({ createRoot }) => {
+        const root = createRoot(rootEl);
+        root.render(
+          <CompareSqlWindow
+            base={{ date: startDate, detail: convertSqlDetailToDrawerData(base, startDate) }}
+            compare={{ date: compareDate, detail: convertSqlDetailToDrawerData(compare, compareDate) }}
+          />
+        );
+      }).catch((err) => {
+        logError("SQL 비교 팝업 렌더링", err);
+      });
+    } catch (err) {
+      logError("SQL 비교 상세 데이터 로드", err);
+    }
   };
 
   return {
@@ -196,6 +239,7 @@ export const useSqlTop = () => {
     baseValues,
     compareValues,
     isChartLoading,
+    isTableLoading,
     selectedBase,
     selectedCompare,
     setSelectedBase,

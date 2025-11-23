@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import "./SqlDetailDrawer.scss";
 import LineChart from "@/components/Chart/LineChart";
@@ -11,6 +10,12 @@ import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 import { getPlanHistoryDetail, getPlanHistoryList } from "@/api/Sql/sql";
 import PlanCompareView from "./PlanCompareView";
 import Spinner from "@/components/Spinner/Spinner";
+import type { PlanHistoryRow } from "../types";
+import { formatToMonthDayTimeSimple } from "../utils/dateFormat";
+import { logError } from "../utils/errorHandler";
+import { PLAN_HISTORY_ROWS_PER_PAGE } from "../constants";
+import { usePagination } from "../utils/usePagination";
+import { formatMicrosecondsToMs } from "../utils/formatValue";
 
 interface SqlDetailDrawerProps {
   data: SqlDetailData;
@@ -23,32 +28,17 @@ const tabs = [
   { id: "2", label: "Plan Change History" },
 ] as const;
 
-/* 날짜 포맷 */
-const formatToMonthDayTime = (raw: string) => {
-  const d = new Date(raw);
-  if (isNaN(d.getTime())) return raw;
-
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const HH = String(d.getHours()).padStart(2, "0");
-  const MM = String(d.getMinutes()).padStart(2, "0");
-
-  return `${mm}-${dd} ${HH}:${MM}`;
-};
-
 const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const [activeTab, setActiveTab] = useState("1");
 
   /* -------------------- Plan Change -------------------- */
-  const [planList, setPlanList] = useState<any[]>([]);
+  const [planList, setPlanList] = useState<PlanHistoryRow[]>([]);
   const [loadingPlan, setLoadingPlan] = useState(false);
 
-  /* 페이지네이션 */
-  const rowsPerPage = 15;
-  const [currentPage, setCurrentPage] = useState(1);
-
   /* 상세조회 */
-  const [selectedPlanRow, setSelectedPlanRow] = useState<any | null>(null);
+  const [selectedPlanRow, setSelectedPlanRow] = useState<PlanHistoryRow | null>(
+    null
+  );
   const [loadingDetail, setLoadingDetail] = useState(false);
 
   /* -------------------- Plan LIST API -------------------- */
@@ -60,6 +50,9 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
       try {
         const list = await getPlanHistoryList(data.sqlId);
         setPlanList(list);
+      } catch (err) {
+        logError("Plan History 목록 로드", err);
+        setPlanList([]);
       } finally {
         setLoadingPlan(false);
       }
@@ -69,15 +62,16 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   }, [activeTab, data.sqlId]);
 
   /* -------------------- Pagination -------------------- */
-  const totalPages = Math.max(1, Math.ceil(planList.length / rowsPerPage));
-
-  const pagedData = planList.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
+  const { currentPage, totalPages, setCurrentPage, pagedData } = usePagination(
+    planList,
+    {
+      itemsPerPage: PLAN_HISTORY_ROWS_PER_PAGE,
+      totalItems: planList.length,
+    }
   );
 
   /* -------------------- Detail API -------------------- */
-  const handlePlanRowClick = async (row: any) => {
+  const handlePlanRowClick = async (row: PlanHistoryRow) => {
     if (!row.beforePlanHash || !row.afterPlanHash) return;
 
     setLoadingDetail(true);
@@ -91,9 +85,11 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
 
       setSelectedPlanRow({
         ...row,
-        beforePlanText: detail.beforePlanText,
-        afterPlanText: detail.afterPlanText,
+        beforePlanText: detail.beforePlanText ?? null,
+        afterPlanText: detail.afterPlanText ?? null,
       });
+    } catch (err) {
+      logError("Plan History 상세 로드", err);
     } finally {
       setLoadingDetail(false);
     }
@@ -110,26 +106,28 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const gaugeTotal =
     cpuRaw + userIoRaw + concRaw + appRaw + clusterRaw + otherRaw;
 
-  const rows1 = [
-    ["CPU Time", `${(data.totalCpu / 1000).toFixed(1)} ms`],
-    ["Elapsed Time", `${(data.totalElapsed / 1000).toFixed(1)} ms`],
-    ["Execute Count", `${(data.totalExec / 1000).toFixed(1)} ms`],
-    ["Avg Elapsed", `${(data.avgElapsed / 1000).toFixed(1)} ms`],
-    ["Wait Time", `${(data.totalWait / 1000).toFixed(1)} ms`],
+  type TableRow = [string, string | number];
+
+  const rows1: TableRow[] = [
+    ["CPU Time", formatMicrosecondsToMs(data.totalCpu)],
+    ["Elapsed Time", formatMicrosecondsToMs(data.totalElapsed)],
+    ["Execute Count", formatMicrosecondsToMs(data.totalExec)],
+    ["Avg Elapsed", formatMicrosecondsToMs(data.avgElapsed)],
+    ["Wait Time", formatMicrosecondsToMs(data.totalWait)],
     ["Logical Reads", data.totalBuffer],
     ["Physical Reads", data.totalDisk],
   ];
 
-  const rows2 = [
-    ["User I/O", `${data.waitUserIoUsDelta / 1000} ms`],
-    ["Concurrency", `${data.waitConcurrencyUsDelta / 1000} ms`],
-    ["Application", `${data.waitApplicationUsDelta / 1000} ms`],
-    ["Cluster", `${data.waitClusterUsDelta / 1000} ms`],
-    ["Other", `${data.waitOtherUsDelta / 1000} ms`],
+  const rows2: TableRow[] = [
+    ["User I/O", formatMicrosecondsToMs(data.waitUserIoUsDelta)],
+    ["Concurrency", formatMicrosecondsToMs(data.waitConcurrencyUsDelta)],
+    ["Application", formatMicrosecondsToMs(data.waitApplicationUsDelta)],
+    ["Cluster", formatMicrosecondsToMs(data.waitClusterUsDelta)],
+    ["Other", formatMicrosecondsToMs(data.waitOtherUsDelta)],
   ];
 
   const tableRows = pagedData.map((row) => [
-    formatToMonthDayTime(row.time),
+    formatToMonthDayTimeSimple(row.time),
     row.queryText,
     row.sqlId,
     row.beforePlanHash,
@@ -209,7 +207,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                       data.execTrend.map((t) => t.value),
                     ]}
                     categories={data.elapsedTrend.map((t) =>
-                      formatToMonthDayTime(t.label)
+                      formatToMonthDayTimeSimple(t.label)
                     )}
                   />
                 </div>
@@ -223,7 +221,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                       data.diskTrend.map((t) => t.value),
                     ]}
                     categories={data.bufferTrend.map((t) =>
-                      formatToMonthDayTime(t.label)
+                      formatToMonthDayTimeSimple(t.label)
                     )}
                   />
                 </div>
@@ -234,7 +232,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                     legends={["Wait"]}
                     seriesData={[data.waitTrend.map((t) => t.value)]}
                     categories={data.waitTrend.map((t) =>
-                      formatToMonthDayTime(t.label)
+                      formatToMonthDayTimeSimple(t.label)
                     )}
                   />
                 </div>
@@ -281,7 +279,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                         { key: "after", label: "After" },
                       ]}
                       rows={tableRows}
-                      onClick={(_: any, index: number) =>
+                      onClick={(_row: React.ReactNode[], index: number) =>
                         handlePlanRowClick(pagedData[index])
                       }
                     />
@@ -292,8 +290,8 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                       <PlanCompareView
                         beforeHash={selectedPlanRow.beforePlanHash}
                         afterHash={selectedPlanRow.afterPlanHash}
-                        beforePlanText={selectedPlanRow.beforePlanText}
-                        afterPlanText={selectedPlanRow.afterPlanText}
+                        beforePlanText={selectedPlanRow.beforePlanText ?? null}
+                        afterPlanText={selectedPlanRow.afterPlanText ?? null}
                       />
                     )}
 

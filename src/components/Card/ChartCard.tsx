@@ -26,6 +26,7 @@ interface ChartCardProps {
   showDragIcon?: boolean;
   graphData?: GraphDataResponse | null;
   mode?: DashboardMode;
+  allGraphsInCategory?: GraphDataResponse[];
 }
 
 const ChartCard: React.FC<ChartCardProps> = ({
@@ -36,6 +37,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
   showDragIcon = true,
   graphData,
   mode: propMode,
+  allGraphsInCategory,
 }) => {
   const StatusIcon = status === "warning" ? WarningIcon : SuccessGreenIcon;
   const [showInfoModal, setShowInfoModal] = useState(false);
@@ -81,7 +83,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
   } else if (!graphData && error) {
     bodyContent = <div className="chart-placeholder">{error}</div>;
   } else if (data) {
-    const rendered = renderDynamicChart(title, data, mode);
+    const rendered = renderDynamicChart(title, data, mode, allGraphsInCategory);
     bodyContent = rendered ?? getChartByTitle(title, data, mode);
   } else {
     bodyContent = getChartByTitle(title, data, mode);
@@ -93,8 +95,26 @@ const ChartCard: React.FC<ChartCardProps> = ({
       ? GRAPH_TITLE_SUFFIX_FORMATTERS[graphData.id](graphData)
       : null;
 
+  // alertSeverity에서 borderColor 계산
+  const borderColor = (() => {
+    if (!graphData?.alertSeverity) return undefined;
+    switch (graphData.alertSeverity) {
+      case 1: return "#FACC15"; // 주의 (노란색)
+      case 2: return "#DC2626"; // 위험 (빨간색)
+      case 3: return "#151515"; // 치명 (검은색)
+      default: return undefined;
+    }
+  })();
+
   return (
-      <div className={`chart-card ${status}`}>
+    <div 
+      className={`chart-card ${status}`}
+      style={borderColor ? {
+        border: `3px solid ${borderColor}`,
+        borderRadius: "8px",
+        boxSizing: "border-box"
+      } : {}}
+    >
       <div className="chart-card__header">
         <div className="chart-card__left chart-card__drag-handle">
           {showDragIcon && <img src={DragIcon} alt="Drag" />}
