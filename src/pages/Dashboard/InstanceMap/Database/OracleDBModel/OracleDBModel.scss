@@ -31,4 +31,26 @@
     color: $gray-500;
     @include text-styles("body01");
   }
+
+  body.dark & {
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    &__title {
+      color: var(--color-text);
+    }
+
+    &__divider {
+      border-top-color: var(--color-border);
+    }
+
+    strong {
+      color: var(--color-text);
+    }
+
+    p {
+      color: var(--color-text);
+    }
+  }
 }

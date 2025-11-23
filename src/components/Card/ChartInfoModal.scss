@@ -11,7 +11,7 @@
     height: auto;
     min-width: 300px;
     z-index: 2;
-    color: $gray-0;
+    color: var(--color-sidebar-text);
     background-color: var(--color-sidebar-bg);
     @include text-styles("label02");
 

@@ -17,9 +17,9 @@
   &__box {
     width: 24px;
     height: 24px;
-    border: 1.5px solid $gray-300;
+    border: 1.5px solid var(--color-border);
     border-radius: 3px;
-    background: $gray-0;
+    background: var(--color-surface);
     position: relative;
     transition: all 0.2s ease;
 
@@ -51,7 +51,7 @@
 
   &__label {
     @include text-styles("body02");
-    color: $gray-700;
+    color: var(--color-text);
   }
 
   &.disabled {

@@ -6,6 +6,7 @@ import { isAxiosError } from "axios";
 import DetaileInfo from "./Card/DetaileInfo";
 import OracleDBModel from "./OracleDBModel/OracleDBModel";
 import List from "./List/List";
+import { useTheme } from "@/components/Header/hooks/useTheme";
 import {
   createDatabaseInstance,
   deleteDatabaseInstance,
@@ -101,6 +102,7 @@ const getErrorMessage = (error: unknown) => {
 };
 
 const Database: React.FC = () => {
+  const { isDarkMode } = useTheme();
   const [showInfo, setShowInfo] = useState(false);
   const [dbList, setDbList] = useState<DatabaseListItem[]>([]);
   const [isFetching, setIsFetching] = useState(false);
@@ -275,7 +277,7 @@ const Database: React.FC = () => {
                           handleDatabaseSelect(db);
                           setShowInfo(true);
                         }}
-                        isZoomed={selectedDatabaseId === db.id}
+                        isZoomed={isDarkMode ? false : selectedDatabaseId === db.id}
                         showInfoCard
                       />
                     </group>

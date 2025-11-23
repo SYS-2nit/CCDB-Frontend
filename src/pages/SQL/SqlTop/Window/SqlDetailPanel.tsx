@@ -15,13 +15,16 @@ const SqlDetailPanel: React.FC<Props> = ({ data, date }) => {
         boxSizing: "border-box",
         overflow: "hidden",
         whiteSpace: "normal",
+        color: "var(--color-text)",
       }}
     >
-      <h2 style={{ fontSize: "20px" }}>SQL 상세 정보 ({date})</h2>
+      <h2 style={{ fontSize: "20px", color: "var(--color-text)" }}>
+        SQL 상세 정보 ({date})
+      </h2>
 
       <pre
         style={{
-          background: "#f6f6f6",
+          background: "var(--color-bg)",
           margin: "20px 0px",
           padding: "20px",
           borderRadius: "5px",
@@ -30,12 +33,14 @@ const SqlDetailPanel: React.FC<Props> = ({ data, date }) => {
           wordBreak: "break-word",
           boxSizing: "border-box",
           width: "100%",
+          color: "var(--color-text)",
+          border: "1px solid var(--color-border)",
         }}
       >
         {data.sqlText}
       </pre>
 
-      <div style={{ fontSize: "14px" }}>
+      <div style={{ fontSize: "14px", color: "var(--color-text)" }}>
         <strong>Elapsed:</strong> {data.totalElapsed} &nbsp;
         <strong>CPU:</strong> {data.totalCpu} &nbsp;
         <strong>Buffer:</strong> {data.totalBuffer} &nbsp;
@@ -74,10 +79,12 @@ const ChartSection: React.FC<{ title: string; children: React.ReactNode }> = ({
   title,
   children,
 }) => (
-  <div>
+  <div style={{ marginTop: "20px" }}>
     <h3
       style={{
         fontSize: "16px",
+        color: "var(--color-text)",
+        marginBottom: "10px",
       }}
     >
       {title}

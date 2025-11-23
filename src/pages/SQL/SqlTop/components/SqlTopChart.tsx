@@ -28,11 +28,10 @@ export const SqlTopChart: React.FC<SqlTopChartProps> = ({
             legends={["기준", "비교"]}
             seriesData={[baseValues, compareValues]}
             categories={timeline}
-            height={300}
+            height={200}
           />
         )}
       </div>
     </div>
   );
 };
-

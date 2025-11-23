@@ -9,13 +9,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: $gray-0;
+    background: var(--color-surface);
     gap: 20px;
-    border-bottom: 1px solid $gray-100;
+    border-bottom: 1px solid var(--color-border);
     padding: 10px 20px;
 
     &__title {
-      color: $gray-900;
+      color: var(--color-text);
       @include text-styles("heading02");
     }
   }
@@ -25,7 +25,7 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    background: $gray-0;
+    background: var(--color-surface);
   }
 
   &__row {
@@ -49,7 +49,7 @@
 
       label {
         @include text-styles("body02");
-        color: $gray-900;
+        color: var(--color-text);
         margin-bottom: 10px;
       }
 
@@ -64,10 +64,10 @@
 
         .select-all-days-btn {
           padding: 4px 12px;
-          border: 1px solid $gray-300;
+          border: 1px solid var(--color-border);
           border-radius: 6px;
-          background: $gray-0;
-          color: $gray-700;
+          background: var(--color-surface);
+          color: var(--color-text);
           font-size: 12px;
           cursor: pointer;
           transition: all 0.15s ease;
@@ -78,7 +78,7 @@
           &:hover {
             border-color: $main-400;
             color: $main-600;
-            background: $gray-50;
+            background: var(--color-bg);
           }
 
           &.active {
@@ -104,10 +104,10 @@
 
         .select-24h-btn {
           padding: 4px 12px;
-          border: 1px solid $gray-300;
+          border: 1px solid var(--color-border);
           border-radius: 6px;
-          background: $gray-0;
-          color: $gray-700;
+          background: var(--color-surface);
+          color: var(--color-text);
           font-size: 12px;
           cursor: pointer;
           transition: all 0.15s ease;
@@ -118,7 +118,7 @@
           &:hover {
             border-color: $main-400;
             color: $main-600;
-            background: $gray-50;
+            background: var(--color-bg);
           }
 
           &.active {
@@ -141,12 +141,12 @@
 
         button {
           flex: 1;
-          border: 1px solid $gray-300;
+          border: 1px solid var(--color-border);
           border-radius: 6px;
           padding: 10px 0;
           cursor: pointer;
-          background: $gray-0;
-          color: $gray-700;
+          background: var(--color-surface);
+          color: var(--color-text);
           transition: all 0.15s ease;
 
           &:hover {
@@ -176,7 +176,7 @@
 
       label {
         @include text-styles("body02");
-        color: $gray-900;
+        color: var(--color-text);
       }
 
       // 전체 슬라이더 범위
@@ -210,7 +210,7 @@
           height: 6px;
           width: 100%;
           border-radius: 4px;
-          background: $gray-100;
+          background: var(--color-bg);
           transform: translateY(-50%);
         }
 
@@ -233,7 +233,7 @@
           width: 24px;
           height: 24px;
           border-radius: 50%;
-          background: $gray-0;
+          background: var(--color-surface);
           box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
           cursor: pointer;
         }
@@ -258,7 +258,7 @@
     padding-top: 20px;
     display: flex;
     justify-content: flex-end;
-    border-top: 1px solid $gray-100;
+    border-top: 1px solid var(--color-border);
   }
 }
 
@@ -271,8 +271,8 @@
 }
 
 .event-log__policy {
-  background: $gray-0;
-  border: 1px solid $gray-200;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 16px 20px;
   display: flex;
@@ -284,12 +284,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: $gray-900;
+  color: var(--color-text);
   @include text-styles("body01");
 
   .event-log__policy-name {
     @include text-styles("heading03");
-    color: $gray-800;
+    color: var(--color-text);
   }
 }
 
@@ -304,13 +304,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: $gray-50;
-  border: 1px solid $gray-200;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 12px 16px;
 
   .event-log__event-name {
-    color: $gray-800;
+    color: var(--color-text);
     @include text-styles("body02");
   }
 
@@ -322,7 +322,7 @@
 .event-log__empty {
   text-align: center;
   padding: 20px;
-  color: $gray-500;
+  color: var(--color-subtext);
   @include text-styles("body02");
 }
 
@@ -355,8 +355,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: $gray-50;
-  border: 1px solid $gray-200;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 12px 16px;
   padding-right: 44px; // X 버튼 공간 확보 (더 넓게)
@@ -366,7 +366,7 @@
 
   &:hover {
     border-color: $main-400;
-    background: $gray-100;
+    background: var(--color-surface);
 
     // 호버 시에도 X 버튼이 글자를 가리지 않도록
     .event-card-item__name {
@@ -383,7 +383,7 @@
   }
 
   &__name {
-    color: $gray-800;
+    color: var(--color-text);
     @include text-styles("body02");
     font-weight: 500;
     overflow: hidden;
@@ -402,7 +402,7 @@
     height: 24px;
     border: none;
     background: transparent;
-    color: $gray-500;
+    color: var(--color-subtext);
     font-size: 18px;
     line-height: 1;
     cursor: pointer;
@@ -415,7 +415,7 @@
     z-index: 1; // 글자 위에 표시
 
     &:hover {
-      background: $gray-200;
+      background: var(--color-surface);
       color: $sematic-error;
     }
 

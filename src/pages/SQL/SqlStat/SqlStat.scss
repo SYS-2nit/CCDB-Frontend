@@ -20,7 +20,7 @@
     align-items: flex-end;
     justify-content: space-between;
     flex-direction: row;
-    background: $gray-0;
+    background: var(--color-surface);
 
     // 왼쪽 영역 
     &-left {
@@ -46,13 +46,12 @@
 
   // 차트 영역
     &__summary {
-      background: $gray-0;
+      background: var(--color-surface);
       border-radius: 5px;
       padding: 10px;
-      color: $gray-700;
+      color: var(--color-text);
       @include text-styles("body02");
-      flex-shrink: 0;
-      min-height: 300px;
+      min-height: 200px;
       display: flex;
       flex-direction: column;
 
@@ -60,7 +59,7 @@
         display: flex;
         flex-direction: column;
         height: 100%;
-        min-height: 300px;
+        min-height: 200px;
 
         .sql-stat__chart-null {
           flex: 1;
@@ -70,10 +69,10 @@
           width: 100%;
           padding: 40px 20px;
           text-align: center;
-          border: 1px dashed $gray-100;
+          border: 1px solid var(--color-border);
           margin-top: 10px;
-          color: $gray-500;
-          background: $gray-50;
+          color: var(--color-subtext);
+          background: var(--color-bg);
         }
       }
     }
@@ -82,11 +81,10 @@
     &__table {
       padding: 10px;
       border-radius:5px;
-      background-color:  $gray-0;
-      color: $gray-700;
+      background-color: var(--color-surface);
+      color: var(--color-text);
       @include text-styles("body02");
       flex: 1;
-      min-height: 0;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -124,7 +122,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: $gray-500;
+        color: var(--color-subtext);
         @include text-styles("body02");
       }
     }
@@ -132,10 +130,15 @@
     // 테이블 행 클릭 
       &__sql-clickable {
       cursor: pointer;
-      color: $main-600;
+      color: $main-600 !important;
 
       &:hover {
         text-decoration: underline;
+      }
+
+      // 다크 모드에서도 main-600 유지
+      body.dark & {
+        color: $main-600 !important;
       }
     }
 

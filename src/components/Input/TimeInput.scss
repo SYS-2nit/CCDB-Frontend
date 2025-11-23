@@ -36,6 +36,15 @@
     }
 
     // 시간 선택 드롭다운 내부 텍스트 중앙 정렬
+    /* 다크 모드에서 시간 선택 아이콘 색상 변경 - 흰색 계열로 */
+    body.dark & {
+      &::-webkit-calendar-picker-indicator {
+        filter: invert(1) brightness(1.5);
+        cursor: pointer;
+        opacity: 0.9;
+      }
+    }
+
     &::-webkit-calendar-picker-indicator {
       cursor: pointer;
       position: absolute;

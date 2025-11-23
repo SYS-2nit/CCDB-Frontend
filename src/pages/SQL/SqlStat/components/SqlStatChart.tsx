@@ -63,11 +63,10 @@ export const SqlStatChart: React.FC<SqlStatChartProps> = ({
             categories={graphData.labels}
             originalTimes={graphData.originalTimes}
             xAxisFilter={getXAxisFilter()}
-            height={300}
+            height={200}
           />
         )}
       </div>
     </div>
   );
 };
-

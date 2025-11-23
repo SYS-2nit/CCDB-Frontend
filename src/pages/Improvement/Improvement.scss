@@ -21,7 +21,7 @@
 
   &__subtitle {
     @include text-styles("label02");
-    color: $gray-500;
+    color: var(--color-subtext);
   }
 
   &__layout {
@@ -48,14 +48,14 @@
 }
 
 .report-section {
-  background-color: $gray-0;
+  background-color: var(--color-surface);
   border-radius: 5px;
   padding: 20px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 
   &__title {
     @include text-styles("heading04");
-    color: $gray-700;
+    color: var(--color-text);
     margin-bottom: 12px;
   }
 
@@ -67,7 +67,7 @@
 
   &__block-title {
     @include text-styles("label02");
-    color: $gray-400;
+    color: var(--color-subtext);
     margin: 10px 0px;
   }
 }
@@ -75,8 +75,8 @@
 .report-template-card {
   border-radius: 5px;
   padding: 10px;
-  border: 1px solid $gray-200;
-  background-color: $gray-0;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
   cursor: pointer;
   display: flex;
   gap: 20px;
@@ -90,23 +90,24 @@
     align-items: center;
     justify-content: center;
     @include text-styles("heading01");
+    color: var(--color-text);
   }
 
   &__title {
     text-align: right;
     @include text-styles("heading04");
-    color: $gray-700;
+    color: var(--color-text);
   }
 
   &__desc {
     @include text-styles("label02");
-    color: $gray-400;
+    color: var(--color-subtext);
   }
 
   &--active {
     border-color: $main-500;
     box-shadow: 0 0 0 1px rgba($main-500, 0.2);
-    background-color: $main-100;
+    background-color: var(--color-bg);
   }
 }
 
@@ -123,26 +124,26 @@
 
   &__label {
     @include text-styles("label02");
-    color: $gray-500;
+    color: var(--color-subtext);
   }
 
   &__hint {
     margin-top: 6px;
     @include text-styles("label02");
-    color: $gray-500;
+    color: var(--color-subtext);
   }
 
   &__error {
     margin-top: 6px;
     @include text-styles("label02");
-    color: $gray-500;
+    color: $sematic-error;
   }
 }
 
 // 보고서 기간 입력 필드는 흰색 배경 + 연한 테두리로 통일
 .report-period .date-input__field {
-  background-color: $gray-0;
-  border: 1px solid $gray-200;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
 }
 
 .report-metrics {
@@ -155,10 +156,10 @@
   min-width: 140px;
   padding: 10px;
   border-radius: 5px;
-  border: 1px solid $gray-200;
+  border: 1px solid var(--color-border);
   @include text-styles("body02");
-  color: $gray-500;
-  background-color: $gray-0;
+  color: var(--color-subtext);
+  background-color: var(--color-surface);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -171,13 +172,13 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: $gray-300;
+    background-color: var(--color-subtext);
   }
 
   &--active {
     // 보고서 구성 선택 카드와 동일한 파란 계열 배경 사용
-    background-color: $main-100;
-    color: $gray-800;
+    background-color: var(--color-bg);
+    color: var(--color-text);
   }
 }
 
@@ -241,37 +242,37 @@
 .report-section-card {
   border-radius: 5px;
   padding: 16px 18px;
-  border: 1px solid $gray-200;
-  background-color: $gray-0;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
   cursor: pointer;
   text-align: left;
   transition: all 0.15s ease;
 
   &__title {
     @include text-styles("body02");
-    color: $gray-500;
+    color: var(--color-subtext);
     margin-bottom: 6px;
   }
 
   &__icon {
     @include text-styles("title02");
-    color: $gray-500;
+    color: var(--color-subtext);
     margin-bottom: 6px;
   }
 
   &__desc {
     @include text-styles("label02");
-    color: $gray-500;
+    color: var(--color-subtext);
   }
 
   &--active {
     border-color: $main-500;
-    background-color: $main-100;
+    background-color: var(--color-bg);
   }
 }
 
 .report-preview {
-  background-color: $gray-0;
+  background-color: var(--color-surface);
   border-radius: 5px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
   padding: 0;
@@ -284,8 +285,8 @@
     gap: 12px;
     padding: 16px 20px;
     border-radius: 5px 5px 0 0;
-    background-color: #111827; // 어두운 네이비 톤
-    color: $gray-0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
   }
 
   &__header-icon {
@@ -301,18 +302,18 @@
 
   &__title {
     @include text-styles("label02");
-    color: $gray-500;
+    color: var(--color-subtext);
   }
 
   &__subtitle {
     font-size: 12px;
-    color: $gray-300;
+    color: var(--color-subtext);
     margin-top: 4px;
   }
 
   &__card {
     margin-top: 0;
-    background-color: $gray-0;
+    background-color: var(--color-surface);
     border-radius: 0 0 5px 5px;
     padding: 16px 20px;
     display: flex;
@@ -324,6 +325,7 @@
     display: flex;
     gap: 12px;
     font-size: 12px;
+    color: var(--color-text);
 
     &--period {
       margin-top: 4px;
@@ -332,7 +334,7 @@
     &--hint {
       margin-top: 6px;
       font-size: 11px;
-      color: $gray-300;
+      color: var(--color-subtext);
     }
   }
 
@@ -340,7 +342,7 @@
     width: 32px;
     height: 32px;
     border-radius: 5px;
-    background-color: $gray-50;
+    background-color: var(--color-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -355,11 +357,12 @@
   }
 
   &__label {
-    color: $gray-600;
+    color: var(--color-subtext);
   }
 
   &__value {
     white-space: pre-line;
+    color: var(--color-text);
   }
 
   &__footer {
@@ -378,9 +381,10 @@
   &__tag {
     padding: 4px 10px;
     border-radius: 5px;
-    background-color: $gray-50;
-    border: 1px solid $gray-200;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
     font-size: 11px;
+    color: var(--color-text);
   }
 
   &__checklist {
