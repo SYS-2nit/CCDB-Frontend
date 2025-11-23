@@ -490,10 +490,16 @@ const Dashboard: React.FC<DashboardProps> = ({
       data: [],
     });
 
-    await saveWidgetOrder();
+  //  saveWidgetOrder를 먼저 완료 (백엔드에 저장)
+  await saveWidgetOrder();
+  
+  // 약간의 지연을 두어 저장이 완료된 후 새로고침
+  setTimeout(() => {
     triggerRefresh();
-    setSettingTargetIndex(null);
-    setIsSettingOpen(false);
+  }, 100);
+  
+  setSettingTargetIndex(null);
+  setIsSettingOpen(false);
   };
 
   const colsConfig = {
