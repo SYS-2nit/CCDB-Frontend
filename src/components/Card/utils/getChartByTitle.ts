@@ -5,7 +5,6 @@ import { ioChartRenderer } from "../chartRenderers/ioChartRenderer";
 import { storageChartRenderer } from "../chartRenderers/storageChartRenderer";
 import { memoryChartRenderer } from "../chartRenderers/memoryChartRenderer";
 import { sessionChartRenderer } from "../chartRenderers/sessionChartRenderer";
-import { renderDynamicChart } from "./renderDynamicChart";
 import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 /** 탭 타입 정의 */
@@ -61,10 +60,6 @@ export const getChartByTitle = (
   if (category === "storage")
     return storageChartRenderer(title, graphData, mode);
 
-  // Main/Custom 또는 매칭되지 않은 경우 (PREVENTION, IMPROVEMENTS 포함)
-  // renderDynamicChart를 먼저 시도하고, 결과가 없으면 mainChartRenderer 사용
-  const rendered = renderDynamicChart(title, graphData, mode);
-  if (rendered) return rendered;
-
+  // Main/Custom 또는 매칭되지 않은 경우
   return mainChartRenderer(title, graphData, mode);
 };
