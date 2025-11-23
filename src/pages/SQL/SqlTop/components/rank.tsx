@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
+import type { SqlStatsItem } from "@/api/Sql/sql";
+import type { SqlFilterType } from "../../types";
 import { getMetricValue } from "./metric";
 
 export interface RankData {
@@ -12,7 +13,10 @@ export interface RankData {
 }
 
 // SQL 랭킹 계산, 정렬, 비율 변환 등 순수 랭킹 로직 처리
-export const calcRankChange = (baseRank: number, compareRank: number) => {
+export const calcRankChange = (
+  baseRank: number,
+  compareRank: number
+): React.ReactNode => {
   if (baseRank === 0 || compareRank === 0) return "-";
 
   const diff = compareRank - baseRank;
@@ -24,7 +28,10 @@ export const calcRankChange = (baseRank: number, compareRank: number) => {
   return "-";
 };
 
-export const convertList = (list: any[], filter: string): RankData[] => {
+export const convertList = (
+  list: SqlStatsItem[],
+  filter: SqlFilterType
+): RankData[] => {
   if (!list || list.length === 0) return [];
 
   const max = Math.max(...list.map((item) => getMetricValue(item, filter)), 1);

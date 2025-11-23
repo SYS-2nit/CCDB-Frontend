@@ -1,13 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   getSqlCompareStats,
   getSqlDetail,
   getPeriodGraph,
 } from "@/api/Sql/sql";
+import type {
+  CompareStatsParams,
+  SqlDetailParams,
+  PeriodGraphParams,
+} from "../../types";
 
-export const fetchCompareStats = async (params: any) =>
+export const fetchCompareStats = async (params: CompareStatsParams) =>
   getSqlCompareStats(params);
 
-export const fetchSqlDetail = async (params: any) => getSqlDetail(params);
+export const fetchSqlDetail = async (params: SqlDetailParams) =>
+  getSqlDetail(params);
 
-export const fetchPeriodData = async (params: any) => getPeriodGraph(params);
+export const fetchPeriodData = async (params: PeriodGraphParams) =>
+  getPeriodGraph(params);

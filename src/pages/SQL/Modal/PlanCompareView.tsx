@@ -1,11 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from "react";
 import "./PlanCompareView.scss";
 import { createTwoFilesPatch } from "diff";
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - diff2html 라이브러리 타입 정의가 없음
 import * as Diff2Html from "diff2html/lib/ui/js/diff2html-ui";
 import "diff2html/bundles/css/diff2html.min.css";
+
+interface Diff2HtmlType {
+  html: (diffString: string, options: {
+    inputFormat: string;
+    showFiles: boolean;
+    outputFormat: string;
+    matching: string;
+  }) => string;
+}
 
 interface Props {
   beforeHash: number | null;
@@ -47,7 +55,7 @@ const PlanCompareView: React.FC<Props> = ({
     afterPlanText ?? ""
   );
 
-  const diffHtml = (Diff2Html as any).html(diffString, {
+  const diffHtml = (Diff2Html as unknown as Diff2HtmlType).html(diffString, {
     inputFormat: "diff",
     showFiles: false,
     outputFormat: "side-by-side",

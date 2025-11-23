@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { PeriodGraphItem } from "../../types";
 
 // 기간 그래프 표시를 위한 타임라인 생성 및 값 매핑 처리
 export const buildTimeline = (
   startDate: string,
   compareDate: string,
   interval: number
-) => {
+): string[] => {
   const start = new Date(startDate + "T00:00:00");
   const end = new Date(compareDate + "T23:59:59");
 
@@ -27,8 +27,11 @@ export const buildTimeline = (
   return times;
 };
 
-export const mapValuesToTimeline = (timeline: string[], period: any[]) => {
-  const map = new Map(
+export const mapValuesToTimeline = (
+  timeline: string[],
+  period: PeriodGraphItem[]
+): number[] => {
+  const map = new Map<string, number>(
     period.map((d) => {
       const dt = new Date(d.datetime);
       const key = `${String(dt.getMonth() + 1).padStart(2, "0")}-${String(
