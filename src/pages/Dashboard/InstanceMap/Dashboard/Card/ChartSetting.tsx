@@ -157,7 +157,26 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
     const results: { tab: TabType; name: string }[] = [];
 
     searchTargets.forEach((tab) => {
-      const charts = chartData[tab as TabType] || [];
+      let charts: string[] = [];
+
+      // performance와 prevention 탭은 API에서 가져온 그래프 목록에서 검색
+      if (tab === "performance") {
+        charts = allGraphs
+          .filter(
+            (graph) =>
+              graph.category === "IMPROVEMENTS" ||
+              graph.category === "PERFORMANCE"
+          )
+          .map((graph) => graph.name);
+      } else if (tab === "prevention") {
+        charts = allGraphs
+          .filter((graph) => graph.category === "PREVENTION")
+          .map((graph) => graph.name);
+      } else {
+        // 다른 탭들은 chartData에서 가져옴
+        charts = chartData[tab as TabType] || [];
+      }
+
       charts.forEach((name) => {
         if (name.toLowerCase().includes(term))
           results.push({ tab: tab as TabType, name });
@@ -170,17 +189,39 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
     }
 
     return results;
-  }, [searchTerm, mode]);
+  }, [searchTerm, mode, allGraphs]);
 
   /** 현재 탭의 그래프 목록 */
   const currentGraphs = useMemo(() => {
+    // 검색 결과가 있으면 검색 결과 사용
     if (searchResults) {
       return searchResults
         .filter((r) => r.tab === activeTab)
         .map((r) => r.name);
     }
+
+    // performance와 prevention 탭은 API에서 가져온 그래프 목록에서 카테고리별로 필터링
+    if (activeTab === "performance") {
+      // IMPROVEMENTS 또는 PERFORMANCE 카테고리
+      return allGraphs
+        .filter(
+          (graph) =>
+            graph.category === "IMPROVEMENTS" ||
+            graph.category === "PERFORMANCE"
+        )
+        .map((graph) => graph.name);
+    }
+
+    if (activeTab === "prevention") {
+      // PREVENTION 카테고리
+      return allGraphs
+        .filter((graph) => graph.category === "PREVENTION")
+        .map((graph) => graph.name);
+    }
+
+    // 다른 탭들은 chartData에서 가져옴
     return chartData[activeTab] ?? [];
-  }, [activeTab, searchResults]);
+  }, [activeTab, searchResults, allGraphs]);
 
   /** 선택된 그래프 */
   const selectedGraphName =
