@@ -177,8 +177,17 @@ export const useSqlStat = () => {
 
   /** 필터/날짜/interval 변경 시 그래프와 테이블 모두 재조회 */
   useEffect(() => {
-    if (dateRange.start && dateRange.end) {
+    if (dateRange.start && dateRange.end && filter) {
       Promise.all([fetchGraph(), fetchTable()]);
+    } else {
+      setGraphData({
+        labels: [],
+        values: [],
+        originalTimes: [],
+      });
+      setRawTableData([]);
+      setTableData([]);
+      setTotalPages(1);
     }
   }, [filter, dateRange.start, dateRange.end, interval, fetchGraph, fetchTable]);
 
