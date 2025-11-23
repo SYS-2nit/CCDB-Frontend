@@ -24,6 +24,7 @@ import {
   type GraphDefinition,
   type GraphDataResponse,
 } from "@/api/Dashboard/dashboard";
+import { getCategoryByGraphId } from "@/components/Card/utils/getChartByTitle";
 
 import { isAxiosError } from "axios";
 import { useSearchParams } from "react-router-dom";
@@ -600,22 +601,32 @@ const Dashboard: React.FC<DashboardProps> = ({
               compactType="vertical"
               draggableHandle=".chart-card__drag-handle"
             >
-              {charts.map((graph) => (
-                <div key={String(graph.id)}>
-                  <ChartCard
-                    title={graph.name}
-                    status="normal"
-                    onSettingClick={() => {
-                      const idx = charts.findIndex((c) => c.id === graph.id);
-                      setSettingTargetIndex(idx);
-                      setIsSettingOpen(true);
-                    }}
-                    showDragIcon
-                    showSettingIcon
-                    graphData={graph}
-                  />
-                </div>
-              ))}
+              {charts.map((graph) => {
+                // 같은 카테고리의 그래프 필터링
+                const graphCategory = getCategoryByGraphId(graph.id);
+                const allGraphsInCategory = graphList.filter(
+                  (g) => getCategoryByGraphId(g.id) === graphCategory
+                );
+                
+                return (
+                  <div key={String(graph.id)}>
+                    <ChartCard
+                      // title={graph.name}
+                      title={graph.id === 27 ? "SGA 효율" : graph.name}
+                      status="normal"
+                      onSettingClick={() => {
+                        const idx = charts.findIndex((c) => c.id === graph.id);
+                        setSettingTargetIndex(idx);
+                        setIsSettingOpen(true);
+                      }}
+                      showDragIcon
+                      showSettingIcon
+                      graphData={graph}
+                      allGraphsInCategory={allGraphsInCategory}
+                    />
+                  </div>
+                );
+              })}
             </ResponsiveGridLayout>
           </div>
         )}
@@ -655,7 +666,8 @@ const Dashboard: React.FC<DashboardProps> = ({
 
                 {charts[0] && (
                   <ChartCard
-                    title={charts[0].name}
+                    // title={charts[0].name}
+                    title={charts[0].id === 27 ? "SGA 효율" : charts[0].name}
                     status="normal"
                     onSettingClick={() => {
                       setSettingTargetIndex(0);
@@ -664,6 +676,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     showDragIcon={false}
                     showSettingIcon={false}
                     graphData={charts[0]}
+                    allGraphsInCategory={charts}
                   />
                 )}
               </div>
@@ -672,7 +685,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {charts.slice(1, 3).map((graph, i) => (
                   <ChartCard
                     key={graph.id}
-                    title={graph.name}
+                    // title={graph.name}
+                    title={graph.id === 27 ? "SGA 효율" : graph.name}
                     status="normal"
                     onSettingClick={() => {
                       setSettingTargetIndex(i + 1);
@@ -681,6 +695,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     showDragIcon={false}
                     showSettingIcon={false}
                     graphData={graph}
+                    allGraphsInCategory={charts}
                   />
                 ))}
               </div>
@@ -689,7 +704,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {charts.slice(3, 5).map((graph, i) => (
                   <ChartCard
                     key={graph.id}
-                    title={graph.name}
+                    // title={graph.name}
+                    title={graph.id === 27 ? "SGA 효율" : graph.name}
                     status="normal"
                     onSettingClick={() => {
                       setSettingTargetIndex(i + 3);
@@ -698,6 +714,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     showDragIcon={false}
                     showSettingIcon={false}
                     graphData={graph}
+                    allGraphsInCategory={charts}
                   />
                 ))}
               </div>
@@ -706,7 +723,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {charts.slice(5, 8).map((graph, i) => (
                   <ChartCard
                     key={graph.id}
-                    title={graph.name}
+                    // title={graph.name}
+                    title={graph.id === 27 ? "SGA 효율" : graph.name}
                     status="normal"
                     onSettingClick={() => {
                       setSettingTargetIndex(i + 5);
@@ -715,6 +733,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     showDragIcon={false}
                     showSettingIcon={false}
                     graphData={graph}
+                    allGraphsInCategory={charts}
                   />
                 ))}
               </div>
