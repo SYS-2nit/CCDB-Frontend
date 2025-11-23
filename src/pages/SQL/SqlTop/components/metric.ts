@@ -29,5 +29,6 @@ export const getMetricValue = (
   filter: SqlFilterType
 ): number => {
   const field = metricFieldMap[filter];
-  return item[field] ?? 0;
+  const value = item[field];
+  return typeof value === "number" ? value : 0;
 };

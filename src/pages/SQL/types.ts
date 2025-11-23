@@ -1,4 +1,4 @@
-import type { SqlStatsItem, SqlDetailItem, PlanHistoryItem } from "@/api/Sql/sql";
+import type { PlanHistoryItem } from "@/api/Sql/sql";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 
 /* ===== SQL 필터 타입 ===== */

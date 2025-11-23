@@ -6,10 +6,9 @@ import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 import type { SqlFilterType, IntervalType } from "../../types";
 import { convertSqlDetailToDrawerData } from "../../utils/convertSqlDetail";
 import { formatToMonthDayTime } from "../../utils/dateFormat";
-import { logError, getSqlErrorMessage } from "../../utils/errorHandler";
+import { logError } from "../../utils/errorHandler";
 import {
   DEFAULT_PAGE_SIZE,
-  BAR_GAUGE_MAX,
   MIN_EXEC_COUNT,
   MAX_EXEC_COUNT,
   DEFAULT_INSTANCE_ID,
