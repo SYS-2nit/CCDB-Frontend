@@ -42,3 +42,8 @@ export const DEFAULT_FILTER: SqlFilterType = "elapsed";
 export const DEFAULT_INTERVAL: IntervalType = 30;
 export const DEFAULT_PAGE_SIZE = 10;
 
+/* ===== 테이블 관련 상수 ===== */
+export const BAR_GAUGE_MAX = 50000000;
+export const MIN_EXEC_COUNT = 1;
+export const MAX_EXEC_COUNT = 10000;
+

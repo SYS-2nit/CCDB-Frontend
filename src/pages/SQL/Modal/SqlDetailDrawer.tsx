@@ -11,6 +11,7 @@ import { getPlanHistoryDetail, getPlanHistoryList } from "@/api/Sql/sql";
 import PlanCompareView from "./PlanCompareView";
 import Spinner from "@/components/Spinner/Spinner";
 import type { PlanHistoryRow } from "../types";
+import { formatToMonthDayTimeSimple } from "../utils/dateFormat";
 
 interface SqlDetailDrawerProps {
   data: SqlDetailData;
@@ -22,19 +23,6 @@ const tabs = [
   { id: "1", label: "Trend" },
   { id: "2", label: "Plan Change History" },
 ] as const;
-
-/* 날짜 포맷 */
-const formatToMonthDayTime = (raw: string) => {
-  const d = new Date(raw);
-  if (isNaN(d.getTime())) return raw;
-
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const HH = String(d.getHours()).padStart(2, "0");
-  const MM = String(d.getMinutes()).padStart(2, "0");
-
-  return `${mm}-${dd} ${HH}:${MM}`;
-};
 
 const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const [activeTab, setActiveTab] = useState("1");
@@ -93,8 +81,8 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
 
       setSelectedPlanRow({
         ...row,
-        beforePlanText: detail.beforePlanText,
-        afterPlanText: detail.afterPlanText,
+        beforePlanText: detail.beforePlanText ?? null,
+        afterPlanText: detail.afterPlanText ?? null,
       });
     } finally {
       setLoadingDetail(false);
@@ -131,7 +119,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   ];
 
   const tableRows = pagedData.map((row) => [
-    formatToMonthDayTime(row.time),
+    formatToMonthDayTimeSimple(row.time),
     row.queryText,
     row.sqlId,
     row.beforePlanHash,
@@ -211,7 +199,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                       data.execTrend.map((t) => t.value),
                     ]}
                     categories={data.elapsedTrend.map((t) =>
-                      formatToMonthDayTime(t.label)
+                      formatToMonthDayTimeSimple(t.label)
                     )}
                   />
                 </div>
@@ -225,7 +213,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                       data.diskTrend.map((t) => t.value),
                     ]}
                     categories={data.bufferTrend.map((t) =>
-                      formatToMonthDayTime(t.label)
+                      formatToMonthDayTimeSimple(t.label)
                     )}
                   />
                 </div>
@@ -236,7 +224,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                     legends={["Wait"]}
                     seriesData={[data.waitTrend.map((t) => t.value)]}
                     categories={data.waitTrend.map((t) =>
-                      formatToMonthDayTime(t.label)
+                      formatToMonthDayTimeSimple(t.label)
                     )}
                   />
                 </div>
@@ -283,7 +271,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                         { key: "after", label: "After" },
                       ]}
                       rows={tableRows}
-                      onClick={(_: any, index: number) =>
+                      onClick={(_row: React.ReactNode[], index: number) =>
                         handlePlanRowClick(pagedData[index])
                       }
                     />
@@ -294,8 +282,8 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
                       <PlanCompareView
                         beforeHash={selectedPlanRow.beforePlanHash}
                         afterHash={selectedPlanRow.afterPlanHash}
-                        beforePlanText={selectedPlanRow.beforePlanText}
-                        afterPlanText={selectedPlanRow.afterPlanText}
+                        beforePlanText={selectedPlanRow.beforePlanText ?? null}
+                        afterPlanText={selectedPlanRow.afterPlanText ?? null}
                       />
                     )}
 

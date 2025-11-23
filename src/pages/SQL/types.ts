@@ -59,8 +59,8 @@ export interface PeriodGraphParams {
 
 /* ===== Plan History Row 타입 ===== */
 export interface PlanHistoryRow extends PlanHistoryItem {
-  beforePlanText?: string;
-  afterPlanText?: string;
+  beforePlanText?: string | null;
+  afterPlanText?: string | null;
 }
 
 /* ===== SqlDetailDrawer에서 사용하는 타입 ===== */

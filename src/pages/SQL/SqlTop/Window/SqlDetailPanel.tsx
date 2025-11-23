@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 import LineChart from "@/components/Chart/LineChart";
@@ -71,7 +70,7 @@ const SqlDetailPanel: React.FC<Props> = ({ data, date }) => {
   );
 };
 
-const ChartSection: React.FC<{ title: string; children: any }> = ({
+const ChartSection: React.FC<{ title: string; children: React.ReactNode }> = ({
   title,
   children,
 }) => (
