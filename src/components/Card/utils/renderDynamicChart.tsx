@@ -276,9 +276,6 @@ const formatTime = (timestamp: string, mode: DashboardMode = "LIVE") => {
     return timestamp;
   }
 
-  // Asia/Seoul 타임존을 명시적으로 사용하여 포맷팅
-  const timeZone = "Asia/Seoul";
-
   // 모드에 따라 시간 포맷 변경
   switch (mode) {
     case "LIVE": {
