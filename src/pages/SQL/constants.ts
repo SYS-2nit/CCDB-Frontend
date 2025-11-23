@@ -46,4 +46,8 @@ export const DEFAULT_PAGE_SIZE = 10;
 export const BAR_GAUGE_MAX = 50000000;
 export const MIN_EXEC_COUNT = 1;
 export const MAX_EXEC_COUNT = 10000;
+export const PLAN_HISTORY_ROWS_PER_PAGE = 15;
+
+/* ===== 기본 Instance ID ===== */
+export const DEFAULT_INSTANCE_ID = 1;
 

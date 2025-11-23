@@ -12,6 +12,7 @@ import {
   BAR_GAUGE_MAX,
   MIN_EXEC_COUNT,
   MAX_EXEC_COUNT,
+  DEFAULT_INSTANCE_ID,
 } from "../../constants";
 
 export interface TableData {
@@ -82,7 +83,7 @@ export const useSqlStat = () => {
     setIsGraphLoading(true);
     try {
       const graph = await getSqlGraph({
-        instanceId: 1,
+        instanceId: DEFAULT_INSTANCE_ID,
         startDate: dateRange.start,
         endDate: dateRange.end,
         metric: filter || "elapsed",
@@ -122,7 +123,7 @@ export const useSqlStat = () => {
     setIsTableLoading(true);
     try {
       const data = await getSqlStats({
-        instanceId: 1,
+        instanceId: DEFAULT_INSTANCE_ID,
         startDate: dateRange.start,
         endDate: dateRange.end,
         keyword: "",

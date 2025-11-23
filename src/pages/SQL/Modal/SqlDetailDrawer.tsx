@@ -13,6 +13,7 @@ import Spinner from "@/components/Spinner/Spinner";
 import type { PlanHistoryRow } from "../types";
 import { formatToMonthDayTimeSimple } from "../utils/dateFormat";
 import { logError } from "../utils/errorHandler";
+import { PLAN_HISTORY_ROWS_PER_PAGE } from "../constants";
 
 interface SqlDetailDrawerProps {
   data: SqlDetailData;
@@ -33,7 +34,6 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const [loadingPlan, setLoadingPlan] = useState(false);
 
   /* 페이지네이션 */
-  const rowsPerPage = 15;
   const [currentPage, setCurrentPage] = useState(1);
 
   /* 상세조회 */
@@ -63,11 +63,14 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   }, [activeTab, data.sqlId]);
 
   /* -------------------- Pagination -------------------- */
-  const totalPages = Math.max(1, Math.ceil(planList.length / rowsPerPage));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(planList.length / PLAN_HISTORY_ROWS_PER_PAGE)
+  );
 
   const pagedData = planList.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
+    (currentPage - 1) * PLAN_HISTORY_ROWS_PER_PAGE,
+    currentPage * PLAN_HISTORY_ROWS_PER_PAGE
   );
 
   /* -------------------- Detail API -------------------- */

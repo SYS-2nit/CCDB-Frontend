@@ -19,6 +19,7 @@ import type {
 } from "../../types";
 import { convertSqlDetailToDrawerData } from "../../utils/convertSqlDetail";
 import { logError } from "../../utils/errorHandler";
+import { DEFAULT_INSTANCE_ID } from "../../constants";
 
 // 상태 + 데이터 로직 담당 Custom Hook
 export const useSqlTop = () => {
@@ -62,7 +63,7 @@ export const useSqlTop = () => {
       const data = await fetchCompareStats({
         baseDate: startDate,
         compareDate,
-        instanceId: 1,
+        instanceId: DEFAULT_INSTANCE_ID,
         keyword: filter || undefined,
         intervalMinutes: interval,
       });
@@ -107,7 +108,7 @@ export const useSqlTop = () => {
         endDate: startDate,
         metric: filter || "elapsed",
         intervalMinutes: interval,
-        instanceId: 1,
+        instanceId: DEFAULT_INSTANCE_ID,
       });
 
       const compare = await fetchPeriodData({
@@ -115,7 +116,7 @@ export const useSqlTop = () => {
         endDate: compareDate,
         metric: filter || "elapsed",
         intervalMinutes: interval,
-        instanceId: 1,
+        instanceId: DEFAULT_INSTANCE_ID,
       });
 
       const t = buildTimeline(startDate, compareDate, interval);
