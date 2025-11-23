@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "../index";
 
 /* ===== SQL 통계 목록 조회 API ===== */
@@ -125,8 +124,29 @@ export const getSqlStats = async (params: {
 /* -----------------------------------------------------
  * 2. SQL 통계 그래프 조회
  * ----------------------------------------------------- */
-export const getSqlGraph = async (params: unknown) => {
-  const res = await api.get<ApiWrapper<any>>("/api/sql/graph", { params });
+export interface SqlGraphParams {
+  instanceId: number;
+  startDate: string;
+  endDate: string;
+  metric: string;
+  intervalMinutes: number;
+}
+
+export interface SqlGraphBucket {
+  timeLabel: string;
+  value: number;
+}
+
+export interface SqlGraphResponse {
+  buckets: SqlGraphBucket[];
+}
+
+export const getSqlGraph = async (
+  params: SqlGraphParams
+): Promise<SqlGraphResponse> => {
+  const res = await api.get<ApiWrapper<SqlGraphResponse>>("/api/sql/graph", {
+    params,
+  });
 
   // 로그
   console.log("[API] SQL 그래프 응답:", res.data);
@@ -137,20 +157,27 @@ export const getSqlGraph = async (params: unknown) => {
 /* -----------------------------------------------------
  * 3. SQL 상세 탭 조회
  * ----------------------------------------------------- */
-export const getSqlDetail = async (params: {
-  sqlId: any;
-  startDate: any;
-  endDate: any;
-  intervalMinutes: any;
-}) => {
+export interface SqlDetailParams {
+  sqlId: string;
+  startDate: string;
+  endDate: string;
+  intervalMinutes: number;
+}
+
+export const getSqlDetail = async (
+  params: SqlDetailParams
+): Promise<SqlDetailItem> => {
   try {
-    const res = await api.get("/api/sql/detail/" + params.sqlId, {
-      params: {
-        startDate: params.startDate,
-        endDate: params.endDate,
-        intervalMinutes: params.intervalMinutes,
-      },
-    });
+    const res = await api.get<ApiWrapper<SqlDetailItem>>(
+      "/api/sql/detail/" + params.sqlId,
+      {
+        params: {
+          startDate: params.startDate,
+          endDate: params.endDate,
+          intervalMinutes: params.intervalMinutes,
+        },
+      }
+    );
 
     console.error("[API] SQL 상세 조회 성공:", res.data.data);
     return res.data.data;

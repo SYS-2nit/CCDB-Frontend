@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { useEffect, useState } from "react";
@@ -12,6 +11,13 @@ import {
 import { metricLabelMap } from "../components/metric";
 import { alignBySqlId, convertList, type RankData } from "../components/rank";
 import { buildTimeline, mapValuesToTimeline } from "../components/timeline";
+import type {
+  SqlFilterType,
+  IntervalType,
+  PeriodGraphItem,
+  SqlDetailDrawerData,
+} from "../../types";
+import { convertSqlDetailToDrawerData } from "../../utils/convertSqlDetail";
 
 // 상태 + 데이터 로직 담당 Custom Hook
 export const useSqlTop = () => {
@@ -20,30 +26,32 @@ export const useSqlTop = () => {
   const [compareDate, setCompareDate] = useState("");
 
   /* 필터 & Interval */
-  const [filter, setFilter] = useState("");
-  const [interval, setInterval] = useState(30);
+  const [filter, setFilter] = useState<SqlFilterType | "">("");
+  const [interval, setInterval] = useState<IntervalType>(30);
 
   /* 리스트 */
   const [baseList, setBaseList] = useState<RankData[]>([]);
   const [compareList, setCompareList] = useState<RankData[]>([]);
 
   /* 기간 그래프 */
-  const [, setBasePeriod] = useState<any[]>([]);
-  const [, setComparePeriod] = useState<any[]>([]);
+  const [, setBasePeriod] = useState<PeriodGraphItem[]>([]);
+  const [, setComparePeriod] = useState<PeriodGraphItem[]>([]);
   const [timeline, setTimeline] = useState<string[]>([]);
   const [baseValues, setBaseValues] = useState<number[]>([]);
   const [compareValues, setCompareValues] = useState<number[]>([]);
   const [isChartLoading, setIsChartLoading] = useState(false);
 
   /* 상세 */
-  const [detailData, setDetailData] = useState<any>(null);
+  const [detailData, setDetailData] = useState<SqlDetailDrawerData | null>(
+    null
+  );
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   /* 비교 체크 */
   const [selectedBase, setSelectedBase] = useState<string | null>(null);
   const [selectedCompare, setSelectedCompare] = useState<string | null>(null);
 
-  const metricLabel = metricLabelMap[filter];
+  const metricLabel = filter ? metricLabelMap[filter] : "";
 
   /* Compare 리스트 */
   const loadCompareList = async () => {
@@ -52,12 +60,18 @@ export const useSqlTop = () => {
         baseDate: startDate,
         compareDate,
         instanceId: 1,
-        keyword: filter,
+        keyword: filter || undefined,
         intervalMinutes: interval,
       });
 
-      const base = convertList(data.baseList, filter);
-      const comp = convertList(data.compareList, filter);
+      const base = convertList(
+        data.baseList,
+        (filter || "elapsed") as SqlFilterType
+      );
+      const comp = convertList(
+        data.compareList,
+        (filter || "elapsed") as SqlFilterType
+      );
 
       const aligned = alignBySqlId(base, comp);
 
@@ -86,7 +100,7 @@ export const useSqlTop = () => {
       const base = await fetchPeriodData({
         startDate,
         endDate: startDate,
-        metric: filter,
+        metric: filter || "elapsed",
         intervalMinutes: interval,
         instanceId: 1,
       });
@@ -94,7 +108,7 @@ export const useSqlTop = () => {
       const compare = await fetchPeriodData({
         startDate: compareDate,
         endDate: compareDate,
-        metric: filter,
+        metric: filter || "elapsed",
         intervalMinutes: interval,
         instanceId: 1,
       });
@@ -135,7 +149,7 @@ export const useSqlTop = () => {
       intervalMinutes: interval,
     });
 
-    setDetailData({ date: startDate, ...raw });
+    setDetailData(convertSqlDetailToDrawerData(raw, startDate));
     setIsDrawerOpen(true);
   };
 
@@ -147,7 +161,7 @@ export const useSqlTop = () => {
       intervalMinutes: interval,
     });
 
-    setDetailData({ date: compareDate, ...raw });
+    setDetailData(convertSqlDetailToDrawerData(raw, compareDate));
     setIsDrawerOpen(true);
   };
 
@@ -184,8 +198,8 @@ export const useSqlTop = () => {
       const root = createRoot(rootEl);
       root.render(
         <CompareSqlWindow
-          base={{ date: startDate, detail: base }}
-          compare={{ date: compareDate, detail: compare }}
+          base={{ date: startDate, detail: convertSqlDetailToDrawerData(base, startDate) }}
+          compare={{ date: compareDate, detail: convertSqlDetailToDrawerData(compare, compareDate) }}
         />
       );
     });

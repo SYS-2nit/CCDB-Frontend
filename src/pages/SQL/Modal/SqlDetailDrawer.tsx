@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import "./SqlDetailDrawer.scss";
 import LineChart from "@/components/Chart/LineChart";
@@ -11,6 +10,7 @@ import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 import { getPlanHistoryDetail, getPlanHistoryList } from "@/api/Sql/sql";
 import PlanCompareView from "./PlanCompareView";
 import Spinner from "@/components/Spinner/Spinner";
+import type { PlanHistoryRow } from "../types";
 
 interface SqlDetailDrawerProps {
   data: SqlDetailData;
@@ -40,7 +40,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const [activeTab, setActiveTab] = useState("1");
 
   /* -------------------- Plan Change -------------------- */
-  const [planList, setPlanList] = useState<any[]>([]);
+  const [planList, setPlanList] = useState<PlanHistoryRow[]>([]);
   const [loadingPlan, setLoadingPlan] = useState(false);
 
   /* 페이지네이션 */
@@ -48,7 +48,9 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   /* 상세조회 */
-  const [selectedPlanRow, setSelectedPlanRow] = useState<any | null>(null);
+  const [selectedPlanRow, setSelectedPlanRow] = useState<PlanHistoryRow | null>(
+    null
+  );
   const [loadingDetail, setLoadingDetail] = useState(false);
 
   /* -------------------- Plan LIST API -------------------- */
@@ -77,7 +79,7 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
   );
 
   /* -------------------- Detail API -------------------- */
-  const handlePlanRowClick = async (row: any) => {
+  const handlePlanRowClick = async (row: PlanHistoryRow) => {
     if (!row.beforePlanHash || !row.afterPlanHash) return;
 
     setLoadingDetail(true);

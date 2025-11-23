@@ -5,10 +5,12 @@ import LineChart from "@/components/Chart/LineChart";
 import DateInput from "@/components/Input/DateInput";
 import BarGauge from "@/components/Chart/BarGauge";
 import SqlDetailDrawer from "../Modal/SqlDetailDrawer";
-import Select from "@/components/Select/Select";
 import Checkbox from "@/components/Checkbox/Checkbox";
 import Spinner from "@/components/Spinner/Spinner";
 import { useSqlTop } from "./hooks/useSqlTop";
+import { IntervalButtons } from "../components/IntervalButtons";
+import { FilterSelect } from "../components/FilterSelect";
+import { SQL_TOP_FILTER_OPTIONS } from "../constants";
 
 const SqlTop = () => {
   const {
@@ -56,39 +58,18 @@ const SqlTop = () => {
             onChange={(e) => setCompareDate(e.target.value)}
           />
 
-          <Select
-            label="필터"
-            placeholder="선택해주세요"
+          <FilterSelect
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            options={[
-              { label: "Elapsed Time", value: "elapsed" },
-              { label: "Wait Time", value: "wait" },
-              { label: "Avg Elapsed", value: "avg" },
-              { label: "Execute Count", value: "execute" },
-            ]}
+            onChange={setFilter}
+            options={SQL_TOP_FILTER_OPTIONS}
+            placeholder="선택해주세요"
           />
 
-          <div className="sql-stat__search-left-btns">
-            <Button
-              text="30분"
-              size="sm"
-              variant={interval === 30 ? "primary" : "white"}
-              onClick={() => setInterval(30)}
-            />
-            <Button
-              text="1시간"
-              size="sm"
-              variant={interval === 60 ? "primary" : "white"}
-              onClick={() => setInterval(60)}
-            />
-            <Button
-              text="2시간"
-              size="sm"
-              variant={interval === 120 ? "primary" : "white"}
-              onClick={() => setInterval(120)}
-            />
-          </div>
+          <IntervalButtons
+            value={interval}
+            onChange={setInterval}
+            className="sql-stat__search-left-btns"
+          />
         </div>
       </div>
 

@@ -1,18 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import "./SqlStat.scss";
 import DateInput from "@/components/Input/DateInput";
-import Button from "@/components/Button/Button";
 import TableChart from "@/components/Chart/TableChart";
 import BarGauge from "@/components/Chart/BarGauge";
 import Pagination from "@/components/Pagination/Pagination";
-import Select from "@/components/Select/Select";
 import { getSqlDetail, getSqlGraph, getSqlStats } from "@/api/Sql/sql";
 import SqlDetailDrawer from "@/pages/SQL/Modal/SqlDetailDrawer";
 import LineChart from "@/components/Chart/LineChart";
 import Spinner from "@/components/Spinner/Spinner";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
+import { IntervalButtons } from "../components/IntervalButtons";
+import { FilterSelect } from "../components/FilterSelect";
+import { SQL_STAT_FILTER_OPTIONS, DEFAULT_PAGE_SIZE } from "../constants";
+import type { SqlFilterType, IntervalType } from "../types";
+import { convertSqlDetailToDrawerData } from "../utils/convertSqlDetail";
 
 interface TableData {
   id: number;
@@ -62,7 +64,7 @@ const formatToMonthDayTime = (
   return `${mm}-${dd} ${HH}:${MM}`;
 };
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 const SqlStat: React.FC = () => {
   // 상세 데이터
@@ -75,8 +77,8 @@ const SqlStat: React.FC = () => {
   });
 
   // 필터 (그래프와 테이블 모두 적용)
-  const [filter, setFilter] = useState("");
-  const [interval, setInterval] = useState(30);
+  const [filter, setFilter] = useState<SqlFilterType | "">("");
+  const [interval, setInterval] = useState<IntervalType>(30);
 
   // 페이지네이션
   const [currentPage, setCurrentPage] = useState(1);
@@ -119,16 +121,16 @@ const SqlStat: React.FC = () => {
       });
 
       // 원본 시간 데이터 저장 (tooltip용)
-      const originalTimes = graph.buckets.map((b: any) => b.timeLabel);
+      const originalTimes = graph.buckets.map((b) => b.timeLabel);
 
       // X축 레이블 생성 (포맷팅) - 모든 데이터에 대해 포맷팅
-      const formattedLabels = graph.buckets.map((b: any) =>
+      const formattedLabels = graph.buckets.map((b) =>
         formatToMonthDayTime(b.timeLabel, dateRange.start, dateRange.end)
       );
 
       setGraphData({
         labels: formattedLabels, // 모든 레이블 저장 (필터링은 LineChart에서 처리)
-        values: graph.buckets.map((b: any) => b.value),
+        values: graph.buckets.map((b) => b.value),
         originalTimes: originalTimes, // tooltip에는 원본 시간 사용
       });
     } catch (err) {
@@ -255,10 +257,10 @@ const SqlStat: React.FC = () => {
           intervalMinutes: interval,
         });
 
-        const detail: SqlDetailData = {
-          date: `${dateRange.start} ~ ${dateRange.end}`,
-          ...raw,
-        };
+        const detail = convertSqlDetailToDrawerData(
+          raw,
+          `${dateRange.start} ~ ${dateRange.end}`
+        );
 
         setDetailData(detail);
         setIsDrawerOpen(true);
@@ -317,42 +319,17 @@ const SqlStat: React.FC = () => {
             }
           />
 
-          <Select
-            label="필터"
-            placeholder="선택하세요."
+          <FilterSelect
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            options={[
-              { label: "Elapsed Time", value: "elapsed" },
-              { label: "Avg Elapsed", value: "avg" },
-              { label: "Wait Time", value: "wait" },
-              { label: "Executions", value: "execution" },
-              { label: "Logical Reads", value: "buffer" },
-              { label: "Physical Reads", value: "disk" },
-              { label: "CPU Time", value: "cpu" },
-            ]}
+            onChange={setFilter}
+            options={SQL_STAT_FILTER_OPTIONS}
           />
 
-          <div className="sql-stat__search-left-btns">
-            <Button
-              text="30분"
-              size="sm"
-              variant={interval === 30 ? "primary" : "white"}
-              onClick={() => setInterval(30)}
-            />
-            <Button
-              text="1시간"
-              size="sm"
-              variant={interval === 60 ? "primary" : "white"}
-              onClick={() => setInterval(60)}
-            />
-            <Button
-              text="2시간"
-              size="sm"
-              variant={interval === 120 ? "primary" : "white"}
-              onClick={() => setInterval(120)}
-            />
-          </div>
+          <IntervalButtons
+            value={interval}
+            onChange={setInterval}
+            className="sql-stat__search-left-btns"
+          />
         </div>
       </div>
 
