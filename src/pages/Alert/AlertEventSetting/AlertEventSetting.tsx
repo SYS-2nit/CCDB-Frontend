@@ -211,6 +211,13 @@ const AlertEventSetting: React.FC = () => {
       if (notificationSettings.email) channels.push("email");
       if (notificationSettings.slackAddress) channels.push("slack");
 
+      // ✅ 디버깅 로그: 테스트 채널 확인
+      console.log("[AlertEventSetting] 테스트 채널 확인:", {
+        email: notificationSettings.email,
+        slackAddress: notificationSettings.slackAddress,
+        channels: channels,
+      });
+
       if (channels.length === 0) {
         setTestResult(
           "테스트할 채널이 없습니다.\nEmail 또는 Slack 주소를 입력해주세요."
@@ -252,8 +259,15 @@ const AlertEventSetting: React.FC = () => {
       console.log("[AlertEventSetting] 테스트를 위한 임시 저장 완료");
       setHasTested(true); // 테스트 실행 표시
 
+      // ✅ 디버깅 로그: 테스트 요청 전송
+      console.log("[AlertEventSetting] 테스트 요청 전송:", { channels });
+
       // 저장된 값으로 테스트 실행
       const result = await testNotification({ channels });
+      
+      // ✅ 디버깅 로그: 테스트 결과 확인
+      console.log("[AlertEventSetting] 테스트 결과:", result);
+      
       setTestResult(result || "테스트 알림이 전송되었습니다.");
       setIsTestResultModalOpen(true);
 
