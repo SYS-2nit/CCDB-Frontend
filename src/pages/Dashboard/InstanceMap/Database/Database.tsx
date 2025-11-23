@@ -262,7 +262,7 @@ const Database: React.FC = () => {
                 <directionalLight position={[5, 5, 5]} intensity={1.2} />
                 <Environment preset="city" />
 
-                <group scale={0.2}>
+                <group scale={0.35}>
                   {dbList.map((db, i) => (
                     <group
                       key={db.id}
