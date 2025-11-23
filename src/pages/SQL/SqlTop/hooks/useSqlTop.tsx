@@ -33,6 +33,7 @@ export const useSqlTop = () => {
   /* 리스트 */
   const [baseList, setBaseList] = useState<RankData[]>([]);
   const [compareList, setCompareList] = useState<RankData[]>([]);
+  const [isTableLoading, setIsTableLoading] = useState(false);
 
   /* 기간 그래프 */
   const [, setBasePeriod] = useState<PeriodGraphItem[]>([]);
@@ -56,6 +57,7 @@ export const useSqlTop = () => {
 
   /* Compare 리스트 */
   const loadCompareList = async () => {
+    setIsTableLoading(true);
     try {
       const data = await fetchCompareStats({
         baseDate: startDate,
@@ -82,6 +84,8 @@ export const useSqlTop = () => {
       logError("SQL 비교 리스트 로드", err);
       setBaseList([]);
       setCompareList([]);
+    } finally {
+      setIsTableLoading(false);
     }
   };
 
@@ -242,6 +246,7 @@ export const useSqlTop = () => {
     baseValues,
     compareValues,
     isChartLoading,
+    isTableLoading,
     selectedBase,
     selectedCompare,
     setSelectedBase,

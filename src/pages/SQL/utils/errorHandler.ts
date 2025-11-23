@@ -6,7 +6,9 @@ import { isAxiosError } from "axios";
 export const getErrorMessage = (error: unknown): string => {
   if (isAxiosError(error)) {
     const data = error.response?.data as { message?: string } | undefined;
-    return data?.message ?? error.message ?? "서버 요청 중 오류가 발생했습니다.";
+    return (
+      data?.message ?? error.message ?? "서버 요청 중 오류가 발생했습니다."
+    );
   }
   if (error instanceof Error) {
     return error.message;
@@ -19,7 +21,7 @@ export const getErrorMessage = (error: unknown): string => {
  */
 export const logError = (context: string, error: unknown): void => {
   const message = getErrorMessage(error);
-  
+
   if (import.meta.env.DEV) {
     console.error(`[${context}]`, error);
   } else {
@@ -30,9 +32,12 @@ export const logError = (context: string, error: unknown): void => {
 /**
  * SQL 관련 에러 메시지 매핑
  */
-export const getSqlErrorMessage = (error: unknown, operation: string): string => {
+export const getSqlErrorMessage = (
+  error: unknown,
+  operation: string
+): string => {
   const baseMessage = getErrorMessage(error);
-  
+
   const operationMap: Record<string, string> = {
     "그래프 데이터": "차트 데이터를 불러오는 중 오류가 발생했습니다.",
     "테이블 데이터": "테이블 데이터를 불러오는 중 오류가 발생했습니다.",
@@ -41,6 +46,8 @@ export const getSqlErrorMessage = (error: unknown, operation: string): string =>
     "SQL 상세": "SQL 상세 정보를 불러오는 중 오류가 발생했습니다.",
   };
 
-  return operationMap[operation] ?? `${operation} 중 오류가 발생했습니다: ${baseMessage}`;
+  return (
+    operationMap[operation] ??
+    `${operation} 중 오류가 발생했습니다: ${baseMessage}`
+  );
 };
-

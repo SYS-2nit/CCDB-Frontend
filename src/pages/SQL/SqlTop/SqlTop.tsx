@@ -29,6 +29,7 @@ const SqlTop = () => {
     baseValues,
     compareValues,
     isChartLoading,
+    isTableLoading,
     selectedBase,
     selectedCompare,
     setSelectedBase,
@@ -103,7 +104,11 @@ const SqlTop = () => {
             <div className="sql-top__table-block-header-right"></div>
           </div>
 
-          {baseList.length === 0 ? (
+          {isTableLoading ? (
+            <div className="sql-stat__spinner-wrapper">
+              <Spinner message="테이블 데이터 불러오는 중..." />
+            </div>
+          ) : baseList.length === 0 ? (
             <div className="sql-stat__table-null">검색 결과가 없습니다.</div>
           ) : (
             <TableChart
@@ -157,7 +162,11 @@ const SqlTop = () => {
             </div>
           </div>
 
-          {compareList.length === 0 ? (
+          {isTableLoading ? (
+            <div className="sql-stat__spinner-wrapper">
+              <Spinner message="테이블 데이터 불러오는 중..." />
+            </div>
+          ) : compareList.length === 0 ? (
             <div className="sql-stat__table-null">검색 결과가 없습니다.</div>
           ) : (
             <TableChart
