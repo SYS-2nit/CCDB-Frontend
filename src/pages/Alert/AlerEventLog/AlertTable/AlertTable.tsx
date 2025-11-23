@@ -238,23 +238,27 @@ const AlertTable: React.FC<AlertTableProps> = ({
         style={{
           padding: "4px 12px",
           fontSize: "12px",
-          border: "1px solid #ccc",
+          border: `1px solid var(--color-border)`,
           borderRadius: "4px",
           cursor: "pointer",
-          backgroundColor: isEventRead(alert) ? "#e0e0e0" : "#fff",
-          color: isEventRead(alert) ? "#666" : "#ff4444",
+          backgroundColor: isEventRead(alert)
+            ? "var(--color-border)"
+            : "var(--color-surface)",
+          color: isEventRead(alert)
+            ? "var(--color-subtext)"
+            : "#ff4444",
           fontWeight: isEventRead(alert) ? "normal" : "bold",
           transition: "all 0.2s ease",
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = isEventRead(alert)
-            ? "#d0d0d0"
-            : "#fff5f5";
+            ? "var(--color-border)"
+            : "var(--color-bg)";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.backgroundColor = isEventRead(alert)
-            ? "#e0e0e0"
-            : "#fff";
+            ? "var(--color-border)"
+            : "var(--color-surface)";
         }}
       >
         {isEventRead(alert) ? "읽음" : "안읽음"}
@@ -401,12 +405,19 @@ const AlertTable: React.FC<AlertTableProps> = ({
                     height: "32px",
                     padding: "0 8px",
                     border: `1px solid ${
-                      pageNum === currentPage ? "#007bff" : "#ddd"
+                      pageNum === currentPage
+                        ? "#007bff"
+                        : "var(--color-border)"
                     }`,
                     borderRadius: "4px",
                     backgroundColor:
-                      pageNum === currentPage ? "#007bff" : "white",
-                    color: pageNum === currentPage ? "white" : "#333",
+                      pageNum === currentPage
+                        ? "#007bff"
+                        : "var(--color-surface)",
+                    color:
+                      pageNum === currentPage
+                        ? "white"
+                        : "var(--color-text)",
                     cursor: pageNum === currentPage ? "default" : "pointer",
                     fontSize: "14px",
                     fontWeight: pageNum === currentPage ? "bold" : "normal",

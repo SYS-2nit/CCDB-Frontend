@@ -32,15 +32,15 @@
   display: flex; 
   justify-content: space-between; 
   align-items: center;
-  background: $gray-0; 
-  border: 1px solid $gray-100;
+  background: var(--color-surface); 
+  border: 1px solid var(--color-border);
   border-radius: 5px; 
   padding: 20px; 
-  color: $gray-700; 
+  color: var(--color-text); 
   cursor: pointer; 
 
   &:hover {
-    background: $main-0;
+    background: var(--color-bg);
   }
 
   
@@ -76,7 +76,7 @@
 }
 
 .scenario-item__status {
-  color: $gray-400;
+  color: var(--color-subtext);
   @include text-styles("label02");
 }
 
@@ -84,10 +84,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: $gray-0;
+  background: var(--color-surface);
   padding: 20px;
   border-radius: 5px; 
-  border: 1px solid $gray-100;
+  border: 1px solid var(--color-border);
 }
 
 .scenario-controls__left { 
@@ -110,7 +110,7 @@
 .scenario-detail {
   width: 400px;
   height: 100%;
-  background: $gray-0;
+  background: var(--color-surface);
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
@@ -122,35 +122,35 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    border-bottom: 1px solid $gray-200;
+    border-bottom: 1px solid var(--color-border);
 
     h3 {
       @include text-styles("heading02");
-      color: $gray-900;
+      color: var(--color-text);
     }
 
     button {
       background: none;
       border: none;
       @include text-styles("heading02");
-      color: $gray-400;
+      color: var(--color-subtext);
       cursor: pointer;
       transition: 0.2s;
 
       &:hover {
-        color: $gray-900;
+        color: var(--color-text);
       }
     }
   }
 
   &__title {
     @include text-styles("heading03");
-    color: $gray-700;
+    color: var(--color-text);
   }
 
   &__content {
     @include text-styles("body02");
-    color: $gray-700;
+    color: var(--color-text);
   }
 
   &__section {
@@ -158,12 +158,12 @@
     flex-direction: column;
     gap: 10px;
     padding: 20px;
-    border-bottom: 1px solid $gray-100;
+    border-bottom: 1px solid var(--color-border);
 
 
     ul {
       padding-left: 18px;
-      color: $gray-700;
+      color: var(--color-text);
 
       li {
         list-style: disc;
@@ -172,12 +172,12 @@
     }
 
     pre {
-      background: $gray-50;
-      color: $gray-700;
+      background: var(--color-bg);
+      color: var(--color-text);
       @include text-styles("label02");
       padding: 10px;
       border-radius: 3px;
-      border: 1px solid $gray-100;
+      border: 1px solid var(--color-border);
       overflow-x: auto;
       white-space: pre-wrap;
     }

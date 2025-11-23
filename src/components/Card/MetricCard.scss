@@ -38,13 +38,13 @@
   }
 
   &__title {
-    color: $gray-400;
+    color: var(--color-subtext);
     @include text-styles("label02");
     white-space: pre-line; // 추가: 줄바꿈 허용
   }
 
   &__value {
-    color: $gray-900;
+    color: var(--color-text);
     @include text-styles("heading01");
   }
 
@@ -61,7 +61,7 @@
 
   &__subtitle {
     @include text-styles("label02");
-    color: $gray-400;
+    color: var(--color-subtext);
     margin-top: 4px; // value 아래에 간격 추가
     opacity: 1; // 수정: 항상 보이게
     visibility: visible; // 수정: 항상 보이게

@@ -38,10 +38,22 @@ const Sidebar: React.FC = () => {
 
   const { selectedInstanceId } = useSelectedInstanceStore();
 
-  // 대시보드 클릭 시 바로 이동
+  // 대시보드 클릭 시 바로 이동 (라벨 클릭 시)
   const handleDashboardClick = () => {
     const targetId = selectedInstanceId ?? 1; // fallback 1 (원한다면 null 체크 후 alert로 변경 가능)
     navigate(`/dashboard?instanceId=${targetId}`);
+  };
+
+  // 대시보드 부모 탭 클릭 시 첫 번째 자식으로 이동하고 메뉴 열기
+  const handleDashboardParentClick = () => {
+    if (isCollapsed) return;
+    
+    // 메뉴가 닫혀있으면 열기
+    if (openMenu !== "dashboard") {
+      setOpenMenu("dashboard");
+    }
+    // 첫 번째 자식으로 이동
+    navigate("/dashboard/instance-map");
   };
 
   /** -------------------------
@@ -106,6 +118,21 @@ const Sidebar: React.FC = () => {
     setOpenMenu(openMenu === menu ? null : menu);
   };
 
+  /** 부모 탭 클릭 시 첫 번째 자식으로 이동하고 메뉴 열기 */
+  const handleParentClick = (menuKey: string) => {
+    if (isCollapsed) return;
+    
+    const routes = menuRoutes[menuKey];
+    if (routes && routes.length > 0) {
+      // 메뉴가 닫혀있으면 열기
+      if (openMenu !== menuKey) {
+        setOpenMenu(menuKey);
+      }
+      // 첫 번째 자식으로 이동
+      navigate(routes[0]);
+    }
+  };
+
   /** Hover 모달 위치 계산 */
   const handleHover = (e: React.MouseEvent, menuKey: string) => {
     if (!isCollapsed) return;
@@ -155,6 +182,7 @@ const Sidebar: React.FC = () => {
             openMenu={openMenu}
             toggleMenu={toggleMenu}
             isCollapsed={isCollapsed}
+            onClick={handleDashboardParentClick}
             onParentClick={handleDashboardClick}
           >
             <div className="sidebar__submenu">
@@ -186,6 +214,7 @@ const Sidebar: React.FC = () => {
             openMenu={openMenu}
             toggleMenu={toggleMenu}
             isCollapsed={isCollapsed}
+            onClick={() => handleParentClick("sql")}
           >
             <div className="sidebar__submenu">
               <NavLink to="/sql/stat" className="sidebar__subitem">
@@ -210,6 +239,7 @@ const Sidebar: React.FC = () => {
             openMenu={openMenu}
             toggleMenu={toggleMenu}
             isCollapsed={isCollapsed}
+            onClick={() => handleParentClick("alert")}
           >
             <div className="sidebar__submenu">
               <NavLink to="/alert/event-setting" className="sidebar__subitem">

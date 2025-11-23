@@ -18,7 +18,7 @@
   right: 0;
   width: 70%;
   height: 100vh;
-  background: $gray-0;
+  background: var(--color-surface);
   z-index: 5;
   padding: 20px;
   display: flex;
@@ -40,20 +40,20 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid $gray-200;
+    border-bottom: 1px solid var(--color-border);
     padding-bottom: 5px;
     margin-bottom: 20px;
 
     h3 {
       @include text-styles("heading01");
-      color: $gray-700;
+      color: var(--color-text);
     }
 
     .close-btn {
       border: none;
       background: none;
       @include text-styles("heading04");
-      color: $gray-600;
+      color: var(--color-subtext);
       cursor: pointer;
     }
   }
@@ -74,19 +74,19 @@
 
     .sql-drawer__query-title {
       @include text-styles("heading04");
-      color: $gray-900;
+      color: var(--color-text);
     }
 
     .sql-drawer__query-box {
       border-radius: 5px;
       padding: 10px;
       @include text-styles("body02");
-      color: $gray-500;
+      color: var(--color-text);
       white-space: pre-wrap;
       word-break: break-word;
       overflow-y: auto;
-      background:  $gray-50;
-      border: 1px solid $gray-100;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
     }
   }
 
@@ -95,95 +95,110 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    background: $gray-50;
-    border: 1px solid $gray-100;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: 5px;
     padding: 16px;
 
     h4,
     h5 {
       @include text-styles("heading04");
-      color: $gray-700;
+      color: var(--color-text);
       margin-bottom: 5px;
     }
 
     // 개별 차트 박스
     .chart-block {
-      background: $gray-0;
-      border: 1px solid $gray-100;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
       border-radius: 6px;
       padding: 12px 14px;
 
       h5 {
         @include text-styles("heading04");
-        color: $gray-700;
+        color: var(--color-text);
       }
     }
 
     // Elapsed Time 게이지 
-  .sql-drawer__gauge {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    height: 36px; 
-    border-radius: 3px;
-    overflow: hidden;
-    text-align: center;
-    @include text-styles("body02");
-    color: $gray-0;
+    .sql-drawer__gauge {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      height: 36px; 
+      border-radius: 3px;
+      overflow: hidden;
+      text-align: center;
+      @include text-styles("body02");
+      color: $gray-0;
 
-    > div {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-  }
-
-    &-cpu {
-      background-color: $main-300;
-    }
-
-    &-wait {
-      &-userIo {
-        background-color: $green-300;
-      }
-      
-      &-Concurrency {
-        background-color: $purple-300;
-      }
-
-      &-Application {
-        background-color: $yellow-300;
-      }
-
-      &-Cluster {
-        background-color: $gray-300;
-      }
-
-      &-Other {
-        background-color: $red-300;
-      }
-    }
-  }
-
-    
-      // 하단 테이블 3개
-      &__tables {
+      > div {
+        height: 100%;
         display: flex;
-        flex-direction: column;
-        gap: 5px;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+      }
 
-        .sql-drawer__table {
-          background: $gray-0;
+      &-cpu {
+        background-color: $main-300;
+      }
 
-          h5 {
-            @include text-styles("heading04");
-            color: $gray-300;
-            margin-bottom: 5px;
+      &-wait {
+        &-userIo {
+          background-color: $green-300;
+        }
+        
+        &-Concurrency {
+          background-color: $purple-300;
+        }
+
+        &-Application {
+          background-color: $yellow-300;
+        }
+
+        &-Cluster {
+          background-color: $gray-300;
+        }
+
+        &-Other {
+          background-color: $red-300;
+        }
+      }
+    }
+
+    // 하단 테이블 3개
+    &__tables {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+
+      .sql-drawer__table {
+        background: var(--color-surface);
+
+        h5 {
+          @include text-styles("heading04");
+          color: var(--color-subtext);
+          margin-bottom: 5px;
+        }
+
+        // Total Statistics 테이블 텍스트 가운데 정렬
+        .table-chart {
+          // 모든 td 요소 가운데 정렬 (numeric 포함)
+          tbody tr td,
+          tbody tr td.numeric,
+          tbody tr td.table-chart__cell,
+          tbody tr td.table-chart__cell.numeric {
+            text-align: center !important;
+          }
+
+          // 헤더도 가운데 정렬
+          thead tr th,
+          thead tr th.table-chart__th {
+            text-align: center !important;
           }
         }
-      
+      }
     }
   }
 }

@@ -10,6 +10,8 @@ interface OracleDBModelProps {
   ip?: string;
   port?: string;
   account?: string;
+  color?: string; // 위험도에 따른 색상
+  statusLabel?: string; // 인스턴스 상태 라벨
 }
 
 const OracleDBModel: React.FC<OracleDBModelProps> = ({
@@ -20,17 +22,25 @@ const OracleDBModel: React.FC<OracleDBModelProps> = ({
   port = "1521",
   account = "admin",
   showInfoCard = false,
+  color = "#16A34A", // 기본값: 초록색 (정상)
+  statusLabel = "",
 }) => {
   const layers = [
-    { color: "#7FA4FA", y: 0.82 },
-    { color: "#7FA4FA", y: 0.41 },
-    { color: "#7FA4FA", y: 0 },
+    { color, y: 0.82 },
+    { color, y: 0.41 },
+    { color, y: 0 },
   ];
 
-  const scaleValue = isZoomed ? 3.0 : 1;
+  const scaleValue = isZoomed ? 3.0 : 1.5;
 
   return (
     <group onClick={onClick} scale={scaleValue}>
+      {/* 인스턴스 상태 라벨 */}
+      {statusLabel && (
+        <Html position={[0, 1.5, 0]} center zIndexRange={[0, 1]}>
+          <div className="db-status-label">{statusLabel}</div>
+        </Html>
+      )}
       {showInfoCard && (
         <Html position={[0.7, -0.2, 0]} center zIndexRange={[0, 1]}>
           <div className="db-info-card">

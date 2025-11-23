@@ -29,6 +29,7 @@ export const SqlStatSearch: React.FC<SqlStatSearchProps> = ({
     <div className="sql-stat__search">
       <div className="sql-stat__search-left">
         <DateInput
+          size="sm"
           label="시작일"
           value={dateRange.start}
           onChange={(e) => onDateRangeChange("start", e.target.value)}
@@ -55,4 +56,3 @@ export const SqlStatSearch: React.FC<SqlStatSearchProps> = ({
     </div>
   );
 };
-

@@ -7,8 +7,8 @@
   position: relative;
   overflow: visible;
   flex-direction: column;
-  color: $gray-900;
-  background-color: $gray-0;
+  color: var(--color-text);
+  background-color: var(--color-surface);
   padding: 10px;
   border-radius: 5px;
   transition: box-shadow 0.2s ease;
@@ -76,7 +76,7 @@
   }
 
   .chart-placeholder {
-    color: $gray-300;
+    color: var(--color-subtext);
     @include text-styles("body02");
   }
 }
@@ -92,7 +92,7 @@
 
     &-content {
       @include text-styles("label02");
-      color: $gray-300;
+      color: var(--color-subtext);
     }
   }
 }

@@ -4,10 +4,7 @@ import {
   getSqlStats,
   type SqlGraphParams,
 } from "@/api/Sql/sql";
-import type {
-  SqlStatsParams,
-  SqlDetailParams,
-} from "../../types";
+import type { SqlStatsParams, SqlDetailParams } from "../../types";
 
 export const fetchSqlGraph = async (params: SqlGraphParams) =>
   getSqlGraph(params);
@@ -17,4 +14,3 @@ export const fetchSqlStats = async (params: SqlStatsParams) =>
 
 export const fetchSqlDetail = async (params: SqlDetailParams) =>
   getSqlDetail(params);
-
