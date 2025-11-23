@@ -31,7 +31,7 @@ const GRAPH_AXIS_RANGES: Record<
   25: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   26: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
   27: { yMin: 0, yMax: 100 }, // x축,y축 설정 변경
-  28: { xMin: 0, xMax: 160000 }, // x축,y축 설정 변경 ----- 막대
+  28: { xMin: 0, xMax: 160000 }, // x축,y축 설정 변경 ----- 막대 막대 막대
   // Session
   29: { yMin: 0, yMax: 20 }, // x축,y축 설정 변경
   30: { yMin: 0, yMax: 2 }, // x축,y축 설정 변경
@@ -206,7 +206,7 @@ const roundUpToNiceNumber = (value: number): number => {
   // 이미 깔끔한 값인지 확인 (정수이고 1, 2, 5, 10, 20, 50, 100... 계열인지)
   const magnitude = Math.floor(Math.log10(value));
   const normalized = value / Math.pow(10, magnitude);
-  
+
   // 이미 nice 값인 경우 (1, 2, 5 계열) 그대로 반환
   if (
     (normalized >= 0.95 && normalized <= 1.05) || // ~1
@@ -219,10 +219,10 @@ const roundUpToNiceNumber = (value: number): number => {
 
   // Nice number 간격 리스트: [1, 2, 5]
   const niceSteps = [1, 2, 5];
-  
+
   // 현재 normalized 값보다 큰 첫 번째 nice step 찾기
   let niceStep = niceSteps.find((step) => step >= normalized);
-  
+
   // 현재 normalized 값이 5보다 크면 다음 자릿수로 올림 (예: 7 → 10)
   if (!niceStep) {
     niceStep = 10;
