@@ -273,10 +273,7 @@ const Database: React.FC = () => {
                         ip={db.ip}
                         port={db.port}
                         account={db.account}
-                        onClick={() => {
-                          handleDatabaseSelect(db);
-                          setShowInfo(true);
-                        }}
+                        onClick={() => {}}
                         isZoomed={isDarkMode ? false : selectedDatabaseId === db.id}
                         showInfoCard
                       />
