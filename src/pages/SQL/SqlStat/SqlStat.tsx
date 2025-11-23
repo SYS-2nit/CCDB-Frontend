@@ -114,7 +114,7 @@ const SqlStat: React.FC = () => {
         instanceId: 1,
         startDate: dateRange.start,
         endDate: dateRange.end,
-        metric: filter,
+        metric: filter || "elapsed",
         intervalMinutes: interval,
       });
 
@@ -133,6 +133,11 @@ const SqlStat: React.FC = () => {
       });
     } catch (err) {
       console.error("그래프 데이터 로드 실패:", err);
+      setGraphData({
+        labels: [],
+        values: [],
+        originalTimes: [],
+      });
     } finally {
       setIsGraphLoading(false);
     }
@@ -183,6 +188,10 @@ const SqlStat: React.FC = () => {
       setCurrentPage(1); // 데이터 로드 시 1페이지로 리셋
     } catch (err) {
       console.error("테이블 데이터 로드 실패:", err);
+      setNoResult(true);
+      setRawTableData([]);
+      setTableData([]);
+      setTotalPages(1);
     } finally {
       setIsTableLoading(false);
     }
@@ -359,7 +368,7 @@ const SqlStat: React.FC = () => {
             <div className="sql-stat__chart-null">검색 결과가 없습니다.</div>
           ) : (
             <LineChart
-              legends={[`${filter} Trend`]}
+              legends={[`${filter || "Elapsed Time"} Trend`]}
               seriesData={[graphData.values]}
               categories={graphData.labels}
               originalTimes={graphData.originalTimes}

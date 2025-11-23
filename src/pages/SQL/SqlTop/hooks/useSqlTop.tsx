@@ -47,21 +47,27 @@ export const useSqlTop = () => {
 
   /* Compare 리스트 */
   const loadCompareList = async () => {
-    const data = await fetchCompareStats({
-      baseDate: startDate,
-      compareDate,
-      instanceId: 1,
-      keyword: filter,
-      intervalMinutes: interval,
-    });
+    try {
+      const data = await fetchCompareStats({
+        baseDate: startDate,
+        compareDate,
+        instanceId: 1,
+        keyword: filter,
+        intervalMinutes: interval,
+      });
 
-    const base = convertList(data.baseList, filter);
-    const comp = convertList(data.compareList, filter);
+      const base = convertList(data.baseList, filter);
+      const comp = convertList(data.compareList, filter);
 
-    const aligned = alignBySqlId(base, comp);
+      const aligned = alignBySqlId(base, comp);
 
-    setBaseList(aligned.base);
-    setCompareList(aligned.compare);
+      setBaseList(aligned.base);
+      setCompareList(aligned.compare);
+    } catch (err) {
+      console.error("비교 리스트 로드 실패:", err);
+      setBaseList([]);
+      setCompareList([]);
+    }
   };
 
   useEffect(() => {
@@ -100,6 +106,11 @@ export const useSqlTop = () => {
       setComparePeriod(compare);
       setBaseValues(mapValuesToTimeline(t, base));
       setCompareValues(mapValuesToTimeline(t, compare));
+    } catch (err) {
+      console.error("기간 그래프 로드 실패:", err);
+      setTimeline([]);
+      setBaseValues([]);
+      setCompareValues([]);
     } finally {
       setIsChartLoading(false);
     }

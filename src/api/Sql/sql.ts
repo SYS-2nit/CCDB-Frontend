@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios";
 import api from "../index";
 
 /* ===== SQL 통계 목록 조회 API ===== */
@@ -111,7 +110,7 @@ export const getSqlStats = async (params: {
   size?: number;
 }): Promise<SqlStatsPage> => {
   try {
-    const res = await axios.get<ApiWrapper<SqlStatsPage>>("/api/sql/stats", {
+    const res = await api.get<ApiWrapper<SqlStatsPage>>("/api/sql/stats", {
       params,
     });
 
@@ -172,7 +171,7 @@ export const getSqlCompareStats = async (params: {
   intervalMinutes?: number;
 }): Promise<SqlCompareResponse> => {
   try {
-    const res = await axios.get<ApiWrapper<SqlCompareResponse>>(
+    const res = await api.get<ApiWrapper<SqlCompareResponse>>(
       "/api/sql/compare",
       { params }
     );
@@ -195,7 +194,7 @@ export const getDailyGraph = async (params: {
   intervalMinutes?: number;
 }): Promise<SqlDailyGraphItem[]> => {
   try {
-    const res = await axios.get<ApiWrapper<SqlDailyGraphItem[]>>(
+    const res = await api.get<ApiWrapper<SqlDailyGraphItem[]>>(
       "/api/sql/daily",
       { params }
     );
@@ -225,7 +224,7 @@ export const getPeriodGraph = async (params: {
   instanceId: number;
 }): Promise<SqlPeriodGraphItem[]> => {
   try {
-    const res = await axios.get<ApiWrapper<SqlPeriodGraphItem[]>>(
+    const res = await api.get<ApiWrapper<SqlPeriodGraphItem[]>>(
       "/api/sql/period",
       { params }
     );
