@@ -10,7 +10,7 @@ import {
   type ReportContent,
 } from "@/api/Report/report";
 
-type ReportTemplate = "daily" | "weekly" | "monthly" | "performance";
+type ReportTemplate = "daily" | "weekly" | "monthly";
 
 type MetricKey =
   | "CPU"
@@ -33,19 +33,14 @@ const TEMPLATES: {
     description: "하루 동안의 DB 성능 지표 요약",
   },
   {
-    id: "weekly",
-    title: "주간 보고서",
-    description: "일간 성능 추이와 분석",
-  },
-  {
     id: "monthly",
     title: "월간 보고서",
     description: "월간 종합 분석 및 개선 제안",
   },
   {
-    id: "performance",
-    title: "성능 분석",
-    description: "성능 메트릭 및 병목 지점 분석",
+    id: "weekly",
+    title: "커스텀 보고서",
+    description: "원하는 날짜 기간의 성능 추이와 분석",
   },
 ];
 
@@ -120,8 +115,23 @@ const Improvement: React.FC = () => {
   const periodError = useMemo(() => {
     if (!startDate) return "";
 
-    // 주간 보고서와 월간 보고서는 endDate 검증 불필요
-    if (isWeeklyTemplate || isMonthlyTemplate) {
+    // 월간 보고서는 endDate 검증 불필요
+    if (isMonthlyTemplate) {
+      return "";
+    }
+
+    // 주간 보고서: endDate 필수, 최대 7일 검증
+    if (isWeeklyTemplate) {
+      if (!endDate) return "종료일을 선택해주세요.";
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      if (end < start) return "종료일은 시작일 이후여야 합니다.";
+      
+      // 최대 7일 검증 (시작일 포함하여 7일)
+      // const diffTime = end.getTime() - start.getTime();
+      // const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // 시작일 포함
+      // if (diffDays > 7) return "주간 보고서는 최대 7일까지 지정할 수 있습니다.";
+      
       return "";
     }
 
@@ -145,7 +155,9 @@ const Improvement: React.FC = () => {
   const canGenerate = useMemo(() => {
     if (!selectedInstanceId) return false;
     if (!startDate) return false;
-    // 주간/월간 보고서는 endDate 검증 불필요
+    // 주간 보고서는 endDate 필수
+    if (isWeeklyTemplate && !endDate) return false;
+    // 월간 보고서는 endDate 검증 불필요
     if (
       !isSingleDateTemplate &&
       !isWeeklyTemplate &&
@@ -178,8 +190,6 @@ const Improvement: React.FC = () => {
         return "WEEKLY";
       case "monthly":
         return "MONTHLY";
-      case "performance":
-        return "PERFORMANCE";
       default:
         return "DAILY";
     }
@@ -228,15 +238,13 @@ const Improvement: React.FC = () => {
     setError(null);
 
     try {
-      // 주간 보고서: endDate = startDate + 6일
+      // 주간 보고서: 사용자가 입력한 startDate와 endDate 사용
       let calculatedStartDate = startDate;
       let calculatedEndDate: string | null = null;
 
       if (isWeeklyTemplate) {
-        const start = new Date(startDate);
-        const end = new Date(start);
-        end.setDate(end.getDate() + 6);
-        calculatedEndDate = end.toISOString().split("T")[0];
+        // 사용자가 입력한 endDate 사용
+        calculatedEndDate = endDate || null;
       } else if (isMonthlyTemplate) {
         // 월간 보고서: YYYY-MM 형식의 값을 YYYY-MM-01로 변환
         if (startDate && startDate.length === 7) {
@@ -317,7 +325,6 @@ const Improvement: React.FC = () => {
                     {t.id === "daily" && "📅"}
                     {t.id === "weekly" && "📊"}
                     {t.id === "monthly" && "📈"}
-                    {t.id === "performance" && "⚡"}
                   </div>
                   <div className="report-template-card__body">
                     <div className="report-template-card__title">{t.title}</div>
@@ -342,7 +349,7 @@ const Improvement: React.FC = () => {
                     {isSingleDateTemplate
                       ? "일자"
                       : isWeeklyTemplate
-                      ? "시작일 (7일간)"
+                      ? "시작일 "
                       : isMonthlyTemplate
                       ? "월 선택"
                       : "시작일"}
@@ -354,21 +361,19 @@ const Improvement: React.FC = () => {
                   />
                 </div>
 
-                {!isSingleDateTemplate &&
-                  !isWeeklyTemplate &&
-                  !isMonthlyTemplate && (
-                    <div className="report-period__field">
-                      <span className="report-period__label">종료일</span>
-                      <DateInput
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                      />
-                    </div>
-                  )}
+                {!isSingleDateTemplate && !isMonthlyTemplate && (
+                  <div className="report-period__field">
+                    <span className="report-period__label">종료일</span>
+                    <DateInput
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                    />
+                  </div>
+                )}
               </div>
               {isWeeklyTemplate && (
                 <p className="report-period__hint">
-                  주간 보고서는 시작일부터 7일간의 데이터를 조회합니다.
+                  {/* 주간 보고서는 시작일부터 종료일까지 최대 7일까지 지정할 수 있습니다. */}
                 </p>
               )}
               {isMonthlyTemplate && (
@@ -520,14 +525,9 @@ const Improvement: React.FC = () => {
                       : isSingleDateTemplate
                       ? startDate
                       : isWeeklyTemplate
-                      ? (() => {
-                          const start = new Date(startDate);
-                          const end = new Date(start);
-                          end.setDate(end.getDate() + 6);
-                          return `${startDate} ~ ${
-                            end.toISOString().split("T")[0]
-                          }`;
-                        })()
+                      ? endDate
+                        ? `${startDate} ~ ${endDate}`
+                        : "종료일을 선택해주세요."
                       : isMonthlyTemplate
                       ? (() => {
                           // YYYY-MM 형식인 경우 첫날로 변환

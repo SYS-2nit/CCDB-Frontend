@@ -255,14 +255,10 @@ const formatTime = (timestamp: string, mode: DashboardMode = "LIVE") => {
       return `${hours1h}:${minutes1h}`;
     }
     case "1일":
-      // 1일 단위: 월/일 시:분 형식
-      return date.toLocaleString("ko-KR", {
-        timeZone,
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      // 1일 단위: 날짜만 표시 (MM.DD 형식)
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${month}.${day}`;
     default: {
       // 24시간 형식으로 포맷팅 (HH:mm)
       const defaultHours = String(date.getHours()).padStart(2, "0");
