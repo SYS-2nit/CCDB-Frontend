@@ -11,10 +11,12 @@ import {
   createDatabaseInstance,
   deleteDatabaseInstance,
   fetchDatabaseInstances,
+  fetchInstancesByDatabase,
   testDatabaseInstance,
   type DatabaseCreatePayload,
   type DatabaseDeletePayload,
   type DatabaseInstanceResponse,
+  type DatabaseInstanceListItem,
   type DatabaseTestPayload,
 } from "@/api/Databases/databases";
 
@@ -101,12 +103,45 @@ const getErrorMessage = (error: unknown) => {
   return "알 수 없는 오류가 발생했습니다.";
 };
 
+// 위험도에 따른 색상 매핑
+const getSeverityColor = (severity: number | null | undefined): string => {
+  if (severity === null || severity === undefined) {
+    return "#7FA4FA"; // 정상: 파란색
+  }
+  switch (severity) {
+    case 1:
+      return "#FACC15"; // 주의: 노란색
+    case 2:
+      return "#DC2626"; // 위험: 빨간색
+    case 3:
+      return "#151515"; // 치명: 검은색
+    default:
+      return "#7FA4FA"; // 기본값: 파란색
+  }
+};
+
+// DB의 가장 높은 위험도 계산
+const getMaxSeverity = (instances: DatabaseInstanceListItem[]): number | null => {
+  if (instances.length === 0) return null;
+  
+  const severities = instances
+    .map((inst) => inst.currentSeverity)
+    .filter((sev): sev is number => sev !== null && sev !== undefined);
+  
+  if (severities.length === 0) return null;
+  
+  return Math.max(...severities);
+};
+
 const Database: React.FC = () => {
   const { isDarkMode } = useTheme();
   const [showInfo, setShowInfo] = useState(false);
   const [dbList, setDbList] = useState<DatabaseListItem[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [dbInstancesMap, setDbInstancesMap] = useState<
+    Map<number, DatabaseInstanceListItem[]>
+  >(new Map());
   const [selectedDatabaseId, setSelectedDatabaseId] = useState<number | null>(
     () => {
       const stored = sessionStorage.getItem(SELECTED_DB_STORAGE_KEY);
@@ -181,6 +216,21 @@ const Database: React.FC = () => {
       ) {
         handleDatabaseSelect(null);
       }
+
+      // 각 DB에 대한 인스턴스 목록 가져오기
+      const instancesMap = new Map<number, DatabaseInstanceListItem[]>();
+      await Promise.all(
+        items.map(async (db) => {
+          try {
+            const instances = await fetchInstancesByDatabase(db.id);
+            instancesMap.set(db.id, instances);
+          } catch (error) {
+            console.warn(`[Database] DB ${db.id} 인스턴스 조회 실패:`, error);
+            instancesMap.set(db.id, []);
+          }
+        })
+      );
+      setDbInstancesMap(instancesMap);
     } catch (error) {
       setFetchError(getErrorMessage(error));
     } finally {
@@ -263,22 +313,29 @@ const Database: React.FC = () => {
                 <Environment preset="city" />
 
                 <group scale={0.35}>
-                  {dbList.map((db, i) => (
-                    <group
-                      key={db.id}
-                      position={[(i - (dbList.length - 1) / 2) * 7.0, -0.5, 0]}
-                    >
-                      <OracleDBModel
-                        name={db.name}
-                        ip={db.ip}
-                        port={db.port}
-                        account={db.account}
-                        onClick={() => {}}
-                        isZoomed={isDarkMode ? false : selectedDatabaseId === db.id}
-                        showInfoCard
-                      />
-                    </group>
-                  ))}
+                  {dbList.map((db, i) => {
+                    const instances = dbInstancesMap.get(db.id) ?? [];
+                    const maxSeverity = getMaxSeverity(instances);
+                    const dbColor = getSeverityColor(maxSeverity);
+
+                    return (
+                      <group
+                        key={db.id}
+                        position={[(i - (dbList.length - 1) / 2) * 7.0, -0.5, 0]}
+                      >
+                        <OracleDBModel
+                          name={db.name}
+                          ip={db.ip}
+                          port={db.port}
+                          account={db.account}
+                          onClick={() => {}}
+                          isZoomed={isDarkMode ? false : selectedDatabaseId === db.id}
+                          showInfoCard
+                          color={dbColor}
+                        />
+                      </group>
+                    );
+                  })}
                 </group>
 
                 <OrbitControls enableZoom enablePan target={[0, 0, 0]} />

@@ -10,6 +10,7 @@ interface OracleDBModelProps {
   ip?: string;
   port?: string;
   account?: string;
+  color?: string; // 위험도에 따른 색상
 }
 
 const OracleDBModel: React.FC<OracleDBModelProps> = ({
@@ -20,11 +21,12 @@ const OracleDBModel: React.FC<OracleDBModelProps> = ({
   port = "1521",
   account = "admin",
   showInfoCard = false,
+  color = "#7FA4FA", // 기본값: 파란색 (정상)
 }) => {
   const layers = [
-    { color: "#7FA4FA", y: 0.82 },
-    { color: "#7FA4FA", y: 0.41 },
-    { color: "#7FA4FA", y: 0 },
+    { color, y: 0.82 },
+    { color, y: 0.41 },
+    { color, y: 0 },
   ];
 
   const scaleValue = isZoomed ? 3.0 : 1.5;
