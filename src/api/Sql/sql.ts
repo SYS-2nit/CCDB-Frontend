@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios";
 import api from "../index";
 
 /* ===== SQL 통계 목록 조회 API ===== */
@@ -111,14 +109,18 @@ export const getSqlStats = async (params: {
   size?: number;
 }): Promise<SqlStatsPage> => {
   try {
-    const res = await axios.get<ApiWrapper<SqlStatsPage>>("/api/sql/stats", {
+    const res = await api.get<ApiWrapper<SqlStatsPage>>("/api/sql/stats", {
       params,
     });
 
-    console.log("[API] SQL 통계 조회 성공:", res.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] SQL 통계 조회 성공:", res.data);
+    }
     return res.data.data;
   } catch (error) {
-    console.error("[API] SQL 통계 요청 실패:", error);
+    if (import.meta.env.DEV) {
+      console.error("[API] SQL 통계 요청 실패:", error);
+    }
     throw error;
   }
 };
@@ -126,11 +128,33 @@ export const getSqlStats = async (params: {
 /* -----------------------------------------------------
  * 2. SQL 통계 그래프 조회
  * ----------------------------------------------------- */
-export const getSqlGraph = async (params: unknown) => {
-  const res = await api.get<ApiWrapper<any>>("/api/sql/graph", { params });
+export interface SqlGraphParams {
+  instanceId: number;
+  startDate: string;
+  endDate: string;
+  metric: string;
+  intervalMinutes: number;
+}
 
-  // 로그
-  console.log("[API] SQL 그래프 응답:", res.data);
+export interface SqlGraphBucket {
+  timeLabel: string;
+  value: number;
+}
+
+export interface SqlGraphResponse {
+  buckets: SqlGraphBucket[];
+}
+
+export const getSqlGraph = async (
+  params: SqlGraphParams
+): Promise<SqlGraphResponse> => {
+  const res = await api.get<ApiWrapper<SqlGraphResponse>>("/api/sql/graph", {
+    params,
+  });
+
+  if (import.meta.env.DEV) {
+    console.log("[API] SQL 그래프 응답:", res.data);
+  }
 
   return res.data.data;
 };
@@ -138,25 +162,36 @@ export const getSqlGraph = async (params: unknown) => {
 /* -----------------------------------------------------
  * 3. SQL 상세 탭 조회
  * ----------------------------------------------------- */
-export const getSqlDetail = async (params: {
-  sqlId: any;
-  startDate: any;
-  endDate: any;
-  intervalMinutes: any;
-}) => {
-  try {
-    const res = await api.get("/api/sql/detail/" + params.sqlId, {
-      params: {
-        startDate: params.startDate,
-        endDate: params.endDate,
-        intervalMinutes: params.intervalMinutes,
-      },
-    });
+export interface SqlDetailParams {
+  sqlId: string;
+  startDate: string;
+  endDate: string;
+  intervalMinutes: number;
+}
 
-    console.error("[API] SQL 상세 조회 성공:", res.data.data);
+export const getSqlDetail = async (
+  params: SqlDetailParams
+): Promise<SqlDetailItem> => {
+  try {
+    const res = await api.get<ApiWrapper<SqlDetailItem>>(
+      "/api/sql/detail/" + params.sqlId,
+      {
+        params: {
+          startDate: params.startDate,
+          endDate: params.endDate,
+          intervalMinutes: params.intervalMinutes,
+        },
+      }
+    );
+
+    if (import.meta.env.DEV) {
+      console.log("[API] SQL 상세 조회 성공:", res.data.data);
+    }
     return res.data.data;
   } catch (err) {
-    console.error("[API] SQL 상세 조회 실패:", err);
+    if (import.meta.env.DEV) {
+      console.error("[API] SQL 상세 조회 실패:", err);
+    }
     throw err;
   }
 };
@@ -172,15 +207,19 @@ export const getSqlCompareStats = async (params: {
   intervalMinutes?: number;
 }): Promise<SqlCompareResponse> => {
   try {
-    const res = await axios.get<ApiWrapper<SqlCompareResponse>>(
+    const res = await api.get<ApiWrapper<SqlCompareResponse>>(
       "/api/sql/compare",
       { params }
     );
 
-    console.log("[API] Top SQL 비교 조회 성공:", res.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] Top SQL 비교 조회 성공:", res.data);
+    }
     return res.data.data;
   } catch (error) {
-    console.error("[API] Top SQL 비교 조회 실패:", error);
+    if (import.meta.env.DEV) {
+      console.error("[API] Top SQL 비교 조회 실패:", error);
+    }
     throw error;
   }
 };
@@ -195,15 +234,19 @@ export const getDailyGraph = async (params: {
   intervalMinutes?: number;
 }): Promise<SqlDailyGraphItem[]> => {
   try {
-    const res = await axios.get<ApiWrapper<SqlDailyGraphItem[]>>(
+    const res = await api.get<ApiWrapper<SqlDailyGraphItem[]>>(
       "/api/sql/daily",
       { params }
     );
 
-    console.log("[API] Daily SQL 그래프 조회 성공:", res.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] Daily SQL 그래프 조회 성공:", res.data);
+    }
     return res.data.data;
   } catch (error) {
-    console.error("[API] Daily SQL 그래프 조회 실패:", error);
+    if (import.meta.env.DEV) {
+      console.error("[API] Daily SQL 그래프 조회 실패:", error);
+    }
     throw error;
   }
 };
@@ -225,15 +268,19 @@ export const getPeriodGraph = async (params: {
   instanceId: number;
 }): Promise<SqlPeriodGraphItem[]> => {
   try {
-    const res = await axios.get<ApiWrapper<SqlPeriodGraphItem[]>>(
+    const res = await api.get<ApiWrapper<SqlPeriodGraphItem[]>>(
       "/api/sql/period",
       { params }
     );
 
-    console.log("[API] 기간별 SQL 그래프 조회 성공:", res.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] 기간별 SQL 그래프 조회 성공:", res.data);
+    }
     return res.data.data;
   } catch (error) {
-    console.error("[API] 기간별 SQL 그래프 조회 실패:", error);
+    if (import.meta.env.DEV) {
+      console.error("[API] 기간별 SQL 그래프 조회 실패:", error);
+    }
     throw error;
   }
 };
@@ -246,10 +293,14 @@ export const getPlanHistoryList = async (
 ): Promise<PlanHistoryItem[]> => {
   try {
     const res = await api.get(`/api/sql/plan/${sqlId}`);
-    console.log("[API] Plan History List:", res.data.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] Plan History List:", res.data.data);
+    }
     return res.data.data;
   } catch (err) {
-    console.error("[API] Plan History List Error:", err);
+    if (import.meta.env.DEV) {
+      console.error("[API] Plan History List Error:", err);
+    }
     throw err;
   }
 };
@@ -267,10 +318,14 @@ export const getPlanHistoryDetail = async (
     const res = await api.get(`/api/sql/plan/detail`, {
       params: { sqlId, beforeHash, afterHash, time },
     });
-    console.log("[API] Plan History Detail:", res.data.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] Plan History Detail:", res.data.data);
+    }
     return res.data.data;
   } catch (err) {
-    console.error("[API] Plan History Detail Error:", err);
+    if (import.meta.env.DEV) {
+      console.error("[API] Plan History Detail Error:", err);
+    }
     throw err;
   }
 };
