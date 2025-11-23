@@ -1,10 +1,12 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+// eslint-disable-next-line react-hooks/exhaustive-deps
+// 의존성 배열에 fetchGraph, fetchTable을 포함하면 무한 루프 발생 가능
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { getSqlDetail, getSqlGraph, getSqlStats } from "@/api/Sql/sql";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 import type { SqlFilterType, IntervalType } from "../../types";
 import { convertSqlDetailToDrawerData } from "../../utils/convertSqlDetail";
 import { formatToMonthDayTime } from "../../utils/dateFormat";
+import { logError, getSqlErrorMessage } from "../../utils/errorHandler";
 import {
   DEFAULT_PAGE_SIZE,
   BAR_GAUGE_MAX,
@@ -101,7 +103,7 @@ export const useSqlStat = () => {
         originalTimes: originalTimes,
       });
     } catch (err) {
-      console.error("그래프 데이터 로드 실패:", err);
+      logError("SQL 그래프 데이터 로드", err);
       setGraphData({
         labels: [],
         values: [],
@@ -156,7 +158,7 @@ export const useSqlStat = () => {
       setTotalPages(Math.ceil(mapped.length / DEFAULT_PAGE_SIZE));
       setCurrentPage(1); // 데이터 로드 시 1페이지로 리셋
     } catch (err) {
-      console.error("테이블 데이터 로드 실패:", err);
+      logError("SQL 테이블 데이터 로드", err);
       setNoResult(true);
       setRawTableData([]);
       setTableData([]);
@@ -202,20 +204,25 @@ export const useSqlStat = () => {
 
   /* 상세 데이터 조회 */
   const handleRowClick = async (row: TableData) => {
-    const raw = await getSqlDetail({
-      sqlId: row.sqlId,
-      startDate: dateRange.start,
-      endDate: dateRange.end,
-      intervalMinutes: interval,
-    });
+    try {
+      const raw = await getSqlDetail({
+        sqlId: row.sqlId,
+        startDate: dateRange.start,
+        endDate: dateRange.end,
+        intervalMinutes: interval,
+      });
 
-    const detail = convertSqlDetailToDrawerData(
-      raw,
-      `${dateRange.start} ~ ${dateRange.end}`
-    );
+      const detail = convertSqlDetailToDrawerData(
+        raw,
+        `${dateRange.start} ~ ${dateRange.end}`
+      );
 
-    setDetailData(detail);
-    setIsDrawerOpen(true);
+      setDetailData(detail);
+      setIsDrawerOpen(true);
+    } catch (err) {
+      logError("SQL 상세 데이터 로드", err);
+      // 에러 발생 시 drawer는 열지 않음
+    }
   };
 
   const closeDrawer = () => {

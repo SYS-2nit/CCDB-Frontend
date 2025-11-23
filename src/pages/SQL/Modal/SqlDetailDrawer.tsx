@@ -12,6 +12,7 @@ import PlanCompareView from "./PlanCompareView";
 import Spinner from "@/components/Spinner/Spinner";
 import type { PlanHistoryRow } from "../types";
 import { formatToMonthDayTimeSimple } from "../utils/dateFormat";
+import { logError } from "../utils/errorHandler";
 
 interface SqlDetailDrawerProps {
   data: SqlDetailData;
@@ -50,6 +51,9 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
       try {
         const list = await getPlanHistoryList(data.sqlId);
         setPlanList(list);
+      } catch (err) {
+        logError("Plan History 목록 로드", err);
+        setPlanList([]);
       } finally {
         setLoadingPlan(false);
       }
@@ -84,6 +88,8 @@ const SqlDetailDrawer: React.FC<SqlDetailDrawerProps> = ({ data, onClose }) => {
         beforePlanText: detail.beforePlanText ?? null,
         afterPlanText: detail.afterPlanText ?? null,
       });
+    } catch (err) {
+      logError("Plan History 상세 로드", err);
     } finally {
       setLoadingDetail(false);
     }

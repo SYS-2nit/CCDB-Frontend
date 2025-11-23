@@ -113,10 +113,14 @@ export const getSqlStats = async (params: {
       params,
     });
 
-    console.log("[API] SQL 통계 조회 성공:", res.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] SQL 통계 조회 성공:", res.data);
+    }
     return res.data.data;
   } catch (error) {
-    console.error("[API] SQL 통계 요청 실패:", error);
+    if (import.meta.env.DEV) {
+      console.error("[API] SQL 통계 요청 실패:", error);
+    }
     throw error;
   }
 };
@@ -148,8 +152,9 @@ export const getSqlGraph = async (
     params,
   });
 
-  // 로그
-  console.log("[API] SQL 그래프 응답:", res.data);
+  if (import.meta.env.DEV) {
+    console.log("[API] SQL 그래프 응답:", res.data);
+  }
 
   return res.data.data;
 };
@@ -179,10 +184,14 @@ export const getSqlDetail = async (
       }
     );
 
-    console.error("[API] SQL 상세 조회 성공:", res.data.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] SQL 상세 조회 성공:", res.data.data);
+    }
     return res.data.data;
   } catch (err) {
-    console.error("[API] SQL 상세 조회 실패:", err);
+    if (import.meta.env.DEV) {
+      console.error("[API] SQL 상세 조회 실패:", err);
+    }
     throw err;
   }
 };
@@ -203,10 +212,14 @@ export const getSqlCompareStats = async (params: {
       { params }
     );
 
-    console.log("[API] Top SQL 비교 조회 성공:", res.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] Top SQL 비교 조회 성공:", res.data);
+    }
     return res.data.data;
   } catch (error) {
-    console.error("[API] Top SQL 비교 조회 실패:", error);
+    if (import.meta.env.DEV) {
+      console.error("[API] Top SQL 비교 조회 실패:", error);
+    }
     throw error;
   }
 };
@@ -226,10 +239,14 @@ export const getDailyGraph = async (params: {
       { params }
     );
 
-    console.log("[API] Daily SQL 그래프 조회 성공:", res.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] Daily SQL 그래프 조회 성공:", res.data);
+    }
     return res.data.data;
   } catch (error) {
-    console.error("[API] Daily SQL 그래프 조회 실패:", error);
+    if (import.meta.env.DEV) {
+      console.error("[API] Daily SQL 그래프 조회 실패:", error);
+    }
     throw error;
   }
 };
@@ -256,10 +273,14 @@ export const getPeriodGraph = async (params: {
       { params }
     );
 
-    console.log("[API] 기간별 SQL 그래프 조회 성공:", res.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] 기간별 SQL 그래프 조회 성공:", res.data);
+    }
     return res.data.data;
   } catch (error) {
-    console.error("[API] 기간별 SQL 그래프 조회 실패:", error);
+    if (import.meta.env.DEV) {
+      console.error("[API] 기간별 SQL 그래프 조회 실패:", error);
+    }
     throw error;
   }
 };
@@ -272,10 +293,14 @@ export const getPlanHistoryList = async (
 ): Promise<PlanHistoryItem[]> => {
   try {
     const res = await api.get(`/api/sql/plan/${sqlId}`);
-    console.log("[API] Plan History List:", res.data.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] Plan History List:", res.data.data);
+    }
     return res.data.data;
   } catch (err) {
-    console.error("[API] Plan History List Error:", err);
+    if (import.meta.env.DEV) {
+      console.error("[API] Plan History List Error:", err);
+    }
     throw err;
   }
 };
@@ -293,10 +318,14 @@ export const getPlanHistoryDetail = async (
     const res = await api.get(`/api/sql/plan/detail`, {
       params: { sqlId, beforeHash, afterHash, time },
     });
-    console.log("[API] Plan History Detail:", res.data.data);
+    if (import.meta.env.DEV) {
+      console.log("[API] Plan History Detail:", res.data.data);
+    }
     return res.data.data;
   } catch (err) {
-    console.error("[API] Plan History Detail Error:", err);
+    if (import.meta.env.DEV) {
+      console.error("[API] Plan History Detail Error:", err);
+    }
     throw err;
   }
 };
