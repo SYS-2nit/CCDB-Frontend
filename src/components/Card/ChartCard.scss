@@ -92,6 +92,23 @@
   }
 }
 
+// ApexCharts 범례 스크롤 방지
+:global {
+  .apexcharts-legend {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  .apexcharts-legend-series {
+    overflow: visible !important;
+  }
+
+  .apexcharts-legend-marker {
+    margin-right: 4px;
+  }
+}
+
 .temp-chart-container {
   display: flex;
   flex-direction: column;
