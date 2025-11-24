@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import {
@@ -23,6 +23,31 @@ const MixedChart: React.FC<MixedChartProps> = ({
   yaxisRightTitle = "",
   height = 150,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [calculatedHeight, setCalculatedHeight] = useState<number>(
+    typeof height === "number" ? height : 150
+  );
+
+  // height가 "100%"인 경우 부모 컨테이너 높이를 계산
+  useEffect(() => {
+    if (height === "100%" && containerRef.current) {
+      const updateHeight = () => {
+        const parentHeight = containerRef.current?.parentElement?.clientHeight;
+        if (parentHeight && parentHeight > 0) {
+          setCalculatedHeight(parentHeight);
+        }
+      };
+      updateHeight();
+      const resizeObserver = new ResizeObserver(updateHeight);
+      if (containerRef.current.parentElement) {
+        resizeObserver.observe(containerRef.current.parentElement);
+      }
+      return () => resizeObserver.disconnect();
+    } else if (typeof height === "number") {
+      setCalculatedHeight(height);
+    }
+  }, [height]);
+
   // LineChart와 동일하게 데이터 안전화: NaN, Infinity, -Infinity 제거
   const sanitize = (data: number[] = []): number[] =>
     data.map((v) => (Number.isFinite(v) ? v : 0));
@@ -149,17 +174,18 @@ const MixedChart: React.FC<MixedChartProps> = ({
 
   return (
     <div
+      ref={containerRef}
       style={{
         width: "100%",
         maxWidth: "100%",
-        height: typeof height === "number" ? `${height}px` : height,
+        height: "100%",
         overflow: "hidden",
       }}
     >
       <ReactApexChart
         options={options}
         series={series}
-        height={height}
+        height={calculatedHeight}
         type="line"
         width="100%"
       />

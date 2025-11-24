@@ -532,7 +532,7 @@ const renderMetricTiles = (
     }
   );
 
-  return <MetricGrid metrics={metrics} columns={columns} height={200} />;
+  return <MetricGrid metrics={metrics} columns={columns} height="100%" />;
 };
 
 const renderBackgroundMetrics = (graph: GraphDataResponse) => {
@@ -560,7 +560,7 @@ const renderBackgroundMetrics = (graph: GraphDataResponse) => {
     };
   });
 
-  return <MetricGrid metrics={metrics} columns={3} height={200} />;
+  return <MetricGrid metrics={metrics} columns={3} height="100%" />;
 };
 
 const renderLine = (
@@ -693,7 +693,7 @@ const renderLine = (
       categories={categories}
       seriesData={validSeriesData}
       showLegend={validLegends.length >= 1}
-      height={200} // 카드 높이에 맞게 조정
+      height="100%" // 카드 높이에 맞게 동적 조정
       // yMin={0}
       // yMax={safeMaxValue + safePadding}
       yMin={GRAPH_AXIS_RANGES[graph.id]?.yMin ?? 0} // x축,y축 설정 변경
@@ -761,7 +761,7 @@ const renderStack = (
         { min: 70, max: 84, color: "#FACC15" },
         { min: 85, max: 100, color: "#EF4444" },
       ]}
-      height={200}
+      height="100%" // 카드 높이에 맞게 동적 조정
       useActualValue={useActualValue}
       xAxisFormatter={xAxisFormatter}
     />
@@ -2019,7 +2019,7 @@ export const renderDynamicChart = (
           { min: 70, max: 84, color: "#FACC15" },
           { min: 85, max: 100, color: "#EF4444" },
         ]}
-        height={200}
+        height="100%" // 카드 높이에 맞게 동적 조정
       />
     );
   }

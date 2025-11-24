@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import {
@@ -32,6 +32,30 @@ const LineChart: React.FC<LineChartProps> = ({
   originalTimes = [],
   xAxisFilter,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [calculatedHeight, setCalculatedHeight] = useState<number>(
+    typeof height === "number" ? height : 180
+  );
+
+  // height가 "100%"인 경우 부모 컨테이너 높이를 계산
+  useEffect(() => {
+    if (height === "100%" && containerRef.current) {
+      const updateHeight = () => {
+        const parentHeight = containerRef.current?.parentElement?.clientHeight;
+        if (parentHeight && parentHeight > 0) {
+          setCalculatedHeight(parentHeight);
+        }
+      };
+      updateHeight();
+      const resizeObserver = new ResizeObserver(updateHeight);
+      if (containerRef.current.parentElement) {
+        resizeObserver.observe(containerRef.current.parentElement);
+      }
+      return () => resizeObserver.disconnect();
+    } else if (typeof height === "number") {
+      setCalculatedHeight(height);
+    }
+  }, [height]);
   const colors = [
     "#3B82F6",
     "#22C55E",
@@ -236,6 +260,7 @@ const LineChart: React.FC<LineChartProps> = ({
 
   return (
     <div
+      ref={containerRef}
       style={{
         width: "100%",
         height: "100%",
@@ -247,7 +272,7 @@ const LineChart: React.FC<LineChartProps> = ({
         options={options}
         series={series}
         type="line"
-        height={height}
+        height={calculatedHeight}
         width="100%"
       />
     </div>

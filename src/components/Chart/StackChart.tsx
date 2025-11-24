@@ -1,6 +1,6 @@
 import { getCssVar } from "@/styles/utils/getCssVar";
 import type { ApexOptions } from "apexcharts";
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
 interface ColorRule {
@@ -48,6 +48,30 @@ const StackChart: React.FC<StackChartProps> = ({
   useActualValue = false, // 실제 값 사용 여부 (기본값: false - 기존 동작 유지)
   xAxisFormatter, // x축 라벨 포맷터
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [calculatedHeight, setCalculatedHeight] = useState<number>(
+    typeof height === "number" ? height : 150
+  );
+
+  // height가 "100%"인 경우 부모 컨테이너 높이를 계산
+  useEffect(() => {
+    if (height === "100%" && containerRef.current) {
+      const updateHeight = () => {
+        const parentHeight = containerRef.current?.parentElement?.clientHeight;
+        if (parentHeight && parentHeight > 0) {
+          setCalculatedHeight(parentHeight);
+        }
+      };
+      updateHeight();
+      const resizeObserver = new ResizeObserver(updateHeight);
+      if (containerRef.current.parentElement) {
+        resizeObserver.observe(containerRef.current.parentElement);
+      }
+      return () => resizeObserver.disconnect();
+    } else if (typeof height === "number") {
+      setCalculatedHeight(height);
+    }
+  }, [height]);
   const _labels = labels.slice(0, stackCount);
   const _usage = usage.slice(0, stackCount);
   const _total = total.slice(0, stackCount);
@@ -151,11 +175,12 @@ const StackChart: React.FC<StackChartProps> = ({
 
   return (
     <div
+      ref={containerRef}
       id="stack-chart"
       style={{
         width: "100%",
         maxWidth: "100%",
-        height: typeof height === "number" ? `${height}px` : height,
+        height: "100%",
         overflow: "hidden",
       }}
     >
@@ -163,7 +188,7 @@ const StackChart: React.FC<StackChartProps> = ({
         options={options}
         series={series}
         type="bar"
-        height={height}
+        height={calculatedHeight}
         width="100%"
       />
     </div>
