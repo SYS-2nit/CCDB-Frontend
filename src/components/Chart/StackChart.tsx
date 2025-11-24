@@ -1,6 +1,6 @@
 import { getCssVar } from "@/styles/utils/getCssVar";
 import type { ApexOptions } from "apexcharts";
-import React, { useRef, useEffect, useState, useMemo, memo } from "react";
+import React, { useRef, useEffect, useState, useMemo, useCallback, memo } from "react";
 import ReactApexChart from "react-apexcharts";
 
 interface ColorRule {
