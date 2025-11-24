@@ -24,86 +24,88 @@
     z-index: 1;
   }
 
-&__grid {
-  flex: 1;
-  overflow: hidden;
-  height: 100%;
-  transition: transform 0.3s ease;
+  &__grid {
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+    transition: transform 0.3s ease;
 
-  &--main {
-    .dashboard-grid-layout {
-      width: 100%;
-      height: 100%;
-    }
-
-    .react-grid-item {
-      display: flex;         
-      flex-direction: column;
-      width: 100%;
-      height: 100%;           
-    }
-
-    .react-grid-item > div {
-      flex: 1;
-      min-height: 100%;
-      display: flex;
-    }
-
-    .chart-card {
-      flex: 1;
-      height: 100%;
-    }
-
-    // placeholder (드래그 중 공간)
-    .react-grid-placeholder {
-      background: var(--color-bg);
-      border-radius: 5px;
-    }
-  }
-
-
-    /* 나머지 탭 (4행 구조) */
+    /* OTHER TAB (CPU, MEMORY, SESSION, IO, STORAGE) */
     &--other {
       margin-top: 10px;
       display: flex;
       flex-direction: column;
       gap: 10px;
       width: 100%;
-      height: 100%;
+      height: 100vh;
       overflow: hidden;
 
+      // 행 4개 전체 높이를 storage 기준으로 통일
       .dashboard__row {
         display: flex;
         gap: 10px;
         width: 100%;
       }
 
+      /* 1행: 상태카드 + big chart (고정 높이) */
       .row-1 {
+        height: 20%; // 높이를 줄여서 row-2에 더 많은 공간 할당
+        display: flex;
         justify-content: space-between;
         align-items: stretch;
-        height: 20%; // 첫 번째 줄 높이를 줄여서 전체를 한 화면에 보이도록
+
         .dashboard__status-wrap {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 8px;
-          flex: 1;
         }
       }
 
-      .row-2,
+      /* 2행: SGA/PGA 차트 카드 높이 증가 */
+      .row-2 {
+        flex: 1; // row-2 높이를 더 넓게 설정
+        min-height: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+
+        .chart-card {
+          flex: 1;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+      }
+
       .row-3 {
-        height: calc((100% - 20%) / 3); // 나머지 3줄을 균등 분배
+        flex: 1.5; // row-2 높이를 더 넓게 설정
+        min-height: 0;
+        display: flex;
         justify-content: space-between;
+        align-items: stretch;
+
         .chart-card {
           flex: 1;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
         }
       }
 
+      /* 3~4행: 남은 높이를 2등분 */
+      .row-3,
       .row-4 {
-        height: calc((100% - 20%) / 3);
+        flex: 1; // 나머지 행은 기본 높이
+        min-height: 0;
+        display: flex;
         justify-content: space-between;
+        align-items: stretch;
+
         .chart-card {
           flex: 1;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
         }
       }
     }

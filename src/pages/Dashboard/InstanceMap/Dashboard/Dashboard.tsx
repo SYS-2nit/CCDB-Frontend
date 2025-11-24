@@ -28,7 +28,11 @@ import { getCategoryByGraphId } from "@/components/Card/utils/getChartByTitle";
 
 import { isAxiosError } from "axios";
 import { useSearchParams } from "react-router-dom";
-import { fetchAlertStatistics, type AlertStatisticsResponse, type AlertCategory } from "@/api/Alert/alerts";
+import {
+  fetchAlertStatistics,
+  type AlertStatisticsResponse,
+  type AlertCategory,
+} from "@/api/Alert/alerts";
 
 export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 
@@ -85,7 +89,8 @@ const Dashboard: React.FC<DashboardProps> = ({
   >(new Map());
 
   // 알림 통계 state
-  const [alertStatistics, setAlertStatistics] = useState<AlertStatisticsResponse | null>(null);
+  const [alertStatistics, setAlertStatistics] =
+    useState<AlertStatisticsResponse | null>(null);
   const [isLoadingStatistics, setIsLoadingStatistics] = useState(false);
 
   // HEAD 브랜치 기능: 마지막으로 로드한 탭 추적
@@ -195,23 +200,35 @@ const Dashboard: React.FC<DashboardProps> = ({
         if (graphList.length === 0 && prevCharts.length > 0) {
           return prevCharts;
         }
-        
+
         // mode가 변경되었으면 기존 데이터 보존하지 않고 새로운 데이터 사용
         // mode가 dependency에 포함되어 있으므로 mode 변경 시 이 useEffect가 실행됨
         // lastLoadedModeRef는 데이터 로드 시 업데이트되므로, 여기서는 현재 mode와 비교
-        const modeChanged = lastLoadedModeRef.current !== null && lastLoadedModeRef.current !== mode;
-        
+        const modeChanged =
+          lastLoadedModeRef.current !== null &&
+          lastLoadedModeRef.current !== mode;
+
         // mode가 변경되었으면 기존 데이터 보존하지 않고 새로운 데이터 사용
         if (modeChanged) {
           return graphList;
         }
-        
+
         // graphList의 ID와 prevCharts의 ID가 같으면 데이터 보존
-        const prevIds = prevCharts.map((c) => c.id).sort().join(",");
-        const newIds = graphList.map((c) => c.id).sort().join(",");
-        
+        const prevIds = prevCharts
+          .map((c) => c.id)
+          .sort()
+          .join(",");
+        const newIds = graphList
+          .map((c) => c.id)
+          .sort()
+          .join(",");
+
         // ID 목록이 같으면 순서만 변경된 것이므로 데이터 보존
-        if (prevIds === newIds && prevCharts.length === graphList.length && prevCharts.length > 0) {
+        if (
+          prevIds === newIds &&
+          prevCharts.length === graphList.length &&
+          prevCharts.length > 0
+        ) {
           // graphList의 순서에 맞춰 prevCharts 재정렬
           // 데이터가 있는 경우 데이터를 보존하고, 없는 경우 graphList 사용
           const chartMap = new Map(prevCharts.map((c) => [c.id, c]));
@@ -223,13 +240,16 @@ const Dashboard: React.FC<DashboardProps> = ({
               return {
                 ...g,
                 ...existing,
-                data: existing.data && existing.data.length > 0 ? existing.data : (g.data || existing.data || []),
+                data:
+                  existing.data && existing.data.length > 0
+                    ? existing.data
+                    : g.data || existing.data || [],
               };
             }
             return g;
           });
         }
-        
+
         // ID가 다르면 새로운 그래프이므로 graphList 사용
         // 하지만 prevCharts에 데이터가 있으면 보존
         if (prevCharts.length > 0) {
@@ -241,13 +261,16 @@ const Dashboard: React.FC<DashboardProps> = ({
               return {
                 ...g,
                 ...existing,
-                data: existing.data && existing.data.length > 0 ? existing.data : (g.data || existing.data || []),
+                data:
+                  existing.data && existing.data.length > 0
+                    ? existing.data
+                    : g.data || existing.data || [],
               };
             }
             return g;
           });
         }
-        
+
         return graphList;
       });
     } else {
@@ -272,10 +295,12 @@ const Dashboard: React.FC<DashboardProps> = ({
 
     // mode가 변경되었는지 확인
     const modeChanged = lastLoadedModeRef.current !== mode;
-    
+
     const hasCache =
       activeTab === "main"
-        ? graphList.length > 0 && lastLoadedTabRef.current === activeTab && !modeChanged
+        ? graphList.length > 0 &&
+          lastLoadedTabRef.current === activeTab &&
+          !modeChanged
         : (categoryGraphs.get(activeTab)?.length ?? 0) > 0 && !modeChanged;
 
     if (!hasCache) setIsFetching(true);
@@ -324,7 +349,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             return next;
           });
         }
-        
+
         // mode 추적 업데이트
         lastLoadedModeRef.current = mode;
       } catch (err) {
@@ -388,14 +413,17 @@ const Dashboard: React.FC<DashboardProps> = ({
 -------------------------------------------------------- */
   const prevChartIdsRef = useRef<string>("");
   const prevLayoutRef = useRef<any[]>([]);
-  
+
   useEffect(() => {
     const newCharts =
       activeTab === "main" ? graphList : categoryGraphs.get(activeTab) ?? [];
 
     // layout은 그래프가 추가/제거될 때만 재계산 (순서 변경 시에는 재계산하지 않음)
-    const currentChartIds = newCharts.map((c) => String(c.id)).sort().join(",");
-    
+    const currentChartIds = newCharts
+      .map((c) => String(c.id))
+      .sort()
+      .join(",");
+
     // 그래프 ID 목록이 변경되었거나 layout이 비어있을 때만 재계산
     if (currentChartIds !== prevChartIdsRef.current || layout.length === 0) {
       const newLayout = newCharts.map((c, index) => ({
@@ -508,7 +536,10 @@ const Dashboard: React.FC<DashboardProps> = ({
 
           // 알림 통계도 함께 갱신 (main 탭이 아닐 때만)
           try {
-            const stats = await fetchAlertStatistics(category as AlertCategory, selectedInstanceId);
+            const stats = await fetchAlertStatistics(
+              category as AlertCategory,
+              selectedInstanceId
+            );
             if (!cancelled) {
               setAlertStatistics(stats);
             }
@@ -581,7 +612,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   const handleLayoutChange = (currentLayout: any[]) => {
     const prevLayout = prevLayoutRef.current;
-    
+
     // 초기 로드 시에는 그대로 설정
     if (prevLayout.length === 0) {
       const normalizedLayout = currentLayout.map((item) => ({
@@ -610,7 +641,10 @@ const Dashboard: React.FC<DashboardProps> = ({
 
     // 이동한 항목의 새 위치에 원래 있던 항목 찾기
     const targetItem = prevLayout.find(
-      (prev) => prev.x === movedItem.x && prev.y === movedItem.y && prev.i !== movedItem.i
+      (prev) =>
+        prev.x === movedItem.x &&
+        prev.y === movedItem.y &&
+        prev.i !== movedItem.i
     );
 
     // 스왑 로직: 두 항목만 서로 위치 교환
@@ -654,7 +688,8 @@ const Dashboard: React.FC<DashboardProps> = ({
     // 드래그 종료 후 300ms 후에 순서 변경 (debounce)
     reorderTimeoutRef.current = setTimeout(() => {
       // 현재 charts의 데이터를 보존하기 위해 charts를 사용
-      const currentCharts = activeTab === "main" ? charts : (categoryGraphs.get(activeTab) ?? []);
+      const currentCharts =
+        activeTab === "main" ? charts : categoryGraphs.get(activeTab) ?? [];
       const sortedIds = [...swappedLayout]
         .sort((a, b) => a.y - b.y || a.x - b.x)
         .map((l) => l.i);
@@ -667,7 +702,10 @@ const Dashboard: React.FC<DashboardProps> = ({
       });
 
       // 순서만 변경 (데이터는 그대로 유지)
-      if (newOrderNames.length > 0 && newOrderNames.length === currentCharts.length) {
+      if (
+        newOrderNames.length > 0 &&
+        newOrderNames.length === currentCharts.length
+      ) {
         // 현재 charts의 데이터를 graphList에 먼저 반영하여 데이터 보존
         if (activeTab === "main") {
           // charts의 데이터를 graphList에 반영 (동기적으로 처리)
@@ -683,20 +721,27 @@ const Dashboard: React.FC<DashboardProps> = ({
                   ...g,
                   ...chartData,
                   // data가 있으면 charts의 data 사용, 없으면 graphList의 data 유지
-                  data: chartData.data && chartData.data.length > 0 ? chartData.data : (g.data || []),
+                  data:
+                    chartData.data && chartData.data.length > 0
+                      ? chartData.data
+                      : g.data || [],
                 };
               }
               return g;
             });
-            
+
             // 순서 변경을 위해 mapNamesToGraphs와 유사한 로직 적용
-            const nameMap = new Map(updatedGraphList.map((g) => [g.name, g] as const));
+            const nameMap = new Map(
+              updatedGraphList.map((g) => [g.name, g] as const)
+            );
             const reordered = newOrderNames
               .map((name) => nameMap.get(name))
               .filter((g): g is GraphDataResponse => Boolean(g));
-            const leftovers = updatedGraphList.filter((g) => !reordered.includes(g));
+            const leftovers = updatedGraphList.filter(
+              (g) => !reordered.includes(g)
+            );
             const finalGraphList = [...reordered, ...leftovers];
-            
+
             // charts의 데이터를 최종적으로 보존
             const finalChartsMap = new Map(currentCharts.map((c) => [c.id, c]));
             return finalGraphList.map((g) => {
@@ -707,7 +752,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               return g;
             });
           });
-          
+
           // setGraphs가 완료된 후 reorderGraphsByNames를 호출하여 isWidgetOrderDirty 설정
           // 하지만 이미 setGraphs에서 순서가 변경되었으므로, reorderGraphsByNames는 순서만 확인
           setTimeout(() => {
@@ -762,16 +807,18 @@ const Dashboard: React.FC<DashboardProps> = ({
   const visibleTabs = singleTabMode
     ? [{ id: initialTab, label: initialTab }]
     : [
-      { id: "main", label: "Main Custom" },
-      { id: "cpu", label: "CPU" },
-      { id: "memory", label: "Memory" },
-      { id: "session", label: "Session" },
-      { id: "io", label: "I/O" },
-      { id: "storage", label: "Storage" },
-    ];
+        { id: "main", label: "Main Custom" },
+        { id: "cpu", label: "CPU" },
+        { id: "memory", label: "Memory" },
+        { id: "session", label: "Session" },
+        { id: "io", label: "I/O" },
+        { id: "storage", label: "Storage" },
+      ];
 
   return (
-    <div className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}>
+    <div
+      className={`dashboard ${isSettingOpen ? "dashboard--with-setting" : ""}`}
+    >
       {!singleTabMode && (
         <TabMenu
           tabs={visibleTabs}
@@ -803,7 +850,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 xxs: layout,
               }}
               margin={[10, 10]}
-              rowHeight={290}
+              rowHeight={258}
               onLayoutChange={handleLayoutChange}
               compactType={null}
               preventCollision={false}
@@ -815,7 +862,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 const allGraphsInCategory = graphList.filter(
                   (g) => getCategoryByGraphId(g.id) === graphCategory
                 );
-                
+
                 return (
                   <div key={String(graph.id)}>
                     <ChartCard
@@ -848,25 +895,33 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <div className="dashboard__status-wrap">
                   <StatusCard
                     label="정상"
-                    value={isLoadingStatistics ? "-" : (alertStatistics?.normal ?? 0)}
+                    value={
+                      isLoadingStatistics ? "-" : alertStatistics?.normal ?? 0
+                    }
                     color="safe"
                     change={alertStatistics?.normalChange}
                   />
                   <StatusCard
                     label="주의"
-                    value={isLoadingStatistics ? "-" : (alertStatistics?.warning ?? 0)}
+                    value={
+                      isLoadingStatistics ? "-" : alertStatistics?.warning ?? 0
+                    }
                     color="warning"
                     change={alertStatistics?.warningChange}
                   />
                   <StatusCard
                     label="위험"
-                    value={isLoadingStatistics ? "-" : (alertStatistics?.danger ?? 0)}
+                    value={
+                      isLoadingStatistics ? "-" : alertStatistics?.danger ?? 0
+                    }
                     color="danger"
                     change={alertStatistics?.dangerChange}
                   />
                   <StatusCard
                     label="치명"
-                    value={isLoadingStatistics ? "-" : (alertStatistics?.critical ?? 0)}
+                    value={
+                      isLoadingStatistics ? "-" : alertStatistics?.critical ?? 0
+                    }
                     color="critical"
                     change={alertStatistics?.criticalChange}
                   />

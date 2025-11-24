@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import React from "react";
 import { mainChartRenderer } from "../chartRenderers/mainChartRenderer";
 import LineChart from "@/components/Chart/LineChart";
@@ -336,6 +337,7 @@ const renderMetricTiles = (
   mappings: Array<{
     key: string;
     label: string;
+    subtitle?: string; // 직접 지정할 수 있는 subtitle (label과 분리)
     suffix?: string;
     subtitleKeys?: string[]; // 서브 값으로 표시할 키 배열 (예: ["key1", "key2"])
     decimals?: number; // 추가: 메인 값 소수점 자릿수 (반올림)
@@ -373,6 +375,7 @@ const renderMetricTiles = (
     ({
       key,
       label,
+      subtitle: directSubtitle,
       suffix,
       subtitleKeys,
       decimals,
@@ -468,8 +471,9 @@ const renderMetricTiles = (
       }
 
       // 서브 값 생성
-      let subtitle = "";
-      if (subtitleKeys && subtitleKeys.length > 0) {
+      // 직접 지정된 subtitle이 있으면 우선 사용
+      let subtitle = directSubtitle || "";
+      if (!directSubtitle && subtitleKeys && subtitleKeys.length > 0) {
         const subtitleValues = subtitleKeys
           .map((subKey) => {
             // Shared Pool 사용량 계산 (특별 처리)
@@ -554,7 +558,7 @@ const renderMetricTiles = (
     }
   );
 
-  return <MetricGrid metrics={metrics} columns={columns} height={190} />;
+  return <MetricGrid metrics={metrics} columns={columns} height="100%" />;
 };
 
 const renderBackgroundMetrics = (graph: GraphDataResponse) => {
@@ -582,7 +586,7 @@ const renderBackgroundMetrics = (graph: GraphDataResponse) => {
     };
   });
 
-  return <MetricGrid metrics={metrics} columns={3} height={190} />;
+  return <MetricGrid metrics={metrics} columns={3} height="100%" />;
 };
 
 const renderLine = (
@@ -715,7 +719,7 @@ const renderLine = (
       categories={categories}
       seriesData={validSeriesData}
       showLegend={validLegends.length >= 1}
-      height={190} // 추가
+      height="100%" // 카드 높이에 맞게 동적 조정
       // yMin={0}
       // yMax={safeMaxValue + safePadding}
       yMin={GRAPH_AXIS_RANGES[graph.id]?.yMin ?? 0} // x축,y축 설정 변경
@@ -783,7 +787,7 @@ const renderStack = (
         { min: 70, max: 84, color: "#FACC15" },
         { min: 85, max: 100, color: "#EF4444" },
       ]}
-      height={200}
+      height="100%" // 카드 높이에 맞게 동적 조정
       useActualValue={useActualValue}
       xAxisFormatter={xAxisFormatter}
     />
@@ -911,23 +915,27 @@ export const renderDynamicChart = (
   // GraphRegistry: LIBRARY_CACHE_HIT_PCT, DICTIONARY_CACHE_HIT_PCT, HARD_PARSE_RATIO_PCT
 
   if (graph.id === 7) {
-    return renderMetricTiles(graph, [
-      {
-        key: "library_cache_hit_pct",
-        label: "Library Cache Hit (%)",
-        suffix: "%",
-      },
-      {
-        key: "dictionary_cache_hit_pct",
-        label: "Dictionary Cache Hit (%)",
-        suffix: "%",
-      },
-      {
-        key: "hard_parse_ratio_pct",
-        label: "Hard Parse Ratio (%)",
-        suffix: "%",
-      },
-    ]);
+    return renderMetricTiles(
+      graph,
+      [
+        {
+          key: "library_cache_hit_pct",
+          label: "Library Cache Hit (%)",
+          suffix: "%",
+        },
+        {
+          key: "dictionary_cache_hit_pct",
+          label: "Dictionary Cache Hit (%)",
+          suffix: "%",
+        },
+        {
+          key: "hard_parse_ratio_pct",
+          label: "Hard Parse Ratio (%)",
+          suffix: "%",
+        },
+      ],
+      3
+    );
   }
 
   if (graph.id === 9) {
@@ -981,19 +989,22 @@ export const renderDynamicChart = (
         },
         {
           key: "cpu_saturation_pct",
-          label: "DB CPU 포화도\n(DB CPU 작업량 / DB 할당 CPU)",
+          label: "DB CPU 포화도",
+          subtitle: "(DB CPU 작업량 / DB 할당 CPU)",
           suffix: " %",
           decimals: 2,
         },
         {
           key: "db_of_host_share_pct",
-          label: "DB CPU 점유율\n(DB CPU 작업량 / Host CPU 사용량)",
+          label: "DB CPU 점유율",
+          subtitle: "(DB CPU 작업량 / Host CPU 사용량)",
           suffix: " %",
           decimals: 2,
         },
         {
           key: "runq_per_core_load_proxy",
-          label: "RunQ\n(코어 당 대기 작업 수)",
+          label: "RunQ",
+          subtitle: "(코어 당 대기 작업 수)",
           suffix: " /Core",
           decimals: 2,
         },
@@ -1136,7 +1147,7 @@ export const renderDynamicChart = (
         { key: "dispatcher_proc_cnt", label: "Dispatcher" },
         { key: "job_proc_cnt", label: "Job" },
       ],
-      3
+      5 // columns: 5 (첫 줄 5개, 둘째 줄 4개로 2줄 표시)
     );
   }
 
@@ -1403,7 +1414,7 @@ export const renderDynamicChart = (
         { key: "blockers_now", label: "Blockers" },
         { key: "blocked_now", label: "Blocked" },
       ],
-      5
+      5 // columns: 5 (한 줄에 5개 모두 표시)
     );
   }
 
@@ -1429,7 +1440,7 @@ export const renderDynamicChart = (
         {
           key: "physical_reads_per_sec",
           label: "Physical Reads",
-          suffix: " blocks/s",
+          subtitle: "blocks/s",
           decimals: 2,
         },
 
@@ -1448,7 +1459,7 @@ export const renderDynamicChart = (
         {
           key: "direct_path_io_per_sec",
           label: "Direct Path I/O",
-          suffix: " blocks/s",
+          subtitle: "blocks/s",
         },
       ],
       6
@@ -1603,7 +1614,7 @@ export const renderDynamicChart = (
 
         {
           key: "max_ts_usage_pct",
-          label: "최대 사용 테이블 스페이스 사용률",
+          label: "최대 테이블 스페이스 사용률",
           suffix: "%",
           decimals: 2,
           subtitleKeys: ["max_ts_name"],
@@ -2057,7 +2068,7 @@ export const renderDynamicChart = (
           { min: 70, max: 84, color: "#FACC15" },
           { min: 85, max: 100, color: "#EF4444" },
         ]}
-        height={200}
+        height="100%" // 카드 높이에 맞게 동적 조정
       />
     );
   }
