@@ -13,7 +13,6 @@
 
   &__label {
     @include text-styles("label02");
-    color: var(--color-text);
     flex-shrink: 0;
     font-size: 11px; // 폰트 크기 약간 줄이기
   }
@@ -25,7 +24,7 @@
   }
 
   &__value {
-    @include text-styles("heading02");
+    @include text-styles("title01");
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -45,27 +44,23 @@
 
   /* 색상 테마 */
   &--safe {
-    color: $green-500;
-    border: 1px solid $green-400;
-    background: $green-0;
+    color: $green-0;
+    background: $green-500;
   }
 
   &--warning {
-    color: $yellow-500;
-    border: 1px solid $yellow-500;
-    background: $yellow-0;
+    color: $gray-900;
+    background: $yellow-400;
   }
 
   &--danger {
-    color: $sematic-error;
-    border: 1px solid $sematic-error;
-    background: $red-0;
+    color: $gray-0;
+    background: $sematic-error;
   }
 
   &--critical {
-    color: $gray-800;
-    border: 1px solid $gray-500;
-    background: $gray-100;
+    color: $gray-0;
+    background: $gray-900;
 
     body.dark & {
       color: var(--color-text);
