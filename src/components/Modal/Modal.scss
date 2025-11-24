@@ -185,6 +185,34 @@
     }
   }
 
+  /* 라디오 그룹 */
+  &__radio-group {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      @include text-styles("body02");
+      color: $gray-700;
+
+      input[type="radio"] {
+        margin: 0;
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+        accent-color: $main-600;
+      }
+
+      &:hover {
+        color: $gray-900;
+      }
+    }
+  }
+
   /* 버튼 그룹 */
   &__button-group {
     display: flex;

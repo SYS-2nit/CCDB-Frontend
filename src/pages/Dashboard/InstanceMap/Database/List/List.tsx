@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "./List.scss";
 import DatabaseItem from "./Item";
 import ArrowFillTopIcon from "@/assets/general/arrow-fill-top.svg";
@@ -40,7 +40,8 @@ type FormState = {
   port: string;
   account: string;
   password: string;
-  sid: string;
+  identifier: string;
+  connectionType: "SID" | "SERVICE_NAME";
 };
 
 type ListProps = {
@@ -64,7 +65,8 @@ const INITIAL_INPUTS: FormState = {
   port: "",
   account: "",
   password: "",
-  sid: "",
+  identifier: "",
+  connectionType: "SID",
 };
 
 const getErrorMessage = (error: unknown) => {
@@ -107,6 +109,8 @@ const List: React.FC<ListProps> = ({
     setHoveredDbId(dbId);
     try {
       const data = await fetchInstancesByDatabase(dbId);
+      console.log("[인스턴스 목록] DB ID:", dbId, "인스턴스 데이터:", data);
+      console.log("[인스턴스 목록] 각 인스턴스 ID:", data.map(i => ({ id: i.id, sid: i.sid })));
       setInstanceList(data);
     } catch (err) {
       console.log("인스턴스 목록 조회 오류:", err);
@@ -117,6 +121,13 @@ const List: React.FC<ListProps> = ({
   const handleDbLeave = () => {
     setHoveredDbId(null);
   };
+
+  // 인스턴스 클릭 핸들러 (클로저 문제 방지)
+  const handleInstanceClick = useCallback((instanceId: number, instanceSid: string | null) => {
+    console.log(`[인스턴스 클릭 핸들러] id=${instanceId}, sid=${instanceSid}`);
+    console.log(`[인스턴스 클릭 핸들러] 현재 instanceList:`, instanceList.map(i => ({ id: i.id, sid: i.sid })));
+    navigate(`/dashboard?instanceId=${instanceId}`);
+  }, [navigate, instanceList]);
 
   // DB 필터
   const filteredDatabases = useMemo(
@@ -170,7 +181,8 @@ const List: React.FC<ListProps> = ({
         port: portValue,
         account: inputs.account.trim(),
         password: inputs.password,
-        sid: inputs.sid.trim(),
+        identifier: inputs.identifier.trim(),
+        connectionType: inputs.connectionType || "SID",
       });
 
       if (result.success) {
@@ -188,9 +200,7 @@ const List: React.FC<ListProps> = ({
         });
       }
     } catch (error) {
-      const message = getErrorMessage(error);
-      setTestFeedback({ status: "fail", message });
-      alert(message);
+      setTestFeedback({ status: "fail", message: "데이터베이스 연결에 실패했습니다." });
     } finally {
       setIsTesting(false);
     }
@@ -227,14 +237,17 @@ const List: React.FC<ListProps> = ({
         port: portValue,
         account: inputs.account.trim(),
         password: inputs.password,
-        sid: inputs.sid.trim(),
+        identifier: inputs.identifier.trim(),
+        connectionType: inputs.connectionType || "SID",
       });
 
       alert(`${inputs.name} DB가 추가되었습니다.`);
       setIsModalOpen(null);
       resetAddForm();
     } catch (error) {
-      alert(getErrorMessage(error));
+      console.error("[Database] 저장 실패:", error);
+      const errorMessage = getErrorMessage(error);
+      alert(`데이터베이스 저장에 실패했습니다.\n${errorMessage}`);
     } finally {
       setIsSaving(false);
     }
@@ -327,17 +340,24 @@ const List: React.FC<ListProps> = ({
                   {/* 오른쪽에 뜨는 인스턴스 팝업 */}
                   {hoveredDbId === db.id && instanceList.length > 0 && (
                     <div className="instance-popup">
-                      {instanceList.map((instance) => (
-                        <div
-                          key={instance.id}
-                          className="instance-popup-item"
-                          onClick={() =>
-                            navigate(`/dashboard?instanceId=${instance.id}`)
-                          }
-                        >
-                          {instance.sid}
-                        </div>
-                      ))}
+                      {instanceList.map((instance, index) => {
+                        // 각 인스턴스의 id를 명시적으로 저장하여 클로저 문제 방지
+                        const instanceId = instance.id;
+                        const instanceSid = instance.sid;
+                        
+                        // 디버깅: 각 인스턴스의 id 확인
+                        console.log(`[인스턴스 팝업 렌더링] 인덱스 ${index}: id=${instanceId}, sid=${instanceSid}`);
+                        
+                        return (
+                          <div
+                            key={`${db.id}-${instanceId}-${index}`}
+                            className="instance-popup-item"
+                            onClick={() => handleInstanceClick(instanceId, instanceSid)}
+                          >
+                            {instanceSid}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -425,12 +445,26 @@ const List: React.FC<ListProps> = ({
                 setInputs((prev) => ({ ...prev, password: val })),
             },
             {
-              label: "SID",
-              type: "textarea",
-              placeholder: "SID를 입력해주세요.",
-              value: inputs.sid,
+              label: "연결 타입",
+              type: "radio",
+              options: ["SID", "SERVICE_NAME"],
+              value: inputs.connectionType,
               onChange: (_, val) =>
-                setInputs((prev) => ({ ...prev, sid: val })),
+                setInputs((prev) => ({
+                  ...prev,
+                  connectionType: val as "SID" | "SERVICE_NAME",
+                })),
+            },
+            {
+              label: inputs.connectionType === "SID" ? "SID" : "서비스 이름",
+              type: "textarea",
+              placeholder:
+                inputs.connectionType === "SID"
+                  ? "SID를 입력해주세요. (예: ORCL)"
+                  : "서비스 이름을 입력해주세요. (예: orcl.example.com)",
+              value: inputs.identifier,
+              onChange: (_, val) =>
+                setInputs((prev) => ({ ...prev, identifier: val })),
             },
           ]}
         >
