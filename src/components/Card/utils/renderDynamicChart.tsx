@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import React from "react";
 import { mainChartRenderer } from "../chartRenderers/mainChartRenderer";
 import LineChart from "@/components/Chart/LineChart";
@@ -892,23 +893,27 @@ export const renderDynamicChart = (
   // GraphRegistry: LIBRARY_CACHE_HIT_PCT, DICTIONARY_CACHE_HIT_PCT, HARD_PARSE_RATIO_PCT
 
   if (graph.id === 7) {
-    return renderMetricTiles(graph, [
-      {
-        key: "library_cache_hit_pct",
-        label: "Library Cache Hit (%)",
-        suffix: "%",
-      },
-      {
-        key: "dictionary_cache_hit_pct",
-        label: "Dictionary Cache Hit (%)",
-        suffix: "%",
-      },
-      {
-        key: "hard_parse_ratio_pct",
-        label: "Hard Parse Ratio (%)",
-        suffix: "%",
-      },
-    ]);
+    return renderMetricTiles(
+      graph,
+      [
+        {
+          key: "library_cache_hit_pct",
+          label: "Library Cache Hit (%)",
+          suffix: "%",
+        },
+        {
+          key: "dictionary_cache_hit_pct",
+          label: "Dictionary Cache Hit (%)",
+          suffix: "%",
+        },
+        {
+          key: "hard_parse_ratio_pct",
+          label: "Hard Parse Ratio (%)",
+          suffix: "%",
+        },
+      ],
+      3
+    );
   }
 
   if (graph.id === 9) {
@@ -1104,7 +1109,7 @@ export const renderDynamicChart = (
         { key: "dispatcher_proc_cnt", label: "Dispatcher" },
         { key: "job_proc_cnt", label: "Job" },
       ],
-      3
+      5
     );
   }
 
@@ -1416,7 +1421,7 @@ export const renderDynamicChart = (
         {
           key: "direct_path_io_per_sec",
           label: "Direct Path I/O",
-          suffix: " blocks/s",
+          subtitle: "blocks/s",
         },
       ],
       6

@@ -5,9 +5,6 @@
 
 .metric-grid {
   display: grid;
-  width: 100%;
-  max-width: 100%;
-  height: 100%;
   overflow: hidden;
   min-width: 0;
 }
@@ -20,38 +17,17 @@
   text-align: center;
   position: relative;
   transition: all 0.2s ease;
-  padding: 6px;
   cursor: pointer;
-  width: 100%;
-  max-width: 100%;
   overflow: hidden;
-  min-width: 0;
 
   &__title {
     color: var(--color-subtext);
     @include text-styles("label02");
-    white-space: pre-line;
-    font-size: 11px; // 추가: 폰트 크기 줄이기
-    line-height: 1.3;
   }
 
   &__value {
     color: var(--color-text);
-    @include text-styles("heading01");
-    font-size: 18px; // 추가: 폰트 크기 줄이기
-    line-height: 1.2;
-    margin-top: 2px;
-  }
-
-  &__icon {
-    width: 32px;
-    height: 32px;
-    margin: 2px 0;
-    transition: transform 0.2s ease;
-
-    &:hover {
-      transform: scale(1.05);
-    }
+    @include text-styles("heading02");
   }
 
   &__tooltip {
@@ -60,7 +36,7 @@
     width: 100%;
     
     &-text {
-      @include text-styles("label02");
+      @include text-styles("body02");
       visibility: hidden;
       opacity: 0;
       background-color: var(--color-sidebar-bg, #1a1a1a);
@@ -69,7 +45,7 @@
       padding: 6px 10px;
       border-radius: 4px;
       position: absolute;
-      z-index: 1000;
+      z-index: 10;
       bottom: 100%;
       left: 50%;
       transform: translateX(-50%) translateY(-8px);
@@ -78,23 +54,10 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
       pointer-events: none;
-      
-      // 화살표
-      &::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        border: 5px solid transparent;
-        border-top-color: var(--color-sidebar-bg, #1a1a1a);
-      }
     }
   }
 
   &:hover {
-    transform: translateY(-3px);
-
     .metric-card__tooltip-text {
       visibility: visible;
       opacity: 1;
