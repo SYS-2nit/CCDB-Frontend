@@ -111,7 +111,7 @@ const LineChart: React.FC<LineChartProps> = ({
       strokeDashArray: 3,
       padding: {
         top:
-          yMin !== undefined && yMax !== undefined && yMax - yMin < 1 ? 0 : 10, // 수정: 작은 범위일 때 top padding 제거
+          yMin !== undefined && yMax !== undefined && yMax - yMin < 1 ? 0 : 5, // 위아래 패딩 줄이기
         right: 5,
         bottom: 0,
         left: 10,

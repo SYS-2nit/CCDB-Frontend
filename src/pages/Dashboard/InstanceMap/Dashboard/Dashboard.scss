@@ -93,7 +93,7 @@
       .row-2,
       .row-3,
       .row-4 {
-        height: calc((100% - 12%) / 3); // 나머지 3줄을 균등 분배하여 부모 높이 영역에 꽉 차도록
+        height: 100%; // 나머지 3줄을 균등 분배하여 부모 높이 영역에 꽉 차도록
         justify-content: space-between;
         .chart-card {
           flex: 1;

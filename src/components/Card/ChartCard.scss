@@ -28,6 +28,7 @@
   &__header {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 4px; // title과 그래프 사이 간격 줄이기
   }
 
   &__title {
