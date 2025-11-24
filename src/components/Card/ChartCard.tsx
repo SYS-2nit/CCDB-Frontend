@@ -1,7 +1,5 @@
 import React, { useState, memo } from "react";
 import "./ChartCard.scss";
-import WarningIcon from "@/assets/general/warning.svg";
-import SuccessGreenIcon from "@/assets/general/succes-green.svg";
 import SettingIcon from "@/assets/general/setting.svg";
 import InfoIcon from "@/assets/general/info.svg";
 import DragIcon from "@/assets/general/drag.svg";
@@ -39,7 +37,6 @@ const ChartCard: React.FC<ChartCardProps> = ({
   mode: propMode,
   allGraphsInCategory,
 }) => {
-  const StatusIcon = status === "warning" ? WarningIcon : SuccessGreenIcon;
   const [showInfoModal, setShowInfoModal] = useState(false);
 
   const {
@@ -99,21 +96,29 @@ const ChartCard: React.FC<ChartCardProps> = ({
   const borderColor = (() => {
     if (!graphData?.alertSeverity) return undefined;
     switch (graphData.alertSeverity) {
-      case 1: return "#FACC15"; // 주의 (노란색)
-      case 2: return "#DC2626"; // 위험 (빨간색)
-      case 3: return "#151515"; // 치명 (검은색)
-      default: return undefined;
+      case 1:
+        return "#FACC15"; // 주의 (노란색)
+      case 2:
+        return "#DC2626"; // 위험 (빨간색)
+      case 3:
+        return "#151515"; // 치명 (검은색)
+      default:
+        return undefined;
     }
   })();
 
   return (
-    <div 
+    <div
       className={`chart-card ${status}`}
-      style={borderColor ? {
-        border: `3px solid ${borderColor}`,
-        borderRadius: "8px",
-        boxSizing: "border-box"
-      } : {}}
+      style={
+        borderColor
+          ? {
+              border: `3px solid ${borderColor}`,
+              borderRadius: "8px",
+              boxSizing: "border-box",
+            }
+          : {}
+      }
     >
       <div className="chart-card__header">
         <div className="chart-card__left chart-card__drag-handle">
@@ -133,7 +138,6 @@ const ChartCard: React.FC<ChartCardProps> = ({
               </span>
             )}
           </span>
-          <img src={StatusIcon} alt={status} />
         </div>
 
         <div className="chart-card__right">
@@ -153,7 +157,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
               />
             )}
           </div>
-          
+
           {showSettingIcon && (
             <div
               className="chart-card__setting-wrapper"
