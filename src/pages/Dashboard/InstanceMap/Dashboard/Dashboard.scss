@@ -81,7 +81,7 @@
       .row-1 {
         justify-content: space-between;
         align-items: stretch;
-        height: 15%; // 첫 번째 줄 높이를 더 줄여서 전체를 한 화면에 보이도록
+        height: 12%; // 첫 번째 줄 높이를 더 줄여서 전체를 한 화면에 보이도록
         .dashboard__status-wrap {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -91,19 +91,13 @@
       }
 
       .row-2,
-      .row-3 {
-        height: calc((100% - 21%) / 3); // 나머지 3줄을 균등 분배
-        justify-content: space-between;
-        .chart-card {
-          flex: 1;
-        }
-      }
-
+      .row-3,
       .row-4 {
-        height: calc((100% - 15%) / 3);
+        height: calc((100% - 12%) / 3); // 나머지 3줄을 균등 분배하여 부모 높이 영역에 꽉 차도록
         justify-content: space-between;
         .chart-card {
           flex: 1;
+          height: 100%;
         }
       }
     }

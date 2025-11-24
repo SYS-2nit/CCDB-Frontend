@@ -8,40 +8,39 @@
   align-items: center;
   justify-content: space-between;
   border-radius: 5px;
-  padding: 12px;
+  padding: 8px 10px; // 높이 줄이기 위해 padding 감소
   cursor: default;
 
   &__label {
     @include text-styles("label02");
     color: var(--color-text);
     flex-shrink: 0;
+    font-size: 11px; // 폰트 크기 약간 줄이기
   }
 
   &__value-wrapper {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
+    align-items: center;
+    justify-content: flex-end;
   }
 
   &__value {
     @include text-styles("heading02");
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 16px; // 폰트 크기 약간 줄이기
   }
 
   &__change {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 500;
     line-height: 1;
-    letter-spacing: -1%;
-
-    &--up {
-      color: $green-500;
-    }
-
-    &--down {
-      color: $red-500;
-    }
+    letter-spacing: -0.5px;
+    margin-left: 2px;
+    // 카드의 value 색상과 동일하게 상속
+    color: inherit;
   }
 
   /* 색상 테마 */

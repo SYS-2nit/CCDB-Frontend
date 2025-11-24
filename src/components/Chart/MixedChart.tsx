@@ -21,11 +21,11 @@ const MixedChart: React.FC<MixedChartProps> = ({
   lineData = [23, 42, 35, 43, 22, 31],
   yaxisLeftTitle = "",
   yaxisRightTitle = "",
-  height = 150,
+  height = 120,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [calculatedHeight, setCalculatedHeight] = useState<number>(
-    typeof height === "number" ? height : 150
+    typeof height === "number" ? height : 120
   );
 
   // height가 "100%"인 경우 부모 컨테이너 높이를 계산
@@ -34,7 +34,9 @@ const MixedChart: React.FC<MixedChartProps> = ({
       const updateHeight = () => {
         const parentHeight = containerRef.current?.parentElement?.clientHeight;
         if (parentHeight && parentHeight > 0) {
-          setCalculatedHeight(parentHeight);
+          // 헤더 높이와 여유 공간을 고려하여 높이 조정 (약 50px 여유)
+          const adjustedHeight = Math.max(120, parentHeight - 50);
+          setCalculatedHeight(adjustedHeight);
         }
       };
       updateHeight();

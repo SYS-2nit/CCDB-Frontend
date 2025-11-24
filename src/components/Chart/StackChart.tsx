@@ -41,7 +41,7 @@ const StackChart: React.FC<StackChartProps> = ({
     { min: 71, max: 85, color: getCssVar("sematic-warning") },
     { min: 86, max: 100, color: getCssVar("sematic-error") },
   ],
-  height = 150,
+  height = 120,
   yaxisTitle,
   xMin, // x축,y축 설정 변경
   xMax, // x축,y축 설정 변경
@@ -50,7 +50,7 @@ const StackChart: React.FC<StackChartProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [calculatedHeight, setCalculatedHeight] = useState<number>(
-    typeof height === "number" ? height : 150
+    typeof height === "number" ? height : 120
   );
 
   // height가 "100%"인 경우 부모 컨테이너 높이를 계산
@@ -59,7 +59,9 @@ const StackChart: React.FC<StackChartProps> = ({
       const updateHeight = () => {
         const parentHeight = containerRef.current?.parentElement?.clientHeight;
         if (parentHeight && parentHeight > 0) {
-          setCalculatedHeight(parentHeight);
+          // 헤더 높이와 여유 공간을 고려하여 높이 조정 (약 50px 여유)
+          const adjustedHeight = Math.max(120, parentHeight - 50);
+          setCalculatedHeight(adjustedHeight);
         }
       };
       updateHeight();

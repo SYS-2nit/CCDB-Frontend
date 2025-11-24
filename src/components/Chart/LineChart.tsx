@@ -26,7 +26,7 @@ const LineChart: React.FC<LineChartProps> = ({
   seriesData = [],
   categories = [],
   yaxisTitle = "",
-  height = 180,
+  height = 150,
   yMin,
   yMax,
   originalTimes = [],
@@ -34,7 +34,7 @@ const LineChart: React.FC<LineChartProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [calculatedHeight, setCalculatedHeight] = useState<number>(
-    typeof height === "number" ? height : 180
+    typeof height === "number" ? height : 150
   );
 
   // height가 "100%"인 경우 부모 컨테이너 높이를 계산
@@ -43,7 +43,9 @@ const LineChart: React.FC<LineChartProps> = ({
       const updateHeight = () => {
         const parentHeight = containerRef.current?.parentElement?.clientHeight;
         if (parentHeight && parentHeight > 0) {
-          setCalculatedHeight(parentHeight);
+          // 헤더 높이와 여유 공간을 고려하여 높이 조정 (약 50px 여유)
+          const adjustedHeight = Math.max(120, parentHeight - 50);
+          setCalculatedHeight(adjustedHeight);
         }
       };
       updateHeight();

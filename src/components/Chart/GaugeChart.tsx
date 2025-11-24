@@ -16,7 +16,7 @@ const GaugeChart: React.FC<GaugeChartProps> = ({
   label = "사용률",
   subLabel,
   color = "#60A5FA",
-  size = 180,
+  size = 140,
   thickness = 60,
 }) => {
   // 두께 비율 계산: 값이 클수록 두꺼움
