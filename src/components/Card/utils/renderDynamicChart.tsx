@@ -1576,7 +1576,7 @@ export const renderDynamicChart = (
 
         {
           key: "max_ts_usage_pct",
-          label: "최대 사용 테이블 스페이스 사용률",
+          label: "최대 테이블 스페이스 사용률",
           suffix: "%",
           decimals: 2,
           subtitleKeys: ["max_ts_name"],
