@@ -23,7 +23,7 @@ const MetricCard: React.FC<MetricData> = ({
   color,
 }) => {
   return (
-    <div className="metric-card">
+    <div className="metric-card" title={subtitle || undefined}>
       <span className="metric-card__title">{title}</span>
       {icon ? (
         <img src={icon} alt={`${title}-icon`} className="metric-card__icon" />
@@ -32,7 +32,11 @@ const MetricCard: React.FC<MetricData> = ({
           {value}
         </span>
       )}
-      {subtitle && <span className="metric-card__subtitle">{subtitle}</span>}
+      {subtitle && (
+        <div className="metric-card__tooltip">
+          <span className="metric-card__tooltip-text">{subtitle}</span>
+        </div>
+      )}
     </div>
   );
 };

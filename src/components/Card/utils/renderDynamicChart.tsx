@@ -336,6 +336,7 @@ const renderMetricTiles = (
   mappings: Array<{
     key: string;
     label: string;
+    subtitle?: string; // 직접 지정할 수 있는 subtitle (label과 분리)
     suffix?: string;
     subtitleKeys?: string[]; // 서브 값으로 표시할 키 배열 (예: ["key1", "key2"])
     decimals?: number; // 추가: 메인 값 소수점 자릿수 (반올림)
@@ -373,6 +374,7 @@ const renderMetricTiles = (
     ({
       key,
       label,
+      subtitle: directSubtitle,
       suffix,
       subtitleKeys,
       decimals,
@@ -458,8 +460,9 @@ const renderMetricTiles = (
       }
 
       // 서브 값 생성
-      let subtitle = "";
-      if (subtitleKeys && subtitleKeys.length > 0) {
+      // 직접 지정된 subtitle이 있으면 우선 사용
+      let subtitle = directSubtitle || "";
+      if (!directSubtitle && subtitleKeys && subtitleKeys.length > 0) {
         const subtitleValues = subtitleKeys
           .map((subKey) => {
             // Shared Pool 사용량 계산 (특별 처리)
@@ -959,19 +962,22 @@ export const renderDynamicChart = (
         },
         {
           key: "cpu_saturation_pct",
-          label: "DB CPU 포화도\n(DB CPU 작업량 / DB 할당 CPU)",
+          label: "DB CPU 포화도",
+          subtitle: "(DB CPU 작업량 / DB 할당 CPU)",
           suffix: " %",
           decimals: 2,
         },
         {
           key: "db_of_host_share_pct",
-          label: "DB CPU 점유율\n(DB CPU 작업량 / Host CPU 사용량)",
+          label: "DB CPU 점유율",
+          subtitle: "(DB CPU 작업량 / Host CPU 사용량)",
           suffix: " %",
           decimals: 2,
         },
         {
           key: "runq_per_core_load_proxy",
-          label: "RunQ\n(코어 당 대기 작업 수)",
+          label: "RunQ",
+          subtitle: "(코어 당 대기 작업 수)",
           suffix: " /Core",
           decimals: 2,
         },
@@ -1391,7 +1397,7 @@ export const renderDynamicChart = (
         {
           key: "physical_reads_per_sec",
           label: "Physical Reads",
-          suffix: " blocks/s",
+          subtitle: "blocks/s",
           decimals: 2,
         },
 
