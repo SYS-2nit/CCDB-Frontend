@@ -419,6 +419,20 @@ const renderMetricTiles = (
           const totalUsed = pgaUsedGB + 4.45;
           numeric = (totalUsed / 7.47) * 100; // 퍼센트 계산
         }
+      } else if (
+        key === "cpu_saturation_pct" &&
+        label === "DB CPU 포화도\n(DB CPU 작업량 / DB 할당 CPU)"
+      ) {
+        // DB CPU 포화도 계산: AAS_ONCPU_SESSIONS / CORE_BASELINE_SESSIONS * 100
+        const aasOnCpu = ensureNumber(
+          latest.values?.[findMatchingKey("aas_oncpu_sessions") ?? ""]
+        );
+        const coreBaseline = ensureNumber(
+          latest.values?.[findMatchingKey("core_baseline_sessions") ?? ""]
+        );
+        if (aasOnCpu !== null && coreBaseline !== null && coreBaseline > 0) {
+          numeric = (aasOnCpu / coreBaseline) * 100; // 퍼센트 계산
+        }
       } else {
         matchedKey = findMatchingKey(key);
         if (!matchedKey) {
