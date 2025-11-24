@@ -90,6 +90,10 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   // HEAD 브랜치 기능: 마지막으로 로드한 탭 추적
   const lastLoadedTabRef = useRef<TabType | null>(null);
+  // mode 변경 추적을 위한 ref 추가
+  const lastLoadedModeRef = useRef<DashboardMode | null>(null);
+  // 커스텀 탭에서 마지막으로 charts에 설정한 mode 추적
+  const lastChartsModeRef = useRef<DashboardMode | null>(null);
 
   /* Dashboard Context */
   const {
@@ -183,6 +187,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   // 서버에서 받은 그래프 데이터를 그대로 사용
   // 주의: 이 useEffect는 graphList가 변경될 때마다 charts를 업데이트하지만,
   // reorderGraphsByNames로 인한 순서 변경 시에는 데이터를 보존해야 함
+  // mode가 변경되었을 때는 새로운 데이터를 사용해야 함
   useEffect(() => {
     if (activeTab === "main") {
       // main 탭은 graphList를 그대로 사용
@@ -191,6 +196,16 @@ const Dashboard: React.FC<DashboardProps> = ({
         // graphList가 비어있으면 prevCharts 유지
         if (graphList.length === 0 && prevCharts.length > 0) {
           return prevCharts;
+        }
+        
+        // mode가 변경되었으면 기존 데이터 보존하지 않고 새로운 데이터 사용
+        // mode가 dependency에 포함되어 있으므로 mode 변경 시 이 useEffect가 실행됨
+        // lastLoadedModeRef는 데이터 로드 시 업데이트되므로, 여기서는 현재 mode와 비교
+        const modeChanged = lastLoadedModeRef.current !== null && lastLoadedModeRef.current !== mode;
+        
+        // mode가 변경되었으면 기존 데이터 보존하지 않고 새로운 데이터 사용
+        if (modeChanged) {
+          return graphList;
         }
         
         // graphList의 ID와 prevCharts의 ID가 같으면 데이터 보존
@@ -242,7 +257,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       const currentGraphs = categoryGraphs.get(activeTab) ?? [];
       setCharts(currentGraphs);
     }
-  }, [activeTab, graphList, categoryGraphs]);
+  }, [activeTab, graphList, categoryGraphs, mode]);
 
   // 초기 로드 및 모드/인스턴스/탭 변경 시 데이터 로드
   /* -------------------------------------------------------
@@ -257,10 +272,13 @@ const Dashboard: React.FC<DashboardProps> = ({
       return;
     }
 
+    // mode가 변경되었는지 확인
+    const modeChanged = lastLoadedModeRef.current !== mode;
+    
     const hasCache =
       activeTab === "main"
-        ? graphList.length > 0 && lastLoadedTabRef.current === activeTab
-        : (categoryGraphs.get(activeTab)?.length ?? 0) > 0;
+        ? graphList.length > 0 && lastLoadedTabRef.current === activeTab && !modeChanged
+        : (categoryGraphs.get(activeTab)?.length ?? 0) > 0 && !modeChanged;
 
     if (!hasCache) setIsFetching(true);
 
@@ -308,6 +326,9 @@ const Dashboard: React.FC<DashboardProps> = ({
             return next;
           });
         }
+        
+        // mode 추적 업데이트
+        lastLoadedModeRef.current = mode;
       } catch (err) {
         if (!cancelled) {
           if (activeTab === "main") setGraphs([]);
