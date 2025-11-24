@@ -1109,7 +1109,7 @@ export const renderDynamicChart = (
         { key: "dispatcher_proc_cnt", label: "Dispatcher" },
         { key: "job_proc_cnt", label: "Job" },
       ],
-      5
+      5 // columns: 5 (첫 줄 5개, 둘째 줄 4개로 2줄 표시)
     );
   }
 
@@ -1376,7 +1376,7 @@ export const renderDynamicChart = (
         { key: "blockers_now", label: "Blockers" },
         { key: "blocked_now", label: "Blocked" },
       ],
-      5
+      5 // columns: 5 (한 줄에 5개 모두 표시)
     );
   }
 

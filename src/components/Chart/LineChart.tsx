@@ -214,7 +214,7 @@ const LineChart: React.FC<LineChartProps> = ({
         showForSingleSeries: true, // 추가: 단일 시리즈일 때도 범례 표시
         position: "right",
         fontSize: "11px",
-        itemMargin: { horizontal: 8, vertical: 0 },
+        itemMargin: { horizontal: 5, vertical: 3 },
         markers: {
           size: 4,
         },
@@ -223,7 +223,9 @@ const LineChart: React.FC<LineChartProps> = ({
         containerMargin: { top: 0, right: 0, bottom: 0, left: 0 },
         formatter: (seriesName: string) => {
           // 긴 이름은 줄임표로 처리
-          return seriesName.length > 15 ? `${seriesName.substring(0, 15)}...` : seriesName;
+          return seriesName.length > 15
+            ? `${seriesName.substring(0, 15)}...`
+            : seriesName;
         },
       },
 
