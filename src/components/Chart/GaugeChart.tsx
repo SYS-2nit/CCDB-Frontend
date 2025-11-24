@@ -1,5 +1,5 @@
 import type { ApexOptions } from "apexcharts";
-import React from "react";
+import React, { useMemo, memo } from "react";
 import ReactApexChart from "react-apexcharts";
 
 interface GaugeChartProps {
@@ -20,10 +20,14 @@ const GaugeChart: React.FC<GaugeChartProps> = ({
   thickness = 60,
 }) => {
   // 두께 비율 계산: 값이 클수록 두꺼움
-  const hollowSize = `${100 - thickness}%`;
-  const strokeWidth = `${thickness}%`;
+  const hollowSize = useMemo(
+    () => `${100 - thickness}%`,
+    [thickness]
+  );
+  const strokeWidth = useMemo(() => `${thickness}%`, [thickness]);
 
-  const options: ApexOptions = {
+  const options: ApexOptions = useMemo(
+    () => ({
     chart: {
       type: "radialBar",
       sparkline: { enabled: true },
@@ -78,9 +82,11 @@ const GaugeChart: React.FC<GaugeChartProps> = ({
     },
     stroke: { lineCap: "round" },
     labels: [label],
-  };
+    }),
+    [hollowSize, strokeWidth, color, label]
+  );
 
-  const series = [value];
+  const series = useMemo(() => [value], [value]);
 
   return (
     <div
@@ -113,4 +119,5 @@ const GaugeChart: React.FC<GaugeChartProps> = ({
   );
 };
 
-export default GaugeChart;
+// 성능 최적화: React.memo로 감싸서 불필요한 리렌더링 방지
+export default memo(GaugeChart);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, memo } from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 
@@ -20,7 +20,8 @@ const DonutChart: React.FC<DonutChartProps> = ({
   colors = ["#3B82F6", "#22C55E", "#A855F7", "#F97316", "#EAB308"],
   height = 150,
 }) => {
-  const options: ApexOptions = {
+  const options: ApexOptions = useMemo(
+    () => ({
     chart: {
       type: "donut",
       toolbar: { show: false },
@@ -82,10 +83,15 @@ const DonutChart: React.FC<DonutChartProps> = ({
     tooltip: {
       theme: "light",
       y: {
-        formatter: (val: number) => `${val.toLocaleString()} (${((val / series.reduce((a, b) => a + b, 0)) * 100).toFixed(1)}%)`,
+        formatter: (val: number) => {
+          const total = series.reduce((a, b) => a + b, 0);
+          return `${val.toLocaleString()} (${((val / total) * 100).toFixed(1)}%)`;
+        },
       },
     },
-  };
+    }),
+    [labels, colors, series]
+  );
 
   return (
     <div style={{ width: "100%", height: "100%", maxWidth: "100%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -100,5 +106,6 @@ const DonutChart: React.FC<DonutChartProps> = ({
   );
 };
 
-export default DonutChart;
+// 성능 최적화: React.memo로 감싸서 불필요한 리렌더링 방지
+export default memo(DonutChart);
 

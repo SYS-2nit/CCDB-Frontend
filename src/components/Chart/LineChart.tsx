@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useMemo, useRef, useEffect, useState } from "react";
+import React, { useMemo, useRef, useEffect, useState, memo } from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import {
@@ -285,4 +285,5 @@ const LineChart: React.FC<LineChartProps> = ({
   );
 };
 
-export default LineChart;
+// 성능 최적화: React.memo로 감싸서 불필요한 리렌더링 방지
+export default memo(LineChart);

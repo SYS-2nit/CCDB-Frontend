@@ -1,6 +1,6 @@
 import { getCssVar } from "@/styles/utils/getCssVar";
 import type { ApexOptions } from "apexcharts";
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo, memo } from "react";
 import ReactApexChart from "react-apexcharts";
 
 interface ColorRule {
@@ -74,37 +74,57 @@ const StackChart: React.FC<StackChartProps> = ({
       setCalculatedHeight(height);
     }
   }, [height]);
-  const _labels = labels.slice(0, stackCount);
-  const _usage = usage.slice(0, stackCount);
-  const _total = total.slice(0, stackCount);
+  const _labels = useMemo(
+    () => labels.slice(0, stackCount),
+    [labels, stackCount]
+  );
+  const _usage = useMemo(
+    () => usage.slice(0, stackCount),
+    [usage, stackCount]
+  );
+  const _total = useMemo(
+    () => total.slice(0, stackCount),
+    [total, stackCount]
+  );
 
   // 실제 값 모드면 percent 계산 건너뛰고 실제 값 사용
-  const displayValues = useActualValue
-    ? _usage // 실제 값 그대로 사용
-    : _usage.map((v, i) => (v / _total[i]) * 100); // 기존: percent 계산
+  const displayValues = useMemo(
+    () =>
+      useActualValue
+        ? _usage // 실제 값 그대로 사용
+        : _usage.map((v, i) => (v / _total[i]) * 100), // 기존: percent 계산
+    [useActualValue, _usage, _total]
+  );
 
-  const getColor = (value: number) => {
-    if (useActualValue) {
-      // 실제 값 모드에서는 기본 색상 사용
-      return getCssVar("sematic-success");
-    }
-    // percent 모드에서는 colorRules 적용
-    const rule = colorRules.find((r) => value >= r.min && value < r.max);
-    return rule ? rule.color : getCssVar("gray-300");
-  };
-
-  const series = [
-    {
-      name: "Usage",
-      data: displayValues.map((val, i) => ({
-        x: _labels[i],
-        y: val,
-        fillColor: getColor(val),
-      })),
+  const getColor = useCallback(
+    (value: number) => {
+      if (useActualValue) {
+        // 실제 값 모드에서는 기본 색상 사용
+        return getCssVar("sematic-success");
+      }
+      // percent 모드에서는 colorRules 적용
+      const rule = colorRules.find((r) => value >= r.min && value < r.max);
+      return rule ? rule.color : getCssVar("gray-300");
     },
-  ];
+    [useActualValue, colorRules]
+  );
 
-  const options: ApexOptions = {
+  const series = useMemo(
+    () => [
+      {
+        name: "Usage",
+        data: displayValues.map((val, i) => ({
+          x: _labels[i],
+          y: val,
+          fillColor: getColor(val),
+        })),
+      },
+    ],
+    [displayValues, _labels, getColor]
+  );
+
+  const options: ApexOptions = useMemo(
+    () => ({
     chart: {
       type: "bar",
       toolbar: { show: false },
@@ -173,7 +193,18 @@ const StackChart: React.FC<StackChartProps> = ({
       },
     },
     legend: { show: false },
-  };
+    }),
+    [
+      _labels,
+      xMin,
+      xMax,
+      yaxisTitle,
+      xAxisFormatter,
+      _usage,
+      _total,
+      tooltipFormatter,
+    ]
+  );
 
   return (
     <div
@@ -197,4 +228,5 @@ const StackChart: React.FC<StackChartProps> = ({
   );
 };
 
-export default StackChart;
+// 성능 최적화: React.memo로 감싸서 불필요한 리렌더링 방지
+export default memo(StackChart);

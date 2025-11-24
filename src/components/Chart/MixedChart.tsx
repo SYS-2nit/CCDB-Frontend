@@ -1,4 +1,11 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useMemo,
+  memo,
+  useCallback,
+} from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import {
@@ -51,128 +58,140 @@ const MixedChart: React.FC<MixedChartProps> = ({
   }, [height]);
 
   // LineChart와 동일하게 데이터 안전화: NaN, Infinity, -Infinity 제거
-  const sanitize = (data: number[] = []): number[] =>
-    data.map((v) => (Number.isFinite(v) ? v : 0));
+  const sanitize = useCallback(
+    (data: number[] = []): number[] =>
+      data.map((v) => (Number.isFinite(v) ? v : 0)),
+    []
+  );
 
-  const safeColumnData = sanitize(columnData);
-  const safeLineData = sanitize(lineData);
+  const safeColumnData = useMemo(
+    () => sanitize(columnData),
+    [columnData, sanitize]
+  );
+  const safeLineData = useMemo(() => sanitize(lineData), [lineData, sanitize]);
 
-  const series = [
-    {
-      name: yaxisLeftTitle,
-      type: "column",
-      data: safeColumnData,
-    },
-    {
-      name: yaxisRightTitle,
-      type: "line",
-      data: safeLineData,
-    },
-  ];
-
-  const options: ApexOptions = {
-    chart: {
-      type: "line",
-      stacked: false,
-      toolbar: { show: false },
-      background: "transparent",
-      // LineChart와 동일한 줌/선택 옵션
-      zoom: {
-        enabled: true,
-        type: "x",
-      },
-      selection: {
-        enabled: true,
-        xaxis: {
-          min: undefined,
-          max: undefined,
-        },
-      },
-    },
-    stroke: {
-      width: [0, 3],
-      curve: "smooth",
-    },
-    colors: ["#3B82F6", "#22C55E"],
-    dataLabels: {
-      enabled: true,
-      enabledOnSeries: [1],
-      style: {
-        fontSize: "11px",
-        fontWeight: 600,
-        colors: ["#22C55E"],
-      },
-    },
-    plotOptions: {
-      bar: {
-        columnWidth: "45%",
-        borderRadius: 3,
-      },
-    },
-    xaxis: {
-      categories,
-      labels: {
-        style: { fontSize: "11px", colors: "#777" },
-      },
-    },
-    // y축도 LineChart 기준에 맞춰 숫자 포맷 적용
-    yaxis: [
+  const series = useMemo(
+    () => [
       {
-        title: {
-          text: yaxisLeftTitle || undefined,
-          style: {
-            fontSize: "12px",
-            color: "#555",
-            fontWeight: 500,
-          },
-        },
-        labels: {
-          show: true,
-          formatter: (val) => formatNumberWithUnit(Number(val)),
-          style: {
-            fontSize: "11px",
-            colors: "#3B82F6",
-          },
-        },
+        name: yaxisLeftTitle,
+        type: "column" as const,
+        data: safeColumnData,
       },
       {
-        opposite: true,
-        title: {
-          text: yaxisRightTitle || undefined,
-          style: {
-            fontSize: "12px",
-            color: "#555",
-            fontWeight: 500,
-          },
-        },
-        labels: {
-          show: true,
-          formatter: (val) => formatNumberWithUnit(Number(val)),
-          style: {
-            fontSize: "11px",
-            colors: "#22C55E",
-          },
-        },
+        name: yaxisRightTitle,
+        type: "line" as const,
+        data: safeLineData,
       },
     ],
-    tooltip: {
-      shared: true,
-      intersect: false,
-      theme: "light",
-      y: {
-        formatter: (val, { seriesIndex, w }) => {
-          const name = w.config.series?.[seriesIndex]?.name || "";
-          return `${name}: ${formatTooltipNumber(Number(val))}`;
+    [yaxisLeftTitle, yaxisRightTitle, safeColumnData, safeLineData]
+  );
+
+  const options: ApexOptions = useMemo(
+    () => ({
+      chart: {
+        type: "line",
+        stacked: false,
+        toolbar: { show: false },
+        background: "transparent",
+        // LineChart와 동일한 줌/선택 옵션
+        zoom: {
+          enabled: true,
+          type: "x",
         },
-        title: { formatter: () => "" },
+        selection: {
+          enabled: true,
+          xaxis: {
+            min: undefined,
+            max: undefined,
+          },
+        },
       },
-    },
-    legend: { show: false },
-    grid: {
-      borderColor: "rgba(0,0,0,0.08)",
-      strokeDashArray: 3,
-    },
-  };
+      stroke: {
+        width: [0, 3],
+        curve: "smooth",
+      },
+      colors: ["#3B82F6", "#22C55E"],
+      dataLabels: {
+        enabled: true,
+        enabledOnSeries: [1],
+        style: {
+          fontSize: "11px",
+          fontWeight: 600,
+          colors: ["#22C55E"],
+        },
+      },
+      plotOptions: {
+        bar: {
+          columnWidth: "45%",
+          borderRadius: 3,
+        },
+      },
+      xaxis: {
+        categories,
+        labels: {
+          style: { fontSize: "11px", colors: "#777" },
+        },
+      },
+      // y축도 LineChart 기준에 맞춰 숫자 포맷 적용
+      yaxis: [
+        {
+          title: {
+            text: yaxisLeftTitle || undefined,
+            style: {
+              fontSize: "12px",
+              color: "#555",
+              fontWeight: 500,
+            },
+          },
+          labels: {
+            show: true,
+            formatter: (val) => formatNumberWithUnit(Number(val)),
+            style: {
+              fontSize: "11px",
+              colors: "#3B82F6",
+            },
+          },
+        },
+        {
+          opposite: true,
+          title: {
+            text: yaxisRightTitle || undefined,
+            style: {
+              fontSize: "12px",
+              color: "#555",
+              fontWeight: 500,
+            },
+          },
+          labels: {
+            show: true,
+            formatter: (val) => formatNumberWithUnit(Number(val)),
+            style: {
+              fontSize: "11px",
+              colors: "#22C55E",
+            },
+          },
+        },
+      ],
+      tooltip: {
+        shared: true,
+        intersect: false,
+        theme: "light",
+        y: {
+          formatter: (val, { seriesIndex, w }) => {
+            const name = w.config.series?.[seriesIndex]?.name || "";
+            return `${name}: ${formatTooltipNumber(Number(val))}`;
+          },
+          title: { formatter: () => "" },
+        },
+      },
+      legend: { show: false },
+      grid: {
+        borderColor: "rgba(0,0,0,0.08)",
+        strokeDashArray: 3,
+      },
+    }),
+    [categories, yaxisLeftTitle, yaxisRightTitle]
+  );
 
   return (
     <div
@@ -195,4 +214,5 @@ const MixedChart: React.FC<MixedChartProps> = ({
   );
 };
 
-export default MixedChart;
+// 성능 최적화: React.memo로 감싸서 불필요한 리렌더링 방지
+export default memo(MixedChart);
