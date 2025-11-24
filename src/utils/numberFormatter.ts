@@ -8,17 +8,6 @@ const scaleToUnit = (value: number): FormattedNumber => {
     return { value: 0, unit: "" };
   }
 
-  // 단위 변환 로직 모두 주석처리 - 원래 값 그대로 반환
-  // let scaled = value;
-  // let unitIndex = 0;
-  // if (Math.abs(scaled) >= 1) {
-  //   while (Math.abs(scaled) >= 1000 && unitIndex < UNITS.length - 1) { // ----- 최온유 : 단위 원시값 그대로
-  //     scaled /= 1000;
-  //     unitIndex += 1;
-  //   }
-  // }
-  // return { value: scaled, unit: UNITS[unitIndex] };
-
   // 원래 값 그대로 반환
   return { value: value, unit: "" };
 };
