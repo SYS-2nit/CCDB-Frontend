@@ -37,7 +37,7 @@
       flex-direction: column;
       gap: 10px;
       width: 100%;
-      height: 100%;
+      height: 100vh;
       overflow: hidden;
 
       // 행 4개 전체 높이를 storage 기준으로 통일
@@ -49,7 +49,7 @@
 
       /* 1행: 상태카드 + big chart (고정 높이) */
       .row-1 {
-        height: 15%;     
+        height: 20%; // 높이를 줄여서 row-2에 더 많은 공간 할당
         display: flex;
         justify-content: space-between;
         align-items: stretch;
@@ -61,16 +61,51 @@
         }
       }
 
-      /* 2~4행: 남은 높이를 3등분 (storage 탭 기준 통일) */
-      .row-2,
-      .row-3,
-      .row-4 {
+      /* 2행: SGA/PGA 차트 카드 높이 증가 */
+      .row-2 {
+        flex: 1; // row-2 높이를 더 넓게 설정
+        min-height: 0;
         display: flex;
         justify-content: space-between;
+        align-items: stretch;
 
         .chart-card {
           flex: 1;
           height: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+      }
+
+      .row-3 {
+        flex: 1.5; // row-2 높이를 더 넓게 설정
+        min-height: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+
+        .chart-card {
+          flex: 1;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+      }
+
+      /* 3~4행: 남은 높이를 2등분 */
+      .row-3,
+      .row-4 {
+        flex: 1; // 나머지 행은 기본 높이
+        min-height: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+
+        .chart-card {
+          flex: 1;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
         }
       }
     }
