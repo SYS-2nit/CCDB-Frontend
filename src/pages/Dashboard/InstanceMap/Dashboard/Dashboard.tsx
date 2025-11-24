@@ -52,9 +52,9 @@ const getErrorMessage = (error: unknown) => {
 const resolveTimeUnit = (mode: DashboardMode): "1m" | "10m" | "1h" | "1d" => {
   switch (mode) {
     case "10분":
-      return "10m";
+      return "1h"; // 10분 버튼 클릭 시 1시간 단위 데이터 요청
     case "1시간":
-      return "1h";
+      return "10m"; // 1시간 버튼 클릭 시 10분 단위 데이터 요청
     case "1일":
       return "1d";
     case "LIVE":
@@ -92,8 +92,6 @@ const Dashboard: React.FC<DashboardProps> = ({
   const lastLoadedTabRef = useRef<TabType | null>(null);
   // mode 변경 추적을 위한 ref 추가
   const lastLoadedModeRef = useRef<DashboardMode | null>(null);
-  // 커스텀 탭에서 마지막으로 charts에 설정한 mode 추적
-  const lastChartsModeRef = useRef<DashboardMode | null>(null);
 
   /* Dashboard Context */
   const {
