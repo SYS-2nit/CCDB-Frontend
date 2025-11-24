@@ -15,13 +15,13 @@
 
 .user-modal {
   width: 360px;
-  background: $gray-0;
+  background: var(--color-surface);
   padding: 20px;
   border-radius: 10px;
 
   &__title {
     @include text-styles("heading01");
-    color: $gray-900;
+    color: var(--color-text);
   }
 }
 
@@ -36,23 +36,23 @@
   cursor: pointer;
 
   &:hover {
-    background-color: $main-0;
+    background-color: var(--color-bg);
   }
 }
 
 .user-modal__name {
     @include text-styles("heading04");
-    color: $gray-700;
+    color: var(--color-text);
 }
 
 .user-modal__email {
     @include text-styles("body02");
-    color: $gray-500;
+    color: var(--color-subtext);
 }
 
 .user-modal__company {
     @include text-styles("body02");
-    color: $gray-500;
+    color: var(--color-subtext);
 }
 
 .user-modal__close {

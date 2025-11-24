@@ -11,7 +11,7 @@
   flex-direction: column;
   justify-content: flex-start;
   background-color: var(--color-sidebar-bg);
-  color: $gray-300;
+  color: var(--color-sidebar-text);
 
   // 축소
   &--collapsed { 
@@ -59,14 +59,14 @@
   }
 
   &__title {
-    color: $gray-0;
+    color: var(--color-sidebar-text);
     @include text-styles("title03");
   }
 
   &__divider {
     height: 1px;
     margin: 10px;
-    background-color: $gray-800;
+    background-color: var(--color-sidebar-divider);
   }
 
   &__nav {
@@ -84,7 +84,7 @@
     gap: 10px;
     padding: 20px;
     margin: 0 20px; 
-    color: $gray-300;
+    color: var(--color-sidebar-text);
     border-radius: 10px; 
     display: flex;
     cursor: pointer;
@@ -143,7 +143,7 @@
     gap: 10px;
     margin: 0px 20px;
     padding: 10px 48px;
-    color: $gray-300;
+    color: var(--color-sidebar-text);
     border-radius: 10px; 
     display: flex;
     cursor: pointer;
@@ -173,7 +173,7 @@
       display: flex;
       cursor: pointer;
       color: var(--color-sidebar-text);
-      border-top: 1px solid $gray-800;
+      border-top: 1px solid var(--color-sidebar-divider);
 
     img {
       width: 40px;
@@ -185,7 +185,8 @@
       flex-direction: column;
 
         .user-email {
-          color: $gray-300;
+          color: var(--color-sidebar-text);
+          opacity: 0.7;
           @include text-styles("label02");
         }
       }
@@ -196,7 +197,7 @@
 // 사이드바 모달
 .sidebar-hover-modal {
  background-color: var(--color-sidebar-bg);
-  color: $gray-100;
+  color: var(--color-sidebar-text);
   border-radius: 3px;
   min-width: 140px;
   position: fixed;
@@ -208,9 +209,11 @@
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s ease;
+  color: var(--color-sidebar-text);
 }
 
 .sidebar-hover-item:hover {
   color: $main-300;
+  background: var(--color-active-tap-bg);
 }
 

@@ -9,8 +9,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: $gray-0;
-  border-bottom: 1px solid $gray-100;
+  background-color: var(--color-header-bg);
+  border-bottom: 1px solid var(--color-border);
 
   &__left {
     display: flex;
@@ -36,21 +36,21 @@
 
   &__dbname {
     @include text-styles("heading04");
-    color: $gray-900;
+    color: var(--color-text);
   }
 
   &__env {
     @include text-styles("label02");
-    color: $gray-400;
+    color: var(--color-subtext);
   }
 
   &__clock {
     display: flex;
     align-items: center;
     padding: 3px;
-    background: $gray-50;
+    background: var(--color-bg);
     @include text-styles("label02");
-    color: $gray-700;
+    color: var(--color-text);
 
     img {
       width: 16px;
@@ -90,7 +90,7 @@
         }
 
         &:hover {
-          background: $gray-100;
+          background: var(--color-bg);
         }
     }
 
@@ -123,12 +123,12 @@
 
   &__date {
     @include text-styles("label02");
-    color: $gray-900;
+    color: var(--color-text);
   }
 
   &__text {
     @include text-styles("label02");
-    color: $gray-300;
+    color: var(--color-subtext);
   }
 
   // 시간 영역 
@@ -175,7 +175,7 @@
       position: relative;
       z-index: 2; 
       @include text-styles("body02");
-      color: $gray-900;
+      color: var(--color-text);
     }
 
     &__badge {
@@ -213,8 +213,8 @@
 .alert-panel {
   max-width: 480px;
   height: 100%;
-  background: $gray-0;
-  border-left: 1px solid $gray-200;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
   box-shadow: -4px 0 16px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
@@ -229,11 +229,11 @@
   align-items: center;
   padding: 16px 20px;
   padding-bottom: 10px;
-  border-bottom: 1px solid $gray-200;
+  border-bottom: 1px solid var(--color-border);
 
   h3 {
     @include text-styles("heading04");
-    color: $gray-900;
+    color: var(--color-text);
   }
 
   &-actions {
@@ -246,7 +246,7 @@
     padding: 6px 12px;
     border: 1px solid $main-600;
     border-radius: 6px;
-    background: $gray-0;
+    background: var(--color-surface);
     color: $main-600;
     @include text-styles("body02");
     cursor: pointer;
@@ -268,11 +268,11 @@
     background: transparent;
     @include text-styles("heading04");
     cursor: pointer;
-    color: $gray-500;
+    color: var(--color-subtext);
     transition: color 0.2s ease;
 
     &:hover {
-      color: $gray-700;
+      color: var(--color-text);
     }
   }
 }
@@ -290,11 +290,11 @@
     width: 6px;
   }
   &::-webkit-scrollbar-thumb {
-    background: $gray-200;
+    background: var(--color-border);
     border-radius: 3px;
   }
   &::-webkit-scrollbar-thumb:hover {
-    background: $gray-300;
+    background: var(--color-subtext);
   }
 }
 
@@ -302,7 +302,7 @@
 .alert-panel__empty {
   padding: 20px;
   text-align: center;
-  color: $gray-500;
+  color: var(--color-subtext);
   @include text-styles("label02");
 }
 
@@ -312,12 +312,12 @@
   align-items: flex-start;
   gap: 10px;
   border-radius: 5px;
-  border-bottom: 1px solid $gray-100;
+  border-bottom: 1px solid var(--color-border);
   padding: 16px 20px;
   transition: background 0.2s ease, transform 0.1s ease;
 
   &:hover {
-    background: $gray-100;
+    background: var(--color-bg);
     transform: translateX(-2px);
   }
 
@@ -343,10 +343,10 @@
   &__text {
     flex: 1;
     @include text-styles("label02");
-    color: $gray-800;
+    color: var(--color-text);
 
     strong {
-      color: $gray-900;
+      color: var(--color-text);
       margin-right: 4px;
       font-weight: 600;
     }
@@ -354,7 +354,7 @@
 
   &__sub {
     margin-top: 3px;
-    color: $gray-500;
+    color: var(--color-subtext);
     font-size: 11px;
     @include text-styles("label02");
   }

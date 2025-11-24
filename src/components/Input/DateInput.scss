@@ -10,16 +10,16 @@
   gap: 5px;
 
   &__label {
-    color: $gray-700;
+    color: var(--color-text);
     @include text-styles("body02");
   }
 
   &__field {
     width: 100%;
-    border: 1px solid $gray-100;
+    border: 1px solid var(--color-border);
     border-radius: 3px;
-    color: $gray-700;
-    background: $gray-50;
+    color: var(--color-text);
+    background: var(--color-bg);
     @include text-styles("label02");
     transition: border-color 0.2s ease;
     cursor: pointer;
@@ -30,12 +30,31 @@
     }
 
     &::placeholder {
-      color: $gray-300;
+      color: var(--color-subtext);
+    }
+
+    /* Firefox용 다크 모드 스타일 */
+    body.dark &[type="date"] {
+      color-scheme: dark;
+    }
+
+    /* 다크 모드에서 캘린더 아이콘 색상 변경 - 흰색 계열로 (CustomSelect와 동일한 방식) */
+    body.dark &[type="date"]::-webkit-calendar-picker-indicator,
+    body.dark &[type="month"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) brightness(3) contrast(1.5) !important;
+      cursor: pointer;
+      opacity: 1 !important;
+    }
+
+    body.dark &::-webkit-inner-spin-button,
+    body.dark &::-webkit-clear-button {
+      filter: invert(1) brightness(3) contrast(1.5) !important;
+      opacity: 1 !important;
     }
 
     /* Size */
     &--sm {
-      padding: 8px 12px;
+      padding: 8px 16px;
       border-radius: 3px;
       @include text-styles("label02");
     }
@@ -52,11 +71,10 @@
       @include text-styles("heading04");
     }
 
-
     /* Variant */
     &--default {
-      background-color: $gray-50;
-      border: 1px solid $gray-100;
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-border);
 
       &:focus {
         border-color: $main-500;
@@ -64,8 +82,8 @@
     }
 
     &--outlined {
-      background-color: $gray-0;
-      border: 1px solid $gray-700;
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-text);
 
       &:focus {
         border-color: $main-500;

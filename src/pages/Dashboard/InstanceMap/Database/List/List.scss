@@ -5,7 +5,7 @@
 
 // 목록 전체 범위
 .db-list {
-  background: $gray-0;
+  background: var(--color-surface);
   border-radius: 5px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   width: 100%;
@@ -16,8 +16,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px;
-    border-bottom: 1px solid $gray-100;
-    color: $gray-700;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
     @include text-styles("heading04");
   }
 
@@ -26,6 +26,7 @@
     flex-direction: column;
     gap: 10px;
     padding: 20px;
+    overflow: visible;
   }
 
   &-footer {
@@ -33,26 +34,26 @@
     justify-content: flex-end;
     gap: 5px;
     padding: 20px;
-    border-top: 1px solid $gray-100;
+    border-top: 1px solid var(--color-border);
   }
 }
 
 .db-list__status {
   padding: 16px;
-  border: 1px dashed $gray-100;
+  border: 1px dashed var(--color-border);
   border-radius: 4px;
   text-align: center;
-  color: $gray-400;
+  color: var(--color-subtext);
   @include text-styles("body02");
 
   &--loading {
-    color: $gray-500;
+    color: var(--color-subtext);
   }
 
   &--error {
-    color: $red-500;
-    border-color: rgba($red-500, 0.3);
-    background-color: rgba($red-500, 0.05);
+    color: $sematic-error;
+    border-color: rgba($sematic-error, 0.3);
+    background-color: rgba($sematic-error, 0.1);
   }
 }
 
@@ -63,19 +64,19 @@
   gap: 12px;
   border-radius: 3px;
   padding: 10px;
-  background: $gray-0;
-  border: 1px solid $gray-100;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   cursor: pointer;
   transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease,
     background-color 0.2s ease;
 
   &:hover {
-    background: $main-0;
+    background: var(--color-bg);
   }
 
   &--selected {
     border-color: $main-400;
-    background: rgba($main-100, 0.4);
+    background: var(--color-bg);
   }
 
   &-checkbox {
@@ -100,7 +101,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    color: $gray-500;
+    color: var(--color-text);
     @include text-styles("body02");
   }
 
@@ -109,13 +110,18 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    color: $gray-300;
+    color: var(--color-subtext);
     @include text-styles("label02");
   }
 
   // DB별 인스턴스 미리보기 모달창
     &-wrapper {
     position: relative;
+    z-index: 1;
+
+    &:hover {
+      z-index: 1001;
+    }
   }
 }
 
@@ -125,10 +131,13 @@
     top: calc(100% - 40px); 
     left: calc(100% - 40px); 
     min-width: 160px;
+    max-height: 300px;
+    overflow-y: auto;
     background: $gray-0;
     border: 1px solid $gray-100;
     border-radius: 5px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
   }
 
   .instance-popup-item {
@@ -136,6 +145,7 @@
     cursor: pointer !important; 
     transition: background 0.15s ease;
     white-space: nowrap;
+    color: var(--color-text);
 
     &:hover {
       color: $gray-0;
@@ -153,7 +163,7 @@
     justify-content: center;  
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    color: $gray-700;
+    color: var(--color-text);
     @include text-styles("heading04");
 
   &:hover {

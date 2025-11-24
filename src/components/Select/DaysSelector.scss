@@ -8,17 +8,19 @@
 
   button {
     display: flex;
-    border: 1px solid $gray-100;
+    border: 1px solid var(--color-border);
     border-radius: 3px;
     padding: 8px 16px;
     cursor: pointer;
-    background: $gray-50;
-    color: $gray-500;
+    background: var(--color-surface);
+    color: var(--color-subtext);
     @include text-styles("body02");
+    transition: all 0.2s ease;
 
     &:hover {
       border-color: $main-400;
       color: $main-600;
+      background: var(--color-bg);
     }
 
     &.active {

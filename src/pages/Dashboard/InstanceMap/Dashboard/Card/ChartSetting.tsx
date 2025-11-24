@@ -149,20 +149,37 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
     const term = searchTerm.trim().toLowerCase();
     if (!term) return null;
 
-    const searchTargets =
-      mode === "category"
-        ? ["performance", "prevention"]
-        : ["cpu", "memory", "session", "io", "storage"];
-
     const results: { tab: TabType; name: string }[] = [];
 
-    searchTargets.forEach((tab) => {
-      const charts = chartData[tab as TabType] || [];
-      charts.forEach((name) => {
-        if (name.toLowerCase().includes(term))
-          results.push({ tab: tab as TabType, name });
+    if (mode === "category") {
+      // 성능 개선 탭: IMPROVEMENTS 카테고리 그래프 검색
+      const improvementsGraphs = allGraphs.filter(
+        (g) => g.category === "IMPROVEMENTS"
+      );
+      improvementsGraphs.forEach((graph) => {
+        if (graph.name.toLowerCase().includes(term))
+          results.push({ tab: "performance" as TabType, name: graph.name });
       });
-    });
+
+      // 장애 예방 탭: PREVENTION 카테고리 그래프 검색
+      const preventionGraphs = allGraphs.filter(
+        (g) => g.category === "PREVENTION"
+      );
+      preventionGraphs.forEach((graph) => {
+        if (graph.name.toLowerCase().includes(term))
+          results.push({ tab: "prevention" as TabType, name: graph.name });
+      });
+    } else {
+      // 리소스 모드: 기존 chartData 사용
+      const searchTargets = ["cpu", "memory", "session", "io", "storage"];
+      searchTargets.forEach((tab) => {
+        const charts = chartData[tab as TabType] || [];
+        charts.forEach((name) => {
+          if (name.toLowerCase().includes(term))
+            results.push({ tab: tab as TabType, name });
+        });
+      });
+    }
 
     // 검색 결과 첫 번째 탭으로 이동
     if (results.length > 0 && activeTab !== results[0].tab) {
@@ -170,7 +187,7 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
     }
 
     return results;
-  }, [searchTerm, mode]);
+  }, [searchTerm, mode, allGraphs]);
 
   /** 현재 탭의 그래프 목록 */
   const currentGraphs = useMemo(() => {
@@ -179,8 +196,25 @@ const ChartSetting: React.FC<ChartSettingProps> = ({
         .filter((r) => r.tab === activeTab)
         .map((r) => r.name);
     }
+
+    // 카테고리 모드에서 performance/prevention 탭인 경우 API 데이터 사용
+    if (mode === "category") {
+      if (activeTab === "performance") {
+        // 성능 개선 탭: IMPROVEMENTS 카테고리 그래프
+        return allGraphs
+          .filter((g) => g.category === "IMPROVEMENTS")
+          .map((g) => g.name);
+      } else if (activeTab === "prevention") {
+        // 장애 예방 탭: PREVENTION 카테고리 그래프
+        return allGraphs
+          .filter((g) => g.category === "PREVENTION")
+          .map((g) => g.name);
+      }
+    }
+
+    // 리소스 모드 또는 기타 탭은 기존 chartData 사용
     return chartData[activeTab] ?? [];
-  }, [activeTab, searchResults]);
+  }, [activeTab, searchResults, mode, allGraphs]);
 
   /** 선택된 그래프 */
   const selectedGraphName =

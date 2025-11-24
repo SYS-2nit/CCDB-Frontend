@@ -4,21 +4,22 @@
 @use '@styles/mixins' as *;
 
 .tab-menu {
-  background: $gray-0;
-  border-radius: 5px 5px 0px 0px;
-  border: 1px solid $gray-100;
+
+  background: var(--color-surface);
 
   &__tab {
+      margin: 0px 10px;
       background: none;
       border: none;
       border-radius: 0px;
       cursor: pointer;
-      color: $gray-300;
+      color: var(--color-subtext);
       @include text-styles("heading04");
 
       &.active {
         color: $main-600;
         border-bottom: 1px solid $main-600;
+        padding: 10px;
       }
 
       &:hover {

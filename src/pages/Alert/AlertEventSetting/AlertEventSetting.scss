@@ -16,17 +16,17 @@
     gap: 5px;
     display: flex;
     align-items: center;
-    color: $gray-700;
+    color: var(--color-text);
     @include text-styles("body02");
-    background-color: $gray-0;
-    border: 1px solid $gray-100;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: 5px;
     padding: 12px 16px;
     cursor: pointer;
 
     &:hover {
       border: 1px solid $main-500;
-      background-color: $main-100;
+      background-color: var(--color-bg);
     }
   }
 }
@@ -45,8 +45,8 @@
   &-empty {
     border-radius: 0px 0px 5px 5px;
     padding: 20px;
-    background: $gray-0;
-    color: $gray-500;
+    background: var(--color-surface);
+    color: var(--color-subtext);
     @include text-styles("body02");
     text-align: center;
   }
@@ -67,16 +67,16 @@
     }
 
     &::-webkit-scrollbar-track {
-      background: $gray-100;
+      background: var(--color-bg);
       border-radius: 4px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: $gray-300;
+      background: var(--color-border);
       border-radius: 4px;
 
       &:hover {
-        background: $gray-400;
+        background: var(--color-subtext);
       }
     }
   }
@@ -85,8 +85,8 @@
   &-container {
     border-radius: 10px;
     padding: 20px;
-    background: $gray-0;
-    border: 1px solid $gray-200;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     transition: all 0.2s ease;
 
     &.disabled {
@@ -98,7 +98,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      color: $gray-900;
+      color: var(--color-text);
       margin-bottom: 0;
       font-size: 1em;
 
@@ -115,7 +115,7 @@
       background: transparent;
       border: none;
       cursor: pointer;
-      color: $gray-600;
+      color: var(--color-subtext);
       font-size: 8px;
       width: 32px;
       height: 18px;
@@ -130,7 +130,7 @@
       line-height: 1;
 
       &:hover {
-        color: $main-600;
+        color: $main-500;
       }
     }
 
@@ -148,8 +148,8 @@
       align-items: center;
       justify-content: flex-start;
       gap: 12px;
-      background: $gray-50;
-      color: $gray-700;
+      background: var(--color-bg);
+      color: var(--color-text);
       border-radius: 6px;
       padding: 12px 16px;
       @include text-styles("body02");
@@ -158,8 +158,8 @@
       border: 1px solid transparent;
 
       &:hover {
-        background: $gray-100;
-        border-color: $main-200;
+        background: var(--color-surface);
+        border-color: $main-500;
         transform: translateX(4px);
       }
 

@@ -4,24 +4,29 @@
 :root {
   --color-sidebar-bg: #{$sidebar-darkmode};
   --color-sidebar-text: #{$gray-0};
+  --color-sidebar-divider: #{$gray-800};
   --color-bg: #{$gray-50};
-  --color-surface: #{$main-100};
+  --color-surface: #{$gray-0};
   --color-text: #{$gray-900};
   --color-subtext: #{$gray-500};
   --color-border: #{$gray-200};
-  --color-active-tap-text: #{gray-0};
+  --color-active-tap-text: #{$gray-0};
   --color-active-tap-bg: #{$graph-card};
   --color-active-tap-stroke: #{$graph-stroke};
+  --color-header-bg: #{$gray-0};
 }
 
 /* 다크 모드 */
 body.dark {
-  --color-sidebar-bg: #{$gray-800};
+  --color-sidebar-bg: #{$sidebar-darkmode};
+  --color-sidebar-text: #{$gray-0};
+  --color-sidebar-divider: #{$gray-800};
   --color-bg: #{$gray-900};
   --color-surface: #{$gray-800};
   --color-text: #{$gray-0};
-  --color-subtext: #{$gray-300};
+  --color-subtext: #{$gray-100};
   --color-border: #{$gray-600};
   --color-active-tap-bg: #{$main-500};
   --color-active-tap-text: #{$gray-0};
+  --color-header-bg: #{$gray-800};
 }
