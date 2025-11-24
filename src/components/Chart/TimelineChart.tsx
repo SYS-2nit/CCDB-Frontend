@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, memo } from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import { formatNumberWithUnit, formatTooltipNumber } from "@/utils/numberFormatter";
@@ -31,23 +31,31 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
   yMin,
   yMax,
 }) => {
-  const colors = [
-    "#3B82F6",
-    "#22C55E",
-    "#A855F7",
-    "#F97316",
-    "#EAB308",
-    "#06B6D4",
-    "#EF4444",
-    "#6366F1",
-  ];
+  const colors = useMemo(
+    () => [
+      "#3B82F6",
+      "#22C55E",
+      "#A855F7",
+      "#F97316",
+      "#EAB308",
+      "#06B6D4",
+      "#EF4444",
+      "#6366F1",
+    ],
+    []
+  );
 
-  const series = legends.map((name, i) => ({
-    name,
-    data: seriesData[i] || [],
-  }));
+  const series = useMemo(
+    () =>
+      legends.map((name, i) => ({
+        name,
+        data: seriesData[i] || [],
+      })),
+    [legends, seriesData]
+  );
 
-  const options: ApexOptions = {
+  const options: ApexOptions = useMemo(
+    () => ({
     chart: {
       type: "line",
       toolbar: { show: false },
@@ -129,7 +137,9 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
         formatter: (val) => formatTooltipNumber(Number(val)),
       },
     },
-  };
+    }),
+    [categories, yaxisTitle, yMin, yMax, showLegend, colors]
+  );
 
   return (
     <div style={{ width: "100%", height: "100%", maxWidth: "100%", overflow: "hidden" }}>
@@ -144,5 +154,6 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
   );
 };
 
-export default TimelineChart;
+// 성능 최적화: React.memo로 감싸서 불필요한 리렌더링 방지
+export default memo(TimelineChart);
 

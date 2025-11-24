@@ -21,7 +21,7 @@ export interface DashboardDataResponse {
 
 interface DashboardDataParams {
   instanceId: number;
-  timeUnit?: "1m" | "10m" | "1h" | "1d";
+  timeUnit?: "1m" | "1h" | "10m" | "1d";
   category?: string;
 }
 
