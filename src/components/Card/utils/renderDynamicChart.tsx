@@ -405,6 +405,16 @@ const renderMetricTiles = (
           numeric =
             ((sharedPoolBytes - sharedPoolFreeBytes) / sharedPoolBytes) * 100;
         }
+      } else if (key === "pga_used_bytes" && label === "OS 메모리 사용률") {
+        // OS 메모리 사용률 계산: (pga_used_bytes GB + 4.45) / 7.47 * 100
+        const pgaUsedBytes = ensureNumber(
+          latest.values?.[findMatchingKey("pga_used_bytes") ?? ""]
+        );
+        if (pgaUsedBytes !== null) {
+          const pgaUsedGB = pgaUsedBytes / 1_073_741_824; // GB 변환
+          const totalUsed = pgaUsedGB + 4.45;
+          numeric = (totalUsed / 7.47) * 100; // 퍼센트 계산
+        }
       } else {
         matchedKey = findMatchingKey(key);
         if (!matchedKey) {
@@ -478,6 +488,18 @@ const renderMetricTiles = (
               if (sharedPoolBytes !== null && sharedPoolFreeBytes !== null) {
                 subNumeric = sharedPoolBytes - sharedPoolFreeBytes;
               }
+            } else if (subKey === "os_memory_used_calc") {
+              // OS 메모리 사용량 계산: pga_used_bytes를 GB로 변환 후 + 4.45
+              const pgaUsedBytes = ensureNumber(
+                latest.values?.[findMatchingKey("pga_used_bytes") ?? ""]
+              );
+              if (pgaUsedBytes !== null) {
+                const pgaUsedGB = pgaUsedBytes / 1_073_741_824; // GB 변환
+                subNumeric = pgaUsedGB + 4.45;
+              }
+            } else if (subKey === "os_memory_total_calc") {
+              // OS 메모리 총량: 고정값 7.47 GB
+              subNumeric = 7.47;
             } else {
               const matchedSubKey = findMatchingKey(subKey);
               if (!matchedSubKey) return null;
@@ -1088,20 +1110,36 @@ export const renderDynamicChart = (
       [
         {
           key: "pga_used_bytes",
-          label: "PGA 사용량",
-          suffix: "MB",
-          divisor: 1_048_576,
-          decimals: 1,
+          label: "OS 메모리 사용률",
+          suffix: " %",
+          // divisor 제거: 특별 처리에서 이미 퍼센트로 계산함
+          decimals: 2,
+          subtitleKeys: ["os_memory_used_calc", "os_memory_total_calc"],
+          subtitleDivisor: 1, // 이미 GB 단위로 계산된 값
+          subtitleDecimals: 2,
+          subtitleSuffix: " GB", // 두 번째 값에 GB 붙임
         },
         {
-          key: "pga_target_bytes",
-          label: "PGA 할당량",
-          suffix: "MB",
-          divisor: 1_048_576,
+          key: "pga_used_bytes",
+          label: "PGA 한도대비 사용률",
+          suffix: "%",
+          divisor: 21_474_836.48, // 2GB / 100 (퍼센트 계산: pga_used_bytes / 2GB * 100)
           decimals: 1,
+          subtitleKeys: ["pga_used_bytes"],
+          subtitleDivisor: 1_073_741_824, // GB 변환 (1GB = 2^30 bytes)
+          subtitleDecimals: 1,
+          subtitleSuffix: " / 2 GB",
         },
 
-        { key: "pga_util_pct", label: "PGA 사용률", suffix: "%" },
+        {
+          key: "pga_util_pct",
+          label: "PGA 타겟대비 사용률",
+          suffix: "%",
+          subtitleKeys: ["pga_used_bytes", "pga_target_bytes"],
+          subtitleDivisor: 1_048_576, // MB 변환
+          subtitleDecimals: 1,
+          subtitleSuffix: "MB",
+        },
         { key: "memory_sort_pct", label: "Memory Sort", suffix: "%" },
         { key: "dedicated_sess_cnt", label: "Dedicated" },
         { key: "parallel_proc_cnt", label: "Parallel" },
