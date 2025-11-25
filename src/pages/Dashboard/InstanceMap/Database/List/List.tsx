@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./List.scss";
 import DatabaseItem from "./Item";
 import ArrowFillTopIcon from "@/assets/general/arrow-fill-top.svg";
@@ -122,13 +122,6 @@ const List: React.FC<ListProps> = ({
     setHoveredDbId(null);
   };
 
-  // 인스턴스 클릭 핸들러 (클로저 문제 방지)
-  const handleInstanceClick = useCallback((instanceId: number, instanceSid: string | null) => {
-    console.log(`[인스턴스 클릭 핸들러] id=${instanceId}, sid=${instanceSid}`);
-    console.log(`[인스턴스 클릭 핸들러] 현재 instanceList:`, instanceList.map(i => ({ id: i.id, sid: i.sid })));
-    navigate(`/dashboard?instanceId=${instanceId}`);
-  }, [navigate, instanceList]);
-
   // DB 필터
   const filteredDatabases = useMemo(
     () =>
@@ -199,7 +192,7 @@ const List: React.FC<ListProps> = ({
             "테스트에 실패했습니다. 연결 정보를 확인해주세요.",
         });
       }
-    } catch (error) {
+    } catch  {
       setTestFeedback({ status: "fail", message: "데이터베이스 연결에 실패했습니다." });
     } finally {
       setIsTesting(false);
@@ -341,20 +334,18 @@ const List: React.FC<ListProps> = ({
                   {hoveredDbId === db.id && instanceList.length > 0 && (
                     <div className="instance-popup">
                       {instanceList.map((instance, index) => {
-                        // 각 인스턴스의 id를 명시적으로 저장하여 클로저 문제 방지
-                        const instanceId = instance.id;
-                        const instanceSid = instance.sid;
-                        
                         // 디버깅: 각 인스턴스의 id 확인
-                        console.log(`[인스턴스 팝업 렌더링] 인덱스 ${index}: id=${instanceId}, sid=${instanceSid}`);
-                        
+                        console.log(`[인스턴스 팝업] 인덱스 ${index}: id=${instance.id}, sid=${instance.sid}`);
                         return (
                           <div
-                            key={`${db.id}-${instanceId}-${index}`}
+                            key={`${db.id}-${instance.id}-${index}`}
                             className="instance-popup-item"
-                            onClick={() => handleInstanceClick(instanceId, instanceSid)}
+                            onClick={() => {
+                              console.log(`[인스턴스 클릭] id=${instance.id}, sid=${instance.sid}`);
+                              navigate(`/dashboard?instanceId=${instance.id}`);
+                            }}
                           >
-                            {instanceSid}
+                            {instance.sid}
                           </div>
                         );
                       })}
