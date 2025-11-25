@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React, { memo } from "react";
 import "./TableChart.scss";
 
 interface TableChartProps {
@@ -78,4 +78,5 @@ const TableChart: React.FC<TableChartProps> = ({
   );
 };
 
-export default TableChart;
+// 성능 최적화: React.memo로 감싸서 불필요한 리렌더링 방지
+export default memo(TableChart);

@@ -21,12 +21,14 @@ const StatusCard: React.FC<StatusCardProps> = memo(
       <div className={`status-card status-card--${color}`}>
         <div className="status-card__label">{label}</div>
         <div className="status-card__value-wrapper">
-          <div className="status-card__value">{value}</div>
-          {showChange && (
-            <div className={`status-card__change status-card__change--${change! > 0 ? "up" : "down"}`}>
-              {changeText}
-            </div>
-          )}
+          <div className="status-card__value">
+            {value}
+            {showChange && (
+              <span className={`status-card__change status-card__change--${change! > 0 ? "up" : "down"}`}>
+                ({changeText})
+              </span>
+            )}
+          </div>
         </div>
       </div>
     );

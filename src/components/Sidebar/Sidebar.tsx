@@ -17,6 +17,7 @@ import SidebarHoverModal from "./Modal/SidebarHoverModal";
 import { fetchMembers, type Member } from "@/api/Member/member";
 import UserListModal from "./Modal/UserListModal";
 import { useSelectedInstanceStore } from "@/state/useInstanceStore";
+import Spinner from "../Spinner/Spinner";
 
 const menuRoutes: Record<string, string[]> = {
   dashboard: ["/dashboard/instance-map", "/dashboard/instance-list"],
@@ -47,7 +48,7 @@ const Sidebar: React.FC = () => {
   // 대시보드 부모 탭 클릭 시 첫 번째 자식으로 이동하고 메뉴 열기
   const handleDashboardParentClick = () => {
     if (isCollapsed) return;
-    
+
     // 메뉴가 닫혀있으면 열기
     if (openMenu !== "dashboard") {
       setOpenMenu("dashboard");
@@ -121,7 +122,7 @@ const Sidebar: React.FC = () => {
   /** 부모 탭 클릭 시 첫 번째 자식으로 이동하고 메뉴 열기 */
   const handleParentClick = (menuKey: string) => {
     if (isCollapsed) return;
-    
+
     const routes = menuRoutes[menuKey];
     if (routes && routes.length > 0) {
       // 메뉴가 닫혀있으면 열기
@@ -144,7 +145,7 @@ const Sidebar: React.FC = () => {
 
   /** 로딩 중 */
   if (loading || !currentUser)
-    return <div className="setting">사용자 정보를 불러오는 중...</div>;
+    return <Spinner message="사용자 정보를 불러오는 중..." />;
 
   return (
     <aside className={`sidebar ${isCollapsed ? "sidebar--collapsed" : ""}`}>

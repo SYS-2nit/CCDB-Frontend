@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "./List.scss";
 import DatabaseItem from "./Item";
 import ArrowFillTopIcon from "@/assets/general/arrow-fill-top.svg";
@@ -16,6 +17,7 @@ import {
   type DatabaseDeletePayload,
   type DatabaseTestPayload,
 } from "@/api/Databases/databases";
+import Spinner from "@/components/Spinner/Spinner";
 
 type DatabaseListItem = {
   id: number;
@@ -110,7 +112,10 @@ const List: React.FC<ListProps> = ({
     try {
       const data = await fetchInstancesByDatabase(dbId);
       console.log("[인스턴스 목록] DB ID:", dbId, "인스턴스 데이터:", data);
-      console.log("[인스턴스 목록] 각 인스턴스 ID:", data.map(i => ({ id: i.id, sid: i.sid })));
+      console.log(
+        "[인스턴스 목록] 각 인스턴스 ID:",
+        data.map((i) => ({ id: i.id, sid: i.sid }))
+      );
       setInstanceList(data);
     } catch (err) {
       console.log("인스턴스 목록 조회 오류:", err);
@@ -121,6 +126,21 @@ const List: React.FC<ListProps> = ({
   const handleDbLeave = () => {
     setHoveredDbId(null);
   };
+
+  // 인스턴스 클릭 핸들러 (클로저 문제 방지)
+  const handleInstanceClick = useCallback(
+    (instanceId: number, instanceSid: string | null) => {
+      console.log(
+        `[인스턴스 클릭 핸들러] id=${instanceId}, sid=${instanceSid}`
+      );
+      console.log(
+        `[인스턴스 클릭 핸들러] 현재 instanceList:`,
+        instanceList.map((i) => ({ id: i.id, sid: i.sid }))
+      );
+      navigate(`/dashboard?instanceId=${instanceId}`);
+    },
+    [navigate, instanceList]
+  );
 
   // DB 필터
   const filteredDatabases = useMemo(
@@ -192,8 +212,11 @@ const List: React.FC<ListProps> = ({
             "테스트에 실패했습니다. 연결 정보를 확인해주세요.",
         });
       }
-    } catch  {
-      setTestFeedback({ status: "fail", message: "데이터베이스 연결에 실패했습니다." });
+    } catch (error) {
+      setTestFeedback({
+        status: "fail",
+        message: "데이터베이스 연결에 실패했습니다.",
+      });
     } finally {
       setIsTesting(false);
     }
@@ -298,9 +321,7 @@ const List: React.FC<ListProps> = ({
             />
 
             {isLoading ? (
-              <div className="db-list__status db-list__status--loading">
-                로딩 중입니다...
-              </div>
+              <Spinner message="목록 불러오는 중..." />
             ) : error ? (
               <div className="db-list__status db-list__status--error">
                 {error}
@@ -334,18 +355,24 @@ const List: React.FC<ListProps> = ({
                   {hoveredDbId === db.id && instanceList.length > 0 && (
                     <div className="instance-popup">
                       {instanceList.map((instance, index) => {
+                        // 각 인스턴스의 id를 명시적으로 저장하여 클로저 문제 방지
+                        const instanceId = instance.id;
+                        const instanceSid = instance.sid;
+
                         // 디버깅: 각 인스턴스의 id 확인
-                        console.log(`[인스턴스 팝업] 인덱스 ${index}: id=${instance.id}, sid=${instance.sid}`);
+                        console.log(
+                          `[인스턴스 팝업 렌더링] 인덱스 ${index}: id=${instanceId}, sid=${instanceSid}`
+                        );
+
                         return (
                           <div
-                            key={`${db.id}-${instance.id}-${index}`}
+                            key={`${db.id}-${instanceId}-${index}`}
                             className="instance-popup-item"
-                            onClick={() => {
-                              console.log(`[인스턴스 클릭] id=${instance.id}, sid=${instance.sid}`);
-                              navigate(`/dashboard?instanceId=${instance.id}`);
-                            }}
+                            onClick={() =>
+                              handleInstanceClick(instanceId, instanceSid)
+                            }
                           >
-                            {instance.sid}
+                            {instanceSid}
                           </div>
                         );
                       })}

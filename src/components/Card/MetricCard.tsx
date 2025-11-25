@@ -7,6 +7,7 @@ export interface MetricData {
   icon?: string;
   subtitle?: string;
   color?: string;
+  valueTextStyle?: string; // text-styles mixin 키 (예: "heading01", "heading02", "body01" 등)
 }
 
 interface MetricGridProps {
@@ -21,18 +22,27 @@ const MetricCard: React.FC<MetricData> = ({
   icon,
   subtitle,
   color,
+  valueTextStyle,
 }) => {
   return (
-    <div className="metric-card">
+    <div className="metric-card" title={subtitle || undefined}>
       <span className="metric-card__title">{title}</span>
       {icon ? (
         <img src={icon} alt={`${title}-icon`} className="metric-card__icon" />
       ) : (
-        <span className="metric-card__value" style={{ color }}>
+        <span
+          className="metric-card__value"
+          style={{ color }}
+          data-text-style={valueTextStyle || "heading01"}
+        >
           {value}
         </span>
       )}
-      {subtitle && <span className="metric-card__subtitle">{subtitle}</span>}
+      {subtitle && (
+        <div className="metric-card__tooltip">
+          <span className="metric-card__tooltip-text">{subtitle}</span>
+        </div>
+      )}
     </div>
   );
 };
@@ -61,6 +71,7 @@ const MetricGrid: React.FC<MetricGridProps> = ({
           icon={metric.icon}
           subtitle={metric.subtitle}
           color={metric.color}
+          valueTextStyle={metric.valueTextStyle}
         />
       ))}
     </div>

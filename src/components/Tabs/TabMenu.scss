@@ -8,9 +8,8 @@
   background: var(--color-surface);
 
   &__tab {
-      margin: 0px 10px;
-      background: none;
-      border: none;
+      margin: 0px 16px;
+
       border-radius: 0px;
       cursor: pointer;
       color: var(--color-subtext);
@@ -18,8 +17,8 @@
 
       &.active {
         color: $main-600;
-        border-bottom: 1px solid $main-600;
-        padding: 10px;
+        border-bottom: 1.5px solid $main-600;
+        padding: 10px 0px;
       }
 
       &:hover {
