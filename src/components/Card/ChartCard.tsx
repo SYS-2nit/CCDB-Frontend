@@ -18,7 +18,7 @@ import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 
 /*
  ******************************************************************
- 작성자: 오수경
+ 공동 작성자: 오수경, 최온유
  ******************************************************************
  */
 
@@ -81,9 +81,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
   // bodyContent 메모이제이션 - 성능 최적화 핵심
   const bodyContent = useMemo(() => {
     if (!graphData && !selectedInstanceId) {
-      return (
-        <div className="chart-placeholder">인스턴스를 선택해주세요.</div>
-      );
+      return <div className="chart-placeholder">인스턴스를 선택해주세요.</div>;
     }
     if (!graphData && isFetching) {
       return (
@@ -116,7 +114,11 @@ const ChartCard: React.FC<ChartCardProps> = ({
 
   // 그래프별 제목 suffix 가져오기 - 메모이제이션
   const titleSuffix = useMemo(() => {
-    if (graphData && graphData.id && GRAPH_TITLE_SUFFIX_FORMATTERS[graphData.id]) {
+    if (
+      graphData &&
+      graphData.id &&
+      GRAPH_TITLE_SUFFIX_FORMATTERS[graphData.id]
+    ) {
       return GRAPH_TITLE_SUFFIX_FORMATTERS[graphData.id](graphData);
     }
     return null;
