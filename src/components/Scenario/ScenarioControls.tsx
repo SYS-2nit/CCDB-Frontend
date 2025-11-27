@@ -1,3 +1,8 @@
+/*
+ ******************************************************************
+ 작성자: 배지원
+ ******************************************************************
+ */
 import React from "react";
 import type { ScenarioId } from "./types";
 import Button from "../Button/Button";

@@ -1,3 +1,8 @@
+/*
+ ******************************************************************
+ 작성자: 배지원
+ ******************************************************************
+ */
 import React from "react";
 import type { ScenarioId, ScenarioMeta } from "./types";
 import Checkbox from "../Checkbox/Checkbox";

@@ -1,3 +1,8 @@
+/*
+ ******************************************************************
+ 작성자: 배지원
+ ******************************************************************
+ */
 import React, { useState } from 'react';
 import type { ReactNode } from 'react';
 import { ToastContext } from './ToastContext';
