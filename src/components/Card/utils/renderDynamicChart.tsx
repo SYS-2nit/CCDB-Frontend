@@ -1,3 +1,7 @@
+/****************************************
+공동 작성자 : 배지원 최온유
+ ****************************************/
+
 /* eslint-disable no-case-declarations */
 import React from "react";
 import { mainChartRenderer } from "../chartRenderers/mainChartRenderer";
