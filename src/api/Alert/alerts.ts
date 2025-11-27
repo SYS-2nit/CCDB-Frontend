@@ -1,3 +1,9 @@
+/*
+ ******************************************************************
+ 작성자: 최영준
+ ******************************************************************
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "../index";
 import type { ApiResponse } from "../types";
