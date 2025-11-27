@@ -1,6 +1,12 @@
 import type { SqlDetailItem } from "@/api/Sql/sql";
 import type { SqlDetailDrawerData } from "../types";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 /**
  * SqlDetailItem을 SqlDetailDrawerData로 변환
  */
@@ -48,4 +54,3 @@ export const convertSqlDetailToDrawerData = (
     })),
   };
 };
-

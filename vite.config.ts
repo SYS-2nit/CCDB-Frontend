@@ -2,6 +2,12 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
+/*
+ ******************************************************************
+  공동 작성자: 배지원, 오수경
+ ******************************************************************
+ */
+
 export default defineConfig({
   plugins: [react()],
   resolve: {

@@ -4,6 +4,12 @@ import { renderDynamicChart } from "../utils/renderDynamicChart";
 import { mainChartRenderer } from "./mainChartRenderer";
 import type { DashboardMode } from "@/state/DashboardContext";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // Storage 탭 전용 차트 렌더러
 export const storageChartRenderer = (
   title: string,

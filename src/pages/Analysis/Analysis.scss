@@ -1,7 +1,14 @@
+
 @use "sass:map";
 @use "@/styles/_typography.scss" as *;
 @use '@styles/variables' as *;
 @use '@styles/mixins' as *;
+
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
 
 .scenario-page {
   gap: 20px;

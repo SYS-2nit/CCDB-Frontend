@@ -5,6 +5,12 @@ import { FilterSelect } from "../../components/FilterSelect";
 import { SQL_TOP_FILTER_OPTIONS } from "../../constants";
 import type { SqlFilterType, IntervalType } from "../../types";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface SqlTopSearchProps {
   startDate: string;
   onStartDateChange: (value: string) => void;

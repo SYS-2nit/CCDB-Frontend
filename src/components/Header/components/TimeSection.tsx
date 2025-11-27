@@ -4,6 +4,12 @@ import Button from "@/components/Button/Button";
 import PauseIcon from "@/assets/general/pause.svg";
 import StartIcon from "@/assets/general/start.svg";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 const TimeSection = () => {
   const { isPaused, togglePause, displayText, selectRange } = useTimeSection();
 

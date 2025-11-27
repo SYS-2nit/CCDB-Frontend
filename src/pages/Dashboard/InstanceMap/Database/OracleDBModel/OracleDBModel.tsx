@@ -2,6 +2,12 @@ import { Html } from "@react-three/drei";
 import React from "react";
 import "./OracleDBModel.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface OracleDBModelProps {
   onClick: () => void;
   isZoomed: boolean;

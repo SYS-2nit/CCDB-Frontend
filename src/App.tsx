@@ -14,6 +14,12 @@ import Database from "./pages/Dashboard/InstanceMap/Database/Database";
 import SqlStat from "./pages/SQL/SqlStat/SqlStat";
 import SqlTop from "./pages/SQL/SqlTop/SqlTop";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 const App: React.FC = () => {
   return (
     <BrowserRouter>

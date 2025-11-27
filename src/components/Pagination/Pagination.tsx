@@ -1,6 +1,12 @@
 import React from "react";
 import "./Pagination.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface PaginationProps {
   totalPages: number;
   currentPage: number;

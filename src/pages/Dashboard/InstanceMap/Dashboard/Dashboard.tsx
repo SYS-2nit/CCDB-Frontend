@@ -18,6 +18,12 @@ import {
   type DashboardMode,
 } from "@/state/DashboardContext";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 import {
   fetchDashboardData,
   fetchAllGraphs,
@@ -212,7 +218,6 @@ const Dashboard: React.FC<DashboardProps> = ({
         if (modeChanged) {
           return graphList;
         }
-
         // graphList의 ID와 prevCharts의 ID가 같으면 데이터 보존
         const prevIds = prevCharts
           .map((c) => c.id)
@@ -349,7 +354,6 @@ const Dashboard: React.FC<DashboardProps> = ({
             return next;
           });
         }
-
         // mode 추적 업데이트
         lastLoadedModeRef.current = mode;
       } catch (err) {

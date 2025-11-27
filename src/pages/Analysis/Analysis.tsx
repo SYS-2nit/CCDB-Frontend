@@ -8,6 +8,12 @@ import ScenarioListItem from "@/components/Scenario/ScenarioListItem";
 import { scenarioApi } from "@/components/Scenario/scenarioApi";
 import { useDashboardContext } from "@/state/DashboardContext";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 const DURATIONS = [30, 60, 90, 120, 150, 180];
 
 const Analysis: React.FC = () => {
@@ -43,12 +49,12 @@ const Analysis: React.FC = () => {
       });
   }, [toast, selectedInstanceId]);
 
-  // 상태 폴링
+  // 상태 조회 (페이지 접속 시 한 번만)
+  const hasFetchedStatusRef = React.useRef(false);
   React.useEffect(() => {
-    if (!selectedInstanceId) return;
+    if (!selectedInstanceId || hasFetchedStatusRef.current) return;
     
-    let t: number | undefined;
-    const poll = async () => {
+    const fetchStatus = async () => {
       try {
         const st = await scenarioApi.status();
         setRunning(st.running);
@@ -57,19 +63,18 @@ const Analysis: React.FC = () => {
           remain: st.remainingSec,
           loop: st.loopCount,
         });
+        hasFetchedStatusRef.current = true;
       } catch (e) {
-        toast.show(`진단 시작 실패: ${e}`, "error");
-      } finally {
-        t = window.setTimeout(poll, 2000);
+        toast.show(`진단 상태 조회 실패: ${e}`, "error");
       }
     };
-    poll();
-    return () => {
-      if (t !== undefined) {
-        clearTimeout(t);
-      }
-    };
-  }, [toast, selectedInstanceId]);
+    fetchStatus();
+  }, [selectedInstanceId]);
+  
+  // selectedInstanceId가 변경되면 ref 초기화
+  React.useEffect(() => {
+    hasFetchedStatusRef.current = false;
+  }, [selectedInstanceId]);
 
   const toggle = (id: ScenarioId) =>
     setSelected((prev) => ({ ...prev, [id]: !prev[id] }));

@@ -1,6 +1,12 @@
 import React, { useRef, useEffect } from "react";
 import "./TimeInput.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface TimeInputProps {
   label?: string;
   value: string;

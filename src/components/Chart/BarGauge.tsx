@@ -3,6 +3,12 @@ import "./BarGauge.scss";
 import { formatTooltipNumber } from "@/utils/numberFormatter";
 import { formatTime } from "@/utils/timeFormatter";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface BarGaugeProps {
   value: number;
   max?: number;

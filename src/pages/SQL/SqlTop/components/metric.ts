@@ -1,6 +1,12 @@
 import type { SqlStatsItem } from "@/api/Sql/sql";
 import type { SqlFilterType } from "../../types";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // SQL 메트릭 필드 매핑과 값 계산
 export const metricFieldMap: Record<SqlFilterType, keyof SqlStatsItem> = {
   elapsed: "elapsedUsDelta",

@@ -3,6 +3,12 @@ import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import dayjs from "dayjs";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 export interface BarChartProps {
   barCount?: number;
   legends?: string[];
@@ -84,7 +90,7 @@ const BarChart: React.FC<BarChartProps> = ({
 
   const series =
     data && data.length > 0
-      ? [{ name: "Value", data }]
+      ? [{ BarChartname: "Value", data }]
       : legends?.map((name, idx) => ({
           name,
           data: seriesData ? seriesData[idx] : [],

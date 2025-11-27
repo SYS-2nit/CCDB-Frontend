@@ -10,6 +10,12 @@ import {
   fetchEventHistories,
   addHistory,
   unacknowledgeEvent,
+
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
   acknowledgeEvent,
   isEventRead,
   type ProgressHistoryResponse,

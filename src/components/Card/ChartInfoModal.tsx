@@ -1,6 +1,12 @@
 import React from "react";
 import "./ChartInfoModal.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface Props {
   pos: { x: number; y: number };
   description: string;

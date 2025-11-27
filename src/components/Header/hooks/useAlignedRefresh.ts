@@ -1,6 +1,12 @@
 /* eslint-disable prefer-const */
 import { useEffect } from "react";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // 1분 정각 refresh 스케줄링
 export const useAlignedRefresh = (enabled: boolean, refresh: () => void) => {
   useEffect(() => {

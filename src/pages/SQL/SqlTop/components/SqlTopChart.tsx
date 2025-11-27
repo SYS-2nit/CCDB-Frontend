@@ -2,6 +2,12 @@ import React from "react";
 import LineChart from "@/components/Chart/LineChart";
 import Spinner from "@/components/Spinner/Spinner";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface SqlTopChartProps {
   baseValues: number[];
   compareValues: number[];

@@ -2,6 +2,12 @@ import React from "react";
 import SqlDetailPanel from "./SqlDetailPanel";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface CompareDetail {
   date: string;
   detail: SqlDetailData;

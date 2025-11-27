@@ -2,6 +2,12 @@ import React from "react";
 import clsx from "clsx";
 import "./Input.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface InputProps {
   placeholder?: string;
   label?: string;

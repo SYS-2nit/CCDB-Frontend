@@ -23,6 +23,12 @@ import { useNavigate } from "react-router-dom";
 import { useSelectedInstanceStore } from "@/state/useInstanceStore";
 import Spinner from "@/components/Spinner/Spinner";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 const SELECTED_DB_STORAGE_KEY = "selectedDatabase";
 const ROWS_PER_PAGE = 10;
 
