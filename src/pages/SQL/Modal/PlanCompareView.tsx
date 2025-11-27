@@ -1,8 +1,6 @@
 import React from "react";
 import "./PlanCompareView.scss";
 import { createTwoFilesPatch } from "diff";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - diff2html 라이브러리 타입 정의가 없음
 import * as Diff2Html from "diff2html/lib/ui/js/diff2html-ui";
 import "diff2html/bundles/css/diff2html.min.css";
 
@@ -13,12 +11,15 @@ import "diff2html/bundles/css/diff2html.min.css";
  */
 
 interface Diff2HtmlType {
-  html: (diffString: string, options: {
-    inputFormat: string;
-    showFiles: boolean;
-    outputFormat: string;
-    matching: string;
-  }) => string;
+  html: (
+    diffString: string,
+    options: {
+      inputFormat: string;
+      showFiles: boolean;
+      outputFormat: string;
+      matching: string;
+    }
+  ) => string;
 }
 
 interface Props {

@@ -4,8 +4,6 @@
  ******************************************************************
  */
 
-// 알림 모달
-
 import { useNavigate } from "react-router-dom";
 import {
   acknowledgeEvent,

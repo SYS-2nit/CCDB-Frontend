@@ -1,11 +1,10 @@
-// eslint-disable-next-line react-hooks/exhaustive-deps
-// 의존성 배열에 fetchGraph, fetchTable을 포함하면 무한 루프 발생 가능
 import { useState, useMemo, useEffect, useCallback } from "react";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 import type { SqlFilterType, IntervalType } from "../../types";
 import { convertSqlDetailToDrawerData } from "../../utils/convertSqlDetail";
 import { formatToMonthDayTime } from "../../utils/dateFormat";
 import { logError } from "../../utils/errorHandler";
+
 /*
  ******************************************************************
  작성자: 오수경
@@ -199,7 +198,14 @@ export const useSqlStat = () => {
       setTableData([]);
       setTotalPages(1);
     }
-  }, [filter, dateRange.start, dateRange.end, interval, fetchGraph, fetchTable]);
+  }, [
+    filter,
+    dateRange.start,
+    dateRange.end,
+    interval,
+    fetchGraph,
+    fetchTable,
+  ]);
 
   /* 정렬 */
   const handleSort = (key: keyof TableData) => {
@@ -273,4 +279,3 @@ export const useSqlStat = () => {
     closeDrawer,
   };
 };
-

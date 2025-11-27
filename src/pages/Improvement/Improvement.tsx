@@ -10,12 +10,6 @@ import {
   type ReportContent,
 } from "@/api/Report/report";
 
-/*
- ******************************************************************
- 작성자: 오수경
- ******************************************************************
- */
-
 type ReportTemplate = "daily" | "weekly" | "monthly";
 
 type MetricKey =
@@ -132,12 +126,12 @@ const Improvement: React.FC = () => {
       const start = new Date(startDate);
       const end = new Date(endDate);
       if (end < start) return "종료일은 시작일 이후여야 합니다.";
-      
+
       // 최대 7일 검증 (시작일 포함하여 7일)
       // const diffTime = end.getTime() - start.getTime();
       // const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // 시작일 포함
       // if (diffDays > 7) return "주간 보고서는 최대 7일까지 지정할 수 있습니다.";
-      
+
       return "";
     }
 
