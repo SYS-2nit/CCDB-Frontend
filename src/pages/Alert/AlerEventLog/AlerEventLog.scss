@@ -101,6 +101,10 @@
       border-radius: 50%;
       display: inline-block;
 
+      &--green {
+        background: #28a745; // 초록색 (RECOVERY)
+      }
+
       &--yellow {
         background: $sematic-warning;
       }

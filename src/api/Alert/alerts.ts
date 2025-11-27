@@ -6,10 +6,11 @@ import type { ApiResponse } from "../types";
 
 export type AlertStatus = "PENDING" | "CLOSED";
 
-export type AlertLevel = 1 | 2 | 3; // 1: WARNING, 2: DANGER, 3: CRITICAL
+export type AlertLevel = 0 | 1 | 2 | 3; // 0: RECOVERY, 1: WARNING, 2: DANGER, 3: CRITICAL
 
 // AlertLevel enum (런타임에서 사용 가능)
 export const AlertLevelEnum = {
+  RECOVERY: 0,
   WARNING: 1,
   DANGER: 2,
   CRITICAL: 3,
