@@ -6,6 +6,12 @@ import Checkbox from "@/components/Checkbox/Checkbox";
 import Spinner from "@/components/Spinner/Spinner";
 import type { RankData } from "./rank";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface SqlTopTableProps {
   date: string;
   list: RankData[];

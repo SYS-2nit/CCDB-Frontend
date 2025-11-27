@@ -7,6 +7,12 @@ import { useLocation } from "react-router-dom";
 import { scenarioApi } from "@/components/Scenario/scenarioApi";
 import { useDashboardContext } from "@/state/DashboardContext";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // DB + Instance + Time
 const HeaderLeft = () => {
   const location = useLocation();

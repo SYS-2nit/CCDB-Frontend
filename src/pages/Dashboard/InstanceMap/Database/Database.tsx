@@ -20,6 +20,12 @@ import {
   type DatabaseTestPayload,
 } from "@/api/Databases/databases";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 type DatabaseListItem = {
   id: number;
   name: string;

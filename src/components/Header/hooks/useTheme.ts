@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // 다크모드 관리
 export const useTheme = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {

@@ -6,6 +6,12 @@ import DBStatusCard from "./DBStatusCard";
 import "./DetaileInfo.scss";
 import OracleDBModel from "../OracleDBModel/OracleDBModel";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface InfoItem {
   label: string;
   value: string;

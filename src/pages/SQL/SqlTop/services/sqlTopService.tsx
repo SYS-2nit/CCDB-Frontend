@@ -9,6 +9,12 @@ import type {
   PeriodGraphParams,
 } from "../../types";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 export const fetchCompareStats = async (params: CompareStatsParams) =>
   getSqlCompareStats(params);
 

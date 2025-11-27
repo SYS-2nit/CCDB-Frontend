@@ -17,6 +17,12 @@ import { PLAN_HISTORY_ROWS_PER_PAGE } from "../constants";
 import { usePagination } from "../utils/usePagination";
 import { formatMicrosecondsToMs } from "../utils/formatValue";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface SqlDetailDrawerProps {
   data: SqlDetailData;
   onClose: () => void;

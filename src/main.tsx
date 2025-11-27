@@ -5,6 +5,12 @@ import "./index.css";
 import "@/styles/_themes.scss";
 import App from "./App.tsx";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // 초기 로드 시 테마 적용 (깜빡임 방지)
 const applyInitialTheme = () => {
   const saved = localStorage.getItem("theme");

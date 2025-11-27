@@ -1,6 +1,12 @@
 import React from "react";
 import "./DBStatusCard.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface StatusCardProps {
   title: string;
   value: string | number;

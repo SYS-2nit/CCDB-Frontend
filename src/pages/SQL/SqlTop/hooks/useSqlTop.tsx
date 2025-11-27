@@ -1,5 +1,3 @@
-// eslint-disable-next-line react-hooks/exhaustive-deps
-// 의존성 배열에 loadCompareList, loadPeriodGraph를 포함하면 무한 루프 발생 가능
 import { useEffect, useState, useCallback } from "react";
 import CompareSqlWindow from "../Window/CompareSqlWindow";
 import {
@@ -7,6 +5,12 @@ import {
   fetchPeriodData,
   fetchSqlDetail,
 } from "../services/sqlTopService";
+
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
 
 import { metricLabelMap } from "../components/metric";
 import { alignBySqlId, convertList, type RankData } from "../components/rank";
@@ -203,21 +207,32 @@ export const useSqlTop = () => {
 
       const rootEl = popup.document.getElementById("compare-root");
       if (!rootEl) {
-        logError("SQL 비교 팝업", new Error("루트 엘리먼트를 찾을 수 없습니다."));
+        logError(
+          "SQL 비교 팝업",
+          new Error("루트 엘리먼트를 찾을 수 없습니다.")
+        );
         return;
       }
 
-      import("react-dom/client").then(({ createRoot }) => {
-        const root = createRoot(rootEl);
-        root.render(
-          <CompareSqlWindow
-            base={{ date: startDate, detail: convertSqlDetailToDrawerData(base, startDate) }}
-            compare={{ date: compareDate, detail: convertSqlDetailToDrawerData(compare, compareDate) }}
-          />
-        );
-      }).catch((err) => {
-        logError("SQL 비교 팝업 렌더링", err);
-      });
+      import("react-dom/client")
+        .then(({ createRoot }) => {
+          const root = createRoot(rootEl);
+          root.render(
+            <CompareSqlWindow
+              base={{
+                date: startDate,
+                detail: convertSqlDetailToDrawerData(base, startDate),
+              }}
+              compare={{
+                date: compareDate,
+                detail: convertSqlDetailToDrawerData(compare, compareDate),
+              }}
+            />
+          );
+        })
+        .catch((err) => {
+          logError("SQL 비교 팝업 렌더링", err);
+        });
     } catch (err) {
       logError("SQL 비교 상세 데이터 로드", err);
     }

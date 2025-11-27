@@ -4,6 +4,12 @@ import { renderDynamicChart } from "../utils/renderDynamicChart";
 import { mainChartRenderer } from "./mainChartRenderer";
 import type { DashboardMode } from "@/state/DashboardContext";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // Memory 탭 전용 차트 렌더러
 export const memoryChartRenderer = (
   title: string,

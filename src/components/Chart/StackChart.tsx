@@ -3,6 +3,12 @@ import type { ApexOptions } from "apexcharts";
 import React, { useRef, useEffect, useState, useMemo, useCallback, memo } from "react";
 import ReactApexChart from "react-apexcharts";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface ColorRule {
   min: number;
   max: number;

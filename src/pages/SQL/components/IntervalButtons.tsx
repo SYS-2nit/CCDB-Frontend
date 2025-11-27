@@ -3,6 +3,12 @@ import Button from "@/components/Button/Button";
 import { INTERVAL_OPTIONS } from "../constants";
 import type { IntervalType } from "../types";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface IntervalButtonsProps {
   value: IntervalType;
   onChange: (value: IntervalType) => void;

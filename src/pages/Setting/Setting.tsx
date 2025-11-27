@@ -4,6 +4,12 @@ import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import { fetchMembers, updateMember, type Member } from "@/api/Member/member";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 const Setting: React.FC = () => {
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);

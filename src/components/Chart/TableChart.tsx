@@ -2,6 +2,12 @@
 import React, { memo } from "react";
 import "./TableChart.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface TableChartProps {
   columns: { key: string; label: string }[];
   rows: React.ReactNode[][];

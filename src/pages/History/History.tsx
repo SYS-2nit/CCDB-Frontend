@@ -17,6 +17,12 @@ import {
 import { fetchEventRuleDetail } from "@/api/Alert/alerts";
 import { useDashboardContext } from "@/state/DashboardContext";
 import ChartCard from "@/components/Card/ChartCard";
+
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
 import Spinner from "@/components/Spinner/Spinner";
 import TabMenu from "@/components/Tabs/TabMenu";
 

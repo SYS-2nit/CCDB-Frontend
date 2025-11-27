@@ -1,5 +1,11 @@
 import { useState, useMemo } from "react";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface UsePaginationOptions {
   itemsPerPage: number;
   totalItems: number;

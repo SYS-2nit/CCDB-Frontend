@@ -2,6 +2,12 @@ import React, { useMemo, memo } from "react";
 import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface DonutChartProps {
   labels?: string[];
   series?: number[];

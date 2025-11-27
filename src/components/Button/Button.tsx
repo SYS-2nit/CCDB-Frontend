@@ -2,6 +2,12 @@ import "./Button.scss";
 import clsx from "clsx";
 import React from "react";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 type ButtonSize = "xs" | "sm" | "md";
 type ButtonVariant = "primary" | "error" | "white";
 
