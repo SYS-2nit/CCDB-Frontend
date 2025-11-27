@@ -10,6 +10,13 @@ import {
   type GraphDataResponse,
   type GraphDefinition,
 } from "@/api/Dashboard/dashboard";
+
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 import { useDashboardContext } from "@/state/DashboardContext";
 
 interface ChartSettingProps {

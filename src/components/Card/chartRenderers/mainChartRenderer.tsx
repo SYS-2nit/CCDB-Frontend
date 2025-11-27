@@ -11,6 +11,12 @@ import MetricGrid from "@/components/Card/MetricCard";
 import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 const ensureNumber = (value: unknown): number | null => {
   if (value === null || value === undefined) return null;
   if (typeof value === "number") return Number.isFinite(value) ? value : null;

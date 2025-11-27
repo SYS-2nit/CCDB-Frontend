@@ -6,6 +6,12 @@ import { createTwoFilesPatch } from "diff";
 import * as Diff2Html from "diff2html/lib/ui/js/diff2html-ui";
 import "diff2html/bundles/css/diff2html.min.css";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface Diff2HtmlType {
   html: (diffString: string, options: {
     inputFormat: string;

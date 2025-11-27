@@ -8,6 +8,12 @@ import ScenarioListItem from "@/components/Scenario/ScenarioListItem";
 import { scenarioApi } from "@/components/Scenario/scenarioApi";
 import { useDashboardContext } from "@/state/DashboardContext";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 const DURATIONS = [30, 60, 90, 120, 150, 180];
 
 const Analysis: React.FC = () => {

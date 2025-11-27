@@ -6,6 +6,12 @@ import { SqlStatSearch } from "./components/SqlStatSearch";
 import { SqlStatChart } from "./components/SqlStatChart";
 import { SqlStatTable } from "./components/SqlStatTable";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 const SqlStat: React.FC = () => {
   const {
     dateRange,

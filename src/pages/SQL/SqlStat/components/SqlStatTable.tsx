@@ -6,6 +6,12 @@ import Spinner from "@/components/Spinner/Spinner";
 import type { TableData, SortConfig } from "../hooks/useSqlStat";
 import { BAR_GAUGE_MAX } from "../../constants";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface SqlStatTableProps {
   sortedData: TableData[];
   isTableLoading: boolean;

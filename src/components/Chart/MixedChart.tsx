@@ -13,6 +13,12 @@ import {
   formatTooltipNumber,
 } from "@/utils/numberFormatter";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface MixedChartProps {
   categories?: string[];
   columnData?: number[];

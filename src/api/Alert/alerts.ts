@@ -690,15 +690,16 @@ export const fetchAlertStatistics = async (
     `${ALERTS_ENDPOINT}/statistics`,
     { params }
   );
-  return response.data.data ?? {
-    normal: 0,
-    normalChange: 0,
-    warning: 0,
-    warningChange: 0,
-    danger: 0,
-    dangerChange: 0,
-    critical: 0,
-    criticalChange: 0,
-  };
+  return (
+    response.data.data ?? {
+      normal: 0,
+      normalChange: 0,
+      warning: 0,
+      warningChange: 0,
+      danger: 0,
+      dangerChange: 0,
+      critical: 0,
+      criticalChange: 0,
+    }
+  );
 };
-

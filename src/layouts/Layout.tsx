@@ -5,6 +5,12 @@ import Sidebar from "@/components/Sidebar/Sidebar";
 import { ToastProvider } from "@/components/Scenario/ToastProvider";
 import { DashboardProvider } from "@/state/DashboardContext";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="layout">

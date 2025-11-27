@@ -2,6 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import type { ThresholdFormat } from "@/api/Alert/alerts";
 import "./LevelInput.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface LevelInputProps {
   label: string;
   value: number;

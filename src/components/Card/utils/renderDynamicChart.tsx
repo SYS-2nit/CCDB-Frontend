@@ -11,6 +11,12 @@ import ErrorRedIcon from "@/assets/general/error-red.svg";
 import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // 그래프 ID별 축 범위 설정 (필요할 때만 추가)
 const GRAPH_AXIS_RANGES: Record<
   number,

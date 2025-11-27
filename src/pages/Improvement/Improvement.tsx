@@ -10,6 +10,12 @@ import {
   type ReportContent,
 } from "@/api/Report/report";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 type ReportTemplate = "daily" | "weekly" | "monthly";
 
 type MetricKey =

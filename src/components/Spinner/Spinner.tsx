@@ -1,6 +1,12 @@
 import React from "react";
 import "./Spinner.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface SpinnerProps {
   size?: "sm" | "md" | "lg";
   message?: string;

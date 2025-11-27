@@ -3,6 +3,12 @@ import "./Modal.scss";
 import InfoIcon from "@/assets/general/info.svg";
 import Button from "../Button/Button";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 export interface FieldItem {
   label: string;
   placeholder?: string;

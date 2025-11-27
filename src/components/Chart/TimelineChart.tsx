@@ -3,6 +3,12 @@ import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import { formatNumberWithUnit, formatTooltipNumber } from "@/utils/numberFormatter";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface TimelineChartProps {
   legends?: string[];
   showLegend?: boolean;

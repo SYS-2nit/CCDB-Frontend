@@ -16,6 +16,12 @@ import {
 import ChartInfoModal from "./ChartInfoModal";
 import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface ChartCardProps {
   title: string;
   status?: "normal" | "warning";

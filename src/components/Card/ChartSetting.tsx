@@ -6,6 +6,12 @@ import {
   type GraphDefinition,
 } from "@/api/Dashboard/dashboard";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface ChartSettingProps {
   onClose: () => void;
   position: number;

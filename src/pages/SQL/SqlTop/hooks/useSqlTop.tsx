@@ -8,6 +8,12 @@ import {
   fetchSqlDetail,
 } from "../services/sqlTopService";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 import { metricLabelMap } from "../components/metric";
 import { alignBySqlId, convertList, type RankData } from "../components/rank";
 import { buildTimeline, mapValuesToTimeline } from "../components/timeline";

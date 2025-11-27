@@ -17,6 +17,13 @@ import {
   type DatabaseDeletePayload,
   type DatabaseTestPayload,
 } from "@/api/Databases/databases";
+
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 import Spinner from "@/components/Spinner/Spinner";
 
 type DatabaseListItem = {

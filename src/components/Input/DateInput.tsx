@@ -2,6 +2,12 @@ import React from "react";
 import clsx from "clsx";
 import "./DateInput.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface DateInputProps {
   label?: string;
   size?: "sm" | "md" | "lg";

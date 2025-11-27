@@ -5,6 +5,12 @@ import { useInstances } from "../hooks/useInstances";
 import { useDbInfo } from "../hooks/useDbInfo";
 import { useLocation } from "react-router-dom";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // DB + Instance + Time
 const HeaderLeft = () => {
   const location = useLocation();

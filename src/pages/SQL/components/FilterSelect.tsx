@@ -3,6 +3,12 @@ import Select from "@/components/Select/Select";
 import type { SqlFilterType } from "../types";
 import type { FilterOption } from "../constants";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface FilterSelectProps {
   value: SqlFilterType | "";
   onChange: (value: SqlFilterType) => void;

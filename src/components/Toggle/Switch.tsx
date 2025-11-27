@@ -1,6 +1,12 @@
 import React from "react";
 import "./Switch.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface SwitchProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
