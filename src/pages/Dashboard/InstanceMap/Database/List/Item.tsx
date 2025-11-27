@@ -1,6 +1,12 @@
 import React from "react";
 import "./List.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface DatabaseItemProps {
   name: string;
   updatedAt?: string;

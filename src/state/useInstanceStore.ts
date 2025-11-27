@@ -1,5 +1,11 @@
 import { create } from "zustand";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface SelectedInstanceStore {
   selectedInstanceId: number | null;
   selectedInstanceName: string | null;

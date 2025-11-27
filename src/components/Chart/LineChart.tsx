@@ -7,6 +7,12 @@ import {
   formatTooltipNumber,
 } from "@/utils/numberFormatter";
 
+/*
+ ******************************************************************
+ 공동 작성자: 오수경, 최온유
+ ******************************************************************
+ */
+
 interface LineChartProps {
   legends?: string[];
   showLegend?: boolean;

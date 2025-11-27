@@ -3,6 +3,12 @@ import { useState, useEffect } from "react";
 import { useDashboardContext } from "@/state/DashboardContext";
 import { formatClock, formatFullDateTimeMinutes } from "../utils/timeFormatter";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // 시간 선택 Hook
 export const useTimeSection = () => {
   const { mode, rangeMinutes, setMode, triggerRefresh } = useDashboardContext();

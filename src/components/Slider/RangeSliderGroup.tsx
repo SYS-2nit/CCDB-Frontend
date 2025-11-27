@@ -1,6 +1,12 @@
 import React from "react";
 import "./RangeSliderGroup.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 export interface RangeLevels {
   warningMin: number;
   warningMax: number;

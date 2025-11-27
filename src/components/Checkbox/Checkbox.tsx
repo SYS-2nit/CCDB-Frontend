@@ -2,6 +2,12 @@ import React from "react";
 import clsx from "clsx";
 import "./Checkbox.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface CheckboxProps {
   checked: boolean;
   onChange: () => void;

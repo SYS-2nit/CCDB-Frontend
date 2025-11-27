@@ -6,6 +6,12 @@ import {
 } from "@/api/Sql/sql";
 import type { SqlStatsParams, SqlDetailParams } from "../../types";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 export const fetchSqlGraph = async (params: SqlGraphParams) =>
   getSqlGraph(params);
 

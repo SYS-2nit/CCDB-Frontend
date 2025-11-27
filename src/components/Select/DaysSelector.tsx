@@ -1,6 +1,12 @@
 import React from "react";
 import "./DaysSelector.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface DaysSelectorProps {
   selectedDays: string[];
   onToggle: (day: string) => void;

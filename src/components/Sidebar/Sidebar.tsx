@@ -19,6 +19,12 @@ import UserListModal from "./Modal/UserListModal";
 import { useSelectedInstanceStore } from "@/state/useInstanceStore";
 import Spinner from "../Spinner/Spinner";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 const menuRoutes: Record<string, string[]> = {
   dashboard: ["/dashboard/instance-map", "/dashboard/instance-list"],
   sql: ["/sql/stat", "/sql/top"],

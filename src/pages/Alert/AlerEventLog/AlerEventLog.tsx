@@ -15,6 +15,12 @@ import {
   type Page,
 } from "@/api/Alert/alerts";
 
+/*
+ ******************************************************************
+ 공동 작성자: 최영준, 오수경
+ ******************************************************************
+ */
+
 const AlerEventLog: React.FC = () => {
   // memberId 제거 - 백엔드가 기본값 1 사용
 
@@ -170,6 +176,7 @@ const AlerEventLog: React.FC = () => {
   // 위험도 매핑
   const severityOptions = [
     { label: "전체", value: "" },
+    { label: "복구", value: "0" },
     { label: "주의", value: "1" },
     { label: "위험", value: "2" },
     { label: "치명", value: "3" },

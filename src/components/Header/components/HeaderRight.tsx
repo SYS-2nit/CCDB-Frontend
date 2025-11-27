@@ -3,6 +3,12 @@ import LightIcon from "@/assets/header/light.svg";
 import DarkIcon from "@/assets/header/dark.svg";
 import { useTheme } from "../hooks/useTheme";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface HeaderRightProps {
   unreadCount?: number;
   onAlertOpen: () => void;

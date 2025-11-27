@@ -1,5 +1,11 @@
 import { isAxiosError } from "axios";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 export const getErrorMessage = (error: unknown): string => {
   if (isAxiosError(error)) {
     const data = error.response?.data as { message?: string } | undefined;

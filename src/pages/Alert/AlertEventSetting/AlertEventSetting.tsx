@@ -19,6 +19,12 @@ import {
   type AlertEventResponse,
 } from "@/api/Alert/alerts";
 
+/*
+ ******************************************************************
+ 공동 작성자: 최영준, 오수경
+ ******************************************************************
+ */
+
 type AlertTabType = "1" | "2";
 
 interface Policy {
@@ -264,10 +270,10 @@ const AlertEventSetting: React.FC = () => {
 
       // 저장된 값으로 테스트 실행
       const result = await testNotification({ channels });
-      
+
       // ✅ 디버깅 로그: 테스트 결과 확인
       console.log("[AlertEventSetting] 테스트 결과:", result);
-      
+
       setTestResult(result || "테스트 알림이 전송되었습니다.");
       setIsTestResultModalOpen(true);
 

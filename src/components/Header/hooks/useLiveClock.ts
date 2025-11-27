@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { formatFullDateTimeMinutes } from "../utils/timeFormatter";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // HeaderRight용 간단 LIVE 시간 Hook
 export const useLiveClock = () => {
   const [now, setNow] = useState(new Date());

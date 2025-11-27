@@ -7,6 +7,13 @@ import { memoryChartRenderer } from "../chartRenderers/memoryChartRenderer";
 import { sessionChartRenderer } from "../chartRenderers/sessionChartRenderer";
 import type { GraphDataResponse } from "@/api/Dashboard/dashboard";
 import type { DashboardMode } from "@/state/DashboardContext";
+
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 /** 탭 타입 정의 */
 export type TabType = "main" | "cpu" | "memory" | "session" | "io" | "storage";
 

@@ -9,6 +9,13 @@ import DaysSelector from "@/components/Select/DaysSelector";
 import TimeInput from "@/components/Input/TimeInput";
 import LevelInput from "./LevelInput";
 import { useDashboardContext } from "@/state/DashboardContext";
+
+/*
+ ******************************************************************
+ 공동 작성자: 최영준, 오수경
+ ******************************************************************
+ */
+
 import {
   fetchMetricTemplatesByCategory,
   createPolicy,
@@ -171,7 +178,7 @@ const EventSettingPanel: React.FC<EventSettingPanelProps> = ({
   }): string | null => {
     if (levels.warning >= levels.danger) {
       return "주의 값은 위험 값보다 작아야 합니다.";
-    }
+    } 
     if (levels.danger >= levels.critical) {
       return "위험 값은 치명 값보다 작아야 합니다.";
     }

@@ -2,6 +2,12 @@ import React from "react";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 import LineChart from "@/components/Chart/LineChart";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface Props {
   data: SqlDetailData;
   date: string;

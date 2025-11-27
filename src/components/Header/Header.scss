@@ -1,3 +1,8 @@
+/*
+ ******************************************************************
+ 공동 작성자: 최영준, 오수경
+ ******************************************************************
+ */
 @use "@styles/variables" as *;
 @use "@/styles/_typography.scss" as *;
 @use "@styles/mixins" as *;
@@ -326,6 +331,10 @@
     margin-top: 2px;
     font-size: 20px;
     line-height: 1;
+
+    &--recovery {
+      color: #28a745; // 초록색 (RECOVERY)
+    }
 
     &--warning {
       color: #f59e0b; // 노란색 (WARNING)

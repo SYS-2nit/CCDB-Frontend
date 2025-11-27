@@ -18,6 +18,12 @@ import {
   type DashboardMode,
 } from "@/state/DashboardContext";
 
+/*
+ ******************************************************************
+ 공동 작성자: 오수경, 최온유
+ ******************************************************************
+ */
+
 import {
   fetchDashboardData,
   fetchAllGraphs,

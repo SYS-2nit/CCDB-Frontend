@@ -4,6 +4,12 @@ import Spinner from "@/components/Spinner/Spinner";
 import type { GraphData } from "../hooks/useSqlStat";
 import type { SqlFilterType } from "../../types";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface SqlStatChartProps {
   graphData: GraphData;
   isGraphLoading: boolean;

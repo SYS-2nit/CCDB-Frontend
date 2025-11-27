@@ -1,6 +1,12 @@
 import type { PlanHistoryItem } from "@/api/Sql/sql";
 import type { SqlDetailData } from "@/api/Sql/SqlDetailData";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 /* ===== SQL 필터 타입 ===== */
 export type SqlFilterType = 
   | "elapsed" 

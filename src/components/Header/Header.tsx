@@ -6,6 +6,12 @@ import HeaderRight from "./components/HeaderRight";
 import { useAlerts } from "./hooks/useAlerts";
 import { formatTimeAgo } from "./utils/timeFormatter";
 
+/*
+ ******************************************************************
+ 공동 작성자: 최영준, 오수경
+ ******************************************************************
+ */
+
 const Header: React.FC = () => {
   const [showAlertPanel, setShowAlertPanel] = useState(false);
 

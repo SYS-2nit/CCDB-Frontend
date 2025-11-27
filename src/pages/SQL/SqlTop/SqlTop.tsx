@@ -5,6 +5,12 @@ import { SqlTopSearch } from "./components/SqlTopSearch";
 import { SqlTopChart } from "./components/SqlTopChart";
 import { SqlTopTable } from "./components/SqlTopTable";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 const SqlTop = () => {
   const {
     startDate,

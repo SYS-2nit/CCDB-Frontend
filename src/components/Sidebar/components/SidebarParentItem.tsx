@@ -2,6 +2,12 @@ import React from "react";
 import BottomArrow from "@/assets/general/bottom-arrow.svg";
 import TopArrow from "@/assets/general/clicked-top-arrow.svg";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface Props {
   icon: string;
   label: string;

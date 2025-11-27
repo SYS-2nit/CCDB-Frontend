@@ -14,6 +14,12 @@ import {
   type MemberWidgetConfig,
 } from "@/api/Dashboard/dashboard";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 export type DashboardMode = "LIVE" | "10분" | "1시간" | "1일";
 
 export interface InstanceOption {

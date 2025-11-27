@@ -3,6 +3,12 @@ import { useDashboardContext } from "@/state/DashboardContext";
 
 const SELECTED_DB_STORAGE_KEY = "selectedDatabase";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 // DB 정보 로딩 및 변경 이벤트
 export const useDbInfo = () => {
   const { dbId, dbName, setDbInfo, clearGraphs, setInstances, selectInstance } =

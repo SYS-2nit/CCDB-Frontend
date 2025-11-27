@@ -1,3 +1,9 @@
+/*
+ ******************************************************************
+ 작성자: 최영준
+ ******************************************************************
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "../index";
 import type { ApiResponse } from "../types";
@@ -6,10 +12,11 @@ import type { ApiResponse } from "../types";
 
 export type AlertStatus = "PENDING" | "CLOSED";
 
-export type AlertLevel = 1 | 2 | 3; // 1: WARNING, 2: DANGER, 3: CRITICAL
+export type AlertLevel = 0 | 1 | 2 | 3; // 0: RECOVERY, 1: WARNING, 2: DANGER, 3: CRITICAL
 
 // AlertLevel enum (런타임에서 사용 가능)
 export const AlertLevelEnum = {
+  RECOVERY: 0,
   WARNING: 1,
   DANGER: 2,
   CRITICAL: 3,
@@ -690,15 +697,16 @@ export const fetchAlertStatistics = async (
     `${ALERTS_ENDPOINT}/statistics`,
     { params }
   );
-  return response.data.data ?? {
-    normal: 0,
-    normalChange: 0,
-    warning: 0,
-    warningChange: 0,
-    danger: 0,
-    dangerChange: 0,
-    critical: 0,
-    criticalChange: 0,
-  };
+  return (
+    response.data.data ?? {
+      normal: 0,
+      normalChange: 0,
+      warning: 0,
+      warningChange: 0,
+      danger: 0,
+      dangerChange: 0,
+      critical: 0,
+      criticalChange: 0,
+    }
+  );
 };
-

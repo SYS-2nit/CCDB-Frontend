@@ -3,6 +3,12 @@ import type { SqlStatsItem } from "@/api/Sql/sql";
 import type { SqlFilterType } from "../../types";
 import { getMetricValue } from "./metric";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 export interface RankData {
   rank: number;
   rankChanged: React.ReactNode;

@@ -1,7 +1,20 @@
 import { getCssVar } from "@/styles/utils/getCssVar";
 import type { ApexOptions } from "apexcharts";
-import React, { useRef, useEffect, useState, useMemo, useCallback, memo } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  memo,
+} from "react";
 import ReactApexChart from "react-apexcharts";
+
+/*
+ ******************************************************************
+ 공동 작성자: 오수경, 최온유
+ ******************************************************************
+ */
 
 interface ColorRule {
   min: number;
@@ -78,14 +91,8 @@ const StackChart: React.FC<StackChartProps> = ({
     () => labels.slice(0, stackCount),
     [labels, stackCount]
   );
-  const _usage = useMemo(
-    () => usage.slice(0, stackCount),
-    [usage, stackCount]
-  );
-  const _total = useMemo(
-    () => total.slice(0, stackCount),
-    [total, stackCount]
-  );
+  const _usage = useMemo(() => usage.slice(0, stackCount), [usage, stackCount]);
+  const _total = useMemo(() => total.slice(0, stackCount), [total, stackCount]);
 
   // 실제 값 모드면 percent 계산 건너뛰고 실제 값 사용
   const displayValues = useMemo(
@@ -125,74 +132,74 @@ const StackChart: React.FC<StackChartProps> = ({
 
   const options: ApexOptions = useMemo(
     () => ({
-    chart: {
-      type: "bar",
-      toolbar: { show: false },
-      background: "transparent",
-    },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        barHeight: "80%",
+      chart: {
+        type: "bar",
+        toolbar: { show: false },
+        background: "transparent",
       },
-    },
-    dataLabels: { enabled: false },
-    xaxis: {
-      categories: _labels,
-      // max: 100,
-      max: xMax ?? 100, // x축,y축 설정 변경
-      min: xMin ?? 0, // x축,y축 설정 변경
-      title: yaxisTitle
-        ? {
-            text: yaxisTitle,
-            style: {
-              color: "#555",
-              fontSize: "11px",
-              fontWeight: 600,
-            },
-          }
-        : {
-            text: undefined,
-            offsetX: 0,
-            offsetY: 0,
-            style: { fontSize: "0px" },
-          },
-      labels: {
-        style: { colors: "#888", fontSize: "10px" },
-        formatter: xAxisFormatter
-          ? (value: number) => xAxisFormatter(value)
-          : undefined,
-      },
-    },
-    yaxis: {
-      labels: {
-        style: { colors: "#555", fontSize: "10px", fontWeight: 500 },
-      },
-    },
-    grid: {
-      borderColor: "rgba(0,0,0,0.05)",
-      strokeDashArray: 3,
-    },
-    tooltip: {
-      theme: "light",
-      style: {
-        fontSize: "10px", // 툴팁 폰트 크기 조정 (기본값보다 작게)
-      },
-      y: {
-        formatter: (_, { dataPointIndex }) => {
-          const idx = dataPointIndex;
-          const used = _usage[idx];
-          const totalVal = _total[idx];
-          const percent = (used / totalVal) * 100;
-
-          if (tooltipFormatter) {
-            return tooltipFormatter({ used, total: totalVal, percent }, idx);
-          }
-          return `${used} / ${totalVal} (${percent.toFixed(1)}%)`;
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          barHeight: "80%",
         },
       },
-    },
-    legend: { show: false },
+      dataLabels: { enabled: false },
+      xaxis: {
+        categories: _labels,
+        // max: 100,
+        max: xMax ?? 100, // x축,y축 설정 변경
+        min: xMin ?? 0, // x축,y축 설정 변경
+        title: yaxisTitle
+          ? {
+              text: yaxisTitle,
+              style: {
+                color: "#555",
+                fontSize: "11px",
+                fontWeight: 600,
+              },
+            }
+          : {
+              text: undefined,
+              offsetX: 0,
+              offsetY: 0,
+              style: { fontSize: "0px" },
+            },
+        labels: {
+          style: { colors: "#888", fontSize: "10px" },
+          formatter: xAxisFormatter
+            ? (value: number) => xAxisFormatter(value)
+            : undefined,
+        },
+      },
+      yaxis: {
+        labels: {
+          style: { colors: "#555", fontSize: "10px", fontWeight: 500 },
+        },
+      },
+      grid: {
+        borderColor: "rgba(0,0,0,0.05)",
+        strokeDashArray: 3,
+      },
+      tooltip: {
+        theme: "light",
+        style: {
+          fontSize: "10px", // 툴팁 폰트 크기 조정 (기본값보다 작게)
+        },
+        y: {
+          formatter: (_, { dataPointIndex }) => {
+            const idx = dataPointIndex;
+            const used = _usage[idx];
+            const totalVal = _total[idx];
+            const percent = (used / totalVal) * 100;
+
+            if (tooltipFormatter) {
+              return tooltipFormatter({ used, total: totalVal, percent }, idx);
+            }
+            return `${used} / ${totalVal} (${percent.toFixed(1)}%)`;
+          },
+        },
+      },
+      legend: { show: false },
     }),
     [
       _labels,

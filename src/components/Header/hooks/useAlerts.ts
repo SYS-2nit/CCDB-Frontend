@@ -8,6 +8,12 @@ import {
   type EventResponse,
 } from "@/api/Alert/alerts";
 
+/*
+ ******************************************************************
+ 공동 작성자: 최영준, 오수경
+ ******************************************************************
+ */
+
 interface UseAlertsOptions {
   showPanel: boolean;
 }

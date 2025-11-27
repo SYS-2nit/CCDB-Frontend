@@ -1,6 +1,12 @@
 import React from "react";
 import "./MetricCard.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 export interface MetricData {
   title: string;
   value?: string | number;

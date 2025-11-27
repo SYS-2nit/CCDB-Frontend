@@ -1,6 +1,12 @@
 import React, { memo } from "react";
 import "./StatusCard.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface StatusCardProps {
   label: string;
   value: number | string;

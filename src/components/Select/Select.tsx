@@ -2,6 +2,12 @@ import React from "react";
 import clsx from "clsx";
 import "./Select.scss";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface SelectProps {
   placeholder?: string;
   label?: string;

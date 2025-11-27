@@ -2,6 +2,12 @@ import type { ApexOptions } from "apexcharts";
 import React, { useMemo, memo } from "react";
 import ReactApexChart from "react-apexcharts";
 
+/*
+ ******************************************************************
+ 작성자: 오수경
+ ******************************************************************
+ */
+
 interface GaugeChartProps {
   value?: number;
   label?: string;
