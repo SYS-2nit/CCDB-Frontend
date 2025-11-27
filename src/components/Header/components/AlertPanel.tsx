@@ -129,7 +129,10 @@ const AlertPanel = ({
               let icon = "⚠️";
               let severityClass = "alert-item__icon--warning"; // 기본 노란색 (WARNING)
 
-              if (alert.severity === 2) {
+              if (alert.severity === 0) {
+                icon = "✅";
+                severityClass = "alert-item__icon--recovery"; // 초록색 (RECOVERY)
+              } else if (alert.severity === 2) {
                 icon = "⚠️";
                 severityClass = "alert-item__icon--danger"; // 주황색 (DANGER)
               } else if (alert.severity === 3) {

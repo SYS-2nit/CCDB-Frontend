@@ -43,10 +43,11 @@ const AlertTable: React.FC<AlertTableProps> = ({
 
   // 심각도 DOT 컴포넌트
   const SeverityDot: React.FC<{ severity: AlertLevel }> = ({ severity }) => {
-    const colorMap: Record<AlertLevel, "yellow" | "red" | "black"> = {
-      1: "yellow",
-      2: "red",
-      3: "black",
+    const colorMap: Record<AlertLevel, "green" | "yellow" | "red" | "black"> = {
+      0: "green",  // 복구: 초록색
+      1: "yellow", // 주의: 노란색
+      2: "red",    // 위험: 빨간색
+      3: "black",  // 치명: 검은색
     };
     return (
       <span className={`severity-dot severity-dot--${colorMap[severity]}`} />
@@ -55,6 +56,7 @@ const AlertTable: React.FC<AlertTableProps> = ({
 
   // 심각도 텍스트 매핑
   const severityTextMap: Record<AlertLevel, string> = {
+    0: "복구",
     1: "주의",
     2: "위험",
     3: "치명",

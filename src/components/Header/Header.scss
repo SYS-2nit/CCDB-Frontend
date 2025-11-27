@@ -327,6 +327,10 @@
     font-size: 20px;
     line-height: 1;
 
+    &--recovery {
+      color: #28a745; // 초록색 (RECOVERY)
+    }
+
     &--warning {
       color: #f59e0b; // 노란색 (WARNING)
     }
