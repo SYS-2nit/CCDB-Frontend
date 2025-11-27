@@ -1,3 +1,8 @@
+/*
+ ******************************************************************
+ 작성자: 배지원
+ ******************************************************************
+ */
 import api from "../../api/index";
 import type { ScenarioMeta, RunRequest, RunStatus } from "./types";
 import type { ApiResponse } from "../../api/types";
